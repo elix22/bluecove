@@ -45,7 +45,7 @@ public class RemoteDevice {
 	 */
 
 	protected RemoteDevice(String address) {
-		this.address = Long.parseLong(address, 16);
+		this.address = Long.parseLong(address);
 	}
 
 	/*
@@ -75,7 +75,7 @@ public class RemoteDevice {
 
 	public String getFriendlyName(boolean alwaysAsk) throws IOException {
 		if (alwaysAsk || name == null || name.equals("")) {
-			name = LocalDevice.getLocalDevice().getBluetoothPeer().getpeername(address);
+			name = LocalDevice.getLocalDevice().getBluetoothPeer().getdevicename(address);
 		}
 		return name;
 	}

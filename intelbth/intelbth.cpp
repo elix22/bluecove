@@ -886,7 +886,7 @@ WCHAR *GetWSAErrorMessage(DWORD last_error)
 * Method:    getsockname
 * Signature: (I)Ljava/lang/String;
 */
-JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothPeer_getpeername(JNIEnv *env, jobject peer, jlong addr)
+JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothPeer_getdevicename(JNIEnv *env, jobject peer, jlong addr)
 {
 	WSAQUERYSET querySet;
 	memset(&querySet, 0, sizeof(querySet));
@@ -957,32 +957,4 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress(JN
 		return 0;
 	}
 	return addr.btAddr;
-}
-
-JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothPeer_getradioname(JNIEnv *env, jobject peer, jlong address)
-{
-	HANDLE hRadio;
-	BLUETOOTH_FIND_RADIO_PARAMS btfrp = { sizeof(btfrp) };
-	HBLUETOOTH_RADIO_FIND hFind = BluetoothFindFirstRadio( &btfrp, &hRadio );
-
-	if ( NULL != hFind )
-	{
-		do
-		{
-			BLUETOOTH_RADIO_INFO radioInfo;
-
-			radioInfo.dwSize = sizeof(radioInfo);
-
-			if (ERROR_SUCCESS == BluetoothGetRadioInfo(hRadio, &radioInfo))
-			{
-				if (radioInfo.address.ullLong == address) {
-					BluetoothFindRadioClose(hFind);
-					return env->NewString((jchar*)radioInfo.szName, (jsize) wcslen(radioInfo.szName));
-				}
-			}
-		} while( BluetoothFindNextRadio( hFind, &hRadio ) );
-		BluetoothFindRadioClose( hFind );
-	}
-
-	return NULL;
 }

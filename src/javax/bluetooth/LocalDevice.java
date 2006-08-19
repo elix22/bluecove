@@ -33,9 +33,7 @@ public class LocalDevice {
 
 	private DiscoveryAgent discoveryAgent;
 
-	private String address;
-	
-	private long bluetoothAddress;
+	private String bluetoothAddress;
 
 	private LocalDevice() {
 		bluetoothPeer = new BluetoothPeer();
@@ -44,18 +42,17 @@ public class LocalDevice {
 
 		try {
 			int socket = bluetoothPeer.socket(false, false);
-			
-			bluetoothAddress = bluetoothPeer.getsockaddress(socket);
 
-			address = Long.toHexString(bluetoothAddress);
+			bluetoothAddress = Long.toHexString(bluetoothPeer
+					.getsockaddress(socket));
 
 			bluetoothPeer.close(socket);
 		} catch (IOException e) {
-			address = "";
+			bluetoothAddress = "";
 		}
 
-		address = "000000000000".substring(address.length())
-				+ address;
+		bluetoothAddress = "000000000000".substring(bluetoothAddress.length())
+				+ bluetoothAddress;
 	}
 
 	public BluetoothPeer getBluetoothPeer() {
@@ -95,7 +92,7 @@ public class LocalDevice {
 	 */
 
 	public String getFriendlyName() {
-		return bluetoothPeer.getradioname(bluetoothAddress);
+		return null;
 	}
 
 	/*
@@ -203,7 +200,7 @@ public class LocalDevice {
 	 */
 
 	public String getBluetoothAddress() {
-		return address;
+		return bluetoothAddress;
 	}
 
 	/*

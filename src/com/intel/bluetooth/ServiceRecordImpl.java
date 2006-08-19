@@ -79,7 +79,7 @@ public class ServiceRecordImpl implements ServiceRecord {
 	 */
 
 	public DataElement getAttributeValue(int attrID) {
-		if (attrID < 0x0000 || attrID > 0xffff)
+		if (attrID < 0x0000 || attrID >= 0xffff)
 			throw new IllegalArgumentException();
 
 		return (DataElement) attributes.get(new Integer(attrID));

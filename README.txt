@@ -1,8 +1,31 @@
-BlueCove
---------
+Blue Cove
+---------
 
-For a quick start, build with ant and build dll in /intelbth/ with Visual Studio
+Blue Cove is an open source implementation of the JSR-82 Bluetooth API for Java,
+targetted at desktop (J2SE) platforms.
 
-Otherwise, read documentation
+At present only a subset of the API is implemented. 
 
-For licensing, check LICENSE
+We current support the Microsoft Bluetooth stack for Windows XP Service Pack 2.
+For instructions on how to install this stack prior to the release of Service
+Pack 2, see http://eben.phlegethon.org/bluetooth.html
+
+To install, place intelbth.dll in your library path (e.g. C:\WINDOWS\SYSTEM32),
+and BlueCove.jar in your classpath. You will then be able to compile and run the
+following test applications.
+
+ServerTest
+----------
+
+Creates and advertises a Bluetooth service with a specified name. When a device
+connects to this service, reads a UTF-8 string, prints it on the screen, and
+terminates.
+
+ClientTest
+----------
+
+Connects to every nearby instance of ServerTest, and writes a specified UTF-8
+string to each.
+
+See LICENSE for licensing information. Comments, queries and suggestions to
+bluecove-devel@lists.sourceforge.com.
