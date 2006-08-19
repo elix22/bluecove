@@ -22,11 +22,3 @@
 2006-03-07 Paul Tötterman
 
 * javax.bluetooth.LocalDevice.getFriendlyName(): Now returns a real name
-
-2006-05-02 Paul Tötterman
-
-* Reorganized documentation. Plaintext document now used to create webpage.
-
-2006-06-05 Paul Tötterman
-
-* Fixed two bugs. New release.

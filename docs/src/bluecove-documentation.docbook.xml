@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<article>
+  <title>Bluecove documentation</title>
+
+  <abstract>
+    <para><author>
+        <surname>Author : Denis Labaye</surname>
+      </author></para>
+  </abstract>
+
+  <section>
+    <title>Introduction</title>
+
+    <para>This document explain how to use Bluecove to developpe a client /
+    server application involving a pc and a mobile device.</para>
+  </section>
+
+  <section>
+    <title>Requirements</title>
+
+    <section>
+      <title>Windows XP SP2</title>
+
+      <para>Q : How do I know my version of Windows ?</para>
+
+      <para>A : Start/run : type : <computeroutput>winver
+      [ENTER]</computeroutput></para>
+
+      <figure>
+        <title></title>
+
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/01.gif" />
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+
+      <para>You have to see : Windows XP SP2</para>
+
+      <figure>
+        <title></title>
+
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/02.gif" />
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </section>
+
+    <section>
+      <title>Microsoft Bluetooth Stack installed</title>
+
+      <para>Q : How do I know if the Microsoft Bluetooth stack is installed ?
+      A : todo</para>
+    </section>
+
+    <section>
+      <title>J2SE SDK 1.4 or above installed</title>
+
+      <para>Download and install it at <ulink
+      url="http://java.sun.com">http://java.sun.com</ulink></para>
+    </section>
+
+    <section>
+      <title>J2ME SDK 2 or above installed</title>
+
+      <para>Download and install it at <ulink
+      url="???">http://java.sun.com</ulink></para>
+    </section>
+
+    <section>
+      <title>A Bluetooth enabled device</title>
+
+      <para>The device has to have JSR82 implemented.</para>
+
+      <para>I am using a Nokia mobile phone 6600 (firmware version : V 5.27.0
+      28-06-04 NHL-10), to know your firmware version type :
+      <computeroutput>*#0000#</computeroutput> (Nokia only I think). If it
+      works with your another devices please tell me.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Installation and running</title>
+
+    <para></para>
+
+    <section>
+      <title>Bluecove</title>
+
+      <para>This will act as a bridge between you J2SE server apps running on
+      the pc side and the Windows Bluetooth stack.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Download Bluecove at <ulink
+          url="http://sourceforge.net/projects/bluecove/">http://sourceforge.net/projects/bluecove/</ulink></para>
+        </listitem>
+
+        <listitem>
+          <para>Unpack the
+          <computeroutput>BlueCoveddmmyyyy.zip</computeroutput> in
+          <computeroutput>$BLUECOVE_DIR</computeroutput>.</para>
+        </listitem>
+
+        <listitem>
+          <para>Put
+          <computeroutput>$BLUECOVE_DIR/BlueCoveWinXP/intelbth.dll</computeroutput>
+          in <computeroutput>c:/windows/system32</computeroutput></para>
+        </listitem>
+
+        <listitem>
+          <para>Create a directory for the example, we will call it
+          <computeroutput>$BLUECOVE_EXAMPLE</computeroutput></para>
+        </listitem>
+
+        <listitem>
+          <para>Put
+          <computeroutput>$BLUECOVE_DIR/BlueCoveWinXP/dist/lib/BlueCove-20050514.jar</computeroutput>
+          in <computeroutput>$BLUECOVE_EXAMPLE</computeroutput></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Benhui spp server example</title>
+
+      <para>This is an example of a server in J2SE running on the pc
+      side.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Dowload it at <ulink
+          url="http://www.benhui.net/modules/Bluetooth/bluecove/net_benhui_bluecove_spp_examples_Nov_2004.zip">http://www.benhui.net/modules/Bluetooth/bluecove/net_benhui_bluecove_spp_examples_Nov_2004.zip</ulink></para>
+        </listitem>
+
+        <listitem>
+          <para>Unpack the file in
+          <computeroutput>$BENHUI_BLUECOVE</computeroutput></para>
+        </listitem>
+
+        <listitem>
+          <para>Copy <computeroutput>$BENHUI_BLUECOVE/classes</computeroutput>
+          in <computeroutput>$BLUECOVE_EXAMPLE</computeroutput></para>
+        </listitem>
+
+        <listitem>
+          <para>Run a command line : <programlisting>cd $BLUECOVE_EXAMPLE
+java -classpath BlueCove-20050514.jar;classes net.benhui.bluecove.spp_console.SPP_Main</programlisting><figure>
+              <title></title>
+
+              <screenshot>
+                <mediaobject>
+                  <imageobject>
+                    <imagedata fileref="images/03.gif" />
+                  </imageobject>
+                </mediaobject>
+              </screenshot>
+            </figure></para>
+
+          <para>Type <computeroutput>0 [enter]</computeroutput> to start the
+          server</para>
+
+          <figure>
+            <title></title>
+
+            <screenshot>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/04.gif" />
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Benhui BT gallery</title>
+
+      <para>This contains a MIDLET application that will run on the mobile
+      side as a client.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Download it at : <computeroutput><ulink
+          url="http://www.benhui.net/modules/Bluetooth/codegallery/net_benhui_btgallery_oct2004.zip">http://www.benhui.net/modules/Bluetooth/codegallery/net_benhui_btgallery_oct2004.zip</ulink></computeroutput></para>
+        </listitem>
+
+        <listitem>
+          <para>Compile the MIDLET example (todo).</para>
+        </listitem>
+
+        <listitem>
+          <para>Put the MIDLET in your mobile device using you're software
+          provided with it (in my case Nokia PC Suite).</para>
+        </listitem>
+
+        <listitem>
+          <para>Run the BtGalleryExample MIDLET from your mobile phone.</para>
+        </listitem>
+
+        <listitem>
+          <para>Select "Run Serial Client"</para>
+        </listitem>
+
+        <listitem>
+          <para>Wait for device discovering</para>
+        </listitem>
+
+        <listitem>
+          <para>Select the name of your pc running the server (option /
+          select)</para>
+        </listitem>
+
+        <listitem>
+          <para>Your mobile phone will ask you if you authorise the
+          application to use the bluetooth connection : Answer yes</para>
+        </listitem>
+
+        <listitem>
+          <para>Now your pc and your mobile device should have talked
+          together</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+
+  <section>
+    <title>References</title>
+
+    <para>Go to Benhui site to find a great deal of informations about
+    Bluetooth and PC / mobile communication : <ulink
+    url="http://www.benhui.net/modules.php?name=Bluetooth">http://www.benhui.net/modules.php?name=Bluetooth</ulink></para>
+  </section>
+</article>

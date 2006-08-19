@@ -45,7 +45,7 @@ public class RemoteDevice {
 	 */
 
 	protected RemoteDevice(String address) {
-		this.address = Long.parseLong(address, 16);
+		this.address = Long.parseLong(address);
 	}
 
 	/*
