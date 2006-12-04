@@ -20,13 +20,26 @@
 
 package javax.microedition.io;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.StringTokenizer;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import javax.bluetooth.UUID;
+import com.intel.bluetooth.MicroeditionConnector;
 
-import com.intel.bluetooth.BluetoothConnection;
-import com.intel.bluetooth.BluetoothStreamConnectionNotifier;
+/**
+ * 
+ * This class delegated all calls to MicroeditionConnector
+ * 
+ * 1) Solves Bytecode comatibilty problems. Application compiled with
+ * bluecove.jar should run on java me platform.
+ * 
+ * 2) Use standard Protocol initialization to enable integration in other environments.
+ * 
+ * vlads changes: Move Original code to MicroeditionConnector
+ * 
+ */
 
 public class Connector {
 	/*
@@ -47,6 +60,10 @@ public class Connector {
 
 	public static final int READ_WRITE = 3;
 
+	private Connector() {
+		
+	}
+	
 	/*
 	 * Create and open a Connection. Parameters: name - The URL for the
 	 * connection. Returns: A new Connection object. Throws:
@@ -57,74 +74,8 @@ public class Connector {
 	 * handler is not permitted.
 	 */
 
-	private static String[] params = { "authenticate", "encrypt", "master",
-			"name" };
-
 	public static Connection open(String name) throws IOException {
-		/*
-		 * parse URL
-		 */
-
-		String host = null;
-		String port = null;
-
-		String[] values = new String[4];
-
-		if (name.substring(0, 8).equals("btspp://")) {
-			int colon = name.indexOf(':', 8);
-
-			if (colon > -1) {
-				host = name.substring(8, colon);
-
-				StringTokenizer tok = new StringTokenizer(name
-						.substring(colon + 1), ";");
-
-				if (tok.hasMoreTokens()) {
-					port = tok.nextToken();
-
-					while (tok.hasMoreTokens()) {
-						String t = tok.nextToken();
-
-						int equals = t.indexOf('=');
-
-						if (equals > -1) {
-							String param = t.substring(0, equals);
-							String value = t.substring(equals + 1);
-
-							for (int i = 0; i < 4; i++)
-								if (param.equals(params[i])) {
-									values[i] = value;
-
-									break;
-								}
-						}
-					}
-				}
-			}
-		} else
-			throw new ConnectionNotFoundException();
-
-		if (host == null || port == null)
-			throw new IllegalArgumentException();
-
-		/*
-		 * create connection
-		 */
-
-		try {
-			if (host.equals("localhost"))
-				return new BluetoothStreamConnectionNotifier(new UUID(port,
-						false), values[0] != null && values[0].equals("true"),
-						values[1] != null && values[1].equals("true"),
-						values[3]);
-			else
-				return new BluetoothConnection(Long.parseLong(host, 16),
-						Integer.parseInt(port), values[0] != null
-								&& values[0].equals("true"), values[1] != null
-								&& values[1].equals("true"));
-		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException();
-		}
+		return MicroeditionConnector.open(name);
 	}
 
 	/*
@@ -138,7 +89,7 @@ public class Connector {
 	 */
 
 	public static Connection open(String name, int mode) throws IOException {
-		return open(name);
+		return MicroeditionConnector.open(name, mode);
 	}
 
 	/*
@@ -151,10 +102,11 @@ public class Connector {
 	 * kind of I/O error occurs. SecurityException - If a requested protocol
 	 * handler is not permitted.
 	 */
-	/*
-	 * public static Connection open(String name, int mode, boolean timeouts)
-	 * throws IOException { }
-	 */
+
+	public static Connection open(String name, int mode, boolean timeouts) throws IOException {
+		return MicroeditionConnector.open(name, mode, timeouts);
+	}
+
 	/*
 	 * Create and open a connection input stream. Parameters: name - The URL for
 	 * the connection. Returns: A DataInputStream. Throws:
@@ -163,10 +115,11 @@ public class Connector {
 	 * java.io.IOException - If some other kind of I/O error occurs.
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
-	/*
-	 * public static DataInputStream openDataInputStream(String name) throws
-	 * IOException { return new DataInputStream(openInputStream(name)); }
-	 */
+
+	public static DataInputStream openDataInputStream(String name) throws IOException {
+		return MicroeditionConnector.openDataInputStream(name);
+	}
+
 	/*
 	 * Create and open a connection output stream. Parameters: name - The URL
 	 * for the connection. Returns: A DataOutputStream. Throws:
@@ -175,10 +128,11 @@ public class Connector {
 	 * java.io.IOException - If some other kind of I/O error occurs.
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
-	/*
-	 * public static DataOutputStream openDataOutputStream(String name) throws
-	 * IOException { return new DataOutputStream(openOutputStream(name)); }
-	 */
+
+	public static DataOutputStream openDataOutputStream(String name) throws IOException {
+		return MicroeditionConnector.openDataOutputStream(name);
+	}
+
 	/*
 	 * Create and open a connection input stream. Parameters: name - The URL for
 	 * the connection. Returns: An InputStream. Throws: IllegalArgumentException -
@@ -187,9 +141,11 @@ public class Connector {
 	 * I/O error occurs. SecurityException - If access to the requested stream
 	 * is not permitted.
 	 */
-	/*
-	 * public static InputStream openInputStream(String name) throws IOException { }
-	 */
+
+	public static InputStream openInputStream(String name) throws IOException {
+		return MicroeditionConnector.openInputStream(name);
+	}
+
 	/*
 	 * Create and open a connection output stream. Parameters: name - The URL
 	 * for the connection. Returns: An OutputStream. Throws:
@@ -198,8 +154,8 @@ public class Connector {
 	 * java.io.IOException - If some other kind of I/O error occurs.
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
-	/*
-	 * public static OutputStream openOutputStream(String name) throws
-	 * IOException { }
-	 */
+
+	public static OutputStream openOutputStream(String name) throws IOException {
+		return MicroeditionConnector.openOutputStream(name);
+	}
 }
