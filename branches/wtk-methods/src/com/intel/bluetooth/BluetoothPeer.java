@@ -27,6 +27,7 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
 public class BluetoothPeer {
+	
 	static {
 		System.loadLibrary("intelbth");
 	}

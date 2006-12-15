@@ -27,6 +27,7 @@ import com.intel.bluetooth.BluetoothPeer;
 import com.intel.bluetooth.BluetoothStreamConnectionNotifier;
 
 public class LocalDevice {
+	
 	private static LocalDevice localDevice;
 
 	private BluetoothPeer bluetoothPeer;

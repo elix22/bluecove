@@ -29,6 +29,7 @@ import javax.bluetooth.LocalDevice;
 import javax.microedition.io.StreamConnection;
 
 public class BluetoothConnection implements StreamConnection {
+	
 	int socket;
 
 	long address;

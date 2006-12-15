@@ -22,6 +22,7 @@ package javax.bluetooth;
 import java.io.IOException;
 
 import com.intel.bluetooth.BluetoothConnection;
+import com.intel.bluetooth.DebugLog;
 
 public class RemoteDevice {
 	private String name;
@@ -29,6 +30,7 @@ public class RemoteDevice {
 	long address;
 
 	RemoteDevice(String name, long address) {
+		DebugLog.debug("new RemoteDevice", name);
 		this.name = name;
 		this.address = address;
 	}
@@ -45,6 +47,7 @@ public class RemoteDevice {
 	 */
 
 	protected RemoteDevice(String address) {
+		DebugLog.debug("new RemoteDevice", address);
 		this.address = Long.parseLong(address, 16);
 	}
 

@@ -55,7 +55,9 @@ public class StandaloneTest {
 	        inquiring=true;
 	        return true;
 	    }
+	    
         public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
+        	System.out.println("deviceDiscovered");
             StringBuffer name;
             try {
                 name=new StringBuffer(btDevice.getFriendlyName(true));
