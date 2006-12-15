@@ -142,7 +142,7 @@ public class MicroeditionConnector {
 
 	public static Connection open(String name, int mode, boolean timeouts)
 			throws IOException {
-		throw new NotImplementedIOException();
+		return open(name);
 	}
 
 	/*
