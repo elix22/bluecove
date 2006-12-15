@@ -29,7 +29,7 @@ import javax.bluetooth.UUID;
 public class BluetoothPeer {
 	
 	static {
-		System.loadLibrary("intelbth");
+		NativeLibLoader.isAvailable();
 	}
 
 	class InquiryThread extends Thread {

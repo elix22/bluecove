@@ -79,6 +79,12 @@
         <outputDirectory>build</outputDirectory>
         <!--testOutputDirectory></testOutputDirectory-->
 
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+        </resources>
+
         <defaultGoal>install</defaultGoal>
 
         <plugins>

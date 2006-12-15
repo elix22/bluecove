@@ -41,6 +41,12 @@ public class DebugLog {
 			System.out.println(message + " " + v);
 		}
 	}
+
+	public static void debug(String message, Object obj) {
+		if (!debugCompiledOut && isDebugEnabled()) {
+			System.out.println(message + " " + obj.toString());
+		}
+	}
 	
 	public static void debug(String message, String v, String v2) {
 		if (!debugCompiledOut && isDebugEnabled()) {
