@@ -9,7 +9,8 @@ import com.sun.cdc.io.ConnectionBaseInterface;
 
 public class Protocol implements ConnectionBaseInterface {
 
-	public Connection openPrim(String name, int mode, boolean timeouts) throws IOException {
+	public Connection openPrim(String name, int mode, boolean timeouts)
+			throws IOException {
 		return MicroeditionConnector.open("btspp:" + name, mode, timeouts);
 	}
 

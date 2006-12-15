@@ -193,8 +193,8 @@ public class DiscoveryAgent {
 	 * if the service search transaction is terminated, else false if the
 	 * transID does not represent an active service search transaction
 	 */
-	
-	public boolean cancelServiceSearch(int transID) { 
+
+	public boolean cancelServiceSearch(int transID) {
 		throw new Error("Not Implemented");
 	}
 

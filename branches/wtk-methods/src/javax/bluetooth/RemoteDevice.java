@@ -75,7 +75,8 @@ public class RemoteDevice {
 
 	public String getFriendlyName(boolean alwaysAsk) throws IOException {
 		if (alwaysAsk || name == null || name.equals("")) {
-			name = LocalDevice.getLocalDevice().getBluetoothPeer().getpeername(address);
+			name = LocalDevice.getLocalDevice().getBluetoothPeer().getpeername(
+					address);
 		}
 		return name;
 	}
@@ -138,7 +139,8 @@ public class RemoteDevice {
 
 		if (!(conn instanceof BluetoothConnection))
 			throw new IllegalArgumentException("Not a Bluetooth connection");
-		return new RemoteDevice("", ((BluetoothConnection)conn).getRemoteAddress());
+		return new RemoteDevice("", ((BluetoothConnection) conn)
+				.getRemoteAddress());
 	}
 
 	/*

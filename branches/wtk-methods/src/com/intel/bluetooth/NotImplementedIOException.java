@@ -9,5 +9,5 @@ public class NotImplementedIOException extends IOException {
 	public NotImplementedIOException() {
 		super("Not Implemented");
 	}
-	
+
 }

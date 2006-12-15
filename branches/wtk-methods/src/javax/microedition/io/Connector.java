@@ -35,7 +35,8 @@ import com.intel.bluetooth.MicroeditionConnector;
  * 1) Solves Bytecode comatibilty problems. Application compiled with
  * bluecove.jar should run on java me platform.
  * 
- * 2) Use standard Protocol initialization to enable integration in other environments.
+ * 2) Use standard Protocol initialization to enable integration in other
+ * environments.
  * 
  * vlads changes: Move Original code to MicroeditionConnector
  * 
@@ -61,9 +62,9 @@ public class Connector {
 	public static final int READ_WRITE = 3;
 
 	private Connector() {
-		
+
 	}
-	
+
 	/*
 	 * Create and open a Connection. Parameters: name - The URL for the
 	 * connection. Returns: A new Connection object. Throws:
@@ -103,7 +104,8 @@ public class Connector {
 	 * handler is not permitted.
 	 */
 
-	public static Connection open(String name, int mode, boolean timeouts) throws IOException {
+	public static Connection open(String name, int mode, boolean timeouts)
+			throws IOException {
 		return MicroeditionConnector.open(name, mode, timeouts);
 	}
 
@@ -116,7 +118,8 @@ public class Connector {
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
 
-	public static DataInputStream openDataInputStream(String name) throws IOException {
+	public static DataInputStream openDataInputStream(String name)
+			throws IOException {
 		return MicroeditionConnector.openDataInputStream(name);
 	}
 
@@ -129,7 +132,8 @@ public class Connector {
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
 
-	public static DataOutputStream openDataOutputStream(String name) throws IOException {
+	public static DataOutputStream openDataOutputStream(String name)
+			throws IOException {
 		return MicroeditionConnector.openDataOutputStream(name);
 	}
 

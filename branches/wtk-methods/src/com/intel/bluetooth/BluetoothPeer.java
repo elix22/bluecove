@@ -170,10 +170,10 @@ public class BluetoothPeer {
 			throws IOException;
 
 	public native void close(int socket) throws IOException;
-	
+
 	public native String getpeername(long address) throws IOException;
 
 	public native long getpeeraddress(int socket) throws IOException;
-	
+
 	public native String getradioname(long address);
 }

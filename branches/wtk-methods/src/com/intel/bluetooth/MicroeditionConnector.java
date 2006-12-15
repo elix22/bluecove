@@ -13,8 +13,8 @@ import javax.microedition.io.ConnectionNotFoundException;
 
 /**
  * 
- * This is renamed class javax.microedition.io.Connector 
- *
+ * This is renamed class javax.microedition.io.Connector
+ * 
  */
 public class MicroeditionConnector {
 	/*
@@ -140,11 +140,11 @@ public class MicroeditionConnector {
 	 * handler is not permitted.
 	 */
 
-	 public static Connection open(String name, int mode, boolean timeouts)
-	 	throws IOException { 
-		 throw new NotImplementedIOException(); 
-	 }
-	 
+	public static Connection open(String name, int mode, boolean timeouts)
+			throws IOException {
+		throw new NotImplementedIOException();
+	}
+
 	/*
 	 * Create and open a connection input stream. Parameters: name - The URL for
 	 * the connection. Returns: A DataInputStream. Throws:
@@ -154,12 +154,11 @@ public class MicroeditionConnector {
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
 
-	 public static DataInputStream openDataInputStream(String name) throws
-	 IOException { 
-		 return new DataInputStream(openInputStream(name)); 
-	 }
-	 
-	 
+	public static DataInputStream openDataInputStream(String name)
+			throws IOException {
+		return new DataInputStream(openInputStream(name));
+	}
+
 	/*
 	 * Create and open a connection output stream. Parameters: name - The URL
 	 * for the connection. Returns: A DataOutputStream. Throws:
@@ -169,10 +168,10 @@ public class MicroeditionConnector {
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
 
-	 public static DataOutputStream openDataOutputStream(String name) throws
-	 	IOException { 
-		 return new DataOutputStream(openOutputStream(name)); 
-	 }
+	public static DataOutputStream openDataOutputStream(String name)
+			throws IOException {
+		return new DataOutputStream(openOutputStream(name));
+	}
 
 	/*
 	 * Create and open a connection input stream. Parameters: name - The URL for
@@ -182,10 +181,10 @@ public class MicroeditionConnector {
 	 * I/O error occurs. SecurityException - If access to the requested stream
 	 * is not permitted.
 	 */
-	
-	 public static InputStream openInputStream(String name) throws IOException {
-		 throw new NotImplementedIOException();
-	 }
+
+	public static InputStream openInputStream(String name) throws IOException {
+		throw new NotImplementedIOException();
+	}
 
 	/*
 	 * Create and open a connection output stream. Parameters: name - The URL
@@ -196,8 +195,7 @@ public class MicroeditionConnector {
 	 * SecurityException - If access to the requested stream is not permitted.
 	 */
 
-	public static OutputStream openOutputStream(String name) throws
-		IOException { 
+	public static OutputStream openOutputStream(String name) throws IOException {
 		throw new NotImplementedIOException();
 	}
 
