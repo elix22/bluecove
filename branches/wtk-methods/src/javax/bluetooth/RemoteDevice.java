@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import com.intel.bluetooth.BluetoothConnection;
 import com.intel.bluetooth.DebugLog;
+import com.intel.bluetooth.NotImplementedError;
 
 public class RemoteDevice {
 	private String name;
@@ -271,8 +272,7 @@ public class RemoteDevice {
 	 */
 
 	public boolean isAuthenticated() {
-		// TODO not yet implemented
-		return false;
+		throw new NotImplementedError();
 	}
 
 	/*

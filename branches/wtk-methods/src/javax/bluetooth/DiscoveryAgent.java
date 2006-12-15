@@ -20,6 +20,8 @@
 
 package javax.bluetooth;
 
+import com.intel.bluetooth.NotImplementedError;
+
 public class DiscoveryAgent {
 	/*
 	 * Takes the device out of discoverable mode. The value of NOT_DISCOVERABLE
@@ -195,7 +197,7 @@ public class DiscoveryAgent {
 	 */
 
 	public boolean cancelServiceSearch(int transID) {
-		throw new Error("Not Implemented");
+		throw new NotImplementedError();
 	}
 
 	/*
