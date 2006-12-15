@@ -89,6 +89,7 @@ Links
 - [bluecove-users mailing list][bluecove-users]
 - [bluecove-developers mailing list][bluecove-developers]
 - [bluecove-commits mailing list][bluecove-commits]
+- [bluecove-issues mailing list][bluecove-issues]
 - [Changelog][]
 - [BlueCove Subversion repository][repository]
 - [BlueCove SourceForge.net project page][sourceforge-page]
@@ -109,6 +110,7 @@ Links
 [bluecove-users]: http://groups.google.com/group/bluecove-users
 [bluecove-developers]: http://groups.google.com/group/bluecove-developers
 [bluecove-commits]: http://groups.google.com/group/bluecove-commits
+[bluecove-issues]: http://groups.google.com/group/bluecove-issues
 [changelog]: http://bluecove.googlecode.com/svn/trunk/changelog.txt
 [repository]: http://bluecove.googlecode.com/svn/
 [sourceforge-page]: http://sourceforge.net/projects/bluecove/

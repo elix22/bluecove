@@ -38,18 +38,18 @@
         <jar jarfile="${dist}/bluecove-${product-version}.jar" basedir="${build}">
             <manifest>
                 <attribute name="Description" value="BlueCove JSR-82 implementation"/>
-				<attribute name="License" value="GNU Library or Lesser General Public License (LGPL)"/>
-				<attribute name="Built-By" value="${user.name}"/>
+                <attribute name="License" value="GNU Library or Lesser General Public License (LGPL)"/>
+                <attribute name="Built-By" value="${user.name}"/>
                 <attribute name="Implementation-Version" value="${product-version}"/>
                 <attribute name="Build-Date" value="${today}"/>
-				<attribute name="Built-Env"   value="${os.name} ${os.version} ${os.arch}, Java ${java.version}"/>
-			</manifest>
-			<fileset dir="${build}">
-				<include name="**/*.class"/>
-			</fileset>
-			<fileset dir=".">
-				<include name="LICENSE"/>
-			</fileset>
+                <attribute name="Built-Env"   value="${os.name} ${os.version} ${os.arch}, Java ${java.version}"/>
+            </manifest>
+            <fileset dir="${build}">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir=".">
+                <include name="LICENSE"/>
+            </fileset>
         </jar>
     </target>
 
@@ -61,5 +61,4 @@
     </target>
 
     <target name="all" depends="clean, jar"/>
-
 </project>

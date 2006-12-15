@@ -44,7 +44,7 @@
                 <role>architect</role>
                 <role>developer</role>
             </roles>
-            <timezone>+1</timezone>
+            <timezone>+2</timezone>
         </developer>
     </developers>
 
@@ -85,15 +85,12 @@
                     <archive>
                         <manifestEntries>
                             <Description>BlueCove JSR-82 implementation</Description>
-				            <License>GNU Library or Lesser General Public License (LGPL)</License>
+                            <License>GNU Library or Lesser General Public License (LGPL)</License>
                             <Implementation-Version>${pom.version}</Implementation-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
         </plugins>
-
-
     </build>
-
 </project>
