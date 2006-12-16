@@ -32,13 +32,17 @@ public class NativeLibLoader {
             return libraryAvailable;
         }
         
+        String path = System.getProperty("bluecove.native.path");
+        if (path != null) {
+        	libraryAvailable = tryloadPath(path, libFileName);
+        }
         boolean useResource = true;
         String d = System.getProperty("bluecove.native.resource");
         if ((d != null) && (d.equalsIgnoreCase("false"))) {
         	useResource = false;
         }
 
-        if (useResource) {
+        if ((!libraryAvailable) && (useResource)) {
             libraryAvailable = loadAsSystemResource(libFileName);
         }
         if (!libraryAvailable) {
@@ -57,6 +61,20 @@ public class NativeLibLoader {
         try {
             System.loadLibrary(name);
             DebugLog.debug("Library loaded", name);
+        } catch (Throwable e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean tryloadPath(String path, String name) {
+        try {
+        	File f = new File(path, name);
+        	if (!f.canRead()) {
+        		return false;
+        	}
+            System.load(f.getAbsolutePath());
+            DebugLog.debug("Library loaded", f.getAbsolutePath());
         } catch (Throwable e) {
             return false;
         }
