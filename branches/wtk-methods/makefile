@@ -21,17 +21,16 @@ CC=cl.exe
 # /MT  Multithreaded
 # /O2  Maximize Speed
 
-CFLAGS=-nologo -I. -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/win32 /O1 -W3 \
-       -DWIN32 -D_WINDOWS -DNDEBUG -D_USRDLL
-
-#  -D_WIN32_WINNT=0x0501
+CFLAGS=-nologo -I. -I $(JAVA_HOME)\include -I $(JAVA_HOME)\include\win32 /O1 -W3 \
+       -DWIN32 -D_WINDOWS -DNDEBUG -D_USRDLL -DNO_AFX \
+       -D_WINDLL -D_UNICODE -DUNICODE
 
 RSC=rc.exe
 RSC_PROJ=/l 0x1009 /d "NDEBUG"
 
 LINK=link.exe
 
-LINK_FLAGS=/DEFAULTLIB:user32.lib -nologo -machine:I386 -incremental:no /SUBSYSTEM:WINDOWS /OPT:NOREF \
+LINK_FLAGS=/DEFAULTLIB:user32.lib ws2_32.lib irprops.lib kernel32.lib -nologo -machine:I386 -incremental:no /SUBSYSTEM:WINDOWS /OPT:NOREF \
            -dll  /RELEASE /def:"${SRCDIR}\intelbth.def" \
            -LIBPATH:$(OBJDIR)
 
