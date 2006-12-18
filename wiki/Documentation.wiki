@@ -16,7 +16,7 @@ currently maintained by volunteers.
   * Java 1.4 or newer (for the binary, might compile on older)
   * Another Bluetooth device to communicate with
 
-== Limitations == 
+== Limitations ==
 
 Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
 BlueCove also only supports RFCOMM connections. The operating system support is
@@ -32,11 +32,10 @@ Installation of the binary (already compiled) version of BlueCove is as follows:
 
   # Download BlueCove binary release
   # Unzip the archive
-  # Place `intelbth.dll` in a place where the software needing JSR-82 can find it 
-(globally `C:\WINDOWS\SYSTEM32`)
+  # Place `intelbth.dll` in a place where the software needing JSR-82 can find it
   # Add `bluecove.jar` to your classpath
 
-== Compilation == 
+== Compilation ==
 
 You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition,
 which is available for free download from MSDN. Ant is used as the build tool,
@@ -49,11 +48,10 @@ and the compilation is much easier using it.
   # Run `makeheaders.cmd`
   # Open `intelbth.sln`
   # Compile the project for your platform (e.g. 'Release' for 'Win32')
-  # Place `intelbth.dll` in a place where the software needing JSR-82 can find it 
-(globally `C:\WINDOWS\SYSTEM32`)
+  # Place `intelbth.dll` in a place where the software needing JSR-82 can find it
   # Add `bluecove.jar` to your classpath
 
-== Documentation == 
+== Documentation ==
 
 You are reading the main documentation. The source can be used to generate
 JavaDoc. A changelog is available inside the archives and in the Subversion
