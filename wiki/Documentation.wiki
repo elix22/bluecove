@@ -32,7 +32,6 @@ Installation of the binary (already compiled) version of BlueCove is as follows:
 
   # Download BlueCove binary release
   # Unzip the archive
-  # Place `intelbth.dll` in a place where the software needing JSR-82 can find it
   # Add `bluecove.jar` to your classpath
 
 == Compilation ==
@@ -43,19 +42,13 @@ and the compilation is much easier using it.
 
   # Download BlueCove source release
   # Unzip the source
-  # Run `ant jar`
+  # Run `ant`
   # Go into `intelbth`
   # Run `makeheaders.cmd`
   # Open `intelbth.sln`
   # Compile the project for your platform (e.g. 'Release' for 'Win32')
-  # Place `intelbth.dll` in a place where the software needing JSR-82 can find it
-  # Add `bluecove.jar` to your classpath
-
-== Documentation ==
-
-You are reading the main documentation. The source can be used to generate
-JavaDoc. A changelog is available inside the archives and in the Subversion
-repository.
+  # Place `intelbth.dll` in `resources`
+  # Run `ant jar`
 
 == Source ==
 
@@ -63,5 +56,5 @@ Available as downloadable packages or at the Subversion repository. Organized in
 
   * *docs* -  Documentation
   * *intelbth* - The native windows JNI dll
-  * *src* - The implementation of JSR-82 with calls the to intelbth
-  * *test* - Some outdated test programs
+  * *src* - The implementation of JSR-82 with calls to intelbth
+  * *test* - Some test programs
