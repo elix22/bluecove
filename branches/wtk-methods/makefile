@@ -21,9 +21,9 @@ CC=cl.exe
 # /MT  Multithreaded
 # /O2  Maximize Speed
 
-CFLAGS=-nologo -I. -I $(JAVA_HOME)\include -I $(JAVA_HOME)\include\win32 /O1 -W3 \
-       -DWIN32 -D_WINDOWS -DNDEBUG -D_USRDLL -DNO_AFX \
-       -D_WINDLL -D_UNICODE -DUNICODE
+CFLAGS=-nologo -I. -I $(JAVA_HOME)\include -I $(JAVA_HOME)\include\win32 /Yu \
+       /O1 -W3 -DWIN32 -D_WINDOWS -DNDEBUG -D_USRDLL -D_WINDLL -D_UNICODE \
+       -DUNICODE
 
 RSC=rc.exe
 RSC_PROJ=/l 0x1009 /d "NDEBUG"

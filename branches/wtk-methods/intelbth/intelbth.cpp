@@ -18,21 +18,7 @@ along with Blue Cove; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef NO_AFX
 #include "stdafx.h"
-#else
-// Old school way
-#include <winsock2.h>
-#include <windows.h>
-#include <ws2bth.h>
-#include <BluetoothAPIs.h>
-#include <tchar.h>
-#include <strsafe.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <tchar.h>
-#include "com_intel_bluetooth_BluetoothPeer.h"
-#endif
 
 // Old school way of debug
 #ifdef DEBUG
