@@ -24,7 +24,7 @@ currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
 stack is not available on other operating systems. If someone writes code to
 support another stack and/or operating system, it will be considered for
 inclusion.  BlueCove does also not support OBEX, but there are other projects
-that can (possibly) be used to archieve OBEX functionality with BlueCove.
+that can (possibly) be used to achieve OBEX functionality with BlueCove.
 
 == Installation ==
 
