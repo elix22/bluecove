@@ -1,0 +1,22 @@
+#summary BlueCove can be found in maven Central Repository.
+
+= BlueCove can be found in maven Central Repository =
+
+ http://repo1.maven.org/maven2/net/sf/bluecove/bluecove/
+ and
+ http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sf/bluecove/bluecove/
+
+ To use BlueCove in your maven2 project you need to add this to your pom.xml:
+
+{{{
+            <dependency>
+                <groupId>net.sf.bluecove</groupId>
+                <artifactId>bluecove</artifactId>
+               <version>1.2.1</version>
+            </dependency>
+}}}
+
+
+
+
+
