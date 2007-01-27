@@ -1,13 +1,12 @@
 #summary Using maven2 to build application or MIDlet.
 #labels Featured
 
-= BlueCove can be found in maven Central Repository =
-
+ BlueCove can be found in maven Central Repository
  [http://repo1.maven.org/maven2/net/sf/bluecove/bluecove/ maven.org]
  and
- [http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sf/bluecove/bluecove/ ibiblio.org]
+ [http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sf/bluecove/bluecove/ ibiblio.org].
 
- To use BlueCove in your maven2 project you need to add this to your pom.xml:
+ To use BlueCove in your maven2 project you need to add this dependency to your pom.xml:
 
 {{{
             <dependency>
