@@ -1,10 +1,11 @@
-#summary BlueCove can be found in maven Central Repository.
+#summary Using maven2 to build application or MIDlet.
+#labels Featured
 
 = BlueCove can be found in maven Central Repository =
 
- http://repo1.maven.org/maven2/net/sf/bluecove/bluecove/
+ [http://repo1.maven.org/maven2/net/sf/bluecove/bluecove/ maven.org]
  and
- http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sf/bluecove/bluecove/
+ [http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sf/bluecove/bluecove/ ibiblio.org]
 
  To use BlueCove in your maven2 project you need to add this to your pom.xml:
 
@@ -17,6 +18,15 @@
 }}}
 
 
+ If you are building MIDlet application change _scope_ to _provided_
 
+{{{
+            <dependency>
+               <groupId>net.sf.bluecove</groupId>
+               <artifactId>bluecove</artifactId>
+               <version>1.2.1</version>
+               <scope>provided</scope> 
+            </dependency>
+}}}
 
-
+ We recommend hat you use [http://www.microemu.org/ MicroEmulator] together with BlueCove for development and debugging J2ME MIDlet applications.
