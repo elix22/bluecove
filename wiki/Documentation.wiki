@@ -34,6 +34,8 @@ Installation of the binary (already compiled) version of BlueCove is as follows:
   # Unzip the archive
   # Add `bluecove.jar` to your classpath
 
+For maven2 users see [maven2 Using maven2 to build application or MIDlet]
+
 == Compilation ==
 
 You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition,
