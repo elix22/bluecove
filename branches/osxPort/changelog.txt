@@ -1,0 +1,58 @@
+2007-01-07 Paul Tötterman
+
+* Released 1.2.1
+
+* Merged dll-in-the-jar enhancements by Vlad Skarzhevskyy
+
+2006-12-15 Paul Tötterman
+
+* Merged WTK compatibility enhancements by Vlad Skarzhevskyy
+
+* Merged avetanaOBEX compatibility fixes by jrincayc
+
+2006-10-11 Paul Tötterman
+
+* Reordered changelog.
+  Makes more sense this way that _everyone_ else does it.
+
+* Windows CE support.
+  Remco Poortinga has contributed updated support for Windows CE. That has
+  been merged and now I merged some fixes by him.
+
+* Updated documentation a bit.
+
+* Released 1.2.0.
+  Compiled using Java 1.4 for wider audience.
+
+2006-06-05 Paul Tötterman
+
+* Fixed two bugs. New release.
+
+2006-05-02 Paul Tötterman
+
+* Reorganized documentation. Plaintext document now used to create webpage.
+
+2006-03-07 Paul Tötterman
+
+* javax.bluetooth.LocalDevice.getFriendlyName(): Now returns a real name
+
+2006-03-01 Paul Tötterman
+
+* Migrated to Visual C++ 2005 Express Edition
+
+* Migrated to Subversion, CVS exists only for archival now
+
+* javax.bluetooth.RemoteDevice.getAddress(): Now returns _remote_ address
+
+* javax.bluetooth.RemoteDevice.getFriendlyName(): Now returns a real name
+
+* Reformatted changelog close to GNU standards
+
+2005-05-15 Denis Labaye
+
+* Version Beta 1.1
+
+* Added some docs
+
+* Added the method setDeviceServiceClasses(int service_telephony) in 
+  javax.bluetooth.ServiceRecord for compatibility with Benhui example.
