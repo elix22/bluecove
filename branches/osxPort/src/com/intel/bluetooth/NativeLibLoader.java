@@ -39,6 +39,16 @@ public class NativeLibLoader {
             return libraryAvailable;
         }
         String libFileName = NATIVE_LIB;
+        
+        // simplistic approach
+        try {
+        	System.loadLibrary(libFileName);
+        	triedToLoadAlredy = true;
+        	libraryAvailable = true;
+        	return true;
+        } catch (UnsatisfiedLinkError err) {
+        	// simplistic approach failed, try the hard way
+        }
         String sysName = System.getProperty("os.name");
 
         if (sysName == null) {
@@ -53,7 +63,7 @@ public class NativeLibLoader {
         	}
             libFileName = libFileName + ".dll";
         } else if (sysName.indexOf("mac os x") != -1) {
-        	libFileName = libFileName + ".jnilib";
+        	libFileName = "lib"+libFileName + ".jnilib";
 //        } else if (.indexOf("linux") != -1) {
 //            libFileName = "lib" + libFileName + ".so";
         } else {
