@@ -43,7 +43,12 @@ public class BluetoothPeer {
 		}
 
 		public void run() {
-			listener.inquiryCompleted(doInquiry(accessCode, listener));
+			int		inquiryResult;
+			
+			inquiryResult = doInquiry(accessCode, listener);
+			// If we're running a native synchronous inquiry we're done
+			// otherwise let the native library notify the listener
+			if(inquiryResult >= 0) listener.inquiryCompleted(inquiryResult);
 		}
 	}
 
@@ -115,7 +120,7 @@ public class BluetoothPeer {
 	 * cancel current inquiry (if any)
 	 */
 
-	public native boolean cancelInquiry();
+	public native boolean cancelInquiry(DiscoveryListener listener);
 
 	/*
 	 * perform synchronous service discovery
