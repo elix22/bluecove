@@ -179,7 +179,8 @@ public class LocalDevice {
 	 */
 
 	public static String getProperty(String property) {
-		return null;
+		String		fullPropName = "javax." + property;
+		return System.getProperty(fullPropName);
 	}
 
 	/*
