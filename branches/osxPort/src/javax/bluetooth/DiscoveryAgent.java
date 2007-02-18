@@ -112,10 +112,9 @@ public class DiscoveryAgent {
 
 	public boolean startInquiry(int accessCode, DiscoveryListener listener)
 			throws BluetoothStateException {
-		LocalDevice.getLocalDevice().getBluetoothPeer().startInquiry(
+		
+		return LocalDevice.getLocalDevice().getBluetoothPeer().startInquiry(
 				accessCode, listener);
-
-		return true;
 	}
 
 	/*
@@ -145,7 +144,7 @@ public class DiscoveryAgent {
 		} catch (BluetoothStateException bse) {
 			return false;
 		}
-		return ld.getBluetoothPeer().cancelInquiry();
+		return ld.getBluetoothPeer().cancelInquiry(listener);
 	}
 
 	/*
@@ -178,10 +177,12 @@ public class DiscoveryAgent {
 	public int searchServices(int[] attrSet, UUID[] uuidSet,
 			RemoteDevice device, DiscoveryListener listener)
 			throws BluetoothStateException {
-		LocalDevice.getLocalDevice().getBluetoothPeer().startSearchServices(
+		
+		int		retValue = LocalDevice.getLocalDevice().getBluetoothPeer().startSearchServices(
 				attrSet, uuidSet, device, listener);
+		if(retValue < 0) return 0;
+		else return retValue;
 
-		return 0;
 	}
 
 	/*
@@ -197,7 +198,7 @@ public class DiscoveryAgent {
 	 */
 
 	public boolean cancelServiceSearch(int transID) {
-		throw new NotImplementedError();
+		return LocalDevice.getLocalDevice().getBluetoothPeer().cancelServiceSearch(transID);
 	}
 
 	/*

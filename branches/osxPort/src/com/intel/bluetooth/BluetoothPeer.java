@@ -28,8 +28,11 @@ import javax.bluetooth.UUID;
 
 public class BluetoothPeer {
 	
+	static boolean		nativeIsAsync;
 	static {
 		NativeLibLoader.isAvailable();
+		nativeIsAsync = "true".equals(System.getProperty("javax.bluetooth.bluecove.asyncEnabled"));
+		
 	}
 
 	class InquiryThread extends Thread {
@@ -43,12 +46,7 @@ public class BluetoothPeer {
 		}
 
 		public void run() {
-			int		inquiryResult;
-			
-			inquiryResult = doInquiry(accessCode, listener);
-			// If we're running a native synchronous inquiry we're done
-			// otherwise let the native library notify the listener
-			if(inquiryResult >= 0) listener.inquiryCompleted(inquiryResult);
+			listener.inquiryCompleted(doInquiry(accessCode, listener));
 		}
 	}
 
@@ -101,13 +99,33 @@ public class BluetoothPeer {
 		}
 	}
 
-	public void startInquiry(int accessCode, DiscoveryListener listener) {
-		(new InquiryThread(accessCode, listener)).start();
+	public Boolean startInquiry(int accessCode, DiscoveryListener listener) {
+		if(nativeIsAsync) return (0 != doInquiry(accessCode, listener));
+		else {
+			(new InquiryThread(accessCode, listener)).start();
+			return true;
+		}
+		
 	}
 
-	public void startSearchServices(int[] attrSet, UUID[] uuidSet,
+	public int startSearchServices(int[] attrSet, UUID[] uuidSet,
 			RemoteDevice device, DiscoveryListener listener) {
-		(new SearchServicesThread(attrSet, uuidSet, device, listener)).start();
+		if(nativeIsAsync) return asyncSearchServices(attrSet, uuidSet, device, listener);
+		else {
+			(new SearchServicesThread(attrSet, uuidSet, device, listener)).start();
+			return 0;
+		}
+	}
+	/**
+	 * Request the library to stop an async Search. If the library only supports
+	 * synchronous searches the method fails and returns false
+	 * @param transID
+	 * @return true if the service search transaction is terminated, else false if the transID does not represent an active asynchronous service search transaction
+	 */
+	
+	public boolean cancelServiceSearch(int transID) {
+		if(nativeIsAsync) return asyncStopSearchServices(transID);
+		else return false;
 	}
 
 	/*
@@ -122,6 +140,19 @@ public class BluetoothPeer {
 
 	public native boolean cancelInquiry(DiscoveryListener listener);
 
+	/**
+	 * Starts an asynchronous search of services for a device. Returns immediately.
+	 * @param attrSet
+	 * @param uuidSet
+	 * @param device
+	 * @param listener
+	 * @return A reference to the initiated search or zero if async isn't enabled
+	 * 			in the native library.
+	 */
+	public native int asyncSearchServices(int[] attrSet, UUID[] uuidSet,
+			RemoteDevice device, DiscoveryListener listener);
+	
+	public native boolean asyncStopSearchServices(int transID);
 	/*
 	 * perform synchronous service discovery
 	 */
