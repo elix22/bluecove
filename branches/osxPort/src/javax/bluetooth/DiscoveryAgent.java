@@ -198,7 +198,11 @@ public class DiscoveryAgent {
 	 */
 
 	public boolean cancelServiceSearch(int transID) {
-		return LocalDevice.getLocalDevice().getBluetoothPeer().cancelServiceSearch(transID);
+		try {
+			return LocalDevice.getLocalDevice().getBluetoothPeer().cancelServiceSearch(transID);
+		} catch (BluetoothStateException exp) {
+			return false;
+		}
 	}
 
 	/*
