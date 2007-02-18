@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+<jar path="/Users/work/Documents/workspace/BlueCoveOSX/resources/javaOnlyBluecove.jar"/>
+<options buildIfNeeded="true" compress="true" descriptionLocation="/BlueCoveOSX/DebugJarExport.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+<storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+<selectedProjects/>
+<manifest generateManifest="true" mainClassHandleIdentifier="=BlueCoveOSX/test&lt;com.intel.bluetooth.test{StandaloneTest.java[StandaloneTest" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+<sealing sealJar="true">
+<packagesToSeal/>
+<packagesToUnSeal/>
+</sealing>
+</manifest>
+<selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+<javaElement handleIdentifier="=BlueCoveOSX/test&lt;com.intel.bluetooth.test"/>
+<javaElement handleIdentifier="=BlueCoveOSX/src"/>
+</selectedElements>
+</jardesc>
