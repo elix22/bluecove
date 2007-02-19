@@ -119,10 +119,10 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry
 	CFRunLoopSourceSignal(s_inquiryStopSource);
 	CFRunLoopWakeUp (s_runLoop);
 	
-	// wait until the work is done
+	/* wait until the work is done */
 	pthread_cond_wait(&record->waiter, &aMutex);
 	
-	// cleanup
+	/* cleanup */
 	pthread_cond_destroy(&record->waiter);
 	pthread_mutex_destroy(&aMutex);
 	
@@ -154,6 +154,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_asyncSearchService
 
 	record = (searchServicesRec*) aContext.info;
 	record->peer =  (*env)->NewGlobalRef(env, peer);
+	// what if attrSet is NULL?
 	record->attrSet =  (*env)->NewGlobalRef(env, attrSet);
 	record->uuidSet = (*env)->NewGlobalRef(env, uuidSet);
 	record->deviceAddress = (*env)->NewGlobalRef(env, deviceAddress);
@@ -214,9 +215,14 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearc
 
 JNIEXPORT jintArray JNICALL Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles
   (JNIEnv *env, jobject peer, jobjectArray uuidSet, jlong address){
-  printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: called", DEBUG_INFO_LEVEL);
-  printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: exiting", DEBUG_INFO_LEVEL);
-	return (*env)->NewIntArray(env, 10);
+	
+	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: called", DEBUG_INFO_LEVEL);
+	
+	throwException(env, "com/intel/bluetooth/NotImplementedError", "Function not implemented on Mac OS X");
+
+	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: exiting", DEBUG_INFO_LEVEL);
+	
+	return NULL;
   
   
   }
@@ -228,6 +234,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothPeer_getServiceAt
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes called", DEBUG_INFO_LEVEL);
 	
 	throwException(env, "com/intel/bluetooth/NotImplementedError", "Function not implemented on Mac OS X");
+	
+	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes exiting", DEBUG_INFO_LEVEL);
 
 	return NULL;
   
@@ -369,4 +377,10 @@ JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothPeer_getradioname
 		return (*env)->NewStringUTF(env, "fixme");
   
   }
+
+JNIEXPORT jobject JNICALL Java_com_intel_bluetooth_BluetoothPeer_getAdjustedSystemProperties
+  (JNIEnv *env, jobject peer){
+	
+	return s_systemProperties;
   
+  }
