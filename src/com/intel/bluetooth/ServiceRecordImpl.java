@@ -34,12 +34,14 @@ import javax.bluetooth.UUID;
 
 public class ServiceRecordImpl implements ServiceRecord {
 
+	static	boolean 	nativeLibParsesSDP = false;
+	
 	private RemoteDevice device;
 
 	private int handle;
 
 	Hashtable attributes;
-
+	
 	ServiceRecordImpl(RemoteDevice device, int handle) {
 		this.device = device;
 
@@ -173,57 +175,63 @@ public class ServiceRecordImpl implements ServiceRecord {
 			if (attrIDs[i] < 0x0000 || attrIDs[i] > 0xffff)
 				throw new IllegalArgumentException();
 
-		/*
-		 * copy and sort attrIDs (required by MS Bluetooth)
-		 */
-
-		int[] sortIDs = new int[attrIDs.length];
-
-		System.arraycopy(attrIDs, 0, sortIDs, 0, attrIDs.length);
-
-		for (int i = 0; i < sortIDs.length; i++)
-			for (int j = 0; j < sortIDs.length - i - 1; j++)
-				if (sortIDs[j] > sortIDs[j + 1]) {
-					int temp = sortIDs[j];
-					sortIDs[j] = sortIDs[j + 1];
-					sortIDs[j + 1] = temp;
+		if(nativeLibParsesSDP) {
+			return native_populateRecord(attrIDs);
+		} else {
+			/*
+			 * copy and sort attrIDs (required by MS Bluetooth)
+			 */
+	
+			int[] sortIDs = new int[attrIDs.length];
+	
+			System.arraycopy(attrIDs, 0, sortIDs, 0, attrIDs.length);
+	
+			for (int i = 0; i < sortIDs.length; i++)
+				for (int j = 0; j < sortIDs.length - i - 1; j++)
+					if (sortIDs[j] > sortIDs[j + 1]) {
+						int temp = sortIDs[j];
+						sortIDs[j] = sortIDs[j + 1];
+						sortIDs[j + 1] = temp;
+					}
+	
+			/*
+			 * check for duplicates
+			 */
+	
+			for (int i = 0; i < sortIDs.length - 1; i++)
+				if (sortIDs[i] == sortIDs[i + 1])
+					throw new IllegalArgumentException();
+	
+			/*
+			 * retrieve SDP blob
+			 */
+	
+			byte[] blob = (LocalDevice.getLocalDevice()).getBluetoothPeer()
+					.getServiceAttributes(sortIDs,
+							Long.parseLong(device.getBluetoothAddress(), 16),
+							handle);
+	
+			if (blob.length > 0)
+				try {
+					DataElement element = (new SDPInputStream(
+							new ByteArrayInputStream(blob))).readElement();
+	
+					for (Enumeration e = (Enumeration) element.getValue(); e
+							.hasMoreElements();)
+						attributes.put(new Integer((int) ((DataElement) e
+								.nextElement()).getLong()), e.nextElement());
+	
+					return true;
+				} catch (Exception e) {
+					throw new IOException();
 				}
-
-		/*
-		 * check for duplicates
-		 */
-
-		for (int i = 0; i < sortIDs.length - 1; i++)
-			if (sortIDs[i] == sortIDs[i + 1])
-				throw new IllegalArgumentException();
-
-		/*
-		 * retrieve SDP blob
-		 */
-
-		byte[] blob = (LocalDevice.getLocalDevice()).getBluetoothPeer()
-				.getServiceAttributes(sortIDs,
-						Long.parseLong(device.getBluetoothAddress(), 16),
-						handle);
-
-		if (blob.length > 0)
-			try {
-				DataElement element = (new SDPInputStream(
-						new ByteArrayInputStream(blob))).readElement();
-
-				for (Enumeration e = (Enumeration) element.getValue(); e
-						.hasMoreElements();)
-					attributes.put(new Integer((int) ((DataElement) e
-							.nextElement()).getLong()), e.nextElement());
-
-				return true;
-			} catch (Exception e) {
-				throw new IOException();
-			}
-		else
-			return false;
+			else
+				return false;
+		}
 	}
-
+	
+	private	native boolean native_populateRecord(int[] attrIDs) throws IOException;
+	
 	/*
 	 * Returns a String including optional parameters that can be used by a
 	 * client to connect to the service described by this ServiceRecord. The
