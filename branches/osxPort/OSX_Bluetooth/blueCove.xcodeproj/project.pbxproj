@@ -72,13 +72,6 @@
 			remoteGlobalIDString = 963C74D80B893F3D00AC5EC5;
 			remoteInfo = versionIncrement;
 		};
-		96B476FB0B844218003E53AA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4CEBA78E08679EF10015D03E;
-			remoteInfo = intelbth;
-		};
 		96E915E20B86FE6B007DDC2D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
@@ -105,8 +98,8 @@
 		968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blueCovejnilib.h; sourceTree = "<group>"; };
 		96B476F90B844204003E53AA /* DebugProject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DebugProject; sourceTree = BUILT_PRODUCTS_DIR; };
 		96B477B00B84426F003E53AA /* debugMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debugMain.c; sourceTree = "<group>"; };
-		96E316680B89670E009935EE /* libintelbth.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = libintelbth.jnilib; path = ../../../resources/libintelbth.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
-		96E3166B0B89670E009935EE /* nativeHeaders */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = nativeHeaders; path = build/Release/nativeHeaders; sourceTree = "<group>"; };
+		96E316680B89670E009935EE /* libintelbth.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libintelbth.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		96E3166B0B89670E009935EE /* nativeHeaders */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = nativeHeaders; sourceTree = BUILT_PRODUCTS_DIR; };
 		96E911FA0B868972007DDC2D /* NativeCommons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeCommons.h; sourceTree = "<group>"; };
 		96E915210B86F5CD007DDC2D /* ThreadCleanups.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadCleanups.h; sourceTree = "<group>"; };
 		96E915220B86F5CD007DDC2D /* ThreadCleanups.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = ThreadCleanups.m; sourceTree = "<group>"; };
@@ -321,7 +314,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				96B476FC0B844218003E53AA /* PBXTargetDependency */,
 			);
 			name = DebugProject;
 			productName = DebugProject;
@@ -429,11 +421,6 @@
 			isa = PBXTargetDependency;
 			target = 963C74D80B893F3D00AC5EC5 /* versionIncrement */;
 			targetProxy = 963C751A0B89434B00AC5EC5 /* PBXContainerItemProxy */;
-		};
-		96B476FC0B844218003E53AA /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4CEBA78E08679EF10015D03E /* intelbth */;
-			targetProxy = 96B476FB0B844218003E53AA /* PBXContainerItemProxy */;
 		};
 		96E915E30B86FE6B007DDC2D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -599,8 +586,11 @@
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_PEDANTIC = YES;
-				GCC_WARN_SHADOW = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_SHADOW = NO;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
@@ -676,7 +666,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_DEBUGGING_SYMBOLS = full;
+				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_TUNING = G5;

@@ -117,7 +117,7 @@ void* runLoopThread(void* v_threadValues) {
 	{
 		jclass			systemClass;
 		jmethodID		aMethod;
-		jobject			exp;
+		jobject			exception;
 
 		systemClass = (*env)->FindClass(env, "java/lang/System");
 		aMethod = (*env)->GetStaticMethodID(env, systemClass, "getProperties", "()Ljava/util/Properties;");
@@ -134,9 +134,9 @@ void* runLoopThread(void* v_threadValues) {
 									"(Ljava/util/Properties;)V");
 		(*env)->CallStaticVoidMethod(env, systemClass, aMethod, s_systemProperties);
 		
-		exp = (*env)->ExceptionOccurred(env);
+		exception = (*env)->ExceptionOccurred(env);
 		
-		if(exp) {
+		if(exception) {
 			printMessage("Couldn't set system properties, security manager blocked it.", DEBUG_WARN_LEVEL);
 			(*env)->ExceptionClear(env);
 		} else {
@@ -208,7 +208,7 @@ void performInquiry(void *info) {
 		
 		
 		/* create the list item */
-		inquiryItem->aListener = (*env)->NewGlobalRef(env, record->listener);
+		inquiryItem->aListener = record->listener;
 		inquiryItem->refCount = 1;
 		inquiryItem->next = 0L;
 		inquiryItem->inquiryStarted = 0;
@@ -253,7 +253,9 @@ void performInquiry(void *info) {
 				goto performInquiry_cleanup; /* inquiry error */
 			}
 		if (record->accessCode == kBluetoothLimitedInquiryAccessCodeLAPValue) 	{
-			/* only looking for limited discovery items */
+			inquiryItem->isLimited = 1;
+		/* The following doesn't work. The bit map specifies the Major Service class, since most limited discovery
+			mode devices are more than JUST limited discovery it filters out pretty much everything 
 				error = IOBluetoothDeviceInquirySetSearchCriteria(inquiryItem->anInquiry,
 																kBluetoothServiceClassMajorLimitedDiscoverableMode,
 																kBluetoothDeviceClassMajorAny,
@@ -263,9 +265,11 @@ void performInquiry(void *info) {
 					sprintf(s_errorBuffer, "%s%i", s_errorBase, error);
 					printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
 					inquiryComplete(inquiryItem, inquiryItem->anInquiry, error, TRUE);
-					goto performInquiry_cleanup; /* inquiry error */
+					goto performInquiry_cleanup; 
 			} else printMessage("performInquiry: IOBluetoothDeviceInquirySetSearchCriteria succeeded", DEBUG_INFO_LEVEL);	
-		}
+		*/
+		} else inquiryItem->isLimited = 0;
+		
 		error = IOBluetoothDeviceInquiryStart(inquiryItem->anInquiry);
 			if(error != kIOReturnSuccess) {
 				printMessage("performInquiry: IOBluetoothDeviceInquiryStart Failed", DEBUG_ERROR_LEVEL);
@@ -280,13 +284,13 @@ void performInquiry(void *info) {
 performInquiry_cleanup:
 	
 	printMessage("performInquiry: Cleanup started", DEBUG_INFO_LEVEL);
-	
+/*	
 	(*env)->DeleteGlobalRef(env, record->peer);
 	record->peer = NULL;
 	
 	(*env)->DeleteGlobalRef(env, record->listener);
 	record->listener = NULL;
-
+*/
 	printMessage("performInquiry: Exiting", DEBUG_INFO_LEVEL);
 }
 
@@ -313,12 +317,24 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	printMessage("inquiryDeviceFound called", DEBUG_INFO_LEVEL);
 	if(listener == NULL) printMessage("listener data is NULL!", DEBUG_ERROR_LEVEL);
 	if(listener->aListener == NULL) printMessage("listener jobject is NULL!", DEBUG_ERROR_LEVEL);
+		
+	/* Step 0: check if we're only looking for limited items */
+	if(listener->isLimited) {
+		BluetoothServiceClassMajor	majorClass;
+		
+		majorClass = IOBluetoothDeviceGetServiceClassMajor(deviceRef);
+		if( ! (majorClass & kBluetoothServiceClassMajorLimitedDiscoverableMode)) {
+			printMessage("GAIC device found, not reporting it since LIAC was requested.", DEBUG_WARN_LEVEL);
+			return;
+		}
+	}
 	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 	if(jErr) {
 		sprintf(s_errorBuffer, "%s%ld", s_errorBase, jErr);
 		printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
 	}
+
 	/* Step 1: extract the address and name */
 	devAddress = IOBluetoothDeviceGetAddress(deviceRef);
 	if(!devAddress) {
@@ -337,7 +353,7 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	bigEndianAddress <<= 8;
 	bigEndianAddress |= devAddress->data[5];
 	/* TODO check on a big endian machine if the address is still correct */
-//	nativeEndianAddress = CFSwapInt64BigToHost(bigEndianAddress);
+/*	nativeEndianAddress = CFSwapInt64BigToHost(bigEndianAddress);*/
 	
 	nativeEndianAddress = bigEndianAddress;
 	
@@ -493,6 +509,7 @@ void  asyncSearchServices(void* in) {
 	CFStringRef					localString;
 	const jchar					*chars;
 	
+	printMessage("asyncSearchServices: called", DEBUG_INFO_LEVEL);
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 	
 	chars = (*env)->GetStringChars(env, record->deviceAddress, NULL);
@@ -502,6 +519,7 @@ void  asyncSearchServices(void* in) {
 	err = IOBluetoothCFStringToDeviceAddress( localString, &btAddress );
 	osRecord->aDevice = IOBluetoothDeviceCreateWithAddress( &btAddress);
 	err = IOBluetoothDevicePerformSDPQuery(osRecord->aDevice, bluetoothSDPQueryCallback, in);
+	printMessage("asyncSearchServices: exiting", DEBUG_INFO_LEVEL);
 	
 }
 void getServiceAttributes(void *in) {
@@ -516,29 +534,42 @@ void getServiceAttributes(void *in) {
 	jint							serviceHandle;
 	IOBluetoothSDPServiceRecordRef	serviceRef;
 	jmethodID						setAttribute;
+	jobject							hashTable;
+	jclass							jHashtableClass;
+	jfieldID						servRecordHashField;
+	jmethodID						intConstructor;
+	jclass							intClass;
+	
 	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	
-	serviceClass = (*env)->GetObjectClass(env, params->serviceRecord);
-	serviceHandleID = (*env)->GetFieldID(env, serviceClass, "handle", "I");
-	serviceHandle = (*env)->GetIntField(env, params->serviceRecord, serviceHandleID);
+	serviceClass = JAVA_ENV_CHECK((*env)->GetObjectClass(env, params->serviceRecord));
+	serviceHandleID = JAVA_ENV_CHECK((*env)->GetFieldID(env, serviceClass, "handle", "I"));
+	serviceHandle = JAVA_ENV_CHECK((*env)->GetIntField(env, params->serviceRecord, serviceHandleID));
 	/* YUCK! */
 	serviceRef = (IOBluetoothSDPServiceRecordRef)serviceHandle;
 	
 	
 	numAttr = (*env)->GetArrayLength(env, params->attrSet);
 	attributes = (*env)->GetIntArrayElements(env, params->attrSet, NULL);
-	setAttribute = (*env)->GetMethodID(env, serviceClass, "setAttributeValue", "(ILjavax/bluetooth/DataElement;)Z");
+	jHashtableClass = (*env)->FindClass(env, "java/util/Hashtable");
+	servRecordHashField = (*env)->GetFieldID(env, serviceClass, "attributes", "Ljava/util/Hashtable;");
+	hashTable = (*env)->GetObjectField(env, params->serviceRecord, servRecordHashField);
+	setAttribute = (*env)->GetMethodID(env, jHashtableClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+	intClass = (*env)->FindClass(env, "java/lang/Integer");
+	intConstructor = (*env)->GetMethodID(env, intClass, "<init>", "(I)V");
 	
 	for(j=0; j<numAttr;j++) {
 		IOBluetoothSDPDataElementRef	dataElement;
 		jobject							jDataElement;
-		jboolean							jResult;
+		jobject							jResult;
+		jobject							attributeID;
 		
+		attributeID = (*env)->NewObject(env, intClass, intConstructor, attributes[j]);
 		dataElement = IOBluetoothSDPServiceRecordGetAttributeDataElement(serviceRef, attributes[j]);
 		jDataElement = getjDataElement(env, dataElement);
-		jResult = (*env)->CallBooleanMethod(env, params->serviceRecord, setAttribute, attributes[j], jDataElement);
+		jResult = JAVA_ENV_CHECK((*env)->CallObjectMethod(env, hashTable, setAttribute, attributeID, jDataElement));
 	}
 }
 
@@ -571,51 +602,52 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 			jbyte							*UUIDBytes;
 			IOBluetoothSDPUUIDRef			uuidRef;
 			IOBluetoothSDPServiceRecordRef	osServiceRecord;
-			UInt8							len;
+			UInt8							arrayLen;
 			jfieldID						uuidField;
 			
 		// get a UUID
 			aUUID = (*env)->GetObjectArrayElement(env, record->uuidSet, i);
 			uuidField = (*env)->GetFieldID(env, aClass, "uuidValue", "[B");
 			uuidValue = (jbyteArray)(*env)->GetObjectField(env, aUUID, uuidField);
-			len = (*env)->GetArrayLength(env, uuidValue);
+			arrayLen = (*env)->GetArrayLength(env, uuidValue);
 			UUIDBytes = (*env)->GetByteArrayElements(env, uuidValue, NULL);
-			uuidRef =  IOBluetoothSDPUUIDCreateWithBytes(UUIDBytes, len);
+			uuidRef =  IOBluetoothSDPUUIDCreateWithBytes(UUIDBytes, arrayLen);
 			(*env)->ReleaseByteArrayElements(env, uuidValue, UUIDBytes, JNI_ABORT);
 			osServiceRecord =  IOBluetoothDeviceGetServiceRecordForUUID(record->theInq->aDevice, uuidRef);
 			if(osServiceRecord) {
-				BluetoothSDPServiceRecordHandle		aHandle;
-				err = IOBluetoothSDPServiceRecordGetServiceRecordHandle(osServiceRecord, &aHandle);
-				if(!err) {
-					/* create the service record ServiceRecordImpl(RemoteDevice device, int handle)*/
-					jclass				serviceRecImpl;
-					jobject				aServiceRecord;
-					jmethodID			constructor;
+				
+				/* create the service record ServiceRecordImpl(RemoteDevice device, int handle)*/
+				jclass					serviceRecImpl;
+				jobject					aServiceRecord;
+				jmethodID				constructor;
+				populateAttributesRec	someParams;
+				jint					anArray[5] = {0x0000, 0x0001, 0x0002, 0x0003, 0x0004};
+				jintArray				javaArray;
 					
-					serviceRecImpl = (*env)->FindClass(env, "com/intel/bluetooth/ServiceRecordImpl");
-					constructor = (*env)->GetMethodID(env, serviceRecImpl, "<init>", "(Ljavax/bluetooth/RemoteDevice;I)V");
+				serviceRecImpl = (*env)->FindClass(env, "com/intel/bluetooth/ServiceRecordImpl");
+				constructor = (*env)->GetMethodID(env, serviceRecImpl, "<init>", "(Ljavax/bluetooth/RemoteDevice;I)V");
 					
-					aServiceRecord = (*env)->NewObject(env, serviceRecImpl, constructor, record->device, (jint)aHandle);
-					serviceArray[foundServices] = aServiceRecord;
-					foundServices++;
+				aServiceRecord = (*env)->NewObject(env, serviceRecImpl, constructor, record->device, (jint)osServiceRecord);
+				serviceArray[foundServices] = aServiceRecord;
+				foundServices++;
 					
-					/* call for the defaults */
-					populateAttributesRec				someParams;
-					jint			anArray[5] = {0x0000, 0x0001, 0x0002, 0x0003, 0x0004};
-					jintArray		javaArray;
+				/* call for the defaults */
 					
-					javaArray =(*env)->NewIntArray(env, 5);
-					(*env)->SetIntArrayRegion(env, javaArray, 0, 5, anArray); 
+				javaArray =(*env)->NewIntArray(env, 5);
+				(*env)->SetIntArrayRegion(env, javaArray, 0, 5, anArray); 
 
-					someParams.serviceRecord = aServiceRecord;
-					someParams.attrSet = javaArray;
-					someParams.waiterValid = 0;
+				someParams.serviceRecord = aServiceRecord;
+				someParams.attrSet = javaArray;
+				someParams.waiterValid = 0;
 					
+				getServiceAttributes(&someParams);
+				
+				
+				if(record->attrSet) {
+					someParams.attrSet = record->attrSet;
 					getServiceAttributes(&someParams);
-					
-				} else {
-					printMessage("No Service found for provided UUID!", DEBUG_WARN_LEVEL);
-				}
+					}
+
 			}
 		}
 		if(foundServices>0) {
@@ -642,13 +674,11 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 	}
 				
 	{
-	/* notify listener of completetion */
-	jclass				listenerClass;
-	jmethodID			listenerCompletionCallback;
+		/* notify listener of completetion */
+		jmethodID			listenerCompletionCallback;
 	
-	listenerClass = (*env)->GetObjectClass(env, record->listener);
-	listenerCompletionCallback = (*env)->GetMethodID(env, listenerClass, "serviceSearchCompleted", "(II)V");
-	(*env)->CallVoidMethod(env, record->listener, listenerCompletionCallback, (jint)record->theInq->index, (jint)respCode);
+		listenerCompletionCallback = (*env)->GetMethodID(env, listenerClass, "serviceSearchCompleted", "(II)V");
+		(*env)->CallVoidMethod(env, record->listener, listenerCompletionCallback, (jint)record->theInq->index, (jint)respCode);
 
 	}
 	
@@ -656,4 +686,4 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 	
 
 }
- 
+
