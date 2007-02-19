@@ -226,7 +226,4 @@ public class NativeLibLoader {
 //        Runtime.getRuntime().addShutdownHook(new Thread(r));
 //    }
 
-    static {
-        isAvailable();
-    }
 }
