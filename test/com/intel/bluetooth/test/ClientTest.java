@@ -52,6 +52,7 @@ public class ClientTest implements DiscoveryListener
 				e.printStackTrace();
 			}
 
+/* TODO: fix bug with canceling inquiries 
 			System.out.println("cancelling inquiry on timeout");
 
 			try {
@@ -61,6 +62,8 @@ public class ClientTest implements DiscoveryListener
 			}
 
 			System.out.println("inquiry cancelled");
+*/
+			System.out.println("Ending Run");
 		}
 	}
 
@@ -103,6 +106,7 @@ public class ClientTest implements DiscoveryListener
 				records = new Vector();
 
 				try {
+					System.out.println("Starting to search services");
 					LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(new int[] { 0x0100, 0x0101 },
 							new UUID[] { uuid }, d, this);
 					try {
