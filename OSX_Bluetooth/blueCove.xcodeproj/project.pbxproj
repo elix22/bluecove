@@ -1,0 +1,770 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		6A9FA557024694440CC91562 /* blueCove */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4CEBA75808679E4D0015D03E /* Build configuration list for PBXAggregateTarget "blueCove" */;
+			buildPhases = (
+			);
+			dependencies = (
+				6A9FA6060246ADAE0CC91562 /* PBXTargetDependency */,
+				4CEBA79A08679F280015D03E /* PBXTargetDependency */,
+			);
+			name = blueCove;
+			productName = JNIApplication;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		4CEBA79B08679F3E0015D03E /* blueCovejnilib.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A52677B022AFE3B0CC91562 /* blueCovejnilib.c */; };
+		4CEBA79C08679F510015D03E /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE2200B0208CA9C0CC91562 /* JavaVM.framework */; };
+		963567340B81670300141C67 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963567330B81670300141C67 /* IOBluetooth.framework */; };
+		963568360B81BA9100141C67 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963568350B81BA9100141C67 /* CoreFoundation.framework */; };
+		963C74DC0B893F5800AC5EC5 /* currentVersion.c in Sources */ = {isa = PBXBuildFile; fileRef = 963C74DB0B893F5800AC5EC5 /* currentVersion.c */; };
+		963C751F0B89437100AC5EC5 /* Version.h in Headers */ = {isa = PBXBuildFile; fileRef = 963C751E0B89437100AC5EC5 /* Version.h */; };
+		9673497D0B84581400A056FE /* blueCovejnilib.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A52677B022AFE3B0CC91562 /* blueCovejnilib.c */; };
+		9673497E0B84581800A056FE /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963567330B81670300141C67 /* IOBluetooth.framework */; };
+		967349970B84581A00A056FE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963568350B81BA9100141C67 /* CoreFoundation.framework */; };
+		967833D50B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D10B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h */; };
+		967833D60B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D20B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h */; };
+		967833D70B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D30B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h */; };
+		967833D80B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D40B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h */; };
+		968A02240B82F69E00E7D4C1 /* blueCovejnilib.h in Headers */ = {isa = PBXBuildFile; fileRef = 968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */; };
+		96B477B10B84426F003E53AA /* debugMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 96B477B00B84426F003E53AA /* debugMain.c */; };
+		96B478390B84473C003E53AA /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE2200B0208CA9C0CC91562 /* JavaVM.framework */; };
+		96E911FB0B868972007DDC2D /* NativeCommons.h in Headers */ = {isa = PBXBuildFile; fileRef = 96E911FA0B868972007DDC2D /* NativeCommons.h */; };
+		96E915230B86F5CD007DDC2D /* ThreadCleanups.h in Headers */ = {isa = PBXBuildFile; fileRef = 96E915210B86F5CD007DDC2D /* ThreadCleanups.h */; };
+		96E915240B86F5CD007DDC2D /* ThreadCleanups.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E915220B86F5CD007DDC2D /* ThreadCleanups.m */; };
+		96E916110B86FF97007DDC2D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96E916100B86FF97007DDC2D /* Foundation.framework */; };
+		96E916120B86FF97007DDC2D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96E916100B86FF97007DDC2D /* Foundation.framework */; };
+		96E9161A0B87002B007DDC2D /* ThreadCleanups.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E915220B86F5CD007DDC2D /* ThreadCleanups.m */; };
+		96E919FB0B891445007DDC2D /* OSXBluetoothThreadFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 96E919FA0B891445007DDC2D /* OSXBluetoothThreadFunctions.c */; };
+		96E919FC0B891445007DDC2D /* OSXBluetoothThreadFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 96E919FA0B891445007DDC2D /* OSXBluetoothThreadFunctions.c */; };
+		96E91A050B89163F007DDC2D /* UtilityFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 96E91A040B89163F007DDC2D /* UtilityFunctions.c */; };
+		96E91A060B89163F007DDC2D /* UtilityFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 96E91A040B89163F007DDC2D /* UtilityFunctions.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		36ABB26A061E0EED00C43093 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6A9FA6030246AD840CC91562;
+			remoteInfo = Headers;
+		};
+		4CEBA79908679F280015D03E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4CEBA78E08679EF10015D03E;
+			remoteInfo = JNILib;
+		};
+		963C751A0B89434B00AC5EC5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 963C74D80B893F3D00AC5EC5;
+			remoteInfo = versionIncrement;
+		};
+		96B476FB0B844218003E53AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4CEBA78E08679EF10015D03E;
+			remoteInfo = intelbth;
+		};
+		96E915E20B86FE6B007DDC2D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6A9FA6030246AD840CC91562;
+			remoteInfo = Headers;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6A52677B022AFE3B0CC91562 /* blueCovejnilib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = blueCovejnilib.c; sourceTree = "<group>"; };
+		6AE2200B0208CA9C0CC91562 /* JavaVM.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaVM.framework; path = /System/Library/Frameworks/JavaVM.framework; sourceTree = "<absolute>"; };
+		963567330B81670300141C67 /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = /System/Library/Frameworks/IOBluetooth.framework; sourceTree = "<absolute>"; };
+		963568350B81BA9100141C67 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		963C74D10B893E9F00AC5EC5 /* currentVersion */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = currentVersion; sourceTree = "<group>"; };
+		963C74D90B893F3D00AC5EC5 /* versionIncrement */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = versionIncrement; sourceTree = BUILT_PRODUCTS_DIR; };
+		963C74DB0B893F5800AC5EC5 /* currentVersion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = currentVersion.c; sourceTree = "<group>"; };
+		963C751E0B89437100AC5EC5 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
+		963C75B10B89512500AC5EC5 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
+		967833D10B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_BluetoothPeer_InquiryThread.h; sourceTree = "<group>"; };
+		967833D20B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h; sourceTree = "<group>"; };
+		967833D30B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_BluetoothPeer.h; sourceTree = "<group>"; };
+		967833D40B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_ServiceRecordImpl.h; sourceTree = "<group>"; };
+		968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blueCovejnilib.h; sourceTree = "<group>"; };
+		96B476F90B844204003E53AA /* DebugProject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DebugProject; sourceTree = BUILT_PRODUCTS_DIR; };
+		96B477B00B84426F003E53AA /* debugMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debugMain.c; sourceTree = "<group>"; };
+		96E316680B89670E009935EE /* libintelbth.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = libintelbth.jnilib; path = ../../../resources/libintelbth.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
+		96E3166B0B89670E009935EE /* nativeHeaders */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = nativeHeaders; path = build/Release/nativeHeaders; sourceTree = "<group>"; };
+		96E911FA0B868972007DDC2D /* NativeCommons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeCommons.h; sourceTree = "<group>"; };
+		96E915210B86F5CD007DDC2D /* ThreadCleanups.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadCleanups.h; sourceTree = "<group>"; };
+		96E915220B86F5CD007DDC2D /* ThreadCleanups.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = ThreadCleanups.m; sourceTree = "<group>"; };
+		96E916100B86FF97007DDC2D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		96E919FA0B891445007DDC2D /* OSXBluetoothThreadFunctions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = OSXBluetoothThreadFunctions.c; sourceTree = "<group>"; };
+		96E91A040B89163F007DDC2D /* UtilityFunctions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UtilityFunctions.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4CEBA78D08679EF10015D03E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4CEBA79C08679F510015D03E /* JavaVM.framework in Frameworks */,
+				963567340B81670300141C67 /* IOBluetooth.framework in Frameworks */,
+				963568360B81BA9100141C67 /* CoreFoundation.framework in Frameworks */,
+				96E916110B86FF97007DDC2D /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6A9FA6020246AD840CC91562 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		963C74D70B893F3D00AC5EC5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96B476F70B844204003E53AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96B478390B84473C003E53AA /* JavaVM.framework in Frameworks */,
+				967349970B84581A00A056FE /* CoreFoundation.framework in Frameworks */,
+				9673497E0B84581800A056FE /* IOBluetooth.framework in Frameworks */,
+				96E916120B86FF97007DDC2D /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00E6828FFEC88D1A11DB9C8B = {
+			isa = PBXGroup;
+			children = (
+				963C76A10B89631600AC5EC5 /* VersionIncreaseCode */,
+				96E917BB0B87E004007DDC2D /* JNI Headers */,
+				96B477AE0B84425C003E53AA /* DebugTest */,
+				96B477070B844248003E53AA /* NativeLibrary */,
+				963C74F60B89422B00AC5EC5 /* Outputs */,
+				96E316680B89670E009935EE /* libintelbth.jnilib */,
+				96E3166B0B89670E009935EE /* nativeHeaders */,
+			);
+			sourceTree = "<group>";
+		};
+		963C74F60B89422B00AC5EC5 /* Outputs */ = {
+			isa = PBXGroup;
+			children = (
+				96B476F90B844204003E53AA /* DebugProject */,
+				963C74D90B893F3D00AC5EC5 /* versionIncrement */,
+			);
+			name = Outputs;
+			sourceTree = "<group>";
+		};
+		963C76A10B89631600AC5EC5 /* VersionIncreaseCode */ = {
+			isa = PBXGroup;
+			children = (
+				963C74D10B893E9F00AC5EC5 /* currentVersion */,
+				963C74DB0B893F5800AC5EC5 /* currentVersion.c */,
+			);
+			name = VersionIncreaseCode;
+			sourceTree = "<group>";
+		};
+		96B477070B844248003E53AA /* NativeLibrary */ = {
+			isa = PBXGroup;
+			children = (
+				963C751E0B89437100AC5EC5 /* Version.h */,
+				96E91A040B89163F007DDC2D /* UtilityFunctions.c */,
+				96E919FA0B891445007DDC2D /* OSXBluetoothThreadFunctions.c */,
+				6A52677B022AFE3B0CC91562 /* blueCovejnilib.c */,
+				96E915220B86F5CD007DDC2D /* ThreadCleanups.m */,
+				96E911FA0B868972007DDC2D /* NativeCommons.h */,
+				968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */,
+				96E915210B86F5CD007DDC2D /* ThreadCleanups.h */,
+				96E916100B86FF97007DDC2D /* Foundation.framework */,
+				963568350B81BA9100141C67 /* CoreFoundation.framework */,
+				6AE2200B0208CA9C0CC91562 /* JavaVM.framework */,
+				963567330B81670300141C67 /* IOBluetooth.framework */,
+				963C75B10B89512500AC5EC5 /* TODO */,
+			);
+			name = NativeLibrary;
+			sourceTree = "<group>";
+		};
+		96B477AE0B84425C003E53AA /* DebugTest */ = {
+			isa = PBXGroup;
+			children = (
+				96B477B00B84426F003E53AA /* debugMain.c */,
+			);
+			name = DebugTest;
+			sourceTree = "<group>";
+		};
+		96E917BB0B87E004007DDC2D /* JNI Headers */ = {
+			isa = PBXGroup;
+			children = (
+				967833D10B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h */,
+				967833D20B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h */,
+				967833D30B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h */,
+				967833D40B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h */,
+			);
+			name = "JNI Headers";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4CEBA78B08679EF10015D03E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				968A02240B82F69E00E7D4C1 /* blueCovejnilib.h in Headers */,
+				96E911FB0B868972007DDC2D /* NativeCommons.h in Headers */,
+				96E915230B86F5CD007DDC2D /* ThreadCleanups.h in Headers */,
+				963C751F0B89437100AC5EC5 /* Version.h in Headers */,
+				967833D50B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h in Headers */,
+				967833D60B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h in Headers */,
+				967833D70B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h in Headers */,
+				967833D80B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXJavaArchiveBuildPhase section */
+		6A9FA6010246AD840CC91562 /* JavaArchive */ = {
+			isa = PBXJavaArchiveBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXJavaArchiveBuildPhase section */
+
+/* Begin PBXLibraryTarget section */
+		6A9FA6030246AD840CC91562 /* Headers */ = {
+			isa = PBXLibraryTarget;
+			buildConfigurationList = 4CEBA75008679E4D0015D03E /* Build configuration list for PBXLibraryTarget "Headers" */;
+			buildPhases = (
+				6A9FA6000246AD840CC91562 /* Sources */,
+				6A9FA6050246AD8E0CC91562 /* ShellScript */,
+				6A9FA6010246AD840CC91562 /* JavaArchive */,
+				6A9FA6020246AD840CC91562 /* Frameworks */,
+			);
+			dependencies = (
+				963C751B0B89434B00AC5EC5 /* PBXTargetDependency */,
+			);
+			name = Headers;
+			productInstallPath = /usr/local/lib;
+			productName = CreateHeaders;
+			productReference = 96E3166B0B89670E009935EE /* nativeHeaders */;
+		};
+/* End PBXLibraryTarget section */
+
+/* Begin PBXNativeTarget section */
+		4CEBA78E08679EF10015D03E /* intelbth */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4CEBA79108679F100015D03E /* Build configuration list for PBXNativeTarget "intelbth" */;
+			buildPhases = (
+				4CEBA78B08679EF10015D03E /* Headers */,
+				4CEBA78C08679EF10015D03E /* Sources */,
+				4CEBA78D08679EF10015D03E /* Frameworks */,
+				963C735A0B8931BB00AC5EC5 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				96E915E30B86FE6B007DDC2D /* PBXTargetDependency */,
+			);
+			name = intelbth;
+			productName = JNILibN;
+			productReference = 96E316680B89670E009935EE /* libintelbth.jnilib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		963C74D80B893F3D00AC5EC5 /* versionIncrement */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 963C74DD0B893F5800AC5EC5 /* Build configuration list for PBXNativeTarget "versionIncrement" */;
+			buildPhases = (
+				963C74D60B893F3D00AC5EC5 /* Sources */,
+				963C74D70B893F3D00AC5EC5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = versionIncrement;
+			productName = versionIncrement;
+			productReference = 963C74D90B893F3D00AC5EC5 /* versionIncrement */;
+			productType = "com.apple.product-type.tool";
+		};
+		96B476F80B844204003E53AA /* DebugProject */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96B477020B84422B003E53AA /* Build configuration list for PBXNativeTarget "DebugProject" */;
+			buildPhases = (
+				96B476F60B844204003E53AA /* Sources */,
+				96B476F70B844204003E53AA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				96B476FC0B844218003E53AA /* PBXTargetDependency */,
+			);
+			name = DebugProject;
+			productName = DebugProject;
+			productReference = 96B476F90B844204003E53AA /* DebugProject */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		00E6828EFEC88D1A11DB9C8B /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 4CEBA75C08679E4D0015D03E /* Build configuration list for PBXProject "blueCove" */;
+			hasScannedForEncodings = 1;
+			mainGroup = 00E6828FFEC88D1A11DB9C8B;
+			productRefGroup = 00E6828FFEC88D1A11DB9C8B;
+			projectDirPath = "";
+			targets = (
+				6A9FA557024694440CC91562 /* blueCove */,
+				6A9FA6030246AD840CC91562 /* Headers */,
+				4CEBA78E08679EF10015D03E /* intelbth */,
+				96B476F80B844204003E53AA /* DebugProject */,
+				963C74D80B893F3D00AC5EC5 /* versionIncrement */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6A9FA6050246AD8E0CC91562 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "javah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -d \"${SOURCE_ROOT}\" \"com.intel.bluetooth.BluetoothPeer\"\njavah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -d \"${SOURCE_ROOT}\" \"com.intel.bluetooth.ServiceRecordImpl\"\n${BUILD_DIR}/versionIncrement ${SOURCE_ROOT}/currentVersion Version.h\n\n";
+		};
+		963C735A0B8931BB00AC5EC5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#ifdef DEBUG_MODE\n\techo \"Not stripping library\"\n#else\n\tstrip -x ../resources/libintelbth.jnilib\n#endif";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4CEBA78C08679EF10015D03E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96E915240B86F5CD007DDC2D /* ThreadCleanups.m in Sources */,
+				4CEBA79B08679F3E0015D03E /* blueCovejnilib.c in Sources */,
+				96E919FB0B891445007DDC2D /* OSXBluetoothThreadFunctions.c in Sources */,
+				96E91A050B89163F007DDC2D /* UtilityFunctions.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6A9FA6000246AD840CC91562 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		963C74D60B893F3D00AC5EC5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				963C74DC0B893F5800AC5EC5 /* currentVersion.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96B476F60B844204003E53AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9673497D0B84581400A056FE /* blueCovejnilib.c in Sources */,
+				96E9161A0B87002B007DDC2D /* ThreadCleanups.m in Sources */,
+				96B477B10B84426F003E53AA /* debugMain.c in Sources */,
+				96E919FC0B891445007DDC2D /* OSXBluetoothThreadFunctions.c in Sources */,
+				96E91A060B89163F007DDC2D /* UtilityFunctions.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4CEBA79A08679F280015D03E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4CEBA78E08679EF10015D03E /* intelbth */;
+			targetProxy = 4CEBA79908679F280015D03E /* PBXContainerItemProxy */;
+		};
+		6A9FA6060246ADAE0CC91562 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6A9FA6030246AD840CC91562 /* Headers */;
+			targetProxy = 36ABB26A061E0EED00C43093 /* PBXContainerItemProxy */;
+		};
+		963C751B0B89434B00AC5EC5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 963C74D80B893F3D00AC5EC5 /* versionIncrement */;
+			targetProxy = 963C751A0B89434B00AC5EC5 /* PBXContainerItemProxy */;
+		};
+		96B476FC0B844218003E53AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4CEBA78E08679EF10015D03E /* intelbth */;
+			targetProxy = 96B476FB0B844218003E53AA /* PBXContainerItemProxy */;
+		};
+		96E915E30B86FE6B007DDC2D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6A9FA6030246AD840CC91562 /* Headers */;
+			targetProxy = 96E915E20B86FE6B007DDC2D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		4CEBA75108679E4D0015D03E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = nativeHeaders;
+				REZ_EXECUTABLE = YES;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		4CEBA75208679E4D0015D03E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = nativeHeaders;
+				REZ_EXECUTABLE = YES;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		4CEBA75908679E4D0015D03E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = blueCove;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		4CEBA75A08679E4D0015D03E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = blueCove;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		4CEBA75D08679E4D0015D03E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		4CEBA75E08679E4D0015D03E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		4CEBA79208679F100015D03E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_MODE = TRUE;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS_QUOTED_1)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_2)",
+				);
+				HEADER_SEARCH_PATHS_QUOTED_1 = "\"${OBJROOT}/Headers\"";
+				HEADER_SEARCH_PATHS_QUOTED_2 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/JavaVM.framework/Headers\"";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_STYLE = DYNAMIC;
+				MACH_O_TYPE = mh_dylib;
+				OBJROOT = build;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = intelbth;
+				SECTORDER_FLAGS = "";
+				SYMROOT = ../resources;
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		4CEBA79308679F100015D03E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				COPY_PHASE_STRIP = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_EXTENSION = jnilib;
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_ASM_KEYWORD = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS_QUOTED_1)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_2)",
+				);
+				HEADER_SEARCH_PATHS_QUOTED_1 = "\"${OBJROOT}/Headers\"";
+				HEADER_SEARCH_PATHS_QUOTED_2 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/JavaVM.framework/Headers\"";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_STYLE = DYNAMIC;
+				MACH_O_TYPE = mh_dylib;
+				OBJROOT = build;
+				ONLY_LINK_ESSENTIAL_SYMBOLS = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = intelbth;
+				SECTORDER_FLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = all;
+				SYMROOT = ../resources;
+				UNEXPORTED_SYMBOLS_FILE = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		963C74DE0B893F5800AC5EC5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = versionIncrement;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		963C74DF0B893F5800AC5EC5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = versionIncrement;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		96B477030B84422B003E53AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "$(HEADER_SEARCH_PATHS_QUOTED_2)";
+				HEADER_SEARCH_PATHS_QUOTED_2 = "\"/System/Library/Frameworks/JavaVM.framework/Headers\"";
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = DebugProject;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		96B477040B84422B003E53AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = "$(HEADER_SEARCH_PATHS_QUOTED_2)";
+				HEADER_SEARCH_PATHS_QUOTED_2 = "\"/System/Library/Frameworks/JavaVM.framework/Headers\"";
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = DebugProject;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4CEBA75008679E4D0015D03E /* Build configuration list for PBXLibraryTarget "Headers" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CEBA75108679E4D0015D03E /* Debug */,
+				4CEBA75208679E4D0015D03E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4CEBA75808679E4D0015D03E /* Build configuration list for PBXAggregateTarget "blueCove" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CEBA75908679E4D0015D03E /* Debug */,
+				4CEBA75A08679E4D0015D03E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4CEBA75C08679E4D0015D03E /* Build configuration list for PBXProject "blueCove" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CEBA75D08679E4D0015D03E /* Debug */,
+				4CEBA75E08679E4D0015D03E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4CEBA79108679F100015D03E /* Build configuration list for PBXNativeTarget "intelbth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CEBA79208679F100015D03E /* Debug */,
+				4CEBA79308679F100015D03E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		963C74DD0B893F5800AC5EC5 /* Build configuration list for PBXNativeTarget "versionIncrement" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				963C74DE0B893F5800AC5EC5 /* Debug */,
+				963C74DF0B893F5800AC5EC5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		96B477020B84422B003E53AA /* Build configuration list for PBXNativeTarget "DebugProject" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96B477030B84422B003E53AA /* Debug */,
+				96B477040B84422B003E53AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 00E6828EFEC88D1A11DB9C8B /* Project object */;
+}
