@@ -36,6 +36,19 @@ public class RemoteDevice {
 		this.address = address;
 	}
 
+	/* added for debugging */
+	public String toString() {
+		String	summary = "RemoteDevice(address: " + getBluetoothAddress() +
+				", trusted: " + Boolean.valueOf(isTrustedDevice()).toString()+
+				", encrypted: " + Boolean.valueOf(isEncrypted()).toString();
+		try {
+				summary += ", friendlyName: "+ getFriendlyName(false);
+		} catch (Exception exp) {
+		
+		}
+				
+		return summary;
+	}
 	/*
 	 * Creates a Bluetooth device based upon its address. The Bluetooth address
 	 * must be 12 hex characters long. Valid characters are 0-9, a-f, and A-F.
