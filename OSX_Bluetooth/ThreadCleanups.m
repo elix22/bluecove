@@ -18,7 +18,7 @@
  *
  */
  
-#import "ThreadCleanups.h"
+#include "ThreadCleanups.h"
 #include "Foundation/NSAutoreleasePool.h"
 #include "Foundation/NSThread.h"
 

@@ -31,7 +31,7 @@
 #include "ThreadCleanups.h"
 #include "Version.h"
 
-
+#define DEBUG_DEVEL_LEVEL	100
 #define DEBUG_INFO_LEVEL	90
 #define DEBUG_WARN_LEVEL	50
 #define DEBUG_NORM_LEVEL	30
@@ -60,6 +60,11 @@
 #endif
 
 #define DO_NOT_EXPORT __attribute__((visibility("hidden")))
+#if DEBUG >= DEBUG_DEVEL_LEVEL
+	#define JAVA_ENV_CHECK(x) x; if((*env)->ExceptionOccurred(env)) {(*env)->ExceptionDescribe(env); setBreakPoint();}
+#else 
+	#define JAVA_ENV_CHECK(x) x;
+#endif
 
 /* create a linked lists of inquiries associating the native inquiry with the listener */
 /* this list should never get very long so I'm going to be a bit lazy with it */
@@ -69,6 +74,7 @@ typedef struct currInq {
 	jobject							aListener;
 	int								refCount;
 	char							inquiryStarted;
+	char							isLimited; /* LAIC set */
 	struct currInq					*next;
 }  currInq;
 
@@ -148,6 +154,8 @@ void				disposeServiceInqRec(currServiceInq*  toDelete);
 void				throwException(JNIEnv *env, const char *name, const char *msg);
 void				throwIOException(JNIEnv *env, const char *msg);
 jobject				getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement);
+void				setBreakPoint(void);
+
 
 /* Library Globals */
 extern 	currInq					*s_inquiryList;

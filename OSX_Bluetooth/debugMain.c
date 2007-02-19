@@ -39,7 +39,7 @@ int main(int argc, const char * argv[]) {
 	/* set this to the path location specific to your OS tha contains the java code
 	 * which interfaces with your native library */
 	 
-	options[1].optionString = "-Djava.class.path=/Users/work/Documents/workspace/BlueCoveOSX/resources/javaOnlyBluecove.jar";
+	options[1].optionString = "-Djava.class.path=/Users/work/Documents/workspace/BlueCoveOSX/resources/bluecove.jar";
 	options[2].optionString = "-verbose:jni";
 	
 	err = JNI_GetDefaultJavaVMInitArgs(&vm_args);
@@ -74,7 +74,11 @@ int main(int argc, const char * argv[]) {
 		{"getpeeraddress", "(I)J", Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress},									//19
 		{"getradioname", "(J)Ljava/lang/String;", Java_com_intel_bluetooth_BluetoothPeer_getradioname},						//20
 		{"asyncStopSearchServices", "(I)Z", Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearchServices},				//21
-		{"getServiceHandles", "([Ljavax/bluetooth/UUID;J)[I", Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles}		//22
+		{"getServiceHandles", "([Ljavax/bluetooth/UUID;J)[I", Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles},	//22
+		{"asyncSearchServices", "([I[Ljavax/bluetooth/UUID;Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DiscoveryListener;)I",
+					Java_com_intel_bluetooth_BluetoothPeer_asyncSearchServices},											//23
+		{"getAdjustedSystemProperties", "()Ljava/util/Properties;", 
+					Java_com_intel_bluetooth_BluetoothPeer_getAdjustedSystemProperties}										//24
 		};
 	JNINativeMethod			nativeMethodsServRecImpl[] = {
 		{"native_populateRecord", "([I)Z", Java_com_intel_bluetooth_ServiceRecordImpl_native_1populateRecord}				//1
@@ -82,7 +86,7 @@ int main(int argc, const char * argv[]) {
 		
 		
 	jclass		interface = (*env)->FindClass(env, "com/intel/bluetooth/BluetoothPeer");
-	err = (*env)->RegisterNatives(env, interface, nativeMethodsBTPeer, 22);
+	err = (*env)->RegisterNatives(env, interface, nativeMethodsBTPeer, 24);
 	interface = (*env)->FindClass(env, "com/intel/bluetooth/ServiceRecordImpl");
 	err = (*env)->RegisterNatives(env, interface, nativeMethodsServRecImpl, 1);
 
@@ -103,7 +107,7 @@ int main(int argc, const char * argv[]) {
 
 	JNI_OnLoad(jvm, NULL);
 	/* invoke the main thread */
-	 cls = (*env)->FindClass(env, "com/intel/bluetooth/test/ClientTest");
+	 cls = (*env)->FindClass(env, "com/intel/bluetooth/test/RFCOMMTest");
 //	 cls = (*env)->FindClass(env, "com/intel/bluetooth/test/StandaloneTest");
 //	 cls = (*env)->FindClass(env, "com/intel/bluetooth/test/DummyTest");
 	 stringCls = (*env)->FindClass(env, "java/lang/String");
@@ -112,6 +116,12 @@ int main(int argc, const char * argv[]) {
 jobjectArray params = (*env)->NewObjectArray(env, 0,  stringCls, NULL);
 	jsize	aSize = (*env)->GetArrayLength(env, params);
 	(*env)->CallStaticVoidMethod(env, cls, mid, params);
+	exp = (*env)->ExceptionOccurred(env);
+	if(exp) {
+		(*env)->ExceptionDescribe(env);
+		return;
+	}
+
 	/* just in case main returns right away sleep the thread longer than the debug session */
 	sleep(10000000);
 	(*jvm)->DestroyJavaVM(jvm);
