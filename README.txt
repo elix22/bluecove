@@ -6,13 +6,16 @@
 == About ==
 
 BlueCove is a LGPL licensed JSR-82 implementation that currently interfaces with
-the Microsoft Bluetooth stack. Originally developed by Intel Research and
+the Microsoft Bluetooth stack or Mac OS X Bluetooth stack. Originally developed by Intel Research and
 currently maintained by volunteers.
 
 == Requirements ==
 
   * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer)
   * A Bluetooth device supported by the Microsoft bluetooth stack
+  	OR
+  * Mac OS X v10.4.2 or newer
+  
   * Java 1.4 or newer (for the binary, might compile on older)
   * Another Bluetooth device to communicate with
 
@@ -20,9 +23,8 @@ currently maintained by volunteers.
 
 Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
 BlueCove also only supports RFCOMM connections. The operating system support is
-currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
-stack is not available on other operating systems. If someone writes code to
-support another stack and/or operating system, it will be considered for
+currently limited to Mac OS X (10.4.2), Windows XP SP2 and newer. If someone writes
+code to support another stack and/or operating system, it will be considered for
 inclusion.  BlueCove does also not support OBEX, but there are other projects
 that can (possibly) be used to achieve OBEX functionality with BlueCove.
 
