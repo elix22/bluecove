@@ -52,31 +52,54 @@ int main(int argc, const char * argv[]) {
 	err = JNI_CreateJavaVM(&jvm, (void**) &env, &vm_args);
 
 /* register the native methods */
-	JNINativeMethod			nativeMethods[]={
-		{"doInquiry", "(ILjavax/bluetooth/DiscoveryListener;)I", Java_com_intel_bluetooth_BluetoothPeer_doInquiry},
-		{"cancelInquiry", "(Ljavax/bluetooth/DiscoveryListener;)Z",Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry },
-		{"getServiceHandles", "([Ljavax/bluetooth/UUID;J)[I", Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles},
-		{"getServiceAttributes", "([IJI)[B", Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes},
-		{"registerService", "([B)I",Java_com_intel_bluetooth_BluetoothPeer_registerService},
-		{"unregisterService", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_unregisterService},
-		{"socket", "(ZZ)I", Java_com_intel_bluetooth_BluetoothPeer_socket},
-		{"getsockaddress", "(I)J", Java_com_intel_bluetooth_BluetoothPeer_getsockaddress},
-		{"getsockchannel", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_getsockchannel},
-		{"connect", "(IJI)V",Java_com_intel_bluetooth_BluetoothPeer_connect },
-		{"listen", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_listen},
-		{"accept", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_accept},
-		{"recv", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_recv__I},
-		{"recv", "(I[BII)I", Java_com_intel_bluetooth_BluetoothPeer_recv__I_3BII},
-		{"send", "(II)V", Java_com_intel_bluetooth_BluetoothPeer_send__II},
-		{"send", "(I[BII)V", Java_com_intel_bluetooth_BluetoothPeer_send__I_3BII},
-		{"close", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_close},
-		{"getpeername", "(J)Ljava/lang/String;", Java_com_intel_bluetooth_BluetoothPeer_getpeername},
-		{"getpeeraddress", "(I)J", Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress},
-		{"getradioname", "(J)Ljava/lang/String;", Java_com_intel_bluetooth_BluetoothPeer_getradioname}};
+	JNINativeMethod			nativeMethodsBTPeer[]={
+		{"doInquiry", "(ILjavax/bluetooth/DiscoveryListener;)I", Java_com_intel_bluetooth_BluetoothPeer_doInquiry},			//1
+		{"cancelInquiry", "(Ljavax/bluetooth/DiscoveryListener;)Z",Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry },	//2
+		{"getServiceHandles", "([Ljavax/bluetooth/UUID;J)[I", Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles},	//3
+		{"getServiceAttributes", "([IJI)[B", Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes},					//4
+		{"registerService", "([B)I",Java_com_intel_bluetooth_BluetoothPeer_registerService},								//5
+		{"unregisterService", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_unregisterService},							//6
+		{"socket", "(ZZ)I", Java_com_intel_bluetooth_BluetoothPeer_socket},													//7
+		{"getsockaddress", "(I)J", Java_com_intel_bluetooth_BluetoothPeer_getsockaddress},									//8
+		{"getsockchannel", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_getsockchannel},									//9
+		{"connect", "(IJI)V",Java_com_intel_bluetooth_BluetoothPeer_connect },												//10
+		{"listen", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_listen},													//11
+		{"accept", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_accept},													//12
+		{"recv", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_recv__I},													//13
+		{"recv", "(I[BII)I", Java_com_intel_bluetooth_BluetoothPeer_recv__I_3BII},											//14
+		{"send", "(II)V", Java_com_intel_bluetooth_BluetoothPeer_send__II},													//15
+		{"send", "(I[BII)V", Java_com_intel_bluetooth_BluetoothPeer_send__I_3BII},											//16
+		{"close", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_close},													//17
+		{"getpeername", "(J)Ljava/lang/String;", Java_com_intel_bluetooth_BluetoothPeer_getpeername},						//18
+		{"getpeeraddress", "(I)J", Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress},									//19
+		{"getradioname", "(J)Ljava/lang/String;", Java_com_intel_bluetooth_BluetoothPeer_getradioname},						//20
+		{"asyncStopSearchServices", "(I)Z", Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearchServices},				//21
+		{"getServiceHandles", "([Ljavax/bluetooth/UUID;J)[I", Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles}		//22
+		};
+	JNINativeMethod			nativeMethodsServRecImpl[] = {
+		{"native_populateRecord", "([I)Z", Java_com_intel_bluetooth_ServiceRecordImpl_native_1populateRecord}				//1
+		};
 		
 		
 	jclass		interface = (*env)->FindClass(env, "com/intel/bluetooth/BluetoothPeer");
-	err = (*env)->RegisterNatives(env, interface, nativeMethods, 20);
+	err = (*env)->RegisterNatives(env, interface, nativeMethodsBTPeer, 22);
+	interface = (*env)->FindClass(env, "com/intel/bluetooth/ServiceRecordImpl");
+	err = (*env)->RegisterNatives(env, interface, nativeMethodsServRecImpl, 1);
+
+	/* trick the Native Library load class into thinking its already loaded the library
+		If you don't do this it'll try to load a library and it may succeed in loading an
+		old version from somewhere. This ensures only the current code is being debugged */
+	jclass		nativeLLClass = (*env)->FindClass(env, "com/intel/bluetooth/NativeLibLoader");
+	jobject exp = (*env)->ExceptionOccurred(env);
+	if(exp) {
+		(*env)->ExceptionDescribe(env);
+		return;
+	}
+
+	jfieldID	aField = (*env)->GetStaticFieldID(env, nativeLLClass, "triedToLoadAlredy", "Z");
+	(*env)->SetStaticBooleanField(env, nativeLLClass, aField, 1);
+	aField = (*env)->GetStaticFieldID(env, nativeLLClass, "libraryAvailable", "Z");
+	(*env)->SetStaticBooleanField(env, nativeLLClass, aField, 1);
 
 	JNI_OnLoad(jvm, NULL);
 	/* invoke the main thread */
