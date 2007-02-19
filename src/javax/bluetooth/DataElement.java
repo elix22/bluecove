@@ -472,6 +472,8 @@ public class DataElement {
 
 	public String toString() {
 		switch (valueType) {
+		case NULL:
+			return "NULL";
 		case U_INT_1:
 		case U_INT_2:
 		case U_INT_4:
@@ -500,7 +502,7 @@ public class DataElement {
 			return buf.toString();
 		}
 		case DATSEQ: {
-			StringBuffer buf = new StringBuffer("DATSEQ {\n");
+			StringBuffer buf = new StringBuffer();
 
 			for (Enumeration e = ((Vector) value).elements(); e
 					.hasMoreElements();) {
@@ -508,9 +510,9 @@ public class DataElement {
 				buf.append("\n");
 			}
 
-			buf.append("}");
+		
 
-			return buf.toString();
+			return "DATSEQ {\n\t" + buf.toString().replaceAll("\n", "\n\t") + '}';
 		}
 		case DATALT: {
 			StringBuffer buf = new StringBuffer("DATALT {\n");
@@ -521,9 +523,8 @@ public class DataElement {
 				buf.append("\n");
 			}
 
-			buf.append("}");
 
-			return buf.toString();
+			return "DATALT {\n" + buf.toString().replaceAll("\n", "\n\t") + '}';
 		}
 		default:
 			return "???";

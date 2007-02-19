@@ -35,6 +35,7 @@ import javax.bluetooth.UUID;
 public class ServiceRecordImpl implements ServiceRecord {
 
 	static	boolean 	nativeLibParsesSDP = false;
+	static 	final Hashtable	attributeNames;
 	
 	private RemoteDevice device;
 
@@ -452,19 +453,63 @@ public class ServiceRecordImpl implements ServiceRecord {
 
 		for (Enumeration e = attributes.keys(); e.hasMoreElements();) {
 			Integer i = (Integer) e.nextElement();
-
-			buf.append("0x");
-			buf.append(Integer.toHexString(i.intValue()));
-			buf.append(":\n");
-
+			String		name = (String)attributeNames.get(new Short(i.shortValue()));
+			if(name == null) {
+				buf.append("0x");
+				buf.append(Integer.toHexString(i.intValue()));
+			} else {
+				buf.append(name);
+			}
+			
+			buf.append(":\n\t");
+			
 			DataElement d = (DataElement) attributes.get(i);
 
-			buf.append(d);
+			buf.append(d.toString().replaceAll("\n", "\n\t"));
 			buf.append("\n");
 		}
 
 		buf.append("}");
 
 		return buf.toString();
+	}
+	
+	static {
+		attributeNames = new Hashtable(40);
+		
+		attributeNames.put(new Short((short)0x0000), "Service Record Handle");
+		attributeNames.put(new Short((short)0x0001), "Service ClassID List");
+		attributeNames.put(new Short((short)0x0002), "Service Record State");
+		attributeNames.put(new Short((short)0x0003), "Service ID");
+		attributeNames.put(new Short((short)0x0004), "Protocol Descriptor List");
+		attributeNames.put(new Short((short)0x0005), "Browse Group List");
+		attributeNames.put(new Short((short)0x0006), "Language Base Attribute ID List");
+		attributeNames.put(new Short((short)0x0007), "Service Into Time To Live");
+		attributeNames.put(new Short((short)0x0008), "Service Availability");
+		attributeNames.put(new Short((short)0x0009), "Bluetooth Profile Descriptor List");
+		attributeNames.put(new Short((short)0x000A), "Documentation URL");
+		attributeNames.put(new Short((short)0x000B), "Client Executable URL");
+		attributeNames.put(new Short((short)0x000C), "Icon URL");
+		attributeNames.put(new Short((short)0x000D), "Aditional Protocol Descriptor List");
+		attributeNames.put(new Short((short)0x0200), "Version Number List / Group ID / IP Subnet");
+		attributeNames.put(new Short((short)0x0201), "Service Database State");
+		attributeNames.put(new Short((short)0x0300), "Service Version");
+		attributeNames.put(new Short((short)0x0301), "External Network / Network / Supported Data Stores List");
+		attributeNames.put(new Short((short)0x0302), "Remote Audio Volume Control / Fax Class 1 Support");
+		attributeNames.put(new Short((short)0x0303), "Supporter Formats List / Fax Class 2.0 Suport");
+		attributeNames.put(new Short((short)0x0304), "Fax Class 2 Support");
+		attributeNames.put(new Short((short)0x0305), "Audio Feedback Support");
+		attributeNames.put(new Short((short)0x0306), "Network Address");
+		attributeNames.put(new Short((short)0x0307), "WAP Gateway");
+		attributeNames.put(new Short((short)0x0308), "Homepage URL");
+		attributeNames.put(new Short((short)0x0309), "WAP Stack Type");
+		attributeNames.put(new Short((short)0x030A), "Security Description");
+		attributeNames.put(new Short((short)0x030B), "Net Access Type");
+		attributeNames.put(new Short((short)0x030C), "Max Net Access Rate");
+		attributeNames.put(new Short((short)0x0310), "Supported Capabilities");
+		attributeNames.put(new Short((short)0x0311), "Supported Features");
+		attributeNames.put(new Short((short)0x0312), "Supported Functions");
+		attributeNames.put(new Short((short)0x0313), "Total Imaging Data Capacity");
+		
 	}
 }
