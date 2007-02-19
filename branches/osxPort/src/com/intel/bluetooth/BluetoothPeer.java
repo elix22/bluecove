@@ -20,6 +20,7 @@
 package com.intel.bluetooth;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.RemoteDevice;
@@ -30,11 +31,15 @@ public class BluetoothPeer {
 	
 	static boolean		nativeIsAsync;
 	static {
-		NativeLibLoader.isAvailable();
-		nativeIsAsync = "true".equals(System.getProperty("javax.bluetooth.bluecove.asyncEnabled"));
-		
+		nativeIsAsync = false;		
 	}
-
+	public BluetoothPeer() {
+		/* moved this out of static since it can cause a deadlock condition if
+		 * the native library tries to access the nativeIsAsync variable when
+		 * loaded.
+		 */
+		NativeLibLoader.isAvailable();
+	}
 	class InquiryThread extends Thread {
 		private int accessCode;
 
@@ -110,7 +115,8 @@ public class BluetoothPeer {
 
 	public int startSearchServices(int[] attrSet, UUID[] uuidSet,
 			RemoteDevice device, DiscoveryListener listener) {
-		if(nativeIsAsync) return asyncSearchServices(attrSet, uuidSet, device, listener);
+		if(nativeIsAsync) return asyncSearchServices(attrSet, uuidSet, 
+				device, listener);
 		else {
 			(new SearchServicesThread(attrSet, uuidSet, device, listener)).start();
 			return 0;
@@ -160,15 +166,12 @@ public class BluetoothPeer {
 	public native int[] getServiceHandles(UUID[] uuidSet, long address);
 
 	/*
-	 * get service attributes
+	 * get service attributes,
+	 * NOT implemented on OS X, but shouldn't ever be called, will return null
 	 */
 
 	public native byte[] getServiceAttributes(int[] attrIDs, long address,
 			int handle) throws IOException;
-
-	/*
-	 * register service
-	 */
 
 	public native int registerService(byte[] record) throws IOException;
 
@@ -213,4 +216,7 @@ public class BluetoothPeer {
 	public native long getpeeraddress(int socket) throws IOException;
 
 	public native String getradioname(long address);
+	
+	public native Properties getAdjustedSystemProperties();
+	
 }

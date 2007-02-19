@@ -180,7 +180,20 @@ public class LocalDevice {
 
 	public static String getProperty(String property) {
 		String		fullPropName = "javax." + property;
-		return System.getProperty(fullPropName);
+		String		propValue;
+		
+		propValue = System.getProperty(fullPropName);
+		
+		if(propValue == null) {
+			// the native library may not have been able to change the system
+			// properties due to a security manager rejecting it so we check
+			// its copy as a backup
+			try {
+				return getLocalDevice().bluetoothPeer.getAdjustedSystemProperties().getProperty(fullPropName);
+			} catch (Exception exp) {
+				return null;
+			}
+		} else return propValue;
 	}
 
 	/*
