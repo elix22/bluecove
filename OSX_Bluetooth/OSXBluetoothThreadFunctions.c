@@ -306,8 +306,7 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	BluetoothClassOfDevice			devClass;
 	CFStringRef						name; /* no release needed! May be null! */
 	const BluetoothDeviceAddress	*devAddress;
-	UInt64							bigEndianAddress;
-	UInt64							nativeEndianAddress;
+	UInt64							BTaddress;
 	jstring							devName;
 	CFRange							aRange;
 	UniChar							*buffer;
@@ -341,21 +340,17 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 		printMessage("IOBluetoothDeviceGetAddress returned null!", DEBUG_ERROR_LEVEL);
 	}
 	
-	bigEndianAddress = devAddress->data[0];
-	bigEndianAddress <<= 8;
-	bigEndianAddress |= devAddress->data[1];
-	bigEndianAddress <<= 8;
-	bigEndianAddress |= devAddress->data[2];
-	bigEndianAddress <<= 8;
-	bigEndianAddress |= devAddress->data[3];
-	bigEndianAddress <<= 8;
-	bigEndianAddress |= devAddress->data[4];
-	bigEndianAddress <<= 8;
-	bigEndianAddress |= devAddress->data[5];
-	/* TODO check on a big endian machine if the address is still correct */
-/*	nativeEndianAddress = CFSwapInt64BigToHost(bigEndianAddress);*/
-	
-	nativeEndianAddress = bigEndianAddress;
+	BTaddress = devAddress->data[0];
+	BTaddress <<= 8;
+	BTaddress |= devAddress->data[1];
+	BTaddress <<= 8;
+	BTaddress |= devAddress->data[2];
+	BTaddress <<= 8;
+	BTaddress |= devAddress->data[3];
+	BTaddress <<= 8;
+	BTaddress |= devAddress->data[4];
+	BTaddress <<= 8;
+	BTaddress |= devAddress->data[5];
 	
 	name = IOBluetoothDeviceGetName(deviceRef);
 	printMessage("IOBluetoothDeviceGetName returned", DEBUG_INFO_LEVEL);
@@ -378,7 +373,7 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	remoteDevCls = (*env)->FindClass(env, "javax/bluetooth/RemoteDevice");
 	constructor= (*env)->GetMethodID(env, remoteDevCls, "<init>", "(Ljava/lang/String;J)V");
 	
-	remoteDev = (*env)->NewObject(env, remoteDevCls, constructor, devName, nativeEndianAddress);
+	remoteDev = (*env)->NewObject(env, remoteDevCls, constructor, devName, BTaddress);
 	printMessage("Remote Device object constructed", DEBUG_INFO_LEVEL);
 	devClass = IOBluetoothDeviceGetClassOfDevice(deviceRef);
 	
