@@ -21,51 +21,91 @@
 package javax.bluetooth;
 
 import com.intel.bluetooth.NotImplementedError;
-
+/**
+ * The <code>DiscoveryAgent</code> class provides methods to perform
+ * device and service discovery.  A local device must have only one
+ * <code>DiscoveryAgent</code> object.  This object must be retrieved
+ * by a call to <code>getDiscoveryAgent()</code> on the
+ * <code>LocalDevice</code> object.
+ *
+ * <H3>Device Discovery</H3>
+ *
+ * There are two ways to discover devices.  First, an application may
+ * use <code>startInquiry()</code> to start an inquiry to find devices
+ * in proximity to the local device. Discovered devices are returned
+ * via the <code>deviceDiscovered()</code> method of the interface
+ * <code>DiscoveryListener</code>.  The second way to
+ * discover devices is via the <code>retrieveDevices()</code> method.
+ * This method will return devices that have been discovered via a
+ * previous inquiry or devices that are classified as pre-known.
+ * (Pre-known devices are those devices that are defined in the
+ * Bluetooth Control Center as devices this device frequently contacts.)
+ * The <code>retrieveDevices()</code> method does not perform an
+ * inquiry, but provides a quick way to get a list of devices that may
+ * be in the area.
+ *
+ * <H3>Service Discovery</H3>
+ * The <code>DiscoveryAgent</code> class also encapsulates the
+ * functionality provided by the service discovery application profile.
+ * The class provides an interface for an application to search and
+ * retrieve attributes for a particular service.  There are two ways to
+ * search for services.  To search for a service on a single device,
+ * the <code>searchServices()</code> method should be used.  On the
+ * other hand, if you don't care which device a service is on, the
+ * <code>selectService()</code> method does a service search on a
+ * set of remote devices.
+ *
+ */
 public class DiscoveryAgent {
-	/*
-	 * Takes the device out of discoverable mode. The value of NOT_DISCOVERABLE
-	 * is 0x00 (0).
+	/**
+	 * Takes the device out of discoverable mode. 
+	 * <p>
+	 * The value of NOT_DISCOVERABLE is 0x00 (0).
 	 */
 
 	public static final int NOT_DISCOVERABLE = 0;
 
-	/*
+	/**
 	 * The inquiry access code for General/Unlimited Inquiry Access Code (GIAC).
 	 * This is used to specify the type of inquiry to complete or respond to.
-	 * The value of GIAC is 0x9E8B33 (10390323). This value is defined in the
+	 * <p>
+	 * The value of {@code GIAC} is 0x9E8B33 (10390323). This value is defined in the
 	 * Bluetooth Assigned Numbers document.
 	 */
 
 	public static final int GIAC = 0x9E8B33;
 
-	/*
+	/**
 	 * The inquiry access code for Limited Dedicated Inquiry Access Code (LIAC).
 	 * This is used to specify the type of inquiry to complete or respond to.
-	 * The value of LIAC is 0x9E8B00 (10390272). This value is defined in the
+	 * <p>
+	 * The value of {@code LIAC} is 0x9E8B00 (10390272). This value is defined in the
 	 * Bluetooth Assigned Numbers document.
 	 */
 
 	public static final int LIAC = 0x9E8B00;
 
-	/*
-	 * Used with the retrieveDevices() method to return those devices that were
+	/**
+	 * Used with the {@code retrieveDevices()} method to return those devices that were
 	 * found via a previous inquiry. If no inquiries have been started, this
-	 * will cause the method to return null. The value of CACHED is 0x00 (0).
+	 * will cause the method to return {@code null}.
+	 * <p>
+	 * The value of CACHED is 0x00 (0).
 	 * 
-	 * See Also: retrieveDevices(int)
+	 * @see #retrieveDevices(int)
 	 */
 
 	public static final int CACHED = 0;
 
-	/*
-	 * Used with the retrieveDevices() method to return those devices that are
+	/**
+	 * Used with the {@code retrieveDevices()} method to return those devices that are
 	 * defined to be pre-known devices. Pre-known devices are specified in the
 	 * BCC. These are devices that are specified by the user as devices with
-	 * which the local device will frequently communicate. The value of PREKNOWN
-	 * is 0x01 (1).
+	 * which the local device will frequently communicate. 
+	 * <p>
+	 * The value of PREKNOWN is 0x01 (1).
 	 * 
-	 * See Also: retrieveDevices(int)
+	 * @see #retrieveDevices(int)
 	 */
 
 	public static final int PREKNOWN = 1;
@@ -73,41 +113,51 @@ public class DiscoveryAgent {
 	DiscoveryAgent() {
 	}
 
-	/*
+	/**
 	 * Returns an array of Bluetooth devices that have either been found by the
 	 * local device during previous inquiry requests or been specified as a
 	 * pre-known device depending on the argument. The list of previously found
 	 * devices is maintained by the implementation of this API. (In other words,
 	 * maintenance of the list of previously found devices is an implementation
 	 * detail.) A device can be set as a pre-known device in the Bluetooth
-	 * Control Center. Parameters: option - CACHED if previously found devices
-	 * should be returned; PREKNOWN if pre-known devices should be returned
-	 * Returns: an array containing the Bluetooth devices that were previously
-	 * found if option is CACHED; an array of devices that are pre-known devices
-	 * if option is PREKNOWN; null if no devices meet the criteria Throws:
-	 * IllegalArgumentException - if option is not CACHED or PREKNOWN
+	 * Control Center.
+	 * 
+	 * @param option  {@link #CACHED} if previously found devices
+	 * should be returned; {@link #PREKNOWN} if pre-known devices should be returned
+	 * @return an array containing the Bluetooth devices that were previously
+	 * found if option is {@link #CACHED}; an array of devices that are pre-known devices
+	 * if option is {@link #PREKNOWN}; {@code null} if no devices meet the criteria 
+	 * @throws java.lang.IllegalArgumentException - if option is not {@link #CACHED} or
+	 * {@link #PREKNOWN}
 	 */
 
 	public RemoteDevice[] retrieveDevices(int option) {
 		return null; // TODO keep a cache of previous devices
 	}
 
-	/*
+	/**
 	 * Places the device into inquiry mode. The length of the inquiry is
 	 * implementation dependent. This method will search for devices with the
 	 * specified inquiry access code. Devices that responded to the inquiry are
-	 * returned to the application via the method deviceDiscovered() of the
-	 * interface DiscoveryListener. The cancelInquiry() method is called to stop
-	 * the inquiry. Parameters: accessCode - the type of inquiry to complete
-	 * listener - the event listener that will receive device discovery events
-	 * Returns: true if the inquiry was started; false if the inquiry was not
-	 * started because the accessCode is not supported Throws:
-	 * IllegalArgumentException - if the access code provided is not LIAC, GIAC,
-	 * or in the range 0x9E8B00 to 0x9E8B3F NullPointerException - if listener
-	 * is null BluetoothStateException - if the Bluetooth device does not allow
-	 * an inquiry to be started due to other operations that are being performed
-	 * by the device See Also: cancelInquiry(javax.bluetooth.DiscoveryListener),
-	 * GIAC, LIAC
+	 * returned to the application via the method {@link 
+	 * DiscoveryListener#deviceDiscovered(RemoteDevice, DeviceClass) 
+	 * deviceDiscovered()} of the interface {@link DiscoveryListener}. The 
+	 * {@link #cancelInquiry(DiscoveryListener) cancelInquiry()} method is called 
+	 * to stop the inquiry. 
+	 * 
+	 * @param accessCode the type of inquiry to complete
+	 * @param listener  the event listener that will receive device discovery events
+	 * @return {@code true} if the inquiry was started; {@code false} if the inquiry was not
+	 * started because the accessCode is not supported
+	 * @throws java.lang.IllegalArgumentException if the access code provided is not
+	 * 			{@link  #LIAC}, {@link #GIAC}, or in the range 0x9E8B00 to 0x9E8B3F
+	 * @throws java.lang.NullPointerException  if {@code listener} is {@code null}
+	 * @throws BluetoothStateException if the Bluetooth device does not allow
+	 * 			an inquiry to be started due to other operations that are being performed
+	 * 			by the device 
+	 * @see #cancelInquiry(DiscoveryListener)
+	 * @see #GIAC
+	 * @see #LIAC
 	 */
 
 	public boolean startInquiry(int accessCode, DiscoveryListener listener)
@@ -117,20 +167,22 @@ public class DiscoveryAgent {
 				accessCode, listener);
 	}
 
-	/*
-	 * Removes the device from inquiry mode. An inquiryCompleted() event will
-	 * occur with a type of INQUIRY_TERMINATED as a result of calling this
-	 * method. After receiving this event, no further deviceDiscovered() events
-	 * will occur as a result of this inquiry.
-	 * 
+	/**
+	 * Removes the device from inquiry mode. An {@link DiscoveryListener#inquiryCompleted(int)} 
+	 * call will occur with a type of {@link DiscoveryListener#INQUIRY_TERMINATED} as a 
+	 * result of calling this method. After receiving this event, no further 
+	 * {@link DiscoveryListener#deviceDiscovered(RemoteDevice, DeviceClass) deviceDiscovered()}
+	 * calls will occur as a result of this inquiry.
+	 * <p>
 	 * This method will only cancel the inquiry if the listener provided is the
 	 * listener that started the inquiry.
 	 * 
-	 * Parameters: listener - the listener that is receiving inquiry events
-	 * Returns: true if the inquiry was canceled; otherwise false if the inquiry
-	 * was not canceled or if the inquiry was not started using listener Throws:
-	 * NullPointerException - if listener is null
-	 * 
+	 * @param listener - the listener that is receiving inquiry events
+	 * @return {@code true} if the inquiry was canceled; otherwise {@code false} if 
+	 * the inquiry was not canceled or if the inquiry was not started using {@code listener}
+	 * @throws java.lang.NullPointerException - if {@code listener} is {@code null}
+	 */
+	/*
 	 * TODO: Deviation from spec. We always cancel, regardless of the value of
 	 * listener
 	 */
@@ -147,31 +199,38 @@ public class DiscoveryAgent {
 		return ld.getBluetoothPeer().cancelInquiry(listener);
 	}
 
-	/*
-	 * Searches for services on a remote Bluetooth device that have all the
-	 * UUIDs specified in uuidSet. Once the service is found, the attributes
-	 * specified in attrSet and the default attributes are retrieved. The
+	/**
+	 * Searches for services on a remote Bluetooth device that have the
+	 * {@code UUIDs} specified in uuidSet. Once a service is found, the attributes
+	 * specified in {@code attrSet} and the default attributes are retrieved. The
 	 * default attributes are ServiceRecordHandle (0x0000), ServiceClassIDList
 	 * (0x0001), ServiceRecordState (0x0002), ServiceID (0x0003), and
-	 * ProtocolDescriptorList (0x0004).If attrSet is null then only the default
-	 * attributes will be retrieved. attrSet does not have to be sorted in
-	 * increasing order, but must only contain values in the range [0 -
-	 * (216-1)]. Parameters: attrSet - indicates the attributes whose values
-	 * will be retrieved on services which have the UUIDs specified in uuidSet
-	 * uuidSet - the set of UUIDs that are being searched for; all services
-	 * returned will contain all the UUIDs specified here btDev - the remote
-	 * Bluetooth device to search for services on discListener - the object that
-	 * will receive events when services are discovered Returns: the transaction
-	 * ID of the service search; this number must be positive Throws:
-	 * BluetoothStateException - if the number of concurrent service search
+	 * ProtocolDescriptorList (0x0004). If {@code attrSet} is {@code null} then 
+	 * only the default attributes will be retrieved. {@code attrSet} does not 
+	 * have to be sorted in increasing order, but must only contain values in 
+	 * the range [0 - (2<sup>16</sup>-1)]. 
+	 * 
+	 * @param attrSet indicates the attributes whose values will be retrieved on 
+	 * 				services which have the {@code UUIDs} specified in {@code uuidSet}
+	 * @param uuidSet the set of {@code UUIDs} that are being searched for; all services
+	 * returned will contain all the {@code UUIDs} specified here 
+	 * @param device the remote Bluetooth device to search for services on 
+	 * @param listener the object that will receive events when services are discovered 
+	 * @return the transaction ID of the service search; this number will be positive 
+	 * @throws BluetoothStateException - if the number of concurrent service search
 	 * transactions exceeds the limit specified by the bluetooth.sd.trans.max
-	 * property obtained from the class LocalDevice or the system is unable to
-	 * start one due to current conditions IllegalArgumentException - if attrSet
-	 * has an illegal service attribute ID or exceeds the property
-	 * bluetooth.sd.attr.retrievable.max defined in the class LocalDevice; if
-	 * attrSet or uuidSet is of length 0; if attrSet or uuidSet contains
-	 * duplicates NullPointerException - if uuidSet, btDev, or discListener is
-	 * null; if an element in uuidSet array is null See Also: DiscoveryListener
+	 * property obtained from the class {@link LocalDevice} or the system is unable to
+	 * start one due to current conditions 
+	 * @throws java.lang.IllegalArgumentException  if {@code attrSet} has an illegal 
+	 * service attribute ID or exceeds the property bluetooth.sd.attr.retrievable.max 
+	 * defined in the class {@link LocalDevice}; if {@code attrSet} or {@code uuidSet} is of
+	 * length 0; if {@code attrSet} or {@code uuidSet} contains duplicates 
+	 * @throws java.lang.NullPointerException - if {@code uuidSet}, {@code btDev}, or 
+	 * {@code discListener} is {@code null}; if an element in {@code uuidSet} array is 
+	 * {@code null} 
+	 * @see DiscoveryListener
+	 * @see UUID
+	 * @see LocalDevice#getProperty(String)
 	 */
 
 	public int searchServices(int[] attrSet, UUID[] uuidSet,
@@ -185,16 +244,20 @@ public class DiscoveryAgent {
 
 	}
 
-	/*
+	/**
 	 * Cancels the service search transaction that has the specified transaction
 	 * ID. The ID was assigned to the transaction by the method
-	 * searchServices(). A serviceSearchCompleted() event with a discovery type
-	 * of SERVICE_SEARCH_TERMINATED will occur when this method is called. After
-	 * receiving this event, no further servicesDiscovered() events will occur
-	 * as a result of this search. Parameters: transID - the ID of the service
-	 * search transaction to cancel; returned by searchServices() Returns: true
-	 * if the service search transaction is terminated, else false if the
-	 * transID does not represent an active service search transaction
+	 * {@link #searchServices(int[], UUID[], RemoteDevice, DiscoveryListener) searchServices()}. 
+	 * A {@link DiscoveryListener#serviceSearchCompleted(int, int) serviceSearchCompleted()} call 
+	 * with a discovery type of {@link DiscoveryListener#SERVICE_SEARCH_TERMINATED} will occur when 
+	 * this method is called. After receiving this event, no further 
+	 * {@link DiscoveryListener#servicesDiscovered(int, ServiceRecord[]) servicesDiscovered()}
+	 * events will occur as a result of this search. 
+	 * 
+	 * @param transID - the ID of the service search transaction to cancel; returned by 
+	 * {@link #searchServices(int[], UUID[], RemoteDevice, DiscoveryListener) searchServices()}
+	 * @return {@code true} if the service search transaction is terminated, else {@code false} 
+	 * if the {@code transID} does not represent an active service search transaction
 	 */
 
 	public boolean cancelServiceSearch(int transID) {
@@ -205,32 +268,36 @@ public class DiscoveryAgent {
 		}
 	}
 
-	/*
-	 * Attempts to locate a service that contains uuid in the ServiceClassIDList
+	/**
+	 * Attempts to locate a service that contains {@code uuid} in the ServiceClassIDList
 	 * of its service record. This method will return a string that may be used
-	 * in Connector.open() to establish a connection to the service. How the
-	 * service is selected if there are multiple services with uuid and which
-	 * devices to search is implementation dependent. Parameters: uuid - the
-	 * UUID to search for in the ServiceClassIDList security - specifies the
-	 * security requirements for a connection to this service; must be one of
-	 * ServiceRecord.NOAUTHENTICATE_NOENCRYPT,
-	 * ServiceRecord.AUTHENTICATE_NOENCRYPT, or
-	 * ServiceRecord.AUTHENTICATE_ENCRYPT master - determines if this client
-	 * must be the master of the connection; true if the client must be the
-	 * master; false if the client can be the master or the slave Returns: the
-	 * connection string used to connect to the service with a UUID of uuid; or
-	 * null if no service could be found with a UUID of uuid in the
-	 * ServiceClassIDList Throws: BluetoothStateException - if the Bluetooth
-	 * system cannot start the request due to the current state of the Bluetooth
-	 * system NullPointerException - if uuid is null IllegalArgumentException -
-	 * if security is not ServiceRecord.NOAUTHENTICATE_NOENCRYPT,
-	 * ServiceRecord.AUTHENTICATE_NOENCRYPT, or
-	 * ServiceRecord.AUTHENTICATE_ENCRYPT See Also:
-	 * ServiceRecord.NOAUTHENTICATE_NOENCRYPT,
-	 * ServiceRecord.AUTHENTICATE_NOENCRYPT, ServiceRecord.AUTHENTICATE_ENCRYPT
+	 * in {@link javax.microedition.io.Connector#open(String) Connector.open()} to 
+	 * establish a connection to the service. How the service is selected if there are 
+	 * multiple services with uuid and which devices to search is implementation dependent. 
+	 * 
+	 * @param uuid the {@link UUID} to search for in the ServiceClassIDList 
+	 * @param security specifies the security requirements for a connection to this service; 
+	 * must be one of {@link ServiceRecord#NOAUTHENTICATE_NOENCRYPT},
+	 * {@link ServiceRecord#AUTHENTICATE_NOENCRYPT}, or
+	 * {@link ServiceRecord#AUTHENTICATE_ENCRYPT}
+	 * @param master determines if this client must be the master of the connection; {@code true}
+	 * if the client must be the master; {@code false} if the client can be the master or the slave
+	 * @return the connection string used to connect to the service with a {@link UUID} of 
+	 * {@code uuid}; or {@code null} if no service could be found with a {@link UUID} of uuid in the
+	 * ServiceClassIDList 
+	 * @throws BluetoothStateException  if the Bluetooth system cannot start the request 
+	 * due to the current state of the Bluetooth system 
+	 * @throws java.lang.NullPointerException - if uuid is {@code null} 
+	 * @throws java.lang.IllegalArgumentException 
+	 * if security is not {@link ServiceRecord#NOAUTHENTICATE_NOENCRYPT},
+	 * {@link ServiceRecord#AUTHENTICATE_NOENCRYPT}, or
+	 * {@link ServiceRecord#AUTHENTICATE_ENCRYPT}
+	 * @see ServiceRecord#NOAUTHENTICATE_NOENCRYPT
+	 * @see ServiceRecord#AUTHENTICATE_NOENCRYPT
+	 * @see ServiceRecord#AUTHENTICATE_ENCRYPT
 	 */
-	/*
-	 * public String selectService(UUID uuid, int security, boolean master)
-	 * throws BluetoothStateException { }
-	 */
+	
+ 	public String selectService(UUID uuid, int security, boolean master)
+	  throws BluetoothStateException { return null; }
+	 
 }

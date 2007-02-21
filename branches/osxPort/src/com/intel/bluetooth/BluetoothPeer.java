@@ -104,7 +104,7 @@ public class BluetoothPeer {
 		}
 	}
 
-	public Boolean startInquiry(int accessCode, DiscoveryListener listener) {
+	public boolean startInquiry(int accessCode, DiscoveryListener listener) {
 		if(nativeIsAsync) return (0 != doInquiry(accessCode, listener));
 		else {
 			(new InquiryThread(accessCode, listener)).start();
@@ -167,7 +167,8 @@ public class BluetoothPeer {
 
 	/*
 	 * get service attributes,
-	 * NOT implemented on OS X, but shouldn't ever be called, will return null
+	 * NOT implemented on OS X, but shouldn't ever be called, will throw an
+	 * exception
 	 */
 
 	public native byte[] getServiceAttributes(int[] attrIDs, long address,

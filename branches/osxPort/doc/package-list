@@ -1,0 +1,6 @@
+com.intel.bluetooth
+com.sun.cdc.io
+com.sun.cdc.io.j2me.btspp
+javax.bluetooth
+javax.microedition.io
+javax.obex
