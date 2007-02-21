@@ -100,6 +100,15 @@ typedef struct cancelInquiryRec{
 	char			success;
 }  cancelInquiryRec;
 
+typedef struct macSocket {
+	int							index;
+	IOBluetoothL2CAPChannelRef	l2capRef;
+	IOBluetoothRFCOMMChannelRef	rfcommRef;
+	char						encrypted;
+	char						authenticate;
+	struct macSocket			*next;
+} macSocket;
+
 
 /**
  * ----------------------------------------------
@@ -151,6 +160,9 @@ void				printMessage(const char* msg, int level);
 currServiceInq*		newServiceInqRec(void);
 currServiceInq*		getServiceInqRec(int index);
 void				disposeServiceInqRec(currServiceInq*  toDelete);
+macSocket*			getMacSocket(int index);
+macSocket*			newMacSocket(void);
+void				disposeMacSocket(macSocket*  toDelete);
 void				throwException(JNIEnv *env, const char *name, const char *msg);
 void				throwIOException(JNIEnv *env, const char *msg);
 jobject				getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement);
@@ -167,6 +179,7 @@ extern 	CFRunLoopSourceRef		s_searchServicesStart, s_populateServiceAttrs;
 extern 	jobject					s_systemProperties;
 extern 	const char*				s_errorBase;
 extern 	char					s_errorBuffer[];
+extern	macSocket*				s_openSocketList;
 
 
  

@@ -31,6 +31,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 		
 		s_inquiryList = NULL;
 		s_serviceInqList = NULL;
+		s_openSocketList = NULL;
 		printMessage("Loading " NATIVE_DESCRIP "\n", DEBUG_INFO_LEVEL);
 		
 		pthread_cond_init(&initializeCond, NULL);
@@ -218,7 +219,7 @@ JNIEXPORT jintArray JNICALL Java_com_intel_bluetooth_BluetoothPeer_getServiceHan
 	
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: called", DEBUG_INFO_LEVEL);
 	
-	throwException(env, "com/intel/bluetooth/NotImplementedError", "Function not implemented on Mac OS X");
+	throwException(env, "com/intel/bluetooth/NotImplementedError", "getServiceHandles not implemented on Mac OS X");
 
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: exiting", DEBUG_INFO_LEVEL);
 	
@@ -260,18 +261,49 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_unregisterService
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_socket
   (JNIEnv *env, jobject peer, jboolean authenticate, jboolean encrypt){
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_socket called", DEBUG_INFO_LEVEL);
+	
+	macSocket*			aSocket;
+	
+	aSocket = newMacSocket();
+	aSocket->encrypted = encrypt;
+	aSocket->authenticate = authenticate;
+		
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_socket exiting", DEBUG_INFO_LEVEL);
 
-  return 0;
-  }
+	return aSocket->index;
+}
 
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothPeer_getsockaddress
   (JNIEnv *env, jobject peer, jint socket){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getsockaddress called", DEBUG_INFO_LEVEL);
+    
+	jstring				localAddress, propertyName;
+	jclass				propList;
+	jmethodID			getProperty;
+	const char			*addressString;
+	UInt8				addressValue[6];
+	int					i;
+	UInt64				intAddress;
+	
+	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getsockaddress called", DEBUG_INFO_LEVEL);
+	/* I assume this always just for the local device */
+	propertyName = JAVA_ENV_CHECK((*env)->NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS));
+	propList = JAVA_ENV_CHECK((*env)->GetObjectClass(env, s_systemProperties));
+	getProperty =  JAVA_ENV_CHECK((*env)->GetMethodID(env, propList, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;"));
+	localAddress = JAVA_ENV_CHECK((*env)->CallObjectMethod(env, s_systemProperties, getProperty, propertyName));
+	addressString =  JAVA_ENV_CHECK((*env)->GetStringUTFChars(env, localAddress, NULL));
+	sscanf(addressString, "%2x-%2x-%2x-%2x-%2x-%2x", &addressValue[0], &addressValue[1], &addressValue[2],
+									&addressValue[3], &addressValue[4], &addressValue[5]);
+	JAVA_ENV_CHECK((*env)->ReleaseStringUTFChars(env, localAddress, addressString));
+	intAddress = 0LL;
+	for(i=0;i<6;i++) {
+		intAddress <<= 8;
+		intAddress |= addressValue[i];
+	}
+		
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_getsockaddress exiting", DEBUG_INFO_LEVEL);
 
-  return 0LL;
+	return intAddress;
   }
 
 
@@ -343,8 +375,25 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_send__I_3BII
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_close
   (JNIEnv *env, jobject peer, jint socket){
+  
+	macSocket				*aSocket;
+	
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_close called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_close exiting", DEBUG_INFO_LEVEL);
+    
+	aSocket = getMacSocket(socket);
+	if(aSocket->l2capRef) {
+
+		/* TODO call IOBluetoothL2CAPChannelCloseChannel in the OS X thread */
+	}
+	if(aSocket->rfcommRef) {
+	
+		/* TODO call IOBluetoothRFCOMMChannelCloseChannel */
+	}
+	
+	disposeMacSocket(aSocket);
+	
+	
+	printMessage("Java_com_intel_bluetooth_BluetoothPeer_close exiting", DEBUG_INFO_LEVEL);
 
   
   }
