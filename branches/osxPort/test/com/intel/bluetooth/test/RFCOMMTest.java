@@ -57,6 +57,8 @@ public class RFCOMMTest implements DiscoveryListener {
 		try {
 		LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC,
                 this);
+		System.out.println(LocalDevice.getLocalDevice().getBluetoothAddress());
+		
 		
 		Thread.sleep(6000000);
 		

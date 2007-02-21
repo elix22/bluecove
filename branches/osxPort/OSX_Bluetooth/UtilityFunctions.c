@@ -213,6 +213,73 @@ int generateProperties(JNIEnv	*env) {
 	return 0;
 }
 
+macSocket*	getMacSocket(int index) {
+	macSocket				*current = s_openSocketList;
+	
+	while( (current != NULL) && (current->index != index)) {
+		current = current->next;
+	}
+	
+	return current;
+}
+
+macSocket*		newMacSocket(void) {
+	static					signed int		nextInq = 1;
+
+	macSocket			*current = s_openSocketList;
+	
+	while(getMacSocket(nextInq) != NULL) nextInq++;
+	if(nextInq < 0) {
+		nextInq = 1;
+		while(getMacSocket(nextInq) != NULL) nextInq++;
+	}
+	/* should never happen */
+	if(nextInq < 0) 
+		printMessage("Ran out of available socket indexes, you have more than 2 billion current inquiries :-O",
+					DEBUG_ERROR_LEVEL);
+			
+	if(s_openSocketList != NULL ) {
+		while(current->next != NULL) current = current->next;
+		current->next = (macSocket*)malloc(sizeof(macSocket));
+		current = current->next;
+	} else {
+		s_openSocketList = (macSocket*)malloc(sizeof(macSocket));
+		current = s_openSocketList;
+	}
+	current->next = NULL;
+	current->index = nextInq;
+	current->l2capRef = NULL;
+	current->rfcommRef = NULL;
+	
+	nextInq ++;
+	
+	return current;
+}
+
+void disposeMacSocket(macSocket*  toDelete) {
+	/* first find the prior item */
+	macSocket			*current = s_openSocketList;
+	
+	if(s_openSocketList== NULL) {
+		printMessage("disposeMacSocket called with an unknown macSocket!", DEBUG_WARN_LEVEL);
+		return;
+	}
+	if(toDelete == s_openSocketList) {
+		s_openSocketList = toDelete->next;
+		free(toDelete);
+		return;
+	}
+	while((current->next !=NULL) && (current->next != toDelete)) current = current->next;
+	
+	if(current->next == NULL) {
+		printMessage("disposeMacSocket called with an unknown macSocket!", DEBUG_WARN_LEVEL);
+		return;
+	}
+	current->next = toDelete->next;
+	free(toDelete);
+	
+}
+
 currServiceInq*		getServiceInqRec(int index) {
 	/* searchs the current linked list the current inquiry */
 	currServiceInq			*current = s_serviceInqList;
@@ -255,6 +322,8 @@ currServiceInq*		newServiceInqRec(void) {
 	
 	return current;
 }
+
+
 
 
 void disposeServiceInqRec(currServiceInq*  toDelete) {

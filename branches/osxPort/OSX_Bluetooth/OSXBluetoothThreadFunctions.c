@@ -27,6 +27,7 @@
 /* library globals */
 currInq					*s_inquiryList;
 currServiceInq			*s_serviceInqList;
+macSocket				*s_openSocketList;
 JavaVM					*s_vm;		
 CFRunLoopRef			s_runLoop;
 CFRunLoopSourceRef		s_inquiryStartSource, s_inquiryStopSource;
@@ -567,7 +568,6 @@ void getServiceAttributes(void *in) {
 		jResult = JAVA_ENV_CHECK((*env)->CallObjectMethod(env, hashTable, setAttribute, attributeID, jDataElement));
 	}
 }
-
 
   
 void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef deviceRef, IOReturn status ){
