@@ -19,12 +19,9 @@
  */
 package javax.bluetooth;
 
-import java.io.IOException;
-
 import javax.microedition.io.Connection;
 
 import com.intel.bluetooth.BluetoothPeer;
-import com.intel.bluetooth.BluetoothStreamConnectionNotifier;
 /**
  * The LocalDevice class defines the basic functions of the Bluetooth manager. 
  * The Bluetooth manager provides the lowest level of interface possible into 
@@ -51,21 +48,15 @@ public class LocalDevice {
 
 		discoveryAgent = new DiscoveryAgent();
 
-		try {
-			int socket = bluetoothPeer.socket(false, false);
-
-			bluetoothAddress = bluetoothPeer.getsockaddress(socket);
-
-			address = Long.toHexString(bluetoothAddress);
-
-			bluetoothPeer.close(socket);
-		} catch (IOException e) {
-			address = "";
-		}
+		bluetoothAddress = getLocalAddress();
+		
+		address = Long.toHexString(bluetoothAddress);
 
 		address = "000000000000".substring(address.length()) + address;
 	}
 
+	private native long getLocalAddress();
+	
 	public BluetoothPeer getBluetoothPeer() {
 		return bluetoothPeer;
 	}
@@ -289,7 +280,7 @@ public class LocalDevice {
 	 * e.g., a {@link javax.microedition.io.StreamConnectionNotifier} created with a scheme other than btspp.
 	 * @throws java.lang.NullPointerException if notifier is {@code null}
 	 */
-
+/*
 	public ServiceRecord getRecord(Connection notifier) {
 		if (notifier == null)
 			throw new NullPointerException();
@@ -300,7 +291,7 @@ public class LocalDevice {
 		return ((BluetoothStreamConnectionNotifier) notifier)
 				.getServiceRecord();
 	}
-
+*/
 	/**
 	 * Updates the service record in the local SDDB that corresponds to the
 	 * {@link ServiceRecord} parameter. Updating is possible only if {@code srvRecord} was
