@@ -23,11 +23,14 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOBluetooth/IOBluetoothUserLib.h>
 #include <IOBluetooth/IOBluetoothUtilities.h>
+/* slight problem with OBEXBluetooth header now 
+   so until we start implementing it I'm leaving it out 
+	#include <IOBluetooth/OBEXBluetooth.h>
+*/
 #include <jni.h>
 #include <pthread.h>
 #include "NativeCommons.h"
-#include "com_intel_bluetooth_BluetoothPeer.h"
-#include "com_intel_bluetooth_ServiceRecordImpl.h"
+#include "JavaHeaders.h"
 #include "ThreadCleanups.h"
 #include "Version.h"
 
@@ -61,9 +64,9 @@
 
 #define DO_NOT_EXPORT __attribute__((visibility("hidden")))
 #if DEBUG >= DEBUG_DEVEL_LEVEL
-	#define JAVA_ENV_CHECK(x) x; if((*env)->ExceptionOccurred(env)) {(*env)->ExceptionDescribe(env); setBreakPoint();}
+	#define JAVA_ENV_CHECK(x) (*env)->x; if((*env)->ExceptionOccurred(env)) {(*env)->ExceptionDescribe(env); setBreakPoint();}
 #else 
-	#define JAVA_ENV_CHECK(x) x;
+	#define JAVA_ENV_CHECK(x) (*env)->x;
 #endif
 
 /* create a linked lists of inquiries associating the native inquiry with the listener */
@@ -102,13 +105,21 @@ typedef struct cancelInquiryRec{
 
 typedef struct macSocket {
 	int							index;
-	IOBluetoothL2CAPChannelRef	l2capRef;
-	IOBluetoothRFCOMMChannelRef	rfcommRef;
+	union {
+		IOBluetoothL2CAPChannelRef	l2capRef;
+		IOBluetoothRFCOMMChannelRef	rfcommRef;
+		/* header problems in the sdk
+		OBEXSessionRef				obexRef;
+		*/
+	}							ref;
+	char						type; /* 1=l2capRef; 2=rfcommRef; 3=obexRef */
+	jobject						listenerPeer;
 	char						encrypted;
 	char						authenticate;
 	struct macSocket			*next;
 } macSocket;
 
+ 
 
 /**
  * ----------------------------------------------
@@ -139,6 +150,39 @@ typedef struct populateAttributesRec {
 	jboolean		result;
 } populateAttributesRec;
 
+typedef struct connectRec {
+	jobject			peer;
+	jint			socket;
+	jlong			address;
+	jint			channel;
+	jthrowable		errorException;
+	pthread_cond_t	callComplete;
+} connectRec;
+
+ /**
+ * ----------------------------------------------
+ * structures to maintain thread safety
+ * ----------------------------------------------
+ */ 
+ 
+typedef union threadPassType {
+		getServiceHandlesRec		*getSrvHandlePtr;
+		searchServicesRec			*searchSrvPtr;
+		populateAttributesRec		*populateAttrPtr;
+		connectRec					*connectPtr;
+		void						*voidPtr;
+	}						threadPassType;
+typedef struct todoListItem {
+	struct todoListItem		*next;
+	threadPassType			type;
+	} todoListItem;
+	
+typedef struct todoListRoot {
+	todoListItem			*listHead;
+	pthread_mutex_t			listLock;
+} todoListRoot;
+
+
 /**
  * ----------------------------------------------
  * function prototypes
@@ -167,7 +211,13 @@ void				throwException(JNIEnv *env, const char *name, const char *msg);
 void				throwIOException(JNIEnv *env, const char *msg);
 jobject				getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement);
 void				setBreakPoint(void);
-
+void				initializeToDoList(todoListRoot *rootPtr);
+void				addToDoItem(todoListRoot *rootPtr, threadPassType aRec);
+void				deleteToDoItem(todoListRoot *rootPtr, threadPassType aRec);
+threadPassType		getNextToDoItem(todoListRoot *rootPtr);
+void				longToAddress(jlong	aLong, BluetoothDeviceAddress	*btDevAddress);
+void				RFCOMMConnect(void* voidPtr);
+void				rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCon, IOBluetoothRFCOMMChannelEvent *event);
 
 /* Library Globals */
 extern 	currInq					*s_inquiryList;
@@ -176,6 +226,7 @@ extern 	JavaVM					*s_vm;
 extern 	CFRunLoopRef			s_runLoop;
 extern 	CFRunLoopSourceRef		s_inquiryStartSource, s_inquiryStopSource;
 extern 	CFRunLoopSourceRef		s_searchServicesStart, s_populateServiceAttrs;
+extern	CFRunLoopSourceRef		s_NewRFCOMMConnectionRequest;
 extern 	jobject					s_systemProperties;
 extern 	const char*				s_errorBase;
 extern 	char					s_errorBuffer[];
