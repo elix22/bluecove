@@ -248,8 +248,8 @@ macSocket*		newMacSocket(void) {
 	}
 	current->next = NULL;
 	current->index = nextInq;
-	current->l2capRef = NULL;
-	current->rfcommRef = NULL;
+	current->ref.l2capRef = NULL;
+	current->ref.rfcommRef = NULL;
 	
 	nextInq ++;
 	
@@ -259,6 +259,15 @@ macSocket*		newMacSocket(void) {
 void disposeMacSocket(macSocket*  toDelete) {
 	/* first find the prior item */
 	macSocket			*current = s_openSocketList;
+	jint				jErr;
+	JNIEnv				*env;
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	/* clean up existing references, since its a union it doesn't matter
+		which one is released */
+	IOBluetoothObjectRelease(toDelete->ref.l2capRef);
+	(*env)->DeleteGlobalRef(env, toDelete->listenerPeer);
 	
 	if(s_openSocketList== NULL) {
 		printMessage("disposeMacSocket called with an unknown macSocket!", DEBUG_WARN_LEVEL);
@@ -390,7 +399,7 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 				byteArray = CFDataGetBytePtr(bigData);
 				aJByteArray = (*env)->NewByteArray(env, 16);
 				(*env)->SetByteArrayRegion(env, aJByteArray, 0, 16, (jbyte*)byteArray);
-				jDataElement = JAVA_ENV_CHECK((*env)->NewObject(env, dataElementClass, constructor, isUnsigned ? 0x0C : 0x14, aJByteArray));
+				jDataElement = JAVA_ENV_CHECK(NewObject(env, dataElementClass, constructor, isUnsigned ? 0x0C : 0x14, aJByteArray));
 			} else {
 				CFNumberRef		aNumber;
 				jint			typeValue;
@@ -415,7 +424,7 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 						typeValue = (isUnsigned ? 0x0B : 0x13 );
 						break;
 					}
-				jDataElement = JAVA_ENV_CHECK((*env)->NewObject(env, dataElementClass, constructor, typeValue, aBigInt));
+				jDataElement = JAVA_ENV_CHECK(NewObject(env, dataElementClass, constructor, typeValue, aBigInt));
 			}
 			break; 
 		case kBluetoothSDPDataElementTypeUUID: 
@@ -431,7 +440,7 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 				jmethodID				jUUIDConstructor;
 				jobject					jUUID;
 				
-				constructor = JAVA_ENV_CHECK((*env)->GetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V"));
+				constructor = JAVA_ENV_CHECK(GetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V"));
 				stringUUID = CFStringCreateMutable (NULL, 500);
 				aUUIDRef = IOBluetoothSDPDataElementGetUUIDValue(dataElement);
 				uuidBytes = IOBluetoothSDPUUIDGetBytes(aUUIDRef);
@@ -443,13 +452,13 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 				range.length = CFStringGetLength(stringUUID);
 				charBuf = malloc(sizeof(UniChar) *range.length);
 				CFStringGetCharacters(stringUUID, range, charBuf);
-				jStringUUID = JAVA_ENV_CHECK((*env)->NewString(env, (jchar*)charBuf, (jsize)range.length));
+				jStringUUID = JAVA_ENV_CHECK(NewString(env, (jchar*)charBuf, (jsize)range.length));
 				free(charBuf);
-				jUUIDClass = JAVA_ENV_CHECK((*env)->FindClass(env, "javax/bluetooth/UUID"));
-				jUUIDConstructor = JAVA_ENV_CHECK((*env)->GetMethodID(env, jUUIDClass, "<init>", "(Ljava/lang/String;Z)V"));
-				jUUID = JAVA_ENV_CHECK((*env)->NewObject(env, jUUIDClass, jUUIDConstructor, jStringUUID, (range.length == 8) ? 0:1));
+				jUUIDClass = JAVA_ENV_CHECK(FindClass(env, "javax/bluetooth/UUID"));
+				jUUIDConstructor = JAVA_ENV_CHECK(GetMethodID(env, jUUIDClass, "<init>", "(Ljava/lang/String;Z)V"));
+				jUUID = JAVA_ENV_CHECK(NewObject(env, jUUIDClass, jUUIDConstructor, jStringUUID, (range.length == 8) ? 0:1));
 					
-				jDataElement = JAVA_ENV_CHECK((*env)->NewObject(env, dataElementClass, constructor, 0x18, jUUID));
+				jDataElement = JAVA_ENV_CHECK(NewObject(env, dataElementClass, constructor, 0x18, jUUID));
 				CFRelease(stringUUID);
 			}
 			break;
@@ -462,16 +471,16 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 				UniChar					*charBuf;
 				CFRange					range;
 					
-				constructor = JAVA_ENV_CHECK((*env)->GetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V"));
+				constructor = JAVA_ENV_CHECK(GetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V"));
 				aString = IOBluetoothSDPDataElementGetStringValue(dataElement);
 				range.location = 0;
 				range.length = CFStringGetLength(aString);
 				charBuf = malloc(sizeof(UniChar)*range.length);
 				CFStringGetCharacters(aString, range, charBuf);
-				jStringRef = JAVA_ENV_CHECK((*env)->NewString(env, (jchar*)charBuf, (jsize)range.length));
+				jStringRef = JAVA_ENV_CHECK(NewString(env, (jchar*)charBuf, (jsize)range.length));
 				free(charBuf);
 				CFRelease(aString);
-				jDataElement = JAVA_ENV_CHECK((*env)->NewObject(env, dataElementClass, constructor, isURL ? 0x40: 0x20, jStringRef));
+				jDataElement = JAVA_ENV_CHECK(NewObject(env, dataElementClass, constructor, isURL ? 0x40: 0x20, jStringRef));
 			}
 			break;
 		case kBluetoothSDPDataElementTypeBoolean:
@@ -479,10 +488,10 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 				jboolean			aBool;
 				CFNumberRef			aNumber;
 				
-				constructor = JAVA_ENV_CHECK((*env)->GetMethodID(env, dataElementClass, "<init>", "(Z)V"));
+				constructor = JAVA_ENV_CHECK(GetMethodID(env, dataElementClass, "<init>", "(Z)V"));
 				aNumber = IOBluetoothSDPDataElementGetNumberValue(dataElement);
 				CFNumberGetValue(aNumber, kCFNumberCharType, &aBool);
-				jDataElement = JAVA_ENV_CHECK((*env)->NewObject(env, dataElementClass, constructor, aBool));
+				jDataElement = JAVA_ENV_CHECK(NewObject(env, dataElementClass, constructor, aBool));
 			}
 			break;
 		case kBluetoothSDPDataElementTypeDataElementSequence:
@@ -493,9 +502,9 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 				CFIndex				m, count;
 				jmethodID			addElement;
 				
-				addElement = JAVA_ENV_CHECK((*env)->GetMethodID(env, dataElementClass, "addElement", "(Ljavax/bluetooth/DataElement;)V"));
-				constructor = JAVA_ENV_CHECK((*env)->GetMethodID(env, dataElementClass, "<init>", "(I)V"));
-				jDataElement = JAVA_ENV_CHECK((*env)->NewObject(env, dataElementClass, constructor, isSequence ? 0x30 : 0x38));
+				addElement = JAVA_ENV_CHECK(GetMethodID(env, dataElementClass, "addElement", "(Ljavax/bluetooth/DataElement;)V"));
+				constructor = JAVA_ENV_CHECK(GetMethodID(env, dataElementClass, "<init>", "(I)V"));
+				jDataElement = JAVA_ENV_CHECK(NewObject(env, dataElementClass, constructor, isSequence ? 0x30 : 0x38));
 				anArray = IOBluetoothSDPDataElementGetArrayValue(dataElement);
 				count = CFArrayGetCount(anArray);
 				for(m=0;m<count;m++) {
@@ -503,7 +512,7 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 					jobject								ajElement;
 		
 					ajElement = getjDataElement(env, anItem);
-					JAVA_ENV_CHECK((*env)->CallVoidMethod(env, jDataElement, addElement, ajElement));
+					JAVA_ENV_CHECK(CallVoidMethod(env, jDataElement, addElement, ajElement));
 				}
 			}
 			break;
@@ -516,6 +525,19 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 	return jDataElement;
 	
 }
+
+void longToAddress(jlong	aLong, BluetoothDeviceAddress*	anAddress) {
+	
+	int		i;
+	
+	for(i=5;i>=0;i--) {
+		anAddress->data[i] = (aLong & 0x00000000000000FF);
+		aLong >>= 8;
+	}
+
+}
+
+
 void				setBreakPoint(void){
 
 	printMessage("The debugger should break here", DEBUG_DEVEL_LEVEL);

@@ -20,6 +20,12 @@
 
 #include "blueCovejnilib.h"
 
+/* The following is a list of mutex's that allow only one thread to access each function call 
+   at a time */
+ 
+
+
+
 /**
  * Called by the VM when this library is loaded. We use it to set up the CFRunLoop and sources
  */
@@ -234,7 +240,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothPeer_getServiceAt
     
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes called", DEBUG_INFO_LEVEL);
 	
-	throwException(env, "com/intel/bluetooth/NotImplementedError", "Function not implemented on Mac OS X");
+	throwException(env, "com/intel/bluetooth/NotImplementedError", "getServiceAttributes not implemented on Mac OS X");
 	
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes exiting", DEBUG_INFO_LEVEL);
 
@@ -258,7 +264,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_unregisterService
 }
 
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_socket
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothConnection_socket
   (JNIEnv *env, jobject peer, jboolean authenticate, jboolean encrypt){
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_socket called", DEBUG_INFO_LEVEL);
 	
@@ -287,14 +293,14 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothPeer_getsockaddress
 	
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getsockaddress called", DEBUG_INFO_LEVEL);
 	/* I assume this always just for the local device */
-	propertyName = JAVA_ENV_CHECK((*env)->NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS));
-	propList = JAVA_ENV_CHECK((*env)->GetObjectClass(env, s_systemProperties));
-	getProperty =  JAVA_ENV_CHECK((*env)->GetMethodID(env, propList, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;"));
-	localAddress = JAVA_ENV_CHECK((*env)->CallObjectMethod(env, s_systemProperties, getProperty, propertyName));
-	addressString =  JAVA_ENV_CHECK((*env)->GetStringUTFChars(env, localAddress, NULL));
+	propertyName = JAVA_ENV_CHECK(NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS));
+	propList = JAVA_ENV_CHECK(GetObjectClass(env, s_systemProperties));
+	getProperty =  JAVA_ENV_CHECK(GetMethodID(env, propList, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;"));
+	localAddress = JAVA_ENV_CHECK(CallObjectMethod(env, s_systemProperties, getProperty, propertyName));
+	addressString =  JAVA_ENV_CHECK(GetStringUTFChars(env, localAddress, NULL));
 	sscanf(addressString, "%2x-%2x-%2x-%2x-%2x-%2x", &addressValue[0], &addressValue[1], &addressValue[2],
 									&addressValue[3], &addressValue[4], &addressValue[5]);
-	JAVA_ENV_CHECK((*env)->ReleaseStringUTFChars(env, localAddress, addressString));
+	JAVA_ENV_CHECK(ReleaseStringUTFChars(env, localAddress, addressString));
 	intAddress = 0LL;
 	for(i=0;i<6;i++) {
 		intAddress <<= 8;
@@ -317,9 +323,49 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_getsockchannel
   }
 
 
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_connect
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothConnection_connect
   (JNIEnv *env, jobject peer, jint socket, jlong address, jint channel){
+
+	connectRec					connectionRequest;
+	CFRunLoopSourceContext		aContext={0};
+	todoListRoot				*connectionToDoList;
+	threadPassType				typeMask;
+	pthread_mutex_t				callInProgress;
+
+	
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_connect called", DEBUG_INFO_LEVEL);
+
+	typeMask.connectPtr = &connectionRequest;
+	
+	connectionRequest.peer = peer;
+	connectionRequest.socket = socket;
+	connectionRequest.address = address;
+	connectionRequest.channel = channel;
+	connectionRequest.errorException = NULL;
+	
+	pthread_cond_init(&(connectionRequest.callComplete), NULL);
+	pthread_mutex_init(&callInProgress, NULL);	
+	pthread_mutex_lock(&callInProgress);
+	
+	CFRunLoopSourceGetContext(s_NewRFCOMMConnectionRequest, &aContext);
+	connectionToDoList = (todoListRoot*)aContext.info;
+	
+	addToDoItem(connectionToDoList, typeMask);
+	
+	
+	CFRunLoopSourceSignal(s_NewRFCOMMConnectionRequest);
+	CFRunLoopWakeUp(s_runLoop);
+	
+	pthread_cond_wait(&(connectionRequest.callComplete), &callInProgress);
+	
+	if(connectionRequest.errorException) {
+		/* there was a problem */
+		(*env)->Throw(env, connectionRequest.errorException);
+		(*env)->DeleteGlobalRef(env, connectionRequest.errorException);
+	}
+	pthread_mutex_destroy(&callInProgress);
+	pthread_cond_destroy(&(connectionRequest.callComplete));
+	
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_connect exiting", DEBUG_INFO_LEVEL);
 }
 
@@ -381,11 +427,11 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_close
     printMessage("Java_com_intel_bluetooth_BluetoothPeer_close called", DEBUG_INFO_LEVEL);
     
 	aSocket = getMacSocket(socket);
-	if(aSocket->l2capRef) {
+	if(aSocket->ref.l2capRef) {
 
 		/* TODO call IOBluetoothL2CAPChannelCloseChannel in the OS X thread */
 	}
-	if(aSocket->rfcommRef) {
+	if(aSocket->ref.rfcommRef) {
 	
 		/* TODO call IOBluetoothRFCOMMChannelCloseChannel */
 	}
@@ -433,3 +479,40 @@ JNIEXPORT jobject JNICALL Java_com_intel_bluetooth_BluetoothPeer_getAdjustedSyst
 	return s_systemProperties;
   
   }
+  
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothInputStream_pipePrime(JNIEnv *env, jobject peer, jint numBytes){
+	/* do nothing on this platform */
+  }
+  
+  
+ 
+JNIEXPORT jlong JNICALL Java_javax_bluetooth_LocalDevice_getLocalAddress(JNIEnv *env, jobject peer) {
+
+	jstring				localAddress, propertyName;
+	jclass				propList;
+	jmethodID			getProperty;
+	const char			*addressString;
+	UInt8				addressValue[6];
+	int					i;
+	UInt64				intAddress;
+	
+	printMessage("Java_javax_bluetooth_LocalDevice_getLocalAddress called", DEBUG_INFO_LEVEL);
+	/* I assume this always just for the local device */
+	propertyName = JAVA_ENV_CHECK(NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS));
+	propList = JAVA_ENV_CHECK(GetObjectClass(env, s_systemProperties));
+	getProperty =  JAVA_ENV_CHECK(GetMethodID(env, propList, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;"));
+	localAddress = JAVA_ENV_CHECK(CallObjectMethod(env, s_systemProperties, getProperty, propertyName));
+	addressString =  JAVA_ENV_CHECK(GetStringUTFChars(env, localAddress, NULL));
+	sscanf(addressString, "%2x-%2x-%2x-%2x-%2x-%2x", &addressValue[0], &addressValue[1], &addressValue[2],
+									&addressValue[3], &addressValue[4], &addressValue[5]);
+	JAVA_ENV_CHECK(ReleaseStringUTFChars(env, localAddress, addressString));
+	intAddress = 0LL;
+	for(i=0;i<6;i++) {
+		intAddress <<= 8;
+		intAddress |= addressValue[i];
+	}
+		
+    printMessage("Java_javax_bluetooth_LocalDevice_getLocalAddress exiting", DEBUG_INFO_LEVEL);
+
+	return intAddress;
+}

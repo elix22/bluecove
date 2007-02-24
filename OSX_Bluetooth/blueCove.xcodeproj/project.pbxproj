@@ -31,10 +31,6 @@
 		9673497D0B84581400A056FE /* blueCovejnilib.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A52677B022AFE3B0CC91562 /* blueCovejnilib.c */; };
 		9673497E0B84581800A056FE /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963567330B81670300141C67 /* IOBluetooth.framework */; };
 		967349970B84581A00A056FE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963568350B81BA9100141C67 /* CoreFoundation.framework */; };
-		967833D50B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D10B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h */; };
-		967833D60B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D20B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h */; };
-		967833D70B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D30B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h */; };
-		967833D80B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 967833D40B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h */; };
 		968A02240B82F69E00E7D4C1 /* blueCovejnilib.h in Headers */ = {isa = PBXBuildFile; fileRef = 968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */; };
 		96B477B10B84426F003E53AA /* debugMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 96B477B00B84426F003E53AA /* debugMain.c */; };
 		96B478390B84473C003E53AA /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE2200B0208CA9C0CC91562 /* JavaVM.framework */; };
@@ -48,6 +44,9 @@
 		96E919FC0B891445007DDC2D /* OSXBluetoothThreadFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 96E919FA0B891445007DDC2D /* OSXBluetoothThreadFunctions.c */; };
 		96E91A050B89163F007DDC2D /* UtilityFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 96E91A040B89163F007DDC2D /* UtilityFunctions.c */; };
 		96E91A060B89163F007DDC2D /* UtilityFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 96E91A040B89163F007DDC2D /* UtilityFunctions.c */; };
+		FB559C9B0B90128B0007C024 /* todoLists.c in Sources */ = {isa = PBXBuildFile; fileRef = FB559C9A0B90128B0007C024 /* todoLists.c */; };
+		FB559C9C0B90128B0007C024 /* todoLists.c in Sources */ = {isa = PBXBuildFile; fileRef = FB559C9A0B90128B0007C024 /* todoLists.c */; };
+		FB559DA80B9041040007C024 /* JavaHeaders.h in Headers */ = {isa = PBXBuildFile; fileRef = FB559DA70B9041040007C024 /* JavaHeaders.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,10 +90,6 @@
 		963C74DB0B893F5800AC5EC5 /* currentVersion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = currentVersion.c; sourceTree = "<group>"; };
 		963C751E0B89437100AC5EC5 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		963C75B10B89512500AC5EC5 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
-		967833D10B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_BluetoothPeer_InquiryThread.h; sourceTree = "<group>"; };
-		967833D20B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h; sourceTree = "<group>"; };
-		967833D30B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_BluetoothPeer.h; sourceTree = "<group>"; };
-		967833D40B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = com_intel_bluetooth_ServiceRecordImpl.h; sourceTree = "<group>"; };
 		968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blueCovejnilib.h; sourceTree = "<group>"; };
 		96B476F90B844204003E53AA /* DebugProject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DebugProject; sourceTree = BUILT_PRODUCTS_DIR; };
 		96B477B00B84426F003E53AA /* debugMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debugMain.c; sourceTree = "<group>"; };
@@ -106,6 +101,8 @@
 		96E916100B86FF97007DDC2D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		96E919FA0B891445007DDC2D /* OSXBluetoothThreadFunctions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = OSXBluetoothThreadFunctions.c; sourceTree = "<group>"; };
 		96E91A040B89163F007DDC2D /* UtilityFunctions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UtilityFunctions.c; sourceTree = "<group>"; };
+		FB559C9A0B90128B0007C024 /* todoLists.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = todoLists.c; sourceTree = "<group>"; };
+		FB559DA70B9041040007C024 /* JavaHeaders.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = JavaHeaders.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,6 +186,7 @@
 				96E915220B86F5CD007DDC2D /* ThreadCleanups.m */,
 				96E911FA0B868972007DDC2D /* NativeCommons.h */,
 				968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */,
+				FB559C9A0B90128B0007C024 /* todoLists.c */,
 				96E915210B86F5CD007DDC2D /* ThreadCleanups.h */,
 				96E916100B86FF97007DDC2D /* Foundation.framework */,
 				963568350B81BA9100141C67 /* CoreFoundation.framework */,
@@ -210,10 +208,7 @@
 		96E917BB0B87E004007DDC2D /* JNI Headers */ = {
 			isa = PBXGroup;
 			children = (
-				967833D10B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h */,
-				967833D20B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h */,
-				967833D30B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h */,
-				967833D40B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h */,
+				FB559DA70B9041040007C024 /* JavaHeaders.h */,
 			);
 			name = "JNI Headers";
 			sourceTree = "<group>";
@@ -229,10 +224,7 @@
 				96E911FB0B868972007DDC2D /* NativeCommons.h in Headers */,
 				96E915230B86F5CD007DDC2D /* ThreadCleanups.h in Headers */,
 				963C751F0B89437100AC5EC5 /* Version.h in Headers */,
-				967833D50B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_InquiryThread.h in Headers */,
-				967833D60B8966C70025782B /* com_intel_bluetooth_BluetoothPeer_SearchServicesThread.h in Headers */,
-				967833D70B8966C70025782B /* com_intel_bluetooth_BluetoothPeer.h in Headers */,
-				967833D80B8966C70025782B /* com_intel_bluetooth_ServiceRecordImpl.h in Headers */,
+				FB559DA80B9041040007C024 /* JavaHeaders.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,7 +340,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "javah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -d \"${SOURCE_ROOT}\" \"com.intel.bluetooth.BluetoothPeer\"\njavah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -d \"${SOURCE_ROOT}\" \"com.intel.bluetooth.ServiceRecordImpl\"\n${BUILD_DIR}/versionIncrement ${SOURCE_ROOT}/currentVersion Version.h\n\n";
+			shellScript = "javah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -o \"${SOURCE_ROOT}/JavaHeaders.h\" com.intel.bluetooth.BluetoothPeer com.intel.bluetooth.ServiceRecordImpl com.intel.bluetooth.BluetoothInputStream com.intel.bluetooth.BluetoothConnection javax.bluetooth.LocalDevice\n${BUILD_DIR}/versionIncrement ${SOURCE_ROOT}/currentVersion Version.h\n\n";
 		};
 		963C735A0B8931BB00AC5EC5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -374,6 +366,7 @@
 				4CEBA79B08679F3E0015D03E /* blueCovejnilib.c in Sources */,
 				96E919FB0B891445007DDC2D /* OSXBluetoothThreadFunctions.c in Sources */,
 				96E91A050B89163F007DDC2D /* UtilityFunctions.c in Sources */,
+				FB559C9B0B90128B0007C024 /* todoLists.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -401,6 +394,7 @@
 				96B477B10B84426F003E53AA /* debugMain.c in Sources */,
 				96E919FC0B891445007DDC2D /* OSXBluetoothThreadFunctions.c in Sources */,
 				96E91A060B89163F007DDC2D /* UtilityFunctions.c in Sources */,
+				FB559C9C0B90128B0007C024 /* todoLists.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

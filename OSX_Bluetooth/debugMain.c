@@ -59,10 +59,10 @@ int main(int argc, const char * argv[]) {
 		{"getServiceAttributes", "([IJI)[B", Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes},					//4
 		{"registerService", "([B)I",Java_com_intel_bluetooth_BluetoothPeer_registerService},								//5
 		{"unregisterService", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_unregisterService},							//6
-		{"socket", "(ZZ)I", Java_com_intel_bluetooth_BluetoothPeer_socket},													//7
+		{"socket", "(ZZ)I", Java_com_intel_bluetooth_BluetoothConnection_socket},											//7
 		{"getsockaddress", "(I)J", Java_com_intel_bluetooth_BluetoothPeer_getsockaddress},									//8
 		{"getsockchannel", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_getsockchannel},									//9
-		{"connect", "(IJI)V",Java_com_intel_bluetooth_BluetoothPeer_connect },												//10
+		{"connect", "(IJI)V",Java_com_intel_bluetooth_BluetoothConnection_connect },										//10
 		{"listen", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_listen},													//11
 		{"accept", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_accept},													//12
 		{"recv", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_recv__I},													//13
@@ -83,13 +83,16 @@ int main(int argc, const char * argv[]) {
 	JNINativeMethod			nativeMethodsServRecImpl[] = {
 		{"native_populateRecord", "([I)Z", Java_com_intel_bluetooth_ServiceRecordImpl_native_1populateRecord}				//1
 		};
-		
+	JNINativeMethod			nativeMethodsLocalDev[] = {
+		{"getLocalAddress", "()J", Java_javax_bluetooth_LocalDevice_getLocalAddress}										//1
+		};
 		
 	jclass		interface = (*env)->FindClass(env, "com/intel/bluetooth/BluetoothPeer");
 	err = (*env)->RegisterNatives(env, interface, nativeMethodsBTPeer, 24);
 	interface = (*env)->FindClass(env, "com/intel/bluetooth/ServiceRecordImpl");
 	err = (*env)->RegisterNatives(env, interface, nativeMethodsServRecImpl, 1);
-
+	interface = (*env)->FindClass(env, "javax/bluetooth/LocalDevice");
+	err = (*env)->RegisterNatives(env, interface, nativeMethodsLocalDev, 1);
 	/* trick the Native Library load class into thinking its already loaded the library
 		If you don't do this it'll try to load a library and it may succeed in loading an
 		old version from somewhere. This ensures only the current code is being debugged */

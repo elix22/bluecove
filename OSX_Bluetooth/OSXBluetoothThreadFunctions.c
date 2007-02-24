@@ -32,6 +32,7 @@ JavaVM					*s_vm;
 CFRunLoopRef			s_runLoop;
 CFRunLoopSourceRef		s_inquiryStartSource, s_inquiryStopSource;
 CFRunLoopSourceRef		s_searchServicesStart, s_populateServiceAttrs;
+CFRunLoopSourceRef		s_NewRFCOMMConnectionRequest;
 jobject					s_systemProperties;
 
 
@@ -60,9 +61,11 @@ void* runLoopThread(void* v_threadValues) {
 	doInquiryRec			inquiryRec;
 	cancelInquiryRec		cancelRec;
 	searchServicesRec		searchSrvStartRec;
+	todoListRoot			pendingConnections;
 	populateAttributesRec	_populateAttributesRec;
 	int						propGenErr;
 	
+
 	{
 		JavaVMAttachArgs		args;
 		args.version = JNI_VERSION_1_2;
@@ -113,6 +116,18 @@ void* runLoopThread(void* v_threadValues) {
 		s_populateServiceAttrs = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
 		CFRunLoopAddSource(s_runLoop, s_populateServiceAttrs, kCFRunLoopDefaultMode);
 		printMessage("Registered Populate Service Attributes Start Source", DEBUG_INFO_LEVEL);
+			
+		/* create/install the new RFCOMM connection source here */
+		initializeToDoList(&pendingConnections);
+		aContext.info = &pendingConnections;
+		aContext.perform = RFCOMMConnect;
+		s_NewRFCOMMConnectionRequest = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_NewRFCOMMConnectionRequest, kCFRunLoopDefaultMode);
+		printMessage("Registered RFCOMM new connection Start Source", DEBUG_INFO_LEVEL);
+		
+		
+		
+		
 	}
 
 	{
@@ -540,9 +555,9 @@ void getServiceAttributes(void *in) {
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	
-	serviceClass = JAVA_ENV_CHECK((*env)->GetObjectClass(env, params->serviceRecord));
-	serviceHandleID = JAVA_ENV_CHECK((*env)->GetFieldID(env, serviceClass, "handle", "I"));
-	serviceHandle = JAVA_ENV_CHECK((*env)->GetIntField(env, params->serviceRecord, serviceHandleID));
+	serviceClass = JAVA_ENV_CHECK(GetObjectClass(env, params->serviceRecord));
+	serviceHandleID = JAVA_ENV_CHECK(GetFieldID(env, serviceClass, "handle", "I"));
+	serviceHandle = JAVA_ENV_CHECK(GetIntField(env, params->serviceRecord, serviceHandleID));
 	/* YUCK! */
 	serviceRef = (IOBluetoothSDPServiceRecordRef)serviceHandle;
 	
@@ -565,7 +580,7 @@ void getServiceAttributes(void *in) {
 		attributeID = (*env)->NewObject(env, intClass, intConstructor, attributes[j]);
 		dataElement = IOBluetoothSDPServiceRecordGetAttributeDataElement(serviceRef, attributes[j]);
 		jDataElement = getjDataElement(env, dataElement);
-		jResult = JAVA_ENV_CHECK((*env)->CallObjectMethod(env, hashTable, setAttribute, attributeID, jDataElement));
+		jResult = JAVA_ENV_CHECK(CallObjectMethod(env, hashTable, setAttribute, attributeID, jDataElement));
 	}
 }
 
@@ -681,4 +696,122 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 	
 
 }
+
+void RFCOMMConnect(void* voidPtr) {
+
+	todoListRoot		*pendingConnections;
+	threadPassType		aType;
+	jint				jErr;
+	JNIEnv				*env;
+
+
+	printMessage("Entering RFCOMMConnect", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	pendingConnections = (todoListRoot*)voidPtr;
+	aType = getNextToDoItem(pendingConnections);
+	while(aType.voidPtr ) {
+		IOReturn			err;
+		connectRec			*currentRequest;
+		macSocket			*aSocket;
+		
+								
+		currentRequest = aType.connectPtr;
+		aSocket = getMacSocket(currentRequest->socket);
+		if(aSocket != NULL) {
+			BluetoothDeviceAddress	anAddress;
+			IOBluetoothDeviceRef	devRef;
+			jfieldID				inBufferFld, pipeField;
+			jobject					inStream;
+			jobject					pipedStream;
+			jclass					connCls, inStreamCls, pipedStreamCls;
+			
+			connCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothConnection"));
+			inStreamCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothInputStream"));
+			
+			inBufferFld = JAVA_ENV_CHECK(GetFieldID(env, connCls, "in", "Lcom/intel/bluetooth/BluetoothInputStream;"));
+			inStream = JAVA_ENV_CHECK(GetObjectField(env, currentRequest->peer, inBufferFld));
+			pipedStreamCls = JAVA_ENV_CHECK(FindClass(env, "java/io/PipedOutputStream"));
+			pipeField = JAVA_ENV_CHECK(GetFieldID(env, inStreamCls, "pOutput", "Ljava/io/PipedOutputStream"));
+			pipedStream = JAVA_ENV_CHECK(GetObjectField(env, inStream, pipeField));
+			
+			aSocket->listenerPeer = JAVA_ENV_CHECK(NewGlobalRef(env, pipedStream));
+			longToAddress(currentRequest->address, &anAddress);
+
+			devRef = IOBluetoothDeviceCreateWithAddress(&anAddress);
+
+			err = IOBluetoothDeviceOpenRFCOMMChannelSync(devRef, &(aSocket->ref.rfcommRef), currentRequest->channel,
+							rfcommEventListener, aSocket);
+			if(err != kIOReturnSuccess) {
+				jclass				ioExpCls;
+				jmethodID			ioExpConst;
+				jstring				message;
+				
+				sprintf(s_errorBuffer, "OS X IO Error: 0x%08X", err);
+				message = JAVA_ENV_CHECK(NewStringUTF(env, s_errorBuffer));
+				ioExpCls = JAVA_ENV_CHECK(FindClass(env, "java/io/IOException"));
+				ioExpConst = JAVA_ENV_CHECK(GetMethodID(env, ioExpCls, "<init>", "(Ljava/lang/String;)V"));
+				currentRequest->errorException = JAVA_ENV_CHECK(NewObject(env, ioExpCls, ioExpConst, message));
+			}
+				
+			IOBluetoothObjectRelease(devRef);
+			pthread_cond_signal(& (currentRequest->callComplete));
+		}
+		
+		aType = getNextToDoItem(pendingConnections);
+	}
+
+	printMessage("Exiting RFCOMMConnect", DEBUG_INFO_LEVEL);
+}
+
+
+void rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCon, IOBluetoothRFCOMMChannelEvent *event)
+    {
+		jint				length;
+		printMessage("rfcommEventListener Entered", DEBUG_INFO_LEVEL);
+        switch (event->eventType)
+        {
+                case kIOBluetoothRFCOMMNewDataEvent:
+					length = event->u.newData.dataSize;
+					if( length>0) {
+						jint				jErr;
+						JNIEnv				*env;
+						jbyteArray			theBytes;
+						jmethodID			writeMethod;
+						jclass				peerCls;
+						macSocket			*aSocket;
+						
+						aSocket = (macSocket*)refCon;
+						jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+						peerCls = JAVA_ENV_CHECK(GetObjectClass(env, aSocket->listenerPeer));
+						writeMethod = JAVA_ENV_CHECK(GetMethodID(env, peerCls, "write", "([BII)V"));
+						theBytes = JAVA_ENV_CHECK(NewByteArray(env, length));
+						JAVA_ENV_CHECK(SetByteArrayRegion(env, theBytes, 0, length, event->u.newData.dataPtr));
+						(*env)->CallVoidMethod(env, aSocket->listenerPeer, writeMethod, theBytes, 0, length);
+						if((*env)->ExceptionOccurred(env)) {
+							printMessage("Trouble filling the Bluetooth Input Stream. The stream probably was in the middle of opening.",
+										DEBUG_WARN_LEVEL);
+							(*env)->ExceptionDescribe(env);
+							(*env)->ExceptionClear(env);
+						}
+					}
+					
+					
+                break;
+                
+                case kIOBluetoothRFCOMMFlowControlChangedEvent:
+				/*
+                    // event->u.flowStatus       is the status of flow control (see IOBluetoothRFCOMMFlowControlStatus for current restrictions)
+          */
+				      break;
+                
+                case kIOBluetoothRFCOMMChannelTerminatedEvent:
+				/*
+                     event->u.terminatedChannel is the channel that was terminated.
+					*/
+                break;
+        }
+		printMessage("rfcommEventListener Exiting", DEBUG_INFO_LEVEL);
+    }
 
