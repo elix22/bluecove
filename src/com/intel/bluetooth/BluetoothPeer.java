@@ -186,15 +186,11 @@ public class BluetoothPeer {
 	 * socket operations
 	 */
 
-	public native int socket(boolean authenticate, boolean encrypt)
-			throws IOException;
-
 	public native long getsockaddress(int socket) throws IOException;
 
 	public native int getsockchannel(int socket) throws IOException;
 
-	public native void connect(int socket, long address, int channel)
-			throws IOException;
+
 
 	public native void listen(int socket) throws IOException;
 

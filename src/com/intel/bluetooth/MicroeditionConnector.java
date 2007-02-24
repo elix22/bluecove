@@ -120,12 +120,12 @@ public class MicroeditionConnector {
 		 */
 
 		try {
-			if (host.equals("localhost"))
+/*			if (host.equals("localhost"))
 				return new BluetoothStreamConnectionNotifier(new UUID(port,
 						false), values[0] != null && values[0].equals("true"),
 						values[1] != null && values[1].equals("true"),
 						values[3]);
-			else
+			else*/
 				return new BluetoothConnection(Long.parseLong(host, 16),
 						Integer.parseInt(port), values[0] != null
 								&& values[0].equals("true"), values[1] != null

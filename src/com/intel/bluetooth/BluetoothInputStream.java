@@ -21,101 +21,89 @@ package com.intel.bluetooth;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 import javax.bluetooth.LocalDevice;
 
 class BluetoothInputStream extends InputStream {
 	private BluetoothConnection conn;
+	
+	protected 	PipedInputStream		pInput;
+	protected 	PipedOutputStream		pOutput;
+	private		boolean					flushEnabled;
+	private		PipeFlusher				flushThread;
 
 	public BluetoothInputStream(BluetoothConnection conn) {
 		this.conn = conn;
+
+		try {
+			pInput = new PipedInputStream();
+			pOutput = new PipedOutputStream(pInput);
+			/* Some implementations will add data into the buffer as soon as a 
+			 * conncetion is enabled. This thread flushes it so the OS doesn't 
+			 * stall in a callback do to the piped buffer filling up.
+			 */
+			flushThread = null;
+			close();
+		} catch (Exception exp) {
+			// should never happen
+			exp.printStackTrace();
+		}
 	}
-
-	/*
-	 * Reads the next byte of data from the input stream. The value byte is
-	 * returned as an int in the range 0 to 255. If no byte is available because
-	 * the end of the stream has been reached, the value -1 is returned. This
-	 * method blocks until input data is available, the end of the stream is
-	 * detected, or an exception is thrown. A subclass must provide an
-	 * implementation of this method.
-	 * 
-	 * Returns: the next byte of data, or -1 if the end of the stream is
-	 * reached. Throws: IOException - if an I/O error occurs.
-	 */
-
-	public int read() throws IOException {
-		if (conn == null)
-			throw new IOException();
-		else
-			return (LocalDevice.getLocalDevice()).getBluetoothPeer().recv(
-					conn.socket);
+	private synchronized void setFlushThread(PipeFlusher aThread) {
+		flushThread = aThread;
 	}
-
-	/*
-	 * Reads up to len bytes of data from the input stream into an array of
-	 * bytes. An attempt is made to read as many as len bytes, but a smaller
-	 * number may be read, possibly zero. The number of bytes actually read is
-	 * returned as an integer. This method blocks until input data is available,
-	 * end of file is detected, or an exception is thrown.
-	 * 
-	 * If b is null, a NullPointerException is thrown.
-	 * 
-	 * If off is negative, or len is negative, or off+len is greater than the
-	 * length of the array b, then an IndexOutOfBoundsException is thrown.
-	 * 
-	 * If len is zero, then no bytes are read and 0 is returned; otherwise,
-	 * there is an attempt to read at least one byte. If no byte is available
-	 * because the stream is at end of file, the value -1 is returned;
-	 * otherwise, at least one byte is read and stored into b.
-	 * 
-	 * The first byte read is stored into element b[off], the next one into
-	 * b[off+1], and so on. The number of bytes read is, at most, equal to len.
-	 * Let k be the number of bytes actually read; these bytes will be stored in
-	 * elements b[off] through b[off+k-1], leaving elements b[off+k] through
-	 * b[off+len-1] unaffected.
-	 * 
-	 * In every case, elements b[0] through b[off] and elements b[off+len]
-	 * through b[b.length-1] are unaffected.
-	 * 
-	 * If the first byte cannot be read for any reason other than end of file,
-	 * then an IOException is thrown. In particular, an IOException is thrown if
-	 * the input stream has been closed.
-	 * 
-	 * The read(b, off, len) method for class InputStream simply calls the
-	 * method read() repeatedly. If the first such call results in an
-	 * IOException, that exception is returned from the call to the read(b, off,
-	 * len) method. If any subsequent call to read() results in a IOException,
-	 * the exception is caught and treated as if it were end of file; the bytes
-	 * read up to that point are stored into b and the number of bytes read
-	 * before the exception occurred is returned. Subclasses are encouraged to
-	 * provide a more efficient implementation of this method.
-	 * 
-	 * Parameters: b - the buffer into which the data is read. off - the start
-	 * offset in array b at which the data is written. len - the maximum number
-	 * of bytes to read. Returns: the total number of bytes read into the
-	 * buffer, or -1 if there is no more data because the end of the stream has
-	 * been reached. Throws: IOException - if an I/O error occurs. See Also:
-	 * read()
-	 */
-
-	public int read(byte[] b, int off, int len) throws IOException {
-		if (off < 0 || len < 0 || off + len > b.length)
-			throw new IndexOutOfBoundsException();
-
-		if (conn == null)
-			throw new IOException();
-		else
-			return (LocalDevice.getLocalDevice()).getBluetoothPeer().recv(
-					conn.socket, b, off, len);
+	protected synchronized void open() {
+		
+		flushEnabled = false;
+		flushThread.interrupt();
+		flushThread = null;
+		
+	}
+	private class PipeFlusher extends Thread {
+		public void run() {
+			this.setDaemon(true);
+			this.setName("Bluecove Buffer Flusher");
+			while(flushEnabled) {
+				try {
+					pInput.read();
+				} catch (IOException exp) {
+					
+				}
+			}
+			setFlushThread(null);
+		}
+	}
+	public int available() throws IOException {
+		return pInput.available();
 	}
 
 	public void close() throws IOException {
-		if (conn != null) {
-			conn.in = null;
-
-			conn.closeSocket();
-
-			conn = null;
+		if(flushThread == null) {
+			flushThread = new PipeFlusher();
+			flushEnabled = true;
+			flushThread.start();
 		}
 	}
+	public int read() throws IOException {
+		pipePrime(1);
+		return pInput.read();
+	}
+	public long skip(long n) throws IOException {
+		return pInput.skip(n);
+	}
+
+	public int read(byte[] b, int off, int len) throws IOException {
+		pipePrime(len);
+		return pInput.read( b, off, len);
+	}
+
+	/**
+	 * For OS's that need to be polled for data this initiates the polling
+	 * for {@code len} bytes.
+	 * 
+	 * @param len 	the number of bytes desired
+	 */
+	private native void  pipePrime(int len);
 }

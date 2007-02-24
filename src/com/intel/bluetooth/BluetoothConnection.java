@@ -49,14 +49,20 @@ public class BluetoothConnection implements StreamConnection {
 		}
 	}
 
+	protected native int socket(boolean authenticate, boolean encrypt)
+			throws IOException;
+	
+	protected native void connect(int socket, long address, int channel)
+			throws IOException;
+	
 	public BluetoothConnection(long address, int channel, boolean authenticate,
 			boolean encrypt) throws IOException {
 		this.address = address;
-		BluetoothPeer peer = (LocalDevice.getLocalDevice()).getBluetoothPeer();
+		in = new BluetoothInputStream(this);
+		
+		socket = socket(authenticate, encrypt);
 
-		socket = peer.socket(authenticate, encrypt);
-
-		peer.connect(socket, address, channel);
+		connect(socket, address, channel);
 	}
 
 	/** Construct BluetoothConnection with pre-existing socket */
@@ -86,9 +92,7 @@ public class BluetoothConnection implements StreamConnection {
 		if (closing)
 			throw new IOException();
 		else {
-			if (in == null)
-				in = new BluetoothInputStream(this);
-
+			in.open();
 			return in;
 		}
 	}
@@ -147,8 +151,7 @@ public class BluetoothConnection implements StreamConnection {
 
 	protected void finalize() {
 		try {
-			if (in != null)
-				in.close();
+			in.close();
 			if (out != null)
 				out.close();
 
