@@ -29,21 +29,30 @@ import javax.bluetooth.LocalDevice;
 class BluetoothInputStream extends InputStream {
 	private BluetoothConnection conn;
 	
-	protected 	PipedInputStream		pInput;
+	protected 	LargePipedInputStream	pInput;
 	protected 	PipedOutputStream		pOutput;
 	private		boolean					flushEnabled;
 	private		PipeFlusher				flushThread;
+	static private	boolean				disableDeadlockPreventor;
+	
+	static {
+		disableDeadlockPreventor = true;
+	}
+	public static void disableDeadlockPreventor() {
+		disableDeadlockPreventor = true;
+	}
 
 	public BluetoothInputStream(BluetoothConnection conn) {
 		this.conn = conn;
 
 		try {
-			pInput = new PipedInputStream();
+			pInput = new LargePipedInputStream();
 			pOutput = new PipedOutputStream(pInput);
 			/* Some implementations will add data into the buffer as soon as a 
 			 * conncetion is enabled. This thread flushes it so the OS doesn't 
 			 * stall in a callback do to the piped buffer filling up.
 			 */
+			if(!disableDeadlockPreventor) new DeadlockPrevention().start();
 			flushThread = null;
 			close();
 		} catch (Exception exp) {
@@ -73,6 +82,78 @@ class BluetoothInputStream extends InputStream {
 				}
 			}
 			setFlushThread(null);
+		}
+	}
+	/**
+	 * 
+	 */
+	private class LargePipedInputStream extends PipedInputStream {
+		
+		public LargePipedInputStream() {
+			super();
+		}
+		public LargePipedInputStream(int bufferSize) {
+			super();
+			buffer = new byte[bufferSize];
+		}
+		public LargePipedInputStream(PipedOutputStream src) throws IOException {
+			super(src);
+	    }
+		public LargePipedInputStream(PipedOutputStream src, int bufferSize) throws IOException {
+			super(src);
+			buffer = new byte[bufferSize];
+	    }
+		public int getBufferSize() {
+			return (buffer.length);
+		}
+		
+	}
+	/**
+	 * Prevents deadlock in the Bluetooth stack by dropping data after the
+	 * buffer fills. On OS X there is the potential to deadlock the BT 
+	 * stack while it tries to write to the piped buffer here. If no one 
+	 * is reading the buffer and it fills up the BT stack won't accept 
+	 * any more commands.
+	 *
+	 */
+	private class DeadlockPrevention extends Thread {
+		private static final int		maxSleepTime = 20000;
+		public void run() {
+	
+			setDaemon(true);
+			setName("Input Buffer Deadlock Prevention");
+			int		sleepTime = maxSleepTime;
+			while(!disableDeadlockPreventor) {
+				try {
+					sleep(sleepTime);
+				} catch (InterruptedException inttr) {
+					
+				}
+				int		bytesInBuffer;
+				try {
+					bytesInBuffer = available();
+				} catch(IOException exp) {
+					bytesInBuffer =0;
+				}
+				if(bytesInBuffer == pInput.getBufferSize()) {
+					// buffer is full lets flush it
+					int			len = pInput.getBufferSize();
+					byte[]		bogusBuffer = new byte[len];
+					try {
+						len = pInput.read(bogusBuffer, 0, len);
+						System.err.println("Warning: "+ String.valueOf(len) + " bytes lost do to overflowing input buffer");
+						sleepTime = 100;
+					} catch (IOException exp) {
+						
+					}
+				} else {
+					/* get the percentage fullness of buffer */
+					float percent = 100.0f*bytesInBuffer / pInput.getBufferSize();
+					if(percent > 80f) System.err.println("Warning: Input buffer is " + String.valueOf(percent)+ " full,");
+					sleepTime = (int)((100 - percent) * maxSleepTime);
+				}
+				
+			}
 		}
 	}
 	public int available() throws IOException {

@@ -158,13 +158,17 @@ void* runLoopThread(void* v_threadValues) {
 		} else {
 			printMessage("Successfully updated system properties.", DEBUG_INFO_LEVEL);
 		}
+				
+		JAVA_ENV_CHECK(DeleteLocalRef(env, systemClass));
+		JAVA_ENV_CHECK(DeleteLocalRef(env, aMethod));
+		if(exception) JAVA_ENV_CHECK(DeleteLocalRef(env, exception));
 
 		
 	}
 	{
 		/* TODO make sure that this works even if the BluetoothPeer object hasn't been instatiated */
-		jclass			peer, serviceImpl;
-		jfieldID		nativeIsAsyncField, nativeLibParsesSDP;
+		jclass			peer, serviceImpl, inputStream;
+		jfieldID		nativeIsAsyncField, nativeLibParsesSDP, deadlockPreventor;
 		
 		printMessage("Attempting to set static class variables specific to native lib functionality", DEBUG_INFO_LEVEL);
 
@@ -176,6 +180,17 @@ void* runLoopThread(void* v_threadValues) {
 		peer = (*env)->FindClass(env, "com/intel/bluetooth/BluetoothPeer");
 		nativeIsAsyncField = (*env)->GetStaticFieldID(env, peer, "nativeIsAsync", "Z");
 		(*env)->SetStaticBooleanField(env, peer, nativeIsAsyncField, 1);
+		
+		inputStream = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothInputStream"));
+		deadlockPreventor = JAVA_ENV_CHECK(GetStaticFieldID(env, inputStream, "disableDeadlockPreventor", "Z"));
+		JAVA_ENV_CHECK(SetStaticBooleanField(env, inputStream, deadlockPreventor, 0));
+		
+		JAVA_ENV_CHECK(DeleteLocalRef(env, peer));
+		JAVA_ENV_CHECK(DeleteLocalRef(env, serviceImpl));
+		JAVA_ENV_CHECK(DeleteLocalRef(env, inputStream));
+		JAVA_ENV_CHECK(DeleteLocalRef(env, nativeIsAsyncField));
+		JAVA_ENV_CHECK(DeleteLocalRef(env, nativeLibParsesSDP));
+		JAVA_ENV_CHECK(DeleteLocalRef(env, deadlockPreventor));
 	}
 	
 	printMessage("Init complete, releasing the library load thread", DEBUG_INFO_LEVEL);
