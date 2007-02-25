@@ -16,6 +16,7 @@
   <security>
       <all-permissions/>
   </security>
+  <update check="always"/>
 
   <resources>
     <j2se version="1.4+"/>
@@ -24,6 +25,8 @@
   </resources>
 
   <application-desc main-class="$mainClass">
+        <argument>--impl</argument>
+        <argument>com.intel.bluetooth.BlueCoveImpl</argument>
   </application-desc>
 
 </jnlp>
