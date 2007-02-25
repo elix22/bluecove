@@ -214,6 +214,5 @@ public class BluetoothPeer {
 
 	public native String getradioname(long address);
 	
-	public native Properties getAdjustedSystemProperties();
 	
 }
