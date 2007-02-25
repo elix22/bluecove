@@ -19,9 +19,12 @@
  */
 package javax.bluetooth;
 
+import java.util.Properties;
+
 import javax.microedition.io.Connection;
 
 import com.intel.bluetooth.BluetoothPeer;
+import com.intel.bluetooth.NativeLibLoader;
 /**
  * The LocalDevice class defines the basic functions of the Bluetooth manager. 
  * The Bluetooth manager provides the lowest level of interface possible into 
@@ -43,6 +46,9 @@ public class LocalDevice {
 
 	private long bluetoothAddress;
 
+	static {
+		NativeLibLoader.isAvailable();
+	}
 	private LocalDevice() {
 		bluetoothPeer = new BluetoothPeer();
 
@@ -98,8 +104,11 @@ public class LocalDevice {
 	 */
 
 	public String getFriendlyName() {
-		return bluetoothPeer.getradioname(bluetoothAddress);
+		/* not caching it because it may change while the program is running */
+		return deviceName();
 	}
+	
+	private native String deviceName();
 
 	/**
 	 * Retrieves the {@link DeviceClass} object that represents the service classes,
@@ -113,8 +122,10 @@ public class LocalDevice {
 	 */
 
 	public DeviceClass getDeviceClass() {
-		return null;
+		return deviceClass();
 	}
+	
+	private native DeviceClass deviceClass();
 
 	/**
 	 * Sets the discoverable mode of the device. The mode may be any number in
@@ -155,8 +166,13 @@ public class LocalDevice {
 	 */
 
 	public boolean setDiscoverable(int mode) throws BluetoothStateException {
-		return false;
+		if(mode >= 0x9E8B3F || mode <= 0x9E8B00 || mode == 0)
+			throw new IllegalArgumentException("Invalid discovery mode!");
+		
+		return privateSetDiscoverable(mode);
 	}
+	
+	private native boolean privateSetDiscoverable(int mode) throws BluetoothStateException;
 
 	/**
 	 * Retrieves Bluetooth system properties. The following properties must be
@@ -206,13 +222,15 @@ public class LocalDevice {
 			// properties due to a security manager rejecting it so we check
 			// its copy as a backup
 			try {
-				return getLocalDevice().bluetoothPeer.getAdjustedSystemProperties().getProperty(fullPropName);
+				return getAdjustedSystemProperties().getProperty(fullPropName);
 			} catch (Exception exp) {
 				return null;
 			}
 		} else return propValue;
 	}
 
+	public native static Properties getAdjustedSystemProperties();
+	
 	/**
 	 * Retrieves the local device's discoverable mode. The return value will be
 	 * {@link DiscoveryAgent#GIAC}, {@link DiscoveryAgent#LIAC},
@@ -226,8 +244,10 @@ public class LocalDevice {
 	 */
 
 	public int getDiscoverable() {
-		return DiscoveryAgent.NOT_DISCOVERABLE;
+		return privateGetDiscoverable();
 	}
+	
+	private native int privateGetDiscoverable();
 
 	/**
 	 * Retrieves the Bluetooth address of the local device. The Bluetooth
