@@ -22,74 +22,53 @@ package com.intel.bluetooth;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.bluetooth.LocalDevice;
-
 class BluetoothOutputStream extends OutputStream {
-	private BluetoothConnection conn;
+	private BluetoothRFCOMMConnection conn;
+	private	boolean closed;
 
-	public BluetoothOutputStream(BluetoothConnection conn) {
+	public BluetoothOutputStream(BluetoothRFCOMMConnection conn) {
 		this.conn = conn;
+		closed = true;
 	}
-
-	/*
-	 * Writes the specified byte to this output stream. The general contract for
-	 * write is that one byte is written to the output stream. The byte to be
-	 * written is the eight low-order bits of the argument b. The 24 high-order
-	 * bits of b are ignored. Subclasses of OutputStream must provide an
-	 * implementation for this method.
-	 * 
-	 * Parameters: b - the byte. Throws: IOException - if an I/O error occurs.
-	 * In particular, an IOException may be thrown if the output stream has been
-	 * closed.
-	 */
 
 	public void write(int b) throws IOException {
+		if(closed) throw new IOException("Stream closed");
 		if (conn == null)
 			throw new IOException();
-		else
-			(LocalDevice.getLocalDevice()).getBluetoothPeer().send(conn.socket,
-					b);
+		byte		aByte[] = new byte[1];
+		aByte[0] = (byte)(b & 0x000000FFL);
+		conn.send(aByte);
+		
+	}
+	public void write(byte[] b) throws IOException {
+		if(closed) throw new IOException("Stream closed");
+		if(b==null) throw new NullPointerException();
+		conn.send(b);
 	}
 
-	/*
-	 * Writes len bytes from the specified byte array starting at offset off to
-	 * this output stream. The general contract for write(b, off, len) is that
-	 * some of the bytes in the array b are written to the output stream in
-	 * order; element b[off] is the first byte written and b[off+len-1] is the
-	 * last byte written by this operation. The write method of OutputStream
-	 * calls the write method of one argument on each of the bytes to be written
-	 * out. Subclasses are encouraged to override this method and provide a more
-	 * efficient implementation.
-	 * 
-	 * If b is null, a NullPointerException is thrown.
-	 * 
-	 * If off is negative, or len is negative, or off+len is greater than the
-	 * length of the array b, then an IndexOutOfBoundsException is thrown.
-	 * 
-	 * Parameters: b - the data. off - the start offset in the data. len - the
-	 * number of bytes to write. Throws: IOException - if an I/O error occurs.
-	 * In particular, an IOException is thrown if the output stream is closed.
-	 */
 	public void write(byte[] b, int off, int len) throws IOException {
+		if(closed) throw new IOException("Stream closed");
+		if(b==null) throw new NullPointerException();
 		if (off < 0 || len < 0 || off + len > b.length) {
 			throw new IndexOutOfBoundsException();
 		}
 
-		if (conn == null) {
-			throw new IOException();
+		if (conn == null) throw new IOException();
+		/* see if we can avoid a copy */
+		if(off==0 && len==b.length) {
+			conn.send(b);
 		} else {
-			(LocalDevice.getLocalDevice()).getBluetoothPeer().send(conn.socket,
-					b, off, len);
+			byte[]			data = new byte[len];
+			System.arraycopy(b, off, data, 0, len);
+			conn.send(data);
 		}
 	}
-
+	public void open() {
+		closed = false;
+	}
 	public void close() throws IOException {
-		if (conn != null) {
-			conn.out = null;
-
-			conn.closeSocket();
-
-			conn = null;
-		}
+		// leave all the work to the connection
+		// we may be opened again.
+		closed = true;
 	}
 }

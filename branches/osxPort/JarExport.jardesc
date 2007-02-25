@@ -4,14 +4,14 @@
 <options buildIfNeeded="true" compress="true" descriptionLocation="/BlueCoveOSX/JarExport.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
 <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
 <selectedProjects/>
-<manifest generateManifest="true" mainClassHandleIdentifier="=BlueCoveOSX/test&lt;com.intel.bluetooth.test{StandaloneTest.java[StandaloneTest" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+<manifest generateManifest="true" mainClassHandleIdentifier="=BlueCoveOSX/test&lt;com.intel.bluetooth.test{RFCOMMTest.java[RFCOMMTest" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
 <sealing sealJar="true">
 <packagesToSeal/>
 <packagesToUnSeal/>
 </sealing>
 </manifest>
 <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-<file path="/BlueCoveOSX/resources/libintelbth.jnilib"/>
+<file path="/BlueCoveOSX/libintelbth.jnilib"/>
 <javaElement handleIdentifier="=BlueCoveOSX/test&lt;com.intel.bluetooth.test"/>
 <javaElement handleIdentifier="=BlueCoveOSX/src"/>
 </selectedElements>

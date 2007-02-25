@@ -56,31 +56,31 @@ void addToDoItem(todoListRoot *rootPtr, threadPassType aRec){
 
 void deleteToDoItem(todoListRoot *rootPtr, threadPassType aRec){
 	
-	todoListItem			*anItem;
 	todoListItem			*previousItem;
 	todoListItem*			toFree;
 	
 	pthread_mutex_lock(&(rootPtr->listLock));
 	/* check if its the first item */
-	if(rootPtr->listHead) if(rootPtr->listHead->type.voidPtr == aRec.voidPtr) {
-		toFree = rootPtr->listHead;
-		rootPtr->listHead = rootPtr->listHead->next;
-		free(toFree);
-	} else {
-	
-		/* find the item*/
-		previousItem = rootPtr->listHead;
-		while( (previousItem->next !=NULL) && (previousItem->next->type.voidPtr != aRec.voidPtr))
-					previousItem = previousItem->next;
-		if(previousItem->next == NULL) {
-			printMessage("deleteToDoItem asked to delete non existant item!", DEBUG_ERROR_LEVEL);
-		} else {
-			toFree = previousItem->next;
-			previousItem->next = toFree->next;
+	if(rootPtr->listHead) {
+		if(rootPtr->listHead->type.voidPtr == aRec.voidPtr) {
+			toFree = rootPtr->listHead;
+			rootPtr->listHead = rootPtr->listHead->next;
 			free(toFree);
+		} else {
+	
+			/* find the item*/
+			previousItem = rootPtr->listHead;
+			while( (previousItem->next !=NULL) && (previousItem->next->type.voidPtr != aRec.voidPtr))
+					previousItem = previousItem->next;
+			if(previousItem->next == NULL) {
+				printMessage("deleteToDoItem asked to delete non existant item!", DEBUG_ERROR_LEVEL);
+			} else {
+				toFree = previousItem->next;
+				previousItem->next = toFree->next;
+				free(toFree);
+			}
 		}
-	}
-			
+	}		
 	pthread_mutex_unlock(&(rootPtr->listLock));
 
 

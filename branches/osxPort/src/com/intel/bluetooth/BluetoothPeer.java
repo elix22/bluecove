@@ -186,33 +186,17 @@ public class BluetoothPeer {
 	 * socket operations
 	 */
 
-	public native long getsockaddress(int socket) throws IOException;
-
 	public native int getsockchannel(int socket) throws IOException;
 
 
 
-	public native void listen(int socket) throws IOException;
+//	public native void listen(int socket) throws IOException;
 
-	public native int accept(int socket) throws IOException;
-
-	public native int recv(int socket) throws IOException;
-
-	public native int recv(int socket, byte[] b, int off, int len)
-			throws IOException;
-
-	public native void send(int socket, int b) throws IOException;
-
-	public native void send(int socket, byte[] b, int off, int len)
-			throws IOException;
-
-	public native void close(int socket) throws IOException;
+//	public native int accept(int socket) throws IOException;
 
 	public native String getpeername(long address) throws IOException;
 
 	public native long getpeeraddress(int socket) throws IOException;
-
-	public native String getradioname(long address);
 	
 	
 }
