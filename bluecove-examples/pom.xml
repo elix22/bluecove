@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+    <!-- @version $Revision$ ($Author$) $Date$ -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+    <parent>
+        <groupId>net.sf.bluecove</groupId>
+        <artifactId>bluecove</artifactId>
+        <version>1.2.2-SNAPSHOT</version>
+        <relativePath>../bluecove/pom.xml</relativePath>
+    </parent>
+    -->
+
+    <groupId>net.sf.bluecove</groupId>
+    <version>1.2.2-SNAPSHOT</version>
+    <artifactId>bluecove-examples</artifactId>
+    <name>bluecove-examples</name>
+    <packaging>pom</packaging>
+
+    <description>BlueCove examples demos and Web Start</description>
+
+    <url>http://bluecove.sourceforge.net/</url>
+
+    <organization>
+        <name>BlueCove Team</name>
+        <url>http://code.google.com/p/bluecove/</url>
+    </organization>
+    <inceptionYear>2004</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>GNU Library or Lesser General Public License (LGPL)</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://bluecove.googlecode.com/svn/bluecove-examples</connection>
+        <developerConnection>scm:svn:http://bluecove.googlecode.com/svn/bluecove-examples</developerConnection>
+        <url>http://bluecove.googlecode.com/svn/bluecove-examples</url>
+    </scm>
+
+    <distributionManagement>
+        <site>
+            <id>test-site</id>
+            <url>file:///home/apache/bluecove-examples</url>
+        </site>
+    </distributionManagement>
+
+    <properties>
+        <me2Version>2.0.1-SNAPSHOT</me2Version>
+    </properties>
+
+    <modules>
+        <module>bluecove-webstart</module>
+    </modules>
+
+    <developers>
+        <developer>
+            <name>Paul Totterman</name>
+            <id>paul.totterman</id>
+            <email>paul.totterman@gmail.com</email>
+            <roles>
+                <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <name>Vlad Skarzhevskyy</name>
+            <id>skarzhevskyy</id>
+            <email>skarzhevskyy@gmail.com</email>
+            <organization>pyx4me.com</organization>
+            <organizationUrl>http://www.pyx4me.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>Build master</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Eric Wagner</name>
+            <email>gnuloki@gmail.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </contributor>
+
+        <!--
+        <contributor>
+            <name></name>
+            <email></email>
+            <organization></organization>
+            <organizationUrl></organizationUrl>
+            <roles>
+                <role></role>
+            </roles>
+        </contributor>
+        -->
+    </contributors>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>site-fix-css</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy overwrite="true" failonerror="false"
+                                      file="${basedir}/../target/site/css/site-child.css"
+                                      tofile="${project.build.directory}/site/css/site.css"/>
+                                <!-- this done for deep child modules  -->
+                                <copy overwrite="true" failonerror="false"
+                                      file="${basedir}/../target/site/css/site-child.css"
+                                      tofile="${project.build.directory}/site/css/site-child.css"/>
+                                <!--copy overwrite="true" todir="${project.build.directory}/site/css-images" failonerror="false">
+                                    <fileset dir="${basedir}/../target/site/css-images"/>
+                                </copy-->
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+    </build>
+
+</project>

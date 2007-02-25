@@ -1,0 +1,42 @@
+~~ @version $Revision$ ($Author$) $Date$
+~~ See this file format http://maven.apache.org/guides/mini/guide-apt-format.html
+
+                                    ------------------
+                                    BlueCove examples projects
+                                    ------------------
+
+BlueCove
+
+
+    BlueCove is a Java library for Bluetooth (JSR-82 implementation) that currently interfaces with the Microsoft Bluetooth stack found in Windows XP SP2.
+
+    Main project website now be found at: {{{http://code.google.com/p/bluecove/}http://code.google.com/p/bluecove/}}
+
+
+BlueCove examples projects
+
+    To start BlueCove with {{{http://www.microemu.org/}MicroEmulator}} click this link << {{{bluecove-webstart/demo.jnlp}Java Web Start}} >>.
+
+    You can Drag and Drop .jad files or links to running MicroEmulator application.
+
+    * TODO
+
+~~    * n/a {{{test-bt/test-bt.jad}Bluetooth Test}}
+
+    []
+
+    Download examplese to cell Phone
+
+    * TODO
+
+~~    * n/a  {{{test-bt/test-bt.jar}Bluetooth Test}}
+
+    []
+
+    This is some non JSR-82 example applications you can try in Web Start.
+
+    * {{{http://www.google.com/gmm/apps/v1.4.4/L1/gmaps-Sony_Ericsson-W810_L1.jad}Google Maps}}
+
+
+    []
+

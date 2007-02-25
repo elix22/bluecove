@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="BlueCove">
+
+<!-- @version $Revision$ ($Author$) $Date$ -->
+
+    <publishDate position="left" format="MM-dd-yyyy HH:mm z 'GMT'Z" />
+
+    <bannerLeft>
+            <name>BlueCove</name>
+    </bannerLeft>
+
+    <bannerRight>
+        <name>Sourceforge</name>
+        <src>http://sourceforge.net/sflogo.php?group_id=114020&amp;amp;type=4</src>
+        <href>http://sourceforge.net/projects/bluecove/</href>
+    </bannerRight>
+
+    <body>
+
+        <menu name="Ver 1.2.2-SNAPSHOT" inherit="top"/>
+
+        <menu ref="parent" />
+
+        <menu name="Overview">
+            <item name="Main Project" href="http://code.google.com/p/bluecove/" />
+            <item name="Introduction" href="http://bluecove.sourceforge.net/index.html" />
+            <item name="Run Web Start" href="http://bluecove.sourceforge.net/bluecove-webstart/demo.jnlp" />
+
+            <item name="Download" href="#">
+                <item name="Releases" href="http://sourceforge.net/project/showfiles.php?group_id=114020"/>
+                <item name="SVN Access" href="source-repository.html"/>
+                <item name="Browse SVN" href="http://bluecove.googlecode.com/svn/bluecove-examples/"/>
+            </item>
+
+        </menu>
+
+        <menu ref="modules" collapse="true" />
+
+        <menu ref="reports" />
+
+    </body>
+
+</project>
