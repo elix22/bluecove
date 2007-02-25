@@ -473,13 +473,6 @@ JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothPeer_getradioname
   
   }
 
-JNIEXPORT jobject JNICALL Java_com_intel_bluetooth_BluetoothPeer_getAdjustedSystemProperties
-  (JNIEnv *env, jobject peer){
-	
-	return s_systemProperties;
-  
-  }
-  
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothInputStream_pipePrime(JNIEnv *env, jobject peer, jint numBytes){
 	/* do nothing on this platform */
   }
@@ -515,4 +508,181 @@ JNIEXPORT jlong JNICALL Java_javax_bluetooth_LocalDevice_getLocalAddress(JNIEnv 
     printMessage("Java_javax_bluetooth_LocalDevice_getLocalAddress exiting", DEBUG_INFO_LEVEL);
 
 	return intAddress;
+}
+
+
+JNIEXPORT jstring JNICALL Java_javax_bluetooth_LocalDevice_deviceName(JNIEnv *env, jobject localDevice){
+
+	locaNameRec						nameRequest;
+	CFRunLoopSourceContext			aContext={0};
+	todoListRoot					*nameRequestToDoList;
+	threadPassType					typeMask;
+	pthread_mutex_t					callInProgress;
+	jstring							result;
+	
+    printMessage("Java_javax_bluetooth_LocalDevice_deviceName called", DEBUG_INFO_LEVEL);
+    
+	typeMask.localNamePtr = &nameRequest;
+	
+	nameRequest.aName = NULL;
+	
+	pthread_cond_init(& (nameRequest.callComplete), NULL);
+	pthread_mutex_init(&callInProgress, NULL);
+	pthread_mutex_lock(&callInProgress);
+	
+	CFRunLoopSourceGetContext(s_LocalDeviceNameRequest, &aContext);
+	nameRequestToDoList = (todoListRoot*)aContext.info;
+	
+	addToDoItem(nameRequestToDoList, typeMask);
+	
+	CFRunLoopSourceSignal(s_LocalDeviceNameRequest);
+	CFRunLoopWakeUp(s_runLoop);
+	
+	pthread_cond_wait(&(nameRequest.callComplete), &callInProgress);
+	
+	result = NULL;
+	if(nameRequest.aName) {
+		result = JAVA_ENV_CHECK(NewLocalRef(env, nameRequest.aName));
+		JAVA_ENV_CHECK(DeleteGlobalRef(env, nameRequest.aName));
+	}
+	
+	pthread_mutex_destroy(&callInProgress);
+	pthread_cond_destroy(&(nameRequest.callComplete));
+
+	printMessage("Java_javax_bluetooth_LocalDevice_deviceName exiting", DEBUG_INFO_LEVEL);
+	
+	return result;
+}
+
+
+JNIEXPORT jobject JNICALL Java_javax_bluetooth_LocalDevice_deviceClass(JNIEnv *env, jobject localDevice){
+
+	localDeviceClassRec				devClsRequest;
+	CFRunLoopSourceContext			aContext={0};
+	todoListRoot					*devRequestToDoList;
+	threadPassType					typeMask;
+	pthread_mutex_t					callInProgress;
+	jobject							result;
+	
+    printMessage("Java_javax_bluetooth_LocalDevice_deviceClass called", DEBUG_INFO_LEVEL);
+    
+	typeMask.localDevClassPtr = &devClsRequest;
+	
+	devClsRequest.devClass = NULL;
+	
+	pthread_cond_init(& (devClsRequest.callComplete), NULL);
+	pthread_mutex_init(&callInProgress, NULL);
+	pthread_mutex_lock(&callInProgress);
+	
+	CFRunLoopSourceGetContext(s_LocalDeviceClassRequest, &aContext);
+	devRequestToDoList = (todoListRoot*)aContext.info;
+	
+	addToDoItem(devRequestToDoList, typeMask);
+	
+	CFRunLoopSourceSignal(s_LocalDeviceClassRequest);
+	CFRunLoopWakeUp(s_runLoop);
+	
+	pthread_cond_wait(&(devClsRequest.callComplete), &callInProgress);
+	
+	result = NULL;
+	if(nameRequest.devClass) {
+		result = JAVA_ENV_CHECK(NewLocalRef(env, nameRequest.devClass));
+		JAVA_ENV_CHECK(DeleteGlobalRef(env, nameRequest.devClass));
+	}
+		
+	pthread_mutex_destroy(&callInProgress);
+	pthread_cond_destroy(&(nameRequest.callComplete));
+
+	printMessage("Java_javax_bluetooth_LocalDevice_deviceClass exiting", DEBUG_INFO_LEVEL);
+	
+	return result;    
+}
+
+
+JNIEXPORT jboolean JNICALL Java_javax_bluetooth_LocalDevice_privateSetDiscoverable(JNIEnv *env, jobject localDevice, jint mode){
+	setDiscoveryModeRec				aRec;
+	CFRunLoopSourceContext			aContext={0};
+	todoListRoot					*aToDoList;
+	threadPassType					typeMask;
+	pthread_mutex_t					callInProgress;
+	jboolean						result = JNI_FALSE;
+	
+    printMessage("Java_javax_bluetooth_LocalDevice_privateSetDiscoverable called", DEBUG_INFO_LEVEL);
+    
+	typeMask.setDiscoveryModePtr = &aRec;
+	
+	aRec.errorException = NULL;
+	aRec.mode = mode;
+	
+	pthread_cond_init(& (aRec.callComplete), NULL);
+	pthread_mutex_init(&callInProgress, NULL);
+	pthread_mutex_lock(&callInProgress);
+	
+	CFRunLoopSourceGetContext(s_LocalDeviceSetDiscoveryMode, &aContext);
+	aToDoList = (todoListRoot*)aContext.info;
+	
+	addToDoItem(aToDoList, typeMask);
+	
+	CFRunLoopSourceSignal(s_LocalDeviceSetDiscoveryMode);
+	CFRunLoopWakeUp(s_runLoop);
+	
+	pthread_cond_wait(&(aRec.callComplete), &callInProgress);
+	
+	pthread_mutex_destroy(&callInProgress);
+	pthread_cond_destroy(&(nameRequest.callComplete));
+	
+	
+	if(aRec.errorException) {
+		/* there was a problem */
+		(*env)->Throw(env, aRec.errorException);
+		(*env)->DeleteGlobalRef(env, aRec.errorException);
+	} else {
+		result = (mode == aRec.mode);
+	}
+	
+	printMessage("Java_javax_bluetooth_LocalDevice_privateSetDiscoverable exiting", DEBUG_INFO_LEVEL);
+	
+	return result;
+}
+
+
+JNIEXPORT jobject JNICALL Java_javax_bluetooth_LocalDevice_getAdjustedSystemProperties(JNIEnv *env, jclass localDeviceCls){
+	return s_systemProperties;
+}
+
+
+JNIEXPORT jint JNICALL Java_javax_bluetooth_LocalDevice_privateGetDiscoverable(JNIEnv *env, jobject localDevice){
+	getDiscoveryModeRec				aRec;
+	CFRunLoopSourceContext			aContext={0};
+	todoListRoot					*aToDoList;
+	threadPassType					typeMask;
+	pthread_mutex_t					callInProgress;
+	
+    printMessage("Java_javax_bluetooth_LocalDevice_privateGetDiscoverable called", DEBUG_INFO_LEVEL);
+    
+	typeMask.getDiscoveryModePtr = &aRec;
+	
+	aRec.mode = mode;
+	
+	pthread_cond_init(& (aRec.callComplete), NULL);
+	pthread_mutex_init(&callInProgress, NULL);
+	pthread_mutex_lock(&callInProgress);
+	
+	CFRunLoopSourceGetContext(s_LocalDeviceGetDiscoveryMode, &aContext);
+	aToDoList = (todoListRoot*)aContext.info;
+	
+	addToDoItem(aToDoList, typeMask);
+	
+	CFRunLoopSourceSignal(s_LocalDeviceGetDiscoveryMode);
+	CFRunLoopWakeUp(s_runLoop);
+	
+	pthread_cond_wait(&(aRec.callComplete), &callInProgress);
+	
+	pthread_mutex_destroy(&callInProgress);
+	pthread_cond_destroy(&(nameRequest.callComplete));
+	
+    printMessage("Java_javax_bluetooth_LocalDevice_privateGetDiscoverable exiting", DEBUG_INFO_LEVEL);
+	
+	return aRec.mode;
+
 }

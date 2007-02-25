@@ -1,5 +1,6 @@
 Fix Error in null ptr dereference caused by cancel inquiry
 Add mutexes to access the thread to thread structures, calling the native method rapidly enough could cause the RunLoop thread to lose or corrupt a structure
+For all OS X threads that utilize local java objects need to push and pop the LocalFrame to ensure correct garbage collection
 Implement Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearchServices
 Implement Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles
 Implement Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes
