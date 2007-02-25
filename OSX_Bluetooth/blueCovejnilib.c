@@ -92,10 +92,13 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_doInquiry
 		record->peer = (*env)->NewGlobalRef(env, peer);
 		record->accessCode = accessCode;
 		record->listener = (*env)->NewGlobalRef(env, listener);
-
-		CFRunLoopSourceSignal(s_inquiryStartSource);
-		CFRunLoopWakeUp (s_runLoop);
 		
+		if(inOSXThread()) {
+			aContext.perform(record);
+		} else {
+			CFRunLoopSourceSignal(s_inquiryStartSource);
+			CFRunLoopWakeUp (s_runLoop);
+		}
 		printMessage("Java_com_intel_bluetooth_BluetoothPeer_doInquiry exiting", DEBUG_INFO_LEVEL);
 		return -1;
 	
@@ -117,22 +120,25 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry
 	record = (cancelInquiryRec*) aContext.info;
 	record->peer = peer;
 	record->listener = listener; /* no need for a global ref since we're done with this when we return */
+	record->validCondition = 0;
+	if(inOSXThread()) {
+			aContext.perform(record);
+	} else {
+		pthread_cond_init(&record->waiter, NULL);
+		pthread_mutex_init(&aMutex, NULL);
+		pthread_mutex_lock(&aMutex);
+		record->validCondition = 1;
 
-	pthread_cond_init(&record->waiter, NULL);
-	pthread_mutex_init(&aMutex, NULL);
-	pthread_mutex_lock(&aMutex);
-		/* set the data for the work function */
+		CFRunLoopSourceSignal(s_inquiryStopSource);
+		CFRunLoopWakeUp (s_runLoop);
 	
-	CFRunLoopSourceSignal(s_inquiryStopSource);
-	CFRunLoopWakeUp (s_runLoop);
+		/* wait until the work is done */
+		pthread_cond_wait(&record->waiter, &aMutex);
 	
-	/* wait until the work is done */
-	pthread_cond_wait(&record->waiter, &aMutex);
-	
-	/* cleanup */
-	pthread_cond_destroy(&record->waiter);
-	pthread_mutex_destroy(&aMutex);
-	
+		/* cleanup */
+		pthread_cond_destroy(&record->waiter);
+		pthread_mutex_destroy(&aMutex);
+	}
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry: exiting", DEBUG_INFO_LEVEL);
 
 	
@@ -168,10 +174,12 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_asyncSearchService
 	record->device = (*env)->NewGlobalRef(env, device);
 	record->listener = (*env)->NewGlobalRef(env, listener); /* no need for a global ref since we're done with this when we return */
 	record->theInq = mySearchServices;
-	
-	CFRunLoopSourceSignal(s_searchServicesStart);
-	CFRunLoopWakeUp(s_runLoop);
-	
+	if(inOSXThread()) {
+			aContext.perform(record);
+	} else {
+		CFRunLoopSourceSignal(s_searchServicesStart);
+		CFRunLoopWakeUp(s_runLoop);
+	}
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_asyncSearchServices exiting", DEBUG_INFO_LEVEL);
 
 	return mySearchServices->index;
@@ -189,22 +197,26 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_ServiceRecordImpl_native_1po
 		record = (populateAttributesRec*) aContext.info;
 		record->serviceRecord = peer;
 		record->attrSet = attrIDs;
+		record->validCondition = 0;
+
+		if(inOSXThread()) {
+			aContext.perform(record);
+		} else {
+			pthread_cond_init(&record->waiter, NULL);
+			record->validCondition = 1;
+			pthread_mutex_init(&aMutex, NULL);
+			pthread_mutex_lock(&aMutex);
 		
-		pthread_cond_init(&record->waiter, NULL);
-		record->waiterValid = 1;
-		pthread_mutex_init(&aMutex, NULL);
-		pthread_mutex_lock(&aMutex);
+			CFRunLoopSourceSignal(s_populateServiceAttrs);
+			CFRunLoopWakeUp (s_runLoop);
 		
-		CFRunLoopSourceSignal(s_populateServiceAttrs);
-		CFRunLoopWakeUp (s_runLoop);
+			// wait until the work is done
+			pthread_cond_wait(&record->waiter, &aMutex);
 		
-		// wait until the work is done
-		pthread_cond_wait(&record->waiter, &aMutex);
-		
-		// cleanup
-		pthread_cond_destroy(&record->waiter);
-		pthread_mutex_destroy(&aMutex);
-	
+			// cleanup
+			pthread_cond_destroy(&record->waiter);
+			pthread_mutex_destroy(&aMutex);
+		}
  		printMessage("Java_com_intel_bluetooth_ServiceRecordImpl_native_1populateRecord exiting", DEBUG_INFO_LEVEL);
  
 		return record->result;
@@ -264,53 +276,21 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_unregisterService
 }
 
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothConnection_socket
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothL2CAPConnection_socket
   (JNIEnv *env, jobject peer, jboolean authenticate, jboolean encrypt){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_socket called", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_socket called", DEBUG_INFO_LEVEL);
 	
 	macSocket*			aSocket;
 	
 	aSocket = newMacSocket();
 	aSocket->encrypted = encrypt;
 	aSocket->authenticate = authenticate;
+	aSocket->type = 0;
 		
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_socket exiting", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_socket exiting", DEBUG_INFO_LEVEL);
 
 	return aSocket->index;
 }
-
-
-JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothPeer_getsockaddress
-  (JNIEnv *env, jobject peer, jint socket){
-    
-	jstring				localAddress, propertyName;
-	jclass				propList;
-	jmethodID			getProperty;
-	const char			*addressString;
-	UInt8				addressValue[6];
-	int					i;
-	UInt64				intAddress;
-	
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getsockaddress called", DEBUG_INFO_LEVEL);
-	/* I assume this always just for the local device */
-	propertyName = JAVA_ENV_CHECK(NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS));
-	propList = JAVA_ENV_CHECK(GetObjectClass(env, s_systemProperties));
-	getProperty =  JAVA_ENV_CHECK(GetMethodID(env, propList, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;"));
-	localAddress = JAVA_ENV_CHECK(CallObjectMethod(env, s_systemProperties, getProperty, propertyName));
-	addressString =  JAVA_ENV_CHECK(GetStringUTFChars(env, localAddress, NULL));
-	sscanf(addressString, "%2x-%2x-%2x-%2x-%2x-%2x", &addressValue[0], &addressValue[1], &addressValue[2],
-									&addressValue[3], &addressValue[4], &addressValue[5]);
-	JAVA_ENV_CHECK(ReleaseStringUTFChars(env, localAddress, addressString));
-	intAddress = 0LL;
-	for(i=0;i<6;i++) {
-		intAddress <<= 8;
-		intAddress |= addressValue[i];
-	}
-		
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getsockaddress exiting", DEBUG_INFO_LEVEL);
-
-	return intAddress;
-  }
 
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_getsockchannel
@@ -323,8 +303,8 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_getsockchannel
   }
 
 
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothConnection_connect
-  (JNIEnv *env, jobject peer, jint socket, jlong address, jint channel){
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothRFCOMMConnection_nativeConnect
+  (JNIEnv *env, jobject peer, jint socket, jlong address, jint channel, jint rMTU, jint tMTU){
 
 	connectRec					connectionRequest;
 	CFRunLoopSourceContext		aContext={0};
@@ -333,7 +313,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothConnection_connect
 	pthread_mutex_t				callInProgress;
 
 	
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_connect called", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothRFCOMMConnection_nativeConnect called", DEBUG_INFO_LEVEL);
 
 	typeMask.connectPtr = &connectionRequest;
 	
@@ -342,84 +322,39 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothConnection_connect
 	connectionRequest.address = address;
 	connectionRequest.channel = channel;
 	connectionRequest.errorException = NULL;
-	
-	pthread_cond_init(&(connectionRequest.callComplete), NULL);
-	pthread_mutex_init(&callInProgress, NULL);	
-	pthread_mutex_lock(&callInProgress);
-	
 	CFRunLoopSourceGetContext(s_NewRFCOMMConnectionRequest, &aContext);
 	connectionToDoList = (todoListRoot*)aContext.info;
-	
+	connectionRequest.validCondition =0;
 	addToDoItem(connectionToDoList, typeMask);
+
+	if(inOSXThread()) {
+		aContext.perform(connectionToDoList);
+	} else {
 	
+		pthread_cond_init(&(connectionRequest.callComplete), NULL);
+		pthread_mutex_init(&callInProgress, NULL);	
+		pthread_mutex_lock(&callInProgress);
+		connectionRequest.validCondition = 1;
+
+		CFRunLoopSourceSignal(s_NewRFCOMMConnectionRequest);
+		CFRunLoopWakeUp(s_runLoop);
 	
-	CFRunLoopSourceSignal(s_NewRFCOMMConnectionRequest);
-	CFRunLoopWakeUp(s_runLoop);
-	
-	pthread_cond_wait(&(connectionRequest.callComplete), &callInProgress);
-	
+		pthread_cond_wait(&(connectionRequest.callComplete), &callInProgress);
+		pthread_mutex_destroy(&callInProgress);
+		pthread_cond_destroy(&(connectionRequest.callComplete));
+	}
 	if(connectionRequest.errorException) {
 		/* there was a problem */
 		(*env)->Throw(env, connectionRequest.errorException);
 		(*env)->DeleteGlobalRef(env, connectionRequest.errorException);
 	}
-	pthread_mutex_destroy(&callInProgress);
-	pthread_cond_destroy(&(connectionRequest.callComplete));
 	
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_connect exiting", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothRFCOMMConnection_nativeConnect exiting", DEBUG_INFO_LEVEL);
 }
 
 
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_listen
-  (JNIEnv *env, jobject peer, jint socket){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_listen called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_listen exiting", DEBUG_INFO_LEVEL);
-}
 
-
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_accept
-  (JNIEnv *env, jobject peer, jint socket){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_accept called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_accept exiting", DEBUG_INFO_LEVEL);
-
-  return 0;
-  }
-
-
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_recv__I
-  (JNIEnv *env, jobject peer, jint socket){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_recv__I called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_recv__I exiting", DEBUG_INFO_LEVEL);
-
-  return 0;
-  }
-
-
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_recv__I_3BII
-  (JNIEnv *env, jobject peer, jint socket, jbyteArray b, jint off, jint len){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_recv__I_3BII called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_recv__I_3BII exiting", DEBUG_INFO_LEVEL);
-
-  return 0;
-  }
-
-
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_send__II
-  (JNIEnv *env, jobject peer, jint socket, jint b){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_send__II called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_send__II exiting", DEBUG_INFO_LEVEL);
-}
-
-
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_send__I_3BII
-  (JNIEnv *env, jobject peer, jint socket, jbyteArray b, jint off, jint len){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_send__I_3BII called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_send__I_3BII exiting", DEBUG_INFO_LEVEL);
-
-  }
-
-
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothPeer_close
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothL2CAPConnection_closeSocket
   (JNIEnv *env, jobject peer, jint socket){
   
 	macSocket				*aSocket;
@@ -463,16 +398,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress
 	return 0LL;
 	}
 
-
-JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothPeer_getradioname
-  (JNIEnv *env, jobject peer, jlong address){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getradioname called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getradioname exiting", DEBUG_INFO_LEVEL);
-
-		return (*env)->NewStringUTF(env, "fixme");
-  
-  }
-
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothInputStream_pipePrime(JNIEnv *env, jobject peer, jint numBytes){
 	/* do nothing on this platform */
   }
@@ -485,7 +410,7 @@ JNIEXPORT jlong JNICALL Java_javax_bluetooth_LocalDevice_getLocalAddress(JNIEnv 
 	jclass				propList;
 	jmethodID			getProperty;
 	const char			*addressString;
-	UInt8				addressValue[6];
+	int					addressValue[6];
 	int					i;
 	UInt64				intAddress;
 	
@@ -513,7 +438,7 @@ JNIEXPORT jlong JNICALL Java_javax_bluetooth_LocalDevice_getLocalAddress(JNIEnv 
 
 JNIEXPORT jstring JNICALL Java_javax_bluetooth_LocalDevice_deviceName(JNIEnv *env, jobject localDevice){
 
-	locaNameRec						nameRequest;
+	localNameRec					nameRequest;
 	CFRunLoopSourceContext			aContext={0};
 	todoListRoot					*nameRequestToDoList;
 	threadPassType					typeMask;
@@ -526,28 +451,31 @@ JNIEXPORT jstring JNICALL Java_javax_bluetooth_LocalDevice_deviceName(JNIEnv *en
 	
 	nameRequest.aName = NULL;
 	
-	pthread_cond_init(& (nameRequest.callComplete), NULL);
-	pthread_mutex_init(&callInProgress, NULL);
-	pthread_mutex_lock(&callInProgress);
-	
 	CFRunLoopSourceGetContext(s_LocalDeviceNameRequest, &aContext);
 	nameRequestToDoList = (todoListRoot*)aContext.info;
-	
 	addToDoItem(nameRequestToDoList, typeMask);
+	if(inOSXThread()) {
+		nameRequest.validCondition = 0;
+		aContext.perform(nameRequestToDoList);
+	} else {
+
+		pthread_cond_init(& (nameRequest.callComplete), NULL);
+		pthread_mutex_init(&callInProgress, NULL);
+		pthread_mutex_lock(&callInProgress);
+		nameRequest.validCondition = 1;
+		CFRunLoopSourceSignal(s_LocalDeviceNameRequest);
+		CFRunLoopWakeUp(s_runLoop);
 	
-	CFRunLoopSourceSignal(s_LocalDeviceNameRequest);
-	CFRunLoopWakeUp(s_runLoop);
-	
-	pthread_cond_wait(&(nameRequest.callComplete), &callInProgress);
-	
+		pthread_cond_wait(&(nameRequest.callComplete), &callInProgress);
+		pthread_mutex_destroy(&callInProgress);
+		pthread_cond_destroy(&(nameRequest.callComplete));
+	}
 	result = NULL;
 	if(nameRequest.aName) {
 		result = JAVA_ENV_CHECK(NewLocalRef(env, nameRequest.aName));
 		JAVA_ENV_CHECK(DeleteGlobalRef(env, nameRequest.aName));
 	}
 	
-	pthread_mutex_destroy(&callInProgress);
-	pthread_cond_destroy(&(nameRequest.callComplete));
 
 	printMessage("Java_javax_bluetooth_LocalDevice_deviceName exiting", DEBUG_INFO_LEVEL);
 	
@@ -570,28 +498,32 @@ JNIEXPORT jobject JNICALL Java_javax_bluetooth_LocalDevice_deviceClass(JNIEnv *e
 	
 	devClsRequest.devClass = NULL;
 	
-	pthread_cond_init(& (devClsRequest.callComplete), NULL);
-	pthread_mutex_init(&callInProgress, NULL);
-	pthread_mutex_lock(&callInProgress);
-	
 	CFRunLoopSourceGetContext(s_LocalDeviceClassRequest, &aContext);
 	devRequestToDoList = (todoListRoot*)aContext.info;
 	
 	addToDoItem(devRequestToDoList, typeMask);
+
+	if(inOSXThread()) {
+		devClsRequest.validCondition = 0;
+		aContext.perform(devRequestToDoList);
+	} else {
+		pthread_cond_init(& (devClsRequest.callComplete), NULL);
+		pthread_mutex_init(&callInProgress, NULL);
+		pthread_mutex_lock(&callInProgress);
+		devClsRequest.validCondition = 1;
+		CFRunLoopSourceSignal(s_LocalDeviceClassRequest);
+		CFRunLoopWakeUp(s_runLoop);
 	
-	CFRunLoopSourceSignal(s_LocalDeviceClassRequest);
-	CFRunLoopWakeUp(s_runLoop);
-	
-	pthread_cond_wait(&(devClsRequest.callComplete), &callInProgress);
-	
+		pthread_cond_wait(&(devClsRequest.callComplete), &callInProgress);
+		pthread_mutex_destroy(&callInProgress);
+		pthread_cond_destroy(&(devClsRequest.callComplete));
+	}
 	result = NULL;
-	if(nameRequest.devClass) {
-		result = JAVA_ENV_CHECK(NewLocalRef(env, nameRequest.devClass));
-		JAVA_ENV_CHECK(DeleteGlobalRef(env, nameRequest.devClass));
+	if(devClsRequest.devClass) {
+		result = JAVA_ENV_CHECK(NewLocalRef(env, devClsRequest.devClass));
+		JAVA_ENV_CHECK(DeleteGlobalRef(env, devClsRequest.devClass));
 	}
 		
-	pthread_mutex_destroy(&callInProgress);
-	pthread_cond_destroy(&(nameRequest.callComplete));
 
 	printMessage("Java_javax_bluetooth_LocalDevice_deviceClass exiting", DEBUG_INFO_LEVEL);
 	
@@ -613,24 +545,27 @@ JNIEXPORT jboolean JNICALL Java_javax_bluetooth_LocalDevice_privateSetDiscoverab
 	
 	aRec.errorException = NULL;
 	aRec.mode = mode;
-	
-	pthread_cond_init(& (aRec.callComplete), NULL);
-	pthread_mutex_init(&callInProgress, NULL);
-	pthread_mutex_lock(&callInProgress);
-	
 	CFRunLoopSourceGetContext(s_LocalDeviceSetDiscoveryMode, &aContext);
 	aToDoList = (todoListRoot*)aContext.info;
 	
 	addToDoItem(aToDoList, typeMask);
 	
-	CFRunLoopSourceSignal(s_LocalDeviceSetDiscoveryMode);
-	CFRunLoopWakeUp(s_runLoop);
+	if(inOSXThread()) {
+		aRec.validCondition = 0;
+		aContext.perform(aToDoList);
+	} else {
+		pthread_cond_init(& (aRec.callComplete), NULL);
+		pthread_mutex_init(&callInProgress, NULL);
+		pthread_mutex_lock(&callInProgress);
+		aRec.validCondition = 1;
+		
+		CFRunLoopSourceSignal(s_LocalDeviceSetDiscoveryMode);
+		CFRunLoopWakeUp(s_runLoop);
 	
-	pthread_cond_wait(&(aRec.callComplete), &callInProgress);
-	
-	pthread_mutex_destroy(&callInProgress);
-	pthread_cond_destroy(&(nameRequest.callComplete));
-	
+		pthread_cond_wait(&(aRec.callComplete), &callInProgress);	
+		pthread_mutex_destroy(&callInProgress);
+		pthread_cond_destroy(&(aRec.callComplete));
+	}
 	
 	if(aRec.errorException) {
 		/* there was a problem */
@@ -662,27 +597,103 @@ JNIEXPORT jint JNICALL Java_javax_bluetooth_LocalDevice_privateGetDiscoverable(J
     
 	typeMask.getDiscoveryModePtr = &aRec;
 	
-	aRec.mode = mode;
-	
-	pthread_cond_init(& (aRec.callComplete), NULL);
-	pthread_mutex_init(&callInProgress, NULL);
-	pthread_mutex_lock(&callInProgress);
-	
+	aRec.mode = 0;
 	CFRunLoopSourceGetContext(s_LocalDeviceGetDiscoveryMode, &aContext);
 	aToDoList = (todoListRoot*)aContext.info;
 	
 	addToDoItem(aToDoList, typeMask);
 	
-	CFRunLoopSourceSignal(s_LocalDeviceGetDiscoveryMode);
-	CFRunLoopWakeUp(s_runLoop);
+	if(inOSXThread()) {
+		aRec.validCondition = 0;
+		aContext.perform(aToDoList);
+	} else {
+		pthread_cond_init(& (aRec.callComplete), NULL);
+		pthread_mutex_init(&callInProgress, NULL);
+		pthread_mutex_lock(&callInProgress);
+		aRec.validCondition = 1;
 	
-	pthread_cond_wait(&(aRec.callComplete), &callInProgress);
+		CFRunLoopSourceSignal(s_LocalDeviceGetDiscoveryMode);
+		CFRunLoopWakeUp(s_runLoop);
 	
-	pthread_mutex_destroy(&callInProgress);
-	pthread_cond_destroy(&(nameRequest.callComplete));
-	
+		pthread_cond_wait(&(aRec.callComplete), &callInProgress);
+		pthread_mutex_destroy(&callInProgress);
+		pthread_cond_destroy(&(aRec.callComplete));
+	}
     printMessage("Java_javax_bluetooth_LocalDevice_privateGetDiscoverable exiting", DEBUG_INFO_LEVEL);
 	
 	return aRec.mode;
 
+}
+
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothL2CAPConnection_nativeConnect
+								(JNIEnv *env, jobject peer, jint socket, jlong address, jint channel,
+								 jint rMTU, jint tMTU){
+    printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_nativeConnect entering", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_nativeConnect exiting", DEBUG_INFO_LEVEL);
+  
+  }
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothL2CAPConnection_send
+								(JNIEnv *env, jobject jConn, jbyteArray jData){
+    printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_send entering", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_send exiting", DEBUG_INFO_LEVEL);
+								
+								}
+								
+
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeConnect
+(JNIEnv *env, jobject peer, jint socket, jlong address, jint channel,
+								 jint rMTU, jint tMTU){
+    printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeConnect entering", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeConnect exiting", DEBUG_INFO_LEVEL);
+  
+  }
+  
+  
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothOBEXConnection_send
+								(JNIEnv *env, jobject jConn, jbyteArray jData){
+    printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_send entering", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_send exiting", DEBUG_INFO_LEVEL);
+								
+}
+
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothRFCOMMConnection_send
+								(JNIEnv *env, jobject jConn, jbyteArray jData){
+	
+	sendRFCOMMDataRec				*aRec;
+	CFRunLoopSourceContext			aContext={0};
+	todoListRoot					*aToDoList;
+	threadPassType					typeMask;
+	jsize							dataLen;
+	jclass							connectionClass;
+	jfieldID						aField;
+	
+    printMessage("Java_com_intel_bluetooth_BluetoothRFCOMMConnection_send entering", DEBUG_INFO_LEVEL);
+    aRec = (sendRFCOMMDataRec*) malloc(sizeof(sendRFCOMMDataRec));
+	
+	typeMask.sendRFCOMMDataPtr = aRec;
+	
+	/* determine the socket to write to */
+	connectionClass = JAVA_ENV_CHECK(GetObjectClass(env, jConn));
+	aField = JAVA_ENV_CHECK(GetFieldID(env, connectionClass, "socket", "I"));
+	aRec->socket = JAVA_ENV_CHECK(GetIntField(env, jConn, aField));
+
+	/* copy the data into a byte buffer */
+	dataLen = JAVA_ENV_CHECK(GetArrayLength(env, jData));
+	aRec->bytes = malloc(dataLen);
+	
+	JAVA_ENV_CHECK(GetByteArrayRegion(env, jData, 0, dataLen, (SInt8*)aRec->bytes));
+	aRec->buflength = dataLen;
+		
+	CFRunLoopSourceGetContext(s_SendRFCOMMData, &aContext);
+	aToDoList = (todoListRoot*)aContext.info;
+	
+	addToDoItem(aToDoList, typeMask);
+	if(inOSXThread()) {
+		aContext.perform(aToDoList);
+	} else {
+		CFRunLoopSourceSignal(s_SendRFCOMMData);
+		CFRunLoopWakeUp(s_runLoop);
+	}	
+    printMessage("Java_com_intel_bluetooth_BluetoothRFCOMMConnection_send exiting", DEBUG_INFO_LEVEL);
+								
 }

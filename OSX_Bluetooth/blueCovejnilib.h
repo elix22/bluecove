@@ -43,13 +43,14 @@
 #ifndef DEBUG
 	#define DEBUG 100
 #endif
+
 #ifdef NATIVE_NAME
 	#undef NATIVE_NAME
 	#define NATIVE_NAME	"BlueCove OS X Native Library"
 #endif
 #ifdef NATIVE_VERSION
 	#undef NATIVE_VERSION
-	#define NATIVE_VERSION	"v0.1." BUILD_VERSION
+	#define NATIVE_VERSION	"v0.2." BUILD_VERSION
 #endif
 #ifdef NATIVE_DESCRIP
 	#undef NATIVE_DESCRIP
@@ -100,6 +101,7 @@ typedef struct cancelInquiryRec{
 	jobject			peer;
 	jobject			listener;
 	pthread_cond_t	waiter;
+	char			validCondition;
 	char			success;
 }  cancelInquiryRec;
 
@@ -112,7 +114,7 @@ typedef struct macSocket {
 		OBEXSessionRef				obexRef;
 		*/
 	}							ref;
-	char						type; /* 1=l2capRef; 2=rfcommRef; 3=obexRef */
+	char						type; /* 1=l2capRef; 2=rfcommRef; 3=obexRef; 0=unknown */
 	jobject						listenerPeer;
 	char						encrypted;
 	char						authenticate;
@@ -146,7 +148,7 @@ typedef struct populateAttributesRec {
 	jobject			serviceRecord;
 	jintArray		attrSet;
 	pthread_cond_t	waiter;
-	jboolean		waiterValid;
+	jboolean		validCondition;
 	jboolean		result;
 } populateAttributesRec;
 
@@ -156,27 +158,38 @@ typedef struct connectRec {
 	jlong			address;
 	jint			channel;
 	jthrowable		errorException;
+	char			validCondition;
 	pthread_cond_t	callComplete;
 } connectRec;
 
+typedef struct	sendRFCOMMDataRec {
+	UInt8			*bytes;
+	UInt16			buflength;
+	int				socket;
+} sendRFCOMMDataRec;
+
 typedef struct localNameRec {
 	jstring			aName;
+	char			validCondition;
 	pthread_cond_t	callComplete;
 } localNameRec;
 
 typedef struct localDeviceClassRec {
 	jobject			devClass;
+	char			validCondition;
 	pthread_cond_t	callComplete;
 } localDeviceClassRec;
 
 typedef struct setDiscoveryModeRec {
 	jint			mode;
 	jthrowable		errorException;
+	char			validCondition;
 	pthread_cond_t	callComplete;
 } setDiscoveryModeRec;
 
 typedef struct getDiscoveryModeRec {
 	jint			mode;
+	char			validCondition;
 	pthread_cond_t	callComplete;
 } getDiscoveryModeRec;
  /**
@@ -190,6 +203,7 @@ typedef union threadPassType {
 		searchServicesRec			*searchSrvPtr;
 		populateAttributesRec		*populateAttrPtr;
 		connectRec					*connectPtr;
+		sendRFCOMMDataRec			*sendRFCOMMDataPtr;
 		localNameRec				*localNamePtr;
 		localDeviceClassRec			*localDevClassPtr;
 		setDiscoveryModeRec			*setDiscoveryModePtr;
@@ -212,7 +226,7 @@ typedef struct todoListRoot {
  * function prototypes
  * ----------------------------------------------
  */ 
-
+int					inOSXThread(void);
 void*				runLoopThread(void* ignore); 
 void				performInquiry(void *info);
 void				cancelInquiry(void *info);
@@ -242,11 +256,12 @@ threadPassType		getNextToDoItem(todoListRoot *rootPtr);
 void				longToAddress(jlong	aLong, BluetoothDeviceAddress	*btDevAddress);
 void				RFCOMMConnect(void* voidPtr);
 void				rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCon, IOBluetoothRFCOMMChannelEvent *event);
+void				rfcommSendData(void *voidPtr);
 void				getLocalDeviceName(void	*voidPtr);
 void				getLocalDeviceClass(void *voidPtr);
 void				getLocalDiscoveryMode(void *voidPtr);
 void				setLocalDiscoveryMode(void *voidPtr);
-
+IOReturn			getCurrentModeInternal(int *mode);
 /* Library Globals */
 extern 	currInq					*s_inquiryList;
 extern 	currServiceInq			*s_serviceInqList;
@@ -257,6 +272,7 @@ extern	CFRunLoopSourceRef		s_inquiryStopSource;
 extern 	CFRunLoopSourceRef		s_searchServicesStart;
 extern	CFRunLoopSourceRef		s_populateServiceAttrs;
 extern	CFRunLoopSourceRef		s_NewRFCOMMConnectionRequest;
+extern	CFRunLoopSourceRef		s_SendRFCOMMData;
 extern	CFRunLoopSourceRef		s_LocalDeviceClassRequest;
 extern	CFRunLoopSourceRef		s_LocalDeviceNameRequest;
 extern	CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;

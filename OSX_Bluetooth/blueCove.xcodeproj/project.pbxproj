@@ -91,7 +91,7 @@
 		963C751E0B89437100AC5EC5 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		963C75B10B89512500AC5EC5 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blueCovejnilib.h; sourceTree = "<group>"; };
-		96B476F90B844204003E53AA /* DebugProject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DebugProject; sourceTree = BUILT_PRODUCTS_DIR; };
+		96B476F90B844204003E53AA /* DebugProject */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = DebugProject; sourceTree = BUILT_PRODUCTS_DIR; };
 		96B477B00B84426F003E53AA /* debugMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debugMain.c; sourceTree = "<group>"; };
 		96E316680B89670E009935EE /* libintelbth.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libintelbth.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
 		96E3166B0B89670E009935EE /* nativeHeaders */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = nativeHeaders; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -340,7 +340,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "javah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -o \"${SOURCE_ROOT}/JavaHeaders.h\" com.intel.bluetooth.BluetoothPeer com.intel.bluetooth.ServiceRecordImpl com.intel.bluetooth.BluetoothInputStream com.intel.bluetooth.BluetoothConnection javax.bluetooth.LocalDevice\n${BUILD_DIR}/versionIncrement ${SOURCE_ROOT}/currentVersion Version.h\n\n";
+			shellScript = "javah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -o \"${SOURCE_ROOT}/JavaHeaders.h\" com.intel.bluetooth.BluetoothInputStream com.intel.bluetooth.BluetoothL2CAPConnection com.intel.bluetooth.BluetoothOBEXConnection com.intel.bluetooth.BluetoothPeer com.intel.bluetooth.BluetoothRFCOMMConnection com.intel.bluetooth.ServiceRecordImpl  com.intel.bluetooth.BluetoothConnection javax.bluetooth.LocalDevice\n${BUILD_DIR}/versionIncrement ${SOURCE_ROOT}/currentVersion Version.h\n\n";
 		};
 		963C735A0B8931BB00AC5EC5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

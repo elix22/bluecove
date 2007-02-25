@@ -19,6 +19,7 @@
  */
 package com.intel.bluetooth.test;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.bluetooth.DeviceClass;
@@ -28,6 +29,10 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
+import javax.microedition.io.Connection;
+import javax.microedition.io.Connector;
+
+import com.intel.bluetooth.BluetoothRFCOMMConnection;
 
 public class RFCOMMTest implements DiscoveryListener {
 
@@ -48,8 +53,8 @@ public class RFCOMMTest implements DiscoveryListener {
 		
 		Properties		sysProps = System.getProperties();
 		System.out.print(sysProps);
-		System.out.println("\n\n-------------------------------------------\n\n");
-		System.out.println("API Version = " + LocalDevice.getProperty("bluetooth.api.version"));
+//		System.out.println("\n\n-------------------------------------------\n\n");
+	//	System.out.println("API Version = " + LocalDevice.getProperty("bluetooth.api.version"));
 		System.out.println("\n\n-------------------------------------------\n\n");	
 		sysProps = System.getProperties();
 		System.out.print(sysProps);
@@ -58,6 +63,7 @@ public class RFCOMMTest implements DiscoveryListener {
 		LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC,
                 this);
 		System.out.println(LocalDevice.getLocalDevice().getBluetoothAddress());
+		System.out.println(LocalDevice.getLocalDevice().getFriendlyName());
 		
 		
 		Thread.sleep(6000000);
@@ -76,13 +82,7 @@ public class RFCOMMTest implements DiscoveryListener {
 				0x312, 0x313, 0x656e, 0x656f, 0x6570, 0x6672, 0x6673, 0x6674, 0x6573, 0x6574, 0x6575,
 				0x7074, 0x7075, 0x7076};
 		
-		UUID[]			allKnown = new UUID[]{
-				new UUID(0x0001), new UUID(0x0002), new UUID(0x0003), new UUID(0x0004),
-				new UUID(0x0005), new UUID(0x0006), new UUID(0x0008), new UUID(0x0009),
-				new UUID(0x000A), new UUID(0x000C), new UUID(0x000E), new UUID(0x000F),
-				new UUID(0x0010), new UUID(0x0011), new UUID(0x0014), new UUID(0x0016),
-				new UUID(0x0017), new UUID(0x0019), new UUID(0x001B), new UUID(0x001D),
-				new UUID(0x0100)};
+		UUID[]			allKnown = new UUID[]{UUID.RFCOMM_PROTOCOL_UUID};
 		try {
 			
 		
@@ -98,11 +98,23 @@ public class RFCOMMTest implements DiscoveryListener {
 	public void servicesDiscovered(int transID, ServiceRecord[] servRecord){
 		
 		if(servRecord != null) {
-			ServiceRecord	aRecord;
 			int				i, count;
+			Connection 	aConn;
 			count = servRecord.length;
 			for(i=0;i<count;i++) {
-				System.out.println("\n\nService Discovered: \n\t" + servRecord[i].toString());
+//				System.out.println("\n\nService Discovered: \n\t" + servRecord[i].toString());
+				String		connectionURL;
+				connectionURL = servRecord[i].getConnectionURL(2, false);
+				System.out.println(connectionURL);
+				try {
+						aConn = Connector.open(connectionURL);
+						new SerialTerminal((BluetoothRFCOMMConnection)	aConn);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
 				
 			}
 		} else System.out.println("No services discovered");

@@ -537,7 +537,11 @@ void longToAddress(jlong	aLong, BluetoothDeviceAddress*	anAddress) {
 
 }
 
-
+/* in order to avoid deadlocks we need to determine if we're in the OS X thread before halting the current thread */
+int		inOSXThread(void) {
+		CFRunLoopRef				aRunLoopRef = CFRunLoopGetCurrent();
+		return CFEqual(aRunLoopRef, s_runLoop);
+}
 void				setBreakPoint(void){
 
 	printMessage("The debugger should break here", DEBUG_DEVEL_LEVEL);

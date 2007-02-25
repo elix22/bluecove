@@ -35,6 +35,7 @@ CFRunLoopSourceRef		s_inquiryStopSource;
 CFRunLoopSourceRef		s_searchServicesStart;
 CFRunLoopSourceRef		s_populateServiceAttrs;
 CFRunLoopSourceRef		s_NewRFCOMMConnectionRequest;
+CFRunLoopSourceRef		s_SendRFCOMMData;
 CFRunLoopSourceRef		s_LocalDeviceNameRequest;
 CFRunLoopSourceRef		s_LocalDeviceClassRequest;
 CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;
@@ -69,6 +70,7 @@ void* runLoopThread(void* v_threadValues) {
 	cancelInquiryRec		cancelRec;
 	searchServicesRec		searchSrvStartRec;
 	todoListRoot			pendingConnections;
+	todoListRoot			rfCOMMDataQueue;
 	todoListRoot			pendingLocalDeviceRequests;
 	todoListRoot			pendingLocalDeviceClassRequests;
 	todoListRoot			getDiscoveryModeList;
@@ -136,6 +138,14 @@ void* runLoopThread(void* v_threadValues) {
 		CFRunLoopAddSource(s_runLoop, s_NewRFCOMMConnectionRequest, kCFRunLoopDefaultMode);
 		printMessage("Registered RFCOMM new connection Start Source", DEBUG_INFO_LEVEL);
 		
+		/* create/install the send RFCOMM data here */
+		initializeToDoList(&rfCOMMDataQueue);
+		aContext.info = &rfCOMMDataQueue;
+		aContext.perform = rfcommSendData;
+		s_SendRFCOMMData = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_SendRFCOMMData, kCFRunLoopDefaultMode);
+		printMessage("Registered send RFCOMM data Start Source", DEBUG_INFO_LEVEL);
+
 		/* create/install the local name request source here */
 		initializeToDoList(&pendingLocalDeviceRequests);
 		aContext.info = &pendingLocalDeviceRequests;
@@ -554,7 +564,8 @@ void	cancelInquiry(void *v_cancel){
 		printMessage("cancelInquiry: called with a nonexistant inquiry!", DEBUG_WARN_LEVEL);
 	}
 	// let the java caller proceed
-	pthread_cond_signal(&aRec->waiter);
+	if(aRec->validCondition)
+		pthread_cond_signal(&aRec->waiter);
 	
 	// TODO check if the OS calls the inquiry complete function
 	printMessage("cancelInquiry: exiting", DEBUG_INFO_LEVEL);
@@ -643,7 +654,6 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 	jint				jErr, respCode;
 	jsize				i, len;
 	jclass				listenerClass, aClass;
-	IOReturn			err;
 	jobject				*serviceArray = NULL;
 	
 	
@@ -700,7 +710,7 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 
 				someParams.serviceRecord = aServiceRecord;
 				someParams.attrSet = javaArray;
-				someParams.waiterValid = 0;
+				someParams.validCondition = 0;
 					
 				getServiceAttributes(&someParams);
 				
@@ -774,18 +784,19 @@ void RFCOMMConnect(void* voidPtr) {
 		if(aSocket != NULL) {
 			BluetoothDeviceAddress	anAddress;
 			IOBluetoothDeviceRef	devRef;
-			jfieldID				inBufferFld, pipeField;
+			jfieldID				inBufferFld, pipeField, mtuField;
 			jobject					inStream;
 			jobject					pipedStream;
 			jclass					connCls, inStreamCls, pipedStreamCls;
+			jint					mtu;
 			
-			connCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothConnection"));
+			connCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothRFCOMMConnection"));
 			inStreamCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothInputStream"));
 			
 			inBufferFld = JAVA_ENV_CHECK(GetFieldID(env, connCls, "in", "Lcom/intel/bluetooth/BluetoothInputStream;"));
 			inStream = JAVA_ENV_CHECK(GetObjectField(env, currentRequest->peer, inBufferFld));
 			pipedStreamCls = JAVA_ENV_CHECK(FindClass(env, "java/io/PipedOutputStream"));
-			pipeField = JAVA_ENV_CHECK(GetFieldID(env, inStreamCls, "pOutput", "Ljava/io/PipedOutputStream"));
+			pipeField = JAVA_ENV_CHECK(GetFieldID(env, inStreamCls, "pOutput", "Ljava/io/PipedOutputStream;"));
 			pipedStream = JAVA_ENV_CHECK(GetObjectField(env, inStream, pipeField));
 			
 			aSocket->listenerPeer = JAVA_ENV_CHECK(NewGlobalRef(env, pipedStream));
@@ -795,6 +806,12 @@ void RFCOMMConnect(void* voidPtr) {
 
 			err = IOBluetoothDeviceOpenRFCOMMChannelSync(devRef, &(aSocket->ref.rfcommRef), currentRequest->channel,
 							rfcommEventListener, aSocket);
+			mtu = IOBluetoothRFCOMMChannelGetMTU( aSocket->ref.rfcommRef );
+			mtuField = JAVA_ENV_CHECK(GetFieldID(env, connCls, "transmitMTU", "I"));
+			JAVA_ENV_CHECK(SetIntField(env, currentRequest->peer, mtuField, mtu));
+			mtuField = JAVA_ENV_CHECK(GetFieldID(env, connCls, "receiveMTU", "I"));
+			JAVA_ENV_CHECK(SetIntField(env, currentRequest->peer, mtuField, mtu));
+
 			if(err != kIOReturnSuccess) {
 				jclass				ioExpCls;
 				jmethodID			ioExpConst;
@@ -808,7 +825,8 @@ void RFCOMMConnect(void* voidPtr) {
 			}
 				
 			IOBluetoothObjectRelease(devRef);
-			pthread_cond_signal(& (currentRequest->callComplete));
+			if(currentRequest->validCondition)
+				pthread_cond_signal(& (currentRequest->callComplete));
 		}
 		
 		aType = getNextToDoItem(pendingConnections);
@@ -848,7 +866,8 @@ void rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCo
 							(*env)->ExceptionClear(env);
 						}
 					}
-					
+					printMessage("RFCOMM Channel Data Received", DEBUG_INFO_LEVEL);
+
 					
                 break;
                 
@@ -856,13 +875,27 @@ void rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCo
 				/*
                     // event->u.flowStatus       is the status of flow control (see IOBluetoothRFCOMMFlowControlStatus for current restrictions)
           */
+					printMessage("RFCOMM Channel Flow Control Changed", DEBUG_INFO_LEVEL);
 				      break;
                 
                 case kIOBluetoothRFCOMMChannelTerminatedEvent:
 				/*
                      event->u.terminatedChannel is the channel that was terminated.
 					*/
+					printMessage("RFCOMM Channel Terminated", DEBUG_INFO_LEVEL);
                 break;
+				case kIOBluetoothRFCOMMChannelEventTypeOpenComplete:
+					printMessage("RFCOMM Channel Open Complete", DEBUG_INFO_LEVEL);
+				break;
+				case kIOBluetoothRFCOMMChannelEventTypeControlSignalsChanged:
+					printMessage("RFCOMM Channel Control Signals Changed", DEBUG_INFO_LEVEL);
+				break;
+				case kIOBluetoothRFCOMMChannelEventTypeWriteComplete:
+					printMessage("RFCOMM Channel Write Complete", DEBUG_INFO_LEVEL);
+				break;
+				case kIOBluetoothRFCOMMChannelEventTypeQueueSpaceAvailable:
+					printMessage("RFCOMM Channel Queue Space Available", DEBUG_INFO_LEVEL);
+				break;
         }
 		printMessage("rfcommEventListener Exiting", DEBUG_INFO_LEVEL);
     }
@@ -882,18 +915,21 @@ void getLocalDeviceName(void	*voidPtr) {
 	aType = getNextToDoItem(pendingNameReqs);
 	while(aType.voidPtr ) {
 		IOReturn			err;
-		locaNameRec			*currentRequest = aType.localNamePtr;
+		localNameRec		*currentRequest = aType.localNamePtr;
 		BluetoothDeviceName	theUTFName;
 		
 		err = IOBluetoothLocalDeviceReadName(theUTFName, NULL, NULL, NULL);
 		if(err == kIOReturnSuccess) {
 			jstring			jName;
-			jName = JAVA_ENV_CHECK(NewUTFString(env, theUTFName));
+			jName = JAVA_ENV_CHECK(NewStringUTF(env, (char*)theUTFName));
 			currentRequest->aName = JAVA_ENV_CHECK(NewGlobalRef(env, jName));
 			JAVA_ENV_CHECK(DeleteLocalRef(env, jName));
 		} /* else the name remains null */
 		
-		pthread_cond_signal(& (currentRequest->callComplete));
+		if(currentRequest->validCondition)
+			pthread_cond_signal(& (currentRequest->callComplete));
+		
+		aType = getNextToDoItem(pendingNameReqs);
 	}
 	printMessage("Exiting getLocalDeviceName", DEBUG_INFO_LEVEL);
 	
@@ -923,23 +959,25 @@ void getLocalDeviceClass(void *voidPtr) {
 			jobject				jLocalDevClass;
 			
 			jDevClass = JAVA_ENV_CHECK(FindClass(env, "javax/bluetooth/DeviceClass"));
-			jDevClassConstructor = JAVA_ENV_CHECK(GetMethodID(env, jDevClass, "<init>", "(I)V");
+			jDevClassConstructor = JAVA_ENV_CHECK(GetMethodID(env, jDevClass, "<init>", "(I)V"));
 			jLocalDevClass = JAVA_ENV_CHECK(NewObject(env, jDevClass, jDevClassConstructor, theDevClass));
 		
 			currentRequest->devClass = JAVA_ENV_CHECK(NewGlobalRef(env, jLocalDevClass));
 			JAVA_ENV_CHECK(DeleteLocalRef(env, jLocalDevClass));
 		} /* else the object remains null */
-		
-		pthread_cond_signal(& (currentRequest->callComplete));
+
+		if(currentRequest->validCondition)
+			pthread_cond_signal(& (currentRequest->callComplete));
+		aType = getNextToDoItem(pendingDevClsReqs);
 	}
 	printMessage("Exiting getLocalDeviceClass", DEBUG_INFO_LEVEL);
 
 }
 
 IOReturn getCurrentModeInternal(int		*mode) {
-		Boolean					discoveryOn;
 		BluetoothClassOfDevice	theDevClass;
 		IOReturn				err;
+		Boolean					discoveryOn;
 		
 		err = IOBluetoothLocalDeviceGetDiscoverable(&discoveryOn);
 		if(err != kIOReturnSuccess) return err;
@@ -979,8 +1017,10 @@ void getLocalDiscoveryMode(void *voidPtr){
 		
 		err = getCurrentModeInternal(&mode);
 		currentRequest->mode = mode;
-		
-		pthread_cond_signal(& (currentRequest->callComplete));
+
+		if(currentRequest->validCondition)
+			pthread_cond_signal(& (currentRequest->callComplete));
+		aType = getNextToDoItem(aRoot);
 	}
 	printMessage("Exiting getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
 }
@@ -1002,7 +1042,6 @@ void setLocalDiscoveryMode(void *voidPtr){
 	while(aType.voidPtr ) {
 		IOReturn				err;
 		setDiscoveryModeRec		*currentRequest = aType.setDiscoveryModePtr;
-		Boolean					discoveryOn;
 		int						mode=0;
 		
 		err = getCurrentModeInternal(&mode);
@@ -1013,10 +1052,47 @@ void setLocalDiscoveryMode(void *voidPtr){
 			  */
 		
 		currentRequest->mode = mode;
+
+		if(currentRequest->validCondition)
+			pthread_cond_signal(& (currentRequest->callComplete));
 		
-		pthread_cond_signal(& (currentRequest->callComplete));
+		aType = getNextToDoItem(aRoot);
 	}
 	printMessage("Exiting getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
 
 
 }
+void rfcommSendData(void *voidPtr) {
+
+	todoListRoot		*aRoot;
+	threadPassType		aType;
+	jint				jErr;
+	JNIEnv				*env;
+
+
+	printMessage("Entering rfcommSendData", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	aRoot = (todoListRoot*)voidPtr;
+	aType = getNextToDoItem(aRoot);
+	while(aType.voidPtr ) {
+		IOReturn				err;
+		sendRFCOMMDataRec		*currentRequest = aType.sendRFCOMMDataPtr;
+		macSocket				*aSocket;
+		UInt32					sent;
+
+		aSocket = getMacSocket(currentRequest->socket);
+		err = IOBluetoothRFCOMMChannelWriteSimple(aSocket->ref.rfcommRef, currentRequest->bytes, currentRequest->buflength,
+				TRUE, &sent);
+		sprintf(s_errorBuffer, "Wrote %ld to socket %d", sent, currentRequest->socket);
+		printMessage(s_errorBuffer, DEBUG_INFO_LEVEL);
+		
+		/* clean up the memory */
+		free( currentRequest->bytes);
+		free(currentRequest);
+		aType = getNextToDoItem(aRoot);
+	}
+	printMessage("Exiting rfcommSendData", DEBUG_INFO_LEVEL);
+}
+

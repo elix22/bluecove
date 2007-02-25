@@ -27,7 +27,7 @@ import java.io.PipedOutputStream;
 import javax.bluetooth.LocalDevice;
 
 class BluetoothInputStream extends InputStream {
-	private BluetoothConnection conn;
+	private BluetoothRFCOMMConnection conn;
 	
 	protected 	LargePipedInputStream	pInput;
 	protected 	PipedOutputStream		pOutput;
@@ -42,7 +42,7 @@ class BluetoothInputStream extends InputStream {
 		disableDeadlockPreventor = true;
 	}
 
-	public BluetoothInputStream(BluetoothConnection conn) {
+	public BluetoothInputStream(BluetoothRFCOMMConnection conn) {
 		this.conn = conn;
 
 		try {
@@ -71,9 +71,12 @@ class BluetoothInputStream extends InputStream {
 		
 	}
 	private class PipeFlusher extends Thread {
+		public PipeFlusher() {
+			super();
+			setDaemon(true);
+			setName("Bluecove Buffer Flusher");
+		}
 		public void run() {
-			this.setDaemon(true);
-			this.setName("Bluecove Buffer Flusher");
 			while(flushEnabled) {
 				try {
 					pInput.read();
@@ -118,10 +121,12 @@ class BluetoothInputStream extends InputStream {
 	 */
 	private class DeadlockPrevention extends Thread {
 		private static final int		maxSleepTime = 20000;
-		public void run() {
-	
+		public DeadlockPrevention() {
+			super();
 			setDaemon(true);
 			setName("Input Buffer Deadlock Prevention");
+		}
+		public void run() {
 			int		sleepTime = maxSleepTime;
 			while(!disableDeadlockPreventor) {
 				try {

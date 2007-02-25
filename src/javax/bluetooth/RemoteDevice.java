@@ -21,7 +21,7 @@ package javax.bluetooth;
 
 import java.io.IOException;
 
-import com.intel.bluetooth.BluetoothConnection;
+import com.intel.bluetooth.BluetoothL2CAPConnection;
 import com.intel.bluetooth.DebugLog;
 import com.intel.bluetooth.NotImplementedError;
 /**
@@ -171,9 +171,9 @@ public class RemoteDevice {
 		// BluetoothPeer peer =
 		// (LocalDevice.getLocalDevice()).getBluetoothPeer();
 
-		if (!(conn instanceof BluetoothConnection))
+		if (!(conn instanceof BluetoothL2CAPConnection))
 			throw new IllegalArgumentException("Not a Bluetooth connection");
-		return new RemoteDevice("", ((BluetoothConnection) conn)
+		return new RemoteDevice("", ((BluetoothL2CAPConnection) conn)
 				.getRemoteAddress());
 	}
 

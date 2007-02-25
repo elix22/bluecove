@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.StringTokenizer;
 
-import javax.bluetooth.UUID;
+import javax.bluetooth.L2CAPConnection;
 import javax.microedition.io.Connection;
 import javax.microedition.io.ConnectionNotFoundException;
 
@@ -66,7 +66,7 @@ public class MicroeditionConnector {
 	 */
 
 	private static String[] params = { "authenticate", "encrypt", "master",
-			"name" };
+			"name", "ReceiveMTU", "TransmitMTU" };
 
 	public static Connection open(String name) throws IOException {
 		/*
@@ -76,7 +76,7 @@ public class MicroeditionConnector {
 		String host = null;
 		String port = null;
 
-		String[] values = new String[4];
+		String[] values = new String[6];
 
 		if (name.substring(0, 8).equals("btspp://")) {
 			int colon = name.indexOf(':', 8);
@@ -126,10 +126,19 @@ public class MicroeditionConnector {
 						values[1] != null && values[1].equals("true"),
 						values[3]);
 			else*/
-				return new BluetoothConnection(Long.parseLong(host, 16),
+			int			rMTU, tMTU;
+			rMTU = L2CAPConnection.DEFAULT_MTU;
+			tMTU = L2CAPConnection.DEFAULT_MTU;
+			if(values[4]!= null) {
+				rMTU = Integer.parseInt(values[4]);
+			}
+			if(values[5]!= null) {
+				tMTU = Integer.parseInt(values[5]);
+			}
+				return new BluetoothRFCOMMConnection(Long.parseLong(host, 16),
 						Integer.parseInt(port), values[0] != null
 								&& values[0].equals("true"), values[1] != null
-								&& values[1].equals("true"));
+								&& values[1].equals("true"), rMTU, tMTU);
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException();
 		}
