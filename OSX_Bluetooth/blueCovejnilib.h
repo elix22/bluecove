@@ -159,6 +159,26 @@ typedef struct connectRec {
 	pthread_cond_t	callComplete;
 } connectRec;
 
+typedef struct localNameRec {
+	jstring			aName;
+	pthread_cond_t	callComplete;
+} localNameRec;
+
+typedef struct localDeviceClassRec {
+	jobject			devClass;
+	pthread_cond_t	callComplete;
+} localDeviceClassRec;
+
+typedef struct setDiscoveryModeRec {
+	jint			mode;
+	jthrowable		errorException;
+	pthread_cond_t	callComplete;
+} setDiscoveryModeRec;
+
+typedef struct getDiscoveryModeRec {
+	jint			mode;
+	pthread_cond_t	callComplete;
+} getDiscoveryModeRec;
  /**
  * ----------------------------------------------
  * structures to maintain thread safety
@@ -170,6 +190,10 @@ typedef union threadPassType {
 		searchServicesRec			*searchSrvPtr;
 		populateAttributesRec		*populateAttrPtr;
 		connectRec					*connectPtr;
+		localNameRec				*localNamePtr;
+		localDeviceClassRec			*localDevClassPtr;
+		setDiscoveryModeRec			*setDiscoveryModePtr;
+		getDiscoveryModeRec			*getDiscoveryModePtr;
 		void						*voidPtr;
 	}						threadPassType;
 typedef struct todoListItem {
@@ -218,15 +242,25 @@ threadPassType		getNextToDoItem(todoListRoot *rootPtr);
 void				longToAddress(jlong	aLong, BluetoothDeviceAddress	*btDevAddress);
 void				RFCOMMConnect(void* voidPtr);
 void				rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCon, IOBluetoothRFCOMMChannelEvent *event);
+void				getLocalDeviceName(void	*voidPtr);
+void				getLocalDeviceClass(void *voidPtr);
+void				getLocalDiscoveryMode(void *voidPtr);
+void				setLocalDiscoveryMode(void *voidPtr);
 
 /* Library Globals */
 extern 	currInq					*s_inquiryList;
 extern 	currServiceInq			*s_serviceInqList;
 extern 	JavaVM					*s_vm;		
 extern 	CFRunLoopRef			s_runLoop;
-extern 	CFRunLoopSourceRef		s_inquiryStartSource, s_inquiryStopSource;
-extern 	CFRunLoopSourceRef		s_searchServicesStart, s_populateServiceAttrs;
+extern 	CFRunLoopSourceRef		s_inquiryStartSource;
+extern	CFRunLoopSourceRef		s_inquiryStopSource;
+extern 	CFRunLoopSourceRef		s_searchServicesStart;
+extern	CFRunLoopSourceRef		s_populateServiceAttrs;
 extern	CFRunLoopSourceRef		s_NewRFCOMMConnectionRequest;
+extern	CFRunLoopSourceRef		s_LocalDeviceClassRequest;
+extern	CFRunLoopSourceRef		s_LocalDeviceNameRequest;
+extern	CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;
+extern	CFRunLoopSourceRef		s_LocalDeviceGetDiscoveryMode;
 extern 	jobject					s_systemProperties;
 extern 	const char*				s_errorBase;
 extern 	char					s_errorBuffer[];

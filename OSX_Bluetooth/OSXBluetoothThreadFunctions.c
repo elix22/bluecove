@@ -30,9 +30,16 @@ currServiceInq			*s_serviceInqList;
 macSocket				*s_openSocketList;
 JavaVM					*s_vm;		
 CFRunLoopRef			s_runLoop;
-CFRunLoopSourceRef		s_inquiryStartSource, s_inquiryStopSource;
-CFRunLoopSourceRef		s_searchServicesStart, s_populateServiceAttrs;
+CFRunLoopSourceRef		s_inquiryStartSource;
+CFRunLoopSourceRef		s_inquiryStopSource;
+CFRunLoopSourceRef		s_searchServicesStart;
+CFRunLoopSourceRef		s_populateServiceAttrs;
 CFRunLoopSourceRef		s_NewRFCOMMConnectionRequest;
+CFRunLoopSourceRef		s_LocalDeviceNameRequest;
+CFRunLoopSourceRef		s_LocalDeviceClassRequest;
+CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;
+CFRunLoopSourceRef		s_LocalDeviceGetDiscoveryMode;
+
 jobject					s_systemProperties;
 
 
@@ -62,6 +69,10 @@ void* runLoopThread(void* v_threadValues) {
 	cancelInquiryRec		cancelRec;
 	searchServicesRec		searchSrvStartRec;
 	todoListRoot			pendingConnections;
+	todoListRoot			pendingLocalDeviceRequests;
+	todoListRoot			pendingLocalDeviceClassRequests;
+	todoListRoot			getDiscoveryModeList;
+	todoListRoot			setDiscoveryModeList;
 	populateAttributesRec	_populateAttributesRec;
 	int						propGenErr;
 	
@@ -125,8 +136,38 @@ void* runLoopThread(void* v_threadValues) {
 		CFRunLoopAddSource(s_runLoop, s_NewRFCOMMConnectionRequest, kCFRunLoopDefaultMode);
 		printMessage("Registered RFCOMM new connection Start Source", DEBUG_INFO_LEVEL);
 		
+		/* create/install the local name request source here */
+		initializeToDoList(&pendingLocalDeviceRequests);
+		aContext.info = &pendingLocalDeviceRequests;
+		aContext.perform = getLocalDeviceName;
+		s_LocalDeviceNameRequest = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_LocalDeviceNameRequest, kCFRunLoopDefaultMode);
+		printMessage("Registered local name request Start Source", DEBUG_INFO_LEVEL);
 		
+		/* create/install the local device class request source here */
+		initializeToDoList(&pendingLocalDeviceClassRequests);
+		aContext.info = &pendingLocalDeviceClassRequests;
+		aContext.perform = getLocalDeviceClass;
+		s_LocalDeviceClassRequest = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_LocalDeviceClassRequest, kCFRunLoopDefaultMode);
+		printMessage("Registered local device class request Start Source", DEBUG_INFO_LEVEL);
 		
+		/* create/install the get discover mode here */
+		initializeToDoList(&getDiscoveryModeList);
+		aContext.info = &getDiscoveryModeList;
+		aContext.perform = getLocalDiscoveryMode;
+		s_LocalDeviceGetDiscoveryMode = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_LocalDeviceGetDiscoveryMode, kCFRunLoopDefaultMode);
+		printMessage("Registered get discovery mode Start Source", DEBUG_INFO_LEVEL);
+
+		/* create/install the set discovery mode here */
+		initializeToDoList(&setDiscoveryModeList);
+		aContext.info = &setDiscoveryModeList;
+		aContext.perform = setLocalDiscoveryMode;
+		s_LocalDeviceSetDiscoveryMode = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_LocalDeviceSetDiscoveryMode, kCFRunLoopDefaultMode);
+		printMessage("Registered set discovery mode Start Source", DEBUG_INFO_LEVEL);
+
 		
 	}
 
@@ -160,7 +201,6 @@ void* runLoopThread(void* v_threadValues) {
 		}
 				
 		JAVA_ENV_CHECK(DeleteLocalRef(env, systemClass));
-		JAVA_ENV_CHECK(DeleteLocalRef(env, aMethod));
 		if(exception) JAVA_ENV_CHECK(DeleteLocalRef(env, exception));
 
 		
@@ -188,9 +228,6 @@ void* runLoopThread(void* v_threadValues) {
 		JAVA_ENV_CHECK(DeleteLocalRef(env, peer));
 		JAVA_ENV_CHECK(DeleteLocalRef(env, serviceImpl));
 		JAVA_ENV_CHECK(DeleteLocalRef(env, inputStream));
-		JAVA_ENV_CHECK(DeleteLocalRef(env, nativeIsAsyncField));
-		JAVA_ENV_CHECK(DeleteLocalRef(env, nativeLibParsesSDP));
-		JAVA_ENV_CHECK(DeleteLocalRef(env, deadlockPreventor));
 	}
 	
 	printMessage("Init complete, releasing the library load thread", DEBUG_INFO_LEVEL);
@@ -830,3 +867,156 @@ void rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCo
 		printMessage("rfcommEventListener Exiting", DEBUG_INFO_LEVEL);
     }
 
+void getLocalDeviceName(void	*voidPtr) {
+	todoListRoot		*pendingNameReqs;
+	threadPassType		aType;
+	jint				jErr;
+	JNIEnv				*env;
+
+
+	printMessage("Entering getLocalDeviceName", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	pendingNameReqs = (todoListRoot*)voidPtr;
+	aType = getNextToDoItem(pendingNameReqs);
+	while(aType.voidPtr ) {
+		IOReturn			err;
+		locaNameRec			*currentRequest = aType.localNamePtr;
+		BluetoothDeviceName	theUTFName;
+		
+		err = IOBluetoothLocalDeviceReadName(theUTFName, NULL, NULL, NULL);
+		if(err == kIOReturnSuccess) {
+			jstring			jName;
+			jName = JAVA_ENV_CHECK(NewUTFString(env, theUTFName));
+			currentRequest->aName = JAVA_ENV_CHECK(NewGlobalRef(env, jName));
+			JAVA_ENV_CHECK(DeleteLocalRef(env, jName));
+		} /* else the name remains null */
+		
+		pthread_cond_signal(& (currentRequest->callComplete));
+	}
+	printMessage("Exiting getLocalDeviceName", DEBUG_INFO_LEVEL);
+	
+}
+void getLocalDeviceClass(void *voidPtr) {
+	todoListRoot		*pendingDevClsReqs;
+	threadPassType		aType;
+	jint				jErr;
+	JNIEnv				*env;
+
+
+	printMessage("Entering getLocalDeviceClass", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	pendingDevClsReqs = (todoListRoot*)voidPtr;
+	aType = getNextToDoItem(pendingDevClsReqs);
+	while(aType.voidPtr ) {
+		IOReturn			err;
+		localDeviceClassRec	*currentRequest = aType.localDevClassPtr;
+		BluetoothClassOfDevice	theDevClass;
+		
+		err = IOBluetoothLocalDeviceReadClassOfDevice(&theDevClass, NULL, NULL, NULL);
+		if(err == kIOReturnSuccess) {
+			jclass				jDevClass;
+			jmethodID			jDevClassConstructor;
+			jobject				jLocalDevClass;
+			
+			jDevClass = JAVA_ENV_CHECK(FindClass(env, "javax/bluetooth/DeviceClass"));
+			jDevClassConstructor = JAVA_ENV_CHECK(GetMethodID(env, jDevClass, "<init>", "(I)V");
+			jLocalDevClass = JAVA_ENV_CHECK(NewObject(env, jDevClass, jDevClassConstructor, theDevClass));
+		
+			currentRequest->devClass = JAVA_ENV_CHECK(NewGlobalRef(env, jLocalDevClass));
+			JAVA_ENV_CHECK(DeleteLocalRef(env, jLocalDevClass));
+		} /* else the object remains null */
+		
+		pthread_cond_signal(& (currentRequest->callComplete));
+	}
+	printMessage("Exiting getLocalDeviceClass", DEBUG_INFO_LEVEL);
+
+}
+
+IOReturn getCurrentModeInternal(int		*mode) {
+		Boolean					discoveryOn;
+		BluetoothClassOfDevice	theDevClass;
+		IOReturn				err;
+		
+		err = IOBluetoothLocalDeviceGetDiscoverable(&discoveryOn);
+		if(err != kIOReturnSuccess) return err;
+		err = IOBluetoothLocalDeviceReadClassOfDevice(&theDevClass, NULL, NULL, NULL);
+		if(err != kIOReturnSuccess) return err;
+		if(discoveryOn) {
+			if(theDevClass & 0x00002000) {
+				/* we're in limited discovery */
+				*mode = 0x9E8B00;
+			} else {
+				/* we're in general discovery */
+				*mode = 0x9E8B33;
+			}
+		} else {
+			*mode = 0;
+		}
+		return err;
+}
+
+void getLocalDiscoveryMode(void *voidPtr){
+	todoListRoot		*aRoot;
+	threadPassType		aType;
+	jint				jErr;
+	JNIEnv				*env;
+
+
+	printMessage("Entering getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	aRoot = (todoListRoot*)voidPtr;
+	aType = getNextToDoItem(aRoot);
+	while(aType.voidPtr ) {
+		IOReturn				err;
+		getDiscoveryModeRec		*currentRequest = aType.getDiscoveryModePtr;
+		int						mode=0;
+		
+		err = getCurrentModeInternal(&mode);
+		currentRequest->mode = mode;
+		
+		pthread_cond_signal(& (currentRequest->callComplete));
+	}
+	printMessage("Exiting getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
+}
+
+
+void setLocalDiscoveryMode(void *voidPtr){
+	todoListRoot		*aRoot;
+	threadPassType		aType;
+	jint				jErr;
+	JNIEnv				*env;
+
+
+	printMessage("Entering getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	aRoot = (todoListRoot*)voidPtr;
+	aType = getNextToDoItem(aRoot);
+	while(aType.voidPtr ) {
+		IOReturn				err;
+		setDiscoveryModeRec		*currentRequest = aType.setDiscoveryModePtr;
+		Boolean					discoveryOn;
+		int						mode=0;
+		
+		err = getCurrentModeInternal(&mode);
+		/* I don't see a way to change the discovery mode 
+			so we return true if the mode to set was the same as the existing
+			false if it was different
+			probably should pursue IOKit interfaces underneath the bluetooth api
+			  */
+		
+		currentRequest->mode = mode;
+		
+		pthread_cond_signal(& (currentRequest->callComplete));
+	}
+	printMessage("Exiting getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
+
+
+}
