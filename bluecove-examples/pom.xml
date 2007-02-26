@@ -57,6 +57,7 @@
 
     <modules>
         <module>bluecove-webstart</module>
+        <module>bluecove-microemu-starter</module>
     </modules>
 
     <developers>
