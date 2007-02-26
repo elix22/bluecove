@@ -28,7 +28,7 @@ import javax.bluetooth.BluetoothConnectionException;
 
 public class BluetoothOBEXConnection extends BluetoothRFCOMMConnection {
 	
-	protected BluetoothOBEXConnection(long address, int channel, boolean authenticate,
+	protected BluetoothOBEXConnection(String address, int channel, boolean authenticate,
 			boolean encrypt, int requestedRecieveMTU, int requestedTransmitMTU) throws IOException {
 		super(address, channel, authenticate, encrypt, requestedRecieveMTU, requestedTransmitMTU);
 		

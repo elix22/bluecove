@@ -19,25 +19,22 @@
  */
 package com.intel.bluetooth;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import javax.bluetooth.L2CAPConnection;
-import javax.bluetooth.LocalDevice;
-import javax.microedition.io.StreamConnection;
+import javax.bluetooth.RemoteDevice;
 
 public class BluetoothL2CAPConnection implements L2CAPConnection {
 	
 	int socket;
-	long address;
+	long binaryAddress;
+	String	textAddress;
 	BluetoothOutputStream out;
 	private boolean closing;
 	private boolean closed;
+	protected RemoteDevice		endpoint;
 	
 	protected int			transmitMTU;
 	protected int			receiveMTU;
@@ -60,14 +57,16 @@ public class BluetoothL2CAPConnection implements L2CAPConnection {
 	 * @param requestedTransmitMTU the requested transmit MTU
 	 * @throws IOException 
 	 */
-	protected BluetoothL2CAPConnection(long address, int channel, boolean authenticate,
+	protected BluetoothL2CAPConnection(String address, int channel, boolean authenticate,
 			boolean encrypt, int requestedRecieveMTU, int requestedTransmitMTU) 
 				throws IOException {
-		this.address = address;
+		endpoint = null;
+		textAddress = address;
+		binaryAddress = Long.parseLong(address, 16);
 		socket = socket(authenticate, encrypt);
 		closed = true;
 		closing = false;
-		connect(socket, address, channel, requestedRecieveMTU, requestedTransmitMTU);
+		connect(socket, binaryAddress, channel, requestedRecieveMTU, requestedTransmitMTU);
 		closed = false;
 	}
 
@@ -141,18 +140,19 @@ public class BluetoothL2CAPConnection implements L2CAPConnection {
 	}
 	public native void send(byte[] data) throws java.io.IOException;
 	
-	public long getAddress() {
-		return address;
+	
+	public String getRemoteTextAddress() throws IOException {
+		if(closing) throw new IOException();
+		return textAddress;
 	}
-
-	public long getRemoteAddress() throws IOException {
-		return LocalDevice.getLocalDevice().getBluetoothPeer().getpeeraddress(
-				socket);
+	public RemoteDevice getRemoteDevice() throws IOException{
+		if(closing) throw new IOException();
+		if(endpoint==null) endpoint = new RemoteDeviceImpl(textAddress);
+		return endpoint;
 	}
 	
 	public void close() throws IOException {
 		closing = true;
-
 		closeSocket(socket);
 	}
 	private native void closeSocket(int aSocket);

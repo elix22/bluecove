@@ -34,6 +34,9 @@ public class NativeLibLoader {
 
     private static boolean libraryAvailable;
 
+//	is there any demand for this?
+//    public static native void unlinkLibrary();
+    
     public static boolean isAvailable() {
         if (triedToLoadAlredy) {
             return libraryAvailable;
