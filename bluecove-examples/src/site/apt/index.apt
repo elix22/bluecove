@@ -10,7 +10,7 @@ BlueCove
 
     BlueCove is a Java library for Bluetooth (JSR-82 implementation) that currently interfaces with the Microsoft Bluetooth stack found in Windows XP SP2 or Windows Vista.
 
-    Main project website now be found at: {{{http://code.google.com/p/bluecove/}http://code.google.com/p/bluecove/}}
+    Main project website {{{http://code.google.com/p/bluecove/}http://code.google.com/p/bluecove/}}
 
 
 BlueCove examples projects
