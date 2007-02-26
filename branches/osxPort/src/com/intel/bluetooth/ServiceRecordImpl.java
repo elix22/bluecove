@@ -207,8 +207,7 @@ public class ServiceRecordImpl implements ServiceRecord {
 			 * retrieve SDP blob
 			 */
 	
-			byte[] blob = (LocalDevice.getLocalDevice()).getBluetoothPeer()
-					.getServiceAttributes(sortIDs,
+			byte[] blob = getServiceAttributes(sortIDs,
 							Long.parseLong(device.getBluetoothAddress(), 16),
 							handle);
 	
@@ -230,7 +229,8 @@ public class ServiceRecordImpl implements ServiceRecord {
 				return false;
 		}
 	}
-	
+	private native byte[] getServiceAttributes(int[] attrIDs, long address,
+			int handle) throws IOException;
 	private	native boolean native_populateRecord(int[] attrIDs) throws IOException;
 	
 	/*

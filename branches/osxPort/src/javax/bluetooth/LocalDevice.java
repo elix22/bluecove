@@ -19,6 +19,7 @@ import com.intel.bluetooth.NotImplementedError;
 public class LocalDevice {
 
 
+	protected String		btTextAddress;
    /**
     * The default constructor is hidden so that no one can create a new
     * instance of the LocalDevice.  To get the LocalDevice
@@ -35,6 +36,7 @@ public class LocalDevice {
   	   if( ! getClass().getName().equals("com.intel.bluetooth.LocalDeviceImpl"))
     	     throw new UnsupportedOperationException(
     	    		 "LocalDevice objects are created with getLocalDevice");
+  	   btTextAddress="00deadbeef00";
   	   
     }
 
@@ -215,13 +217,9 @@ public class LocalDevice {
     * @return the Bluetooth address of the local device
     */
     public String getBluetoothAddress() {
-       	throw new NotImplementedError();
+       	return btTextAddress;
     }
   
-
-
-
-
 
    /**
     * Gets the service record corresponding to a <code>btspp</code>,

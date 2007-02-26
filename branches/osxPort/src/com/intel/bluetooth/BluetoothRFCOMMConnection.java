@@ -34,7 +34,7 @@ public class BluetoothRFCOMMConnection extends BluetoothL2CAPConnection
 	protected BluetoothInputStream			in;
 	protected BluetoothOutputStream			out;
 	
-	protected BluetoothRFCOMMConnection(long address, int channel, boolean authenticate,
+	protected BluetoothRFCOMMConnection(String address, int channel, boolean authenticate,
 			boolean encrypt, int requestedRecieveMTU, int requestedTransmitMTU) throws IOException {
 		super(address, channel, authenticate, encrypt, requestedRecieveMTU, requestedTransmitMTU);
 		

@@ -135,7 +135,7 @@ public class MicroeditionConnector {
 			if(values[5]!= null) {
 				tMTU = Integer.parseInt(values[5]);
 			}
-				return new BluetoothRFCOMMConnection(Long.parseLong(host, 16),
+				return new BluetoothRFCOMMConnection(host,
 						Integer.parseInt(port), values[0] != null
 								&& values[0].equals("true"), values[1] != null
 								&& values[1].equals("true"), rMTU, tMTU);
