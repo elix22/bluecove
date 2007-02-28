@@ -18,6 +18,8 @@
  *
  */
  
+ 
+#include <AvailabilityMacros.h>
 #define BLUETOOTH_VERSION_USE_CURRENT
 
 #include <CoreFoundation/CoreFoundation.h>
