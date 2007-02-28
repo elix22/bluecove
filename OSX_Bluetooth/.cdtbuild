@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?fileVersion 3.1.0?>
+
+<ManagedProjectBuildInfo>
+<project id="OSX_NativeBluecove.cdt.managedbuild.target.macosx.so.896634104" name="Shared Library (MacOS X)" projectType="cdt.managedbuild.target.macosx.so">
+<configuration artifactExtension="jnilib" artifactName="intelbthDEBUG" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.macosx.so.debug.40568665" name="Debug" parent="cdt.managedbuild.config.macosx.so.debug" preannouncebuildStep="Generate version and java headers" prebuildStep="../headerGenerator.sh ProjDirPath $ProjDirPath">
+<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.so.debug.1650324452" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.macosx.so.debug">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.debug.313896091" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.2115393436" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug">
+<option id="gnu.c.compiler.option.include.paths.311964016" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="/System/Library/Frameworks/JavaVM.framework/Headers"/>
+</option>
+<option id="gnu.c.compiler.option.misc.other.1053134735" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -pipe -mmacosx-version-min=10.4 " valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.so.debug.1108704068" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.so.debug">
+<option id="macosx.c.link.option.ldflags.544589838" superClass="macosx.c.link.option.ldflags" value="-framework JavaVM -framework IOBluetooth -framework CoreFoundation -framework Foundation -single_module -compatibility_version 1 -current_version 1 -mmacosx-version-min=10.4 -isysroot /Developer/SDKs/MacOSX10.4u.sdk" valueType="string"/>
+<option id="macosx.c.link.option.other.2120316405" superClass="macosx.c.link.option.other" valueType="stringList"/>
+<option id="macosx.c.link.option.userobjs.1191833498" superClass="macosx.c.link.option.userobjs" valueType="userObjs"/>
+<option id="macosx.c.link.macosx.so.debug.option.nodeflibs.1040159997" superClass="macosx.c.link.macosx.so.debug.option.nodeflibs" value="false" valueType="boolean"/>
+</tool>
+<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.debug.1995228972" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.debug"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.so.debug.1633376292" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.macosx.so.debug">
+<option id="gnu.both.asm.option.flags.359169445" superClass="gnu.both.asm.option.flags" value="-pipe" valueType="string"/>
+</tool>
+<macros/>
+</toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.macosx.so.debug.40568665./OSX_NativeBluecove/JavaHeaders.h" name="JavaHeaders.h" rcbsApplicability="disable" resourcePath="/native-OSX/JavaHeaders.h" toolsToInvoke=""/>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.macosx.so.debug.40568665./OSX_NativeBluecove/debugMain.c" name="debugMain.c" rcbsApplicability="disable" resourcePath="/native-OSX/debugMain.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.2115393436./OSX_NativeBluecove/debugMain.c">
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.2115393436./OSX_NativeBluecove/debugMain.c" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.2115393436"/>
+</resourceConfiguration>
+</configuration>
+<configuration artifactExtension="jnilib" artifactName="intelbth" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.config.macosx.so.release.647732503" name="Release" parent="cdt.managedbuild.config.macosx.so.release" postannouncebuildStep="Copy the native library to the java project for packaging in jar." postbuildStep="cp libintelbth.jnilib ../../bluecove/resources" preannouncebuildStep="Generate version and Java headers" prebuildStep="../headerGenerator.sh">
+<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.so.release.1701043521" name="GCC Tool Chain" superClass="cdt.managedbuild.toolchain.gnu.macosx.so.release">
+<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.1276544010" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release"/>
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.369347408" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release">
+<option id="gnu.c.compiler.option.include.paths.948825157" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="/System/Library/Frameworks/JavaVM.framework/Headers"/>
+</option>
+</tool>
+<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.so.release.532843397" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.so.release">
+<option id="macosx.c.link.macosx.so.release.option.nodeflibs.2124659209" superClass="macosx.c.link.macosx.so.release.option.nodeflibs" value="false" valueType="boolean"/>
+<option id="macosx.c.link.option.ldflags.915013687" superClass="macosx.c.link.option.ldflags" value="-framework JavaVM -framework IOBluetooth -framework CoreFoundation -framework Foundation -single_module -compatibility_version 1 -current_version 1 -mmacosx-version-min=10.4 -isysroot /Developer/SDKs/MacOSX10.4u.sdk" valueType="string"/>
+</tool>
+<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.release.158153929" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.release"/>
+<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.so.release.1133477697" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.macosx.so.release"/>
+<macros/>
+</toolChain>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.macosx.so.release.647732503./OSX_NativeBluecove/JavaHeaders.h" name="JavaHeaders.h" rcbsApplicability="disable" resourcePath="/native-OSX/JavaHeaders.h" toolsToInvoke=""/>
+<resourceConfiguration exclude="true" id="cdt.managedbuild.config.macosx.so.release.647732503./OSX_NativeBluecove/debugMain.c" name="debugMain.c" rcbsApplicability="disable" resourcePath="/native-OSX/debugMain.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.369347408./OSX_NativeBluecove/debugMain.c">
+<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.369347408./OSX_NativeBluecove/debugMain.c" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.369347408"/>
+</resourceConfiguration>
+</configuration>
+<macros/>
+</project>
+</ManagedProjectBuildInfo>

@@ -39,7 +39,7 @@ int main(int argc, const char * argv[]) {
 	/* set this to the path location specific to your OS tha contains the java code
 	 * which interfaces with your native library */
 	 
-	options[1].optionString = "-Djava.class.path=/Users/work/Documents/workspace/BlueCoveOSX/resources/bluecove.jar";
+	options[1].optionString = "-Djava.class.path=/Users/work/Documents/workspace/BlueCoveOSX/bin";
 	options[2].optionString = "-verbose:jni";
 	
 	err = JNI_GetDefaultJavaVMInitArgs(&vm_args);
@@ -75,38 +75,35 @@ int main(int argc, const char * argv[]) {
 		{"nativeConnect", "(IJIII)V", Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeConnect},
 		{"send", "([B)V", Java_com_intel_bluetooth_BluetoothOBEXConnection_send}
 		};
-	JNINativeMethod			nativeMethodsBTPeer[]={
-		{"doInquiry", "(ILjavax/bluetooth/DiscoveryListener;)I", Java_com_intel_bluetooth_BluetoothPeer_doInquiry},			//1
-		{"cancelInquiry", "(Ljavax/bluetooth/DiscoveryListener;)Z",Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry },	//2
-		{"getServiceHandles", "([Ljavax/bluetooth/UUID;J)[I", Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles},	//3
-		{"getServiceAttributes", "([IJI)[B", Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes},					//4
-		{"registerService", "([B)I",Java_com_intel_bluetooth_BluetoothPeer_registerService},								//5
-		{"unregisterService", "(I)V", Java_com_intel_bluetooth_BluetoothPeer_unregisterService},							//6
-		{"getsockchannel", "(I)I", Java_com_intel_bluetooth_BluetoothPeer_getsockchannel},									//9
-		{"getpeername", "(J)Ljava/lang/String;", Java_com_intel_bluetooth_BluetoothPeer_getpeername},						//18
-		{"getpeeraddress", "(I)J", Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress},									//19
-		{"asyncStopSearchServices", "(I)Z", Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearchServices},				//21
-		{"getServiceHandles", "([Ljavax/bluetooth/UUID;J)[I", Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles},	//22
-		{"asyncSearchServices", "([I[Ljavax/bluetooth/UUID;Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DiscoveryListener;)I",
-					Java_com_intel_bluetooth_BluetoothPeer_asyncSearchServices},											//23
-		};
 	JNINativeMethod			BluetoothRFCOMMConnection[]={
 		{"nativeConnect", "(IJIII)V", Java_com_intel_bluetooth_BluetoothRFCOMMConnection_nativeConnect},
 		{"send", "([B)V", Java_com_intel_bluetooth_BluetoothRFCOMMConnection_send}
 		};
+	JNINativeMethod			DiscoveryAgentImpl[]={
+		{"retrieveDevices", "(I)[Ljavax/bluetooth/RemoteDevice;", Java_com_intel_bluetooth_DiscoveryAgentImpl_retrieveDevices},
+		{"startInquiry", "(ILjavax/bluetooth/DiscoveryListener;)Z", Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry},
+		{"cancelInquiry", "(Ljavax/bluetooth/DiscoveryListener;)Z", Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelInquiry},
+		{"searchServices", "([I[Ljavax/bluetooth/UUID;Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DiscoveryListener;)I", Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices},
+		{"cancelServiceSearch", "(I)Z", Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelServiceSearch},
+		{"selectService", "(Ljavax/bluetooth/UUID;IZ)Ljava/lang/String;", Java_com_intel_bluetooth_DiscoveryAgentImpl_selectService}
+		};
 		
+	JNINativeMethod			nativeMethodsLocalDev[] = {
+		{"getLocalAddress", "()J", Java_com_intel_bluetooth_LocalDeviceImpl_getLocalAddress},										//1
+		{"getFriendlyName", "()Ljava/lang/String;", Java_com_intel_bluetooth_LocalDeviceImpl_getFriendlyName},
+		{"getDeviceClass", "()Ljavax/bluetooth/DeviceClass;", Java_com_intel_bluetooth_LocalDeviceImpl_getDeviceClass},
+		{"setDiscoverable", "(I)Z", Java_com_intel_bluetooth_LocalDeviceImpl_setDiscoverable},
+		{"getAdjustedSystemProperties", "()Ljava/util/Properties;", Java_com_intel_bluetooth_LocalDeviceImpl_getAdjustedSystemProperties},
+		{"getDiscoverable", "()I", Java_com_intel_bluetooth_LocalDeviceImpl_getDiscoverable}
+		};
+	JNINativeMethod			nativeRemoteDeviceImpl[] = {
+		{"getFriendlyName", "(Z)Ljava/lang/String;", Java_com_intel_bluetooth_RemoteDeviceImpl_getFriendlyName}
+		};
 	JNINativeMethod			nativeMethodsServRecImpl[] = {
+		{"getServiceAttributes","([IJI)[B", Java_com_intel_bluetooth_ServiceRecordImpl_getServiceAttributes},
 		{"native_populateRecord", "([I)Z", Java_com_intel_bluetooth_ServiceRecordImpl_native_1populateRecord}				//1
 		};
-	JNINativeMethod			nativeMethodsLocalDev[] = {
-		{"getLocalAddress", "()J", Java_javax_bluetooth_LocalDevice_getLocalAddress},										//1
-		{"deviceName", "()Ljava/lang/String;", Java_javax_bluetooth_LocalDevice_deviceName},
-		{"deviceClass", "()Ljavax/bluetooth/DeviceClass;", Java_javax_bluetooth_LocalDevice_deviceClass},
-		{"privateSetDiscoverable", "(I)Z", Java_javax_bluetooth_LocalDevice_privateSetDiscoverable},
-		{"getAdjustedSystemProperties", "()Ljava/util/Properties;", Java_javax_bluetooth_LocalDevice_getAdjustedSystemProperties},
-		{"privateGetDiscoverable", "()I", Java_javax_bluetooth_LocalDevice_privateGetDiscoverable}
-		};
-		
+			
 	jclass		interface ;
 	
 	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothInputStream"));
@@ -115,14 +112,16 @@ int main(int argc, const char * argv[]) {
 	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, BluetoothL2CAPConnection, 4));
 	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothOBEXConnection"));
 	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, BluetoothOBEXConnection, 2));
-	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothPeer"));
-	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, nativeMethodsBTPeer, 12));
 	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothRFCOMMConnection"));
 	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, BluetoothRFCOMMConnection, 2));
-	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/ServiceRecordImpl"));
-	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, nativeMethodsServRecImpl, 1));
-	interface = JAVA_ENV_CHECK(FindClass(env, "javax/bluetooth/LocalDevice"));
+	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/DiscoveryAgentImpl"));
+	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, DiscoveryAgentImpl, 6));
+	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/LocalDeviceImpl"));
 	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, nativeMethodsLocalDev, 6));
+	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/RemoteDeviceImpl"));
+	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, nativeRemoteDeviceImpl, 1));
+	interface = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/ServiceRecordImpl"));
+	err = JAVA_ENV_CHECK(RegisterNatives(env, interface, nativeMethodsServRecImpl, 2));
 
 	JNI_OnLoad(jvm, NULL);
 	/* invoke the main thread */

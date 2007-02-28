@@ -73,17 +73,32 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved){
 
 
 /*
- * Class:     com_intel_bluetooth_BluetoothPeer
- * Method:    doInquiry
- * Signature: (ILjavax/bluetooth/DiscoveryListener;)I
+ * Class:     com_intel_bluetooth_DiscoveryAgentImpl
+ * Method:    retrieveDevices
+ * Signature: (I)[Ljavax/bluetooth/RemoteDevice;
  */
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_doInquiry
+JNIEXPORT jobjectArray JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_retrieveDevices
+  (JNIEnv *env, jobject peer, jint option) {
+  		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_retrieveDevices entered", DEBUG_INFO_LEVEL);
+  	
+		throwException(env, "com/intel/bluetooth/NotImplementedError", NULL);
+  	
+  		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_retrieveDevices exited", DEBUG_INFO_LEVEL);
+  	
+  		return NULL;
+  }
+/*
+ * Class:     com_intel_bluetooth_DiscoveryAgentImpl
+ * Method:    startInquiry
+ * Signature: (ILjavax/bluetooth/DiscoveryListener;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry
   (JNIEnv *env, jobject peer, jint accessCode, jobject listener){
 		
 		CFRunLoopSourceContext		aContext={0};
 		doInquiryRec				*record;
 		
-		printMessage("Java_com_intel_bluetooth_BluetoothPeer_doInquiry called", DEBUG_INFO_LEVEL);
+		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry called", DEBUG_INFO_LEVEL);
 		
 		CFRunLoopSourceGetContext(s_inquiryStartSource, &aContext);
 
@@ -99,20 +114,20 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_doInquiry
 			CFRunLoopSourceSignal(s_inquiryStartSource);
 			CFRunLoopWakeUp (s_runLoop);
 		}
-		printMessage("Java_com_intel_bluetooth_BluetoothPeer_doInquiry exiting", DEBUG_INFO_LEVEL);
+		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry exiting", DEBUG_INFO_LEVEL);
 		return -1;
 	
 }
 
 
-JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry
+JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelInquiry
   (JNIEnv *env, jobject peer, jobject listener){
 	
 	cancelInquiryRec			*record;
 	pthread_mutex_t				aMutex;
 	CFRunLoopSourceContext		aContext = {0};
 	
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry: called", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelInquiry: called", DEBUG_INFO_LEVEL);
 	
 
 	CFRunLoopSourceGetContext(s_inquiryStopSource, &aContext);
@@ -139,13 +154,13 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry
 		pthread_cond_destroy(&record->waiter);
 		pthread_mutex_destroy(&aMutex);
 	}
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_cancelInquiry: exiting", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelInquiry: exiting", DEBUG_INFO_LEVEL);
 
 	
 	return record->success;
   }
   
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_asyncSearchServices
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices
   (JNIEnv *env, jobject peer, jintArray attrSet, jobjectArray uuidSet, jobject device, jobject listener){
 	
 	searchServicesRec				*record;
@@ -155,7 +170,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_asyncSearchService
 	jmethodID					getAddress;
 	jclass						deviceClass;
 	
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_asyncSearchServices: called", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices: called", DEBUG_INFO_LEVEL);
 	
 	deviceClass = (*env)->GetObjectClass(env, device);
 	getAddress = (*env)->GetMethodID(env, deviceClass, "getBluetoothAddress", "()Ljava/lang/String;");
@@ -180,7 +195,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothPeer_asyncSearchService
 		CFRunLoopSourceSignal(s_searchServicesStart);
 		CFRunLoopWakeUp(s_runLoop);
 	}
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_asyncSearchServices exiting", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices exiting", DEBUG_INFO_LEVEL);
 
 	return mySearchServices->index;
   
@@ -222,32 +237,33 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_ServiceRecordImpl_native_1po
 		return record->result;
   }
   
-JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearchServices
+JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelServiceSearch
   (JNIEnv *env, jobject peer, jint transID){
-  	printMessage("Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearchServices called", DEBUG_INFO_LEVEL);
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_asyncStopSearchServices exiting", DEBUG_INFO_LEVEL);
+  	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelServiceSearch called", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelServiceSearch exiting", DEBUG_INFO_LEVEL);
 	
 	return 0;
   
 }
-
-
-JNIEXPORT jintArray JNICALL Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles
-  (JNIEnv *env, jobject peer, jobjectArray uuidSet, jlong address){
+/*
+ * Class:     com_intel_bluetooth_DiscoveryAgentImpl
+ * Method:    selectService
+ * Signature: (Ljavax/bluetooth/UUID;IZ)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_selectService
+  (JNIEnv *env, jobject agent, jobject uuid, jint security, jboolean master) {
+  	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_selectService called", DEBUG_INFO_LEVEL);
 	
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: called", DEBUG_INFO_LEVEL);
+	throwException(env, "com/intel/bluetooth/NotImplementedError", NULL);
 	
-	throwException(env, "com/intel/bluetooth/NotImplementedError", "getServiceHandles not implemented on Mac OS X");
-
-	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: exiting", DEBUG_INFO_LEVEL);
-	
-	return NULL;
-  
-  
+	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_selectService exiting", DEBUG_INFO_LEVEL);
+  	return NULL;
   }
 
 
-JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes
+
+
+JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_ServiceRecordImpl_getServiceAttributes
   (JNIEnv *env, jobject peer, jintArray attrIDs, jlong address, jint handle){
     
 	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceAttributes called", DEBUG_INFO_LEVEL);
@@ -380,23 +396,18 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothL2CAPConnection_closeSo
   }
 
 
-JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothPeer_getpeername
-  (JNIEnv *env, jobject peer, jlong address){
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getpeername called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getpeername exiting", DEBUG_INFO_LEVEL);
+JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_RemoteDeviceImpl_getFriendlyName
+  (JNIEnv *env, jobject peer, jboolean alwaysAsk){
+    printMessage("Java_com_intel_bluetooth_RemoteDeviceImpl_getFriendlyName entered", DEBUG_INFO_LEVEL);
+    
+	throwException(env, "com/intel/bluetooth/NotImplementedError", NULL);
+		
+    printMessage("Java_com_intel_bluetooth_RemoteDeviceImpl_getFriendlyName exiting", DEBUG_INFO_LEVEL);
 
-  		return (*env)->NewStringUTF(env, "fixme");
+  	return NULL;
  }
 
 
-JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress
-  (JNIEnv *env, jobject peer, jint socket) {
-  
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress called", DEBUG_INFO_LEVEL);
-    printMessage("Java_com_intel_bluetooth_BluetoothPeer_getpeeraddress exiting", DEBUG_INFO_LEVEL);
-
-	return 0LL;
-	}
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothInputStream_pipePrime(JNIEnv *env, jobject peer, jint numBytes){
 	/* do nothing on this platform */
@@ -404,7 +415,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothInputStream_pipePrime(J
   
   
  
-JNIEXPORT jlong JNICALL Java_javax_bluetooth_LocalDevice_getLocalAddress(JNIEnv *env, jobject peer) {
+JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_LocalDeviceImpl_getLocalAddress(JNIEnv *env, jobject peer) {
 
 	jstring				localAddress, propertyName;
 	jclass				propList;
@@ -414,7 +425,7 @@ JNIEXPORT jlong JNICALL Java_javax_bluetooth_LocalDevice_getLocalAddress(JNIEnv 
 	int					i;
 	UInt64				intAddress;
 	
-	printMessage("Java_javax_bluetooth_LocalDevice_getLocalAddress called", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getLocalAddress entered", DEBUG_INFO_LEVEL);
 	/* I assume this always just for the local device */
 	propertyName = JAVA_ENV_CHECK(NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS));
 	propList = JAVA_ENV_CHECK(GetObjectClass(env, s_systemProperties));
@@ -430,13 +441,13 @@ JNIEXPORT jlong JNICALL Java_javax_bluetooth_LocalDevice_getLocalAddress(JNIEnv 
 		intAddress |= addressValue[i];
 	}
 		
-    printMessage("Java_javax_bluetooth_LocalDevice_getLocalAddress exiting", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getLocalAddress exiting", DEBUG_INFO_LEVEL);
 
 	return intAddress;
 }
 
 
-JNIEXPORT jstring JNICALL Java_javax_bluetooth_LocalDevice_deviceName(JNIEnv *env, jobject localDevice){
+JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_LocalDeviceImpl_getFriendlyName(JNIEnv *env, jobject localDevice){
 
 	localNameRec					nameRequest;
 	CFRunLoopSourceContext			aContext={0};
@@ -445,7 +456,7 @@ JNIEXPORT jstring JNICALL Java_javax_bluetooth_LocalDevice_deviceName(JNIEnv *en
 	pthread_mutex_t					callInProgress;
 	jstring							result;
 	
-    printMessage("Java_javax_bluetooth_LocalDevice_deviceName called", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getFriendlyName entered", DEBUG_INFO_LEVEL);
     
 	typeMask.localNamePtr = &nameRequest;
 	
@@ -477,13 +488,13 @@ JNIEXPORT jstring JNICALL Java_javax_bluetooth_LocalDevice_deviceName(JNIEnv *en
 	}
 	
 
-	printMessage("Java_javax_bluetooth_LocalDevice_deviceName exiting", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getFriendlyName exiting", DEBUG_INFO_LEVEL);
 	
 	return result;
 }
 
 
-JNIEXPORT jobject JNICALL Java_javax_bluetooth_LocalDevice_deviceClass(JNIEnv *env, jobject localDevice){
+JNIEXPORT jobject JNICALL Java_com_intel_bluetooth_LocalDeviceImpl_getDeviceClass(JNIEnv *env, jobject localDevice){
 
 	localDeviceClassRec				devClsRequest;
 	CFRunLoopSourceContext			aContext={0};
@@ -492,7 +503,7 @@ JNIEXPORT jobject JNICALL Java_javax_bluetooth_LocalDevice_deviceClass(JNIEnv *e
 	pthread_mutex_t					callInProgress;
 	jobject							result;
 	
-    printMessage("Java_javax_bluetooth_LocalDevice_deviceClass called", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getDeviceClass entered", DEBUG_INFO_LEVEL);
     
 	typeMask.localDevClassPtr = &devClsRequest;
 	
@@ -525,13 +536,13 @@ JNIEXPORT jobject JNICALL Java_javax_bluetooth_LocalDevice_deviceClass(JNIEnv *e
 	}
 		
 
-	printMessage("Java_javax_bluetooth_LocalDevice_deviceClass exiting", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getDeviceClass exiting", DEBUG_INFO_LEVEL);
 	
 	return result;    
 }
 
 
-JNIEXPORT jboolean JNICALL Java_javax_bluetooth_LocalDevice_privateSetDiscoverable(JNIEnv *env, jobject localDevice, jint mode){
+JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_LocalDeviceImpl_setDiscoverable(JNIEnv *env, jobject localDevice, jint mode){
 	setDiscoveryModeRec				aRec;
 	CFRunLoopSourceContext			aContext={0};
 	todoListRoot					*aToDoList;
@@ -539,7 +550,7 @@ JNIEXPORT jboolean JNICALL Java_javax_bluetooth_LocalDevice_privateSetDiscoverab
 	pthread_mutex_t					callInProgress;
 	jboolean						result = JNI_FALSE;
 	
-    printMessage("Java_javax_bluetooth_LocalDevice_privateSetDiscoverable called", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_setDiscoverable entered", DEBUG_INFO_LEVEL);
     
 	typeMask.setDiscoveryModePtr = &aRec;
 	
@@ -575,25 +586,25 @@ JNIEXPORT jboolean JNICALL Java_javax_bluetooth_LocalDevice_privateSetDiscoverab
 		result = (mode == aRec.mode);
 	}
 	
-	printMessage("Java_javax_bluetooth_LocalDevice_privateSetDiscoverable exiting", DEBUG_INFO_LEVEL);
+	printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_setDiscoverable exiting", DEBUG_INFO_LEVEL);
 	
 	return result;
 }
 
 
-JNIEXPORT jobject JNICALL Java_javax_bluetooth_LocalDevice_getAdjustedSystemProperties(JNIEnv *env, jclass localDeviceCls){
+JNIEXPORT jobject JNICALL Java_com_intel_bluetooth_LocalDeviceImpl_getAdjustedSystemProperties(JNIEnv *env, jclass localDeviceCls){
 	return s_systemProperties;
 }
 
 
-JNIEXPORT jint JNICALL Java_javax_bluetooth_LocalDevice_privateGetDiscoverable(JNIEnv *env, jobject localDevice){
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_LocalDeviceImpl_getDiscoverable(JNIEnv *env, jobject localDevice){
 	getDiscoveryModeRec				aRec;
 	CFRunLoopSourceContext			aContext={0};
 	todoListRoot					*aToDoList;
 	threadPassType					typeMask;
 	pthread_mutex_t					callInProgress;
 	
-    printMessage("Java_javax_bluetooth_LocalDevice_privateGetDiscoverable called", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getDiscoverable entered", DEBUG_INFO_LEVEL);
     
 	typeMask.getDiscoveryModePtr = &aRec;
 	
@@ -619,7 +630,7 @@ JNIEXPORT jint JNICALL Java_javax_bluetooth_LocalDevice_privateGetDiscoverable(J
 		pthread_mutex_destroy(&callInProgress);
 		pthread_cond_destroy(&(aRec.callComplete));
 	}
-    printMessage("Java_javax_bluetooth_LocalDevice_privateGetDiscoverable exiting", DEBUG_INFO_LEVEL);
+    printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getDiscoverable exiting", DEBUG_INFO_LEVEL);
 	
 	return aRec.mode;
 
@@ -697,3 +708,18 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothRFCOMMConnection_send
     printMessage("Java_com_intel_bluetooth_BluetoothRFCOMMConnection_send exiting", DEBUG_INFO_LEVEL);
 								
 }
+
+
+JNIEXPORT jintArray JNICALL Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles
+  (JNIEnv *env, jobject peer, jobjectArray uuidSet, jlong address){
+	
+	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: called", DEBUG_INFO_LEVEL);
+	
+	throwException(env, "com/intel/bluetooth/NotImplementedError", "getServiceHandles not implemented on Mac OS X");
+
+	printMessage("Java_com_intel_bluetooth_BluetoothPeer_getServiceHandles: exiting", DEBUG_INFO_LEVEL);
+	
+	return NULL;
+  
+  
+  }
