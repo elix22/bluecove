@@ -23,6 +23,7 @@
  */
  
 #include "blueCovejnilib.h"
+#include <stdlib.h>
 
 /* library globals */
 currInq					*s_inquiryList;
@@ -40,7 +41,7 @@ CFRunLoopSourceRef		s_LocalDeviceNameRequest;
 CFRunLoopSourceRef		s_LocalDeviceClassRequest;
 CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;
 CFRunLoopSourceRef		s_LocalDeviceGetDiscoveryMode;
-
+CFRunLoopSourceRef		s_RemoteDeviceGetFriendlyName;
 jobject					s_systemProperties;
 
 
@@ -75,7 +76,8 @@ void* runLoopThread(void* v_threadValues) {
 	todoListRoot			pendingLocalDeviceClassRequests;
 	todoListRoot			getDiscoveryModeList;
 	todoListRoot			setDiscoveryModeList;
-	populateAttributesRec	_populateAttributesRec;
+	todoListRoot			populateAttributesList;
+	todoListRoot			getRemoteDevFriendlyNameList;
 	int						propGenErr;
 	
 
@@ -124,7 +126,8 @@ void* runLoopThread(void* v_threadValues) {
 		
 		
 		/* create/istall the service attribute populater here  */
-		aContext.info = &_populateAttributesRec;
+		initializeToDoList(&populateAttributesList);
+		aContext.info = &populateAttributesList;
 		aContext.perform = getServiceAttributes;
 		s_populateServiceAttrs = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
 		CFRunLoopAddSource(s_runLoop, s_populateServiceAttrs, kCFRunLoopDefaultMode);
@@ -178,6 +181,13 @@ void* runLoopThread(void* v_threadValues) {
 		CFRunLoopAddSource(s_runLoop, s_LocalDeviceSetDiscoveryMode, kCFRunLoopDefaultMode);
 		printMessage("Registered set discovery mode Start Source", DEBUG_INFO_LEVEL);
 
+		/* create/install the set discovery mode here */
+		initializeToDoList(&getRemoteDevFriendlyNameList);
+		aContext.info = &getRemoteDevFriendlyNameList;
+		aContext.perform = getRemoteDeviceFriendlyName;
+		s_RemoteDeviceGetFriendlyName = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_RemoteDeviceGetFriendlyName, kCFRunLoopDefaultMode);
+		printMessage("Registered get remote device name Source", DEBUG_INFO_LEVEL);
 		
 	}
 
@@ -186,10 +196,10 @@ void* runLoopThread(void* v_threadValues) {
 		jmethodID		aMethod;
 		jobject			exception;
 
-		systemClass = (*env)->FindClass(env, "java/lang/System");
-		aMethod = (*env)->GetStaticMethodID(env, systemClass, "getProperties", "()Ljava/util/Properties;");
-		s_systemProperties = (*env)->CallStaticObjectMethod(env, systemClass, aMethod);
-		s_systemProperties = (*env)->NewGlobalRef(env, s_systemProperties);
+		systemClass = JAVA_ENV_CHECK(FindClass(env, "java/lang/System"));
+		aMethod = JAVA_ENV_CHECK(GetStaticMethodID(env, systemClass, "getProperties", "()Ljava/util/Properties;"));
+		s_systemProperties = JAVA_ENV_CHECK(CallStaticObjectMethod(env, systemClass, aMethod));
+		s_systemProperties = JAVA_ENV_CHECK(NewGlobalRef(env, s_systemProperties));
 		
 		
 		propGenErr = generateProperties(env);
@@ -197,9 +207,9 @@ void* runLoopThread(void* v_threadValues) {
 			
 		/* Try to set the collected properties into the system properties */
 		printMessage("Adding Bluetooth Properties to Java System Properties", DEBUG_INFO_LEVEL);
-		aMethod = (*env)->GetStaticMethodID(env, systemClass, "setProperties",
-									"(Ljava/util/Properties;)V");
-		(*env)->CallStaticVoidMethod(env, systemClass, aMethod, s_systemProperties);
+		aMethod = JAVA_ENV_CHECK(GetStaticMethodID(env, systemClass, "setProperties",
+									"(Ljava/util/Properties;)V"));
+		JAVA_ENV_CHECK(CallStaticVoidMethod(env, systemClass, aMethod, s_systemProperties));
 		
 		exception = (*env)->ExceptionOccurred(env);
 		
@@ -217,25 +227,20 @@ void* runLoopThread(void* v_threadValues) {
 	}
 	{
 		/* TODO make sure that this works even if the BluetoothPeer object hasn't been instatiated */
-		jclass			peer, serviceImpl, inputStream;
-		jfieldID		nativeIsAsyncField, nativeLibParsesSDP, deadlockPreventor;
+		jclass			serviceImpl, inputStream;
+		jfieldID		nativeLibParsesSDP, deadlockPreventor;
 		
 		printMessage("Attempting to set static class variables specific to native lib functionality", DEBUG_INFO_LEVEL);
 
 		
-		serviceImpl = (*env)->FindClass(env, "com/intel/bluetooth/ServiceRecordImpl");
-		nativeLibParsesSDP = (*env)->GetStaticFieldID(env, serviceImpl, "nativeLibParsesSDP", "Z");
-		(*env)->SetStaticBooleanField(env, serviceImpl, nativeLibParsesSDP, 1);
+		serviceImpl = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/ServiceRecordImpl"));
+		nativeLibParsesSDP = JAVA_ENV_CHECK(GetStaticFieldID(env, serviceImpl, "nativeLibParsesSDP", "Z"));
+		JAVA_ENV_CHECK(SetStaticBooleanField(env, serviceImpl, nativeLibParsesSDP, 1));
 				
-		peer = (*env)->FindClass(env, "com/intel/bluetooth/BluetoothPeer");
-		nativeIsAsyncField = (*env)->GetStaticFieldID(env, peer, "nativeIsAsync", "Z");
-		(*env)->SetStaticBooleanField(env, peer, nativeIsAsyncField, 1);
-		
 		inputStream = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/BluetoothInputStream"));
 		deadlockPreventor = JAVA_ENV_CHECK(GetStaticFieldID(env, inputStream, "disableDeadlockPreventor", "Z"));
 		JAVA_ENV_CHECK(SetStaticBooleanField(env, inputStream, deadlockPreventor, 0));
 		
-		JAVA_ENV_CHECK(DeleteLocalRef(env, peer));
 		JAVA_ENV_CHECK(DeleteLocalRef(env, serviceImpl));
 		JAVA_ENV_CHECK(DeleteLocalRef(env, inputStream));
 	}
@@ -382,12 +387,9 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	jmethodID						constructor, callback;
 	jobject							remoteDev, remoteDeviceClass;
 	BluetoothClassOfDevice			devClass;
-	CFStringRef						name; /* no release needed! May be null! */
 	const BluetoothDeviceAddress	*devAddress;
-	UInt64							BTaddress;
-	jstring							devName;
-	CFRange							aRange;
-	UniChar							*buffer;
+	char							devAddressString[13];
+	jstring							devAddressJString;
 	jint							jErr;
 	currInq							*listener = (currInq*)v_listener;
 	
@@ -417,55 +419,29 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	if(!devAddress) {
 		printMessage("IOBluetoothDeviceGetAddress returned null!", DEBUG_ERROR_LEVEL);
 	}
+	sprintf(devAddressString, "%02x%02x%02x%02x%02x%02x",devAddress->data[0],
+					devAddress->data[1], devAddress->data[2], devAddress->data[3],
+					devAddress->data[4], devAddress->data[5]); 
+	devAddressJString = JAVA_ENV_CHECK(NewStringUTF(env, devAddressString));
 	
-	BTaddress = devAddress->data[0];
-	BTaddress <<= 8;
-	BTaddress |= devAddress->data[1];
-	BTaddress <<= 8;
-	BTaddress |= devAddress->data[2];
-	BTaddress <<= 8;
-	BTaddress |= devAddress->data[3];
-	BTaddress <<= 8;
-	BTaddress |= devAddress->data[4];
-	BTaddress <<= 8;
-	BTaddress |= devAddress->data[5];
+	remoteDevCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/RemoteDeviceImpl"));
+	constructor= JAVA_ENV_CHECK(GetMethodID(env, remoteDevCls, "<init>", "(Ljava/lang/String;)V"));
 	
-	name = IOBluetoothDeviceGetName(deviceRef);
-	printMessage("IOBluetoothDeviceGetName returned", DEBUG_INFO_LEVEL);
-	
-
-	if(name) {
-		aRange.location = 0;
-		aRange.length = CFStringGetLength(name);
-		buffer = (UniChar*) malloc(sizeof(UniChar) * aRange.length);
-		CFStringGetCharacters(name, aRange, buffer);
-		devName = (*env)->NewString(env, (jchar*) buffer, (jsize)aRange.length);
-		free(buffer);
-	} else {
-		/* no name in stack so make an empty string */
-		devName = (*env)->NewStringUTF(env, "");
-	}
-	
-	printMessage("Device Name constructed", DEBUG_INFO_LEVEL);
-	
-	remoteDevCls = (*env)->FindClass(env, "javax/bluetooth/RemoteDevice");
-	constructor= (*env)->GetMethodID(env, remoteDevCls, "<init>", "(Ljava/lang/String;J)V");
-	
-	remoteDev = (*env)->NewObject(env, remoteDevCls, constructor, devName, BTaddress);
+	remoteDev = JAVA_ENV_CHECK(NewObject(env, remoteDevCls, constructor, devAddressJString));
 	printMessage("Remote Device object constructed", DEBUG_INFO_LEVEL);
 	devClass = IOBluetoothDeviceGetClassOfDevice(deviceRef);
 	
-	devCls = (*env)->FindClass(env, "javax/bluetooth/DeviceClass");
-	constructor = (*env)->GetMethodID(env, devCls, "<init>", "(I)V");
+	devCls = JAVA_ENV_CHECK(FindClass(env, "javax/bluetooth/DeviceClass"));
+	constructor = JAVA_ENV_CHECK(GetMethodID(env, devCls, "<init>", "(I)V"));
 	
-	remoteDeviceClass = (*env)->NewObject(env, devCls, constructor, devClass);
+	remoteDeviceClass = JAVA_ENV_CHECK(NewObject(env, devCls, constructor, devClass));
 	printMessage("Device Class Object constructed", DEBUG_INFO_LEVEL);
-	listenerCls = (*env)->GetObjectClass(env, listener->aListener);
+	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, listener->aListener));
 	printMessage("Listener Class obtained", DEBUG_INFO_LEVEL);
-	callback = (*env)->GetMethodID(env, listenerCls, "deviceDiscovered", "(Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DeviceClass;)V");
+	callback = JAVA_ENV_CHECK(GetMethodID(env, listenerCls, "deviceDiscovered", "(Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DeviceClass;)V"));
 	printMessage("Calling callback on listener", DEBUG_INFO_LEVEL);
 	/* call the java callback */
-	(*env)->CallVoidMethod(env, listener->aListener, callback, remoteDev, remoteDeviceClass);
+	JAVA_ENV_CHECK(CallVoidMethod(env, listener->aListener, callback, remoteDev, remoteDeviceClass));
 	printMessage("Callback returned", DEBUG_INFO_LEVEL);
 }
 
@@ -500,8 +476,8 @@ void inquiryComplete(void *						v_listener,
 
 
 	jErr = (*s_vm)->GetEnv(s_vm, (void**) &env, JNI_VERSION_1_2);
-	listenerCls = (*env)->GetObjectClass(env, listener->aListener);
-	callback = (*env)->GetMethodID(env, listenerCls, "inquiryCompleted", "(I)V");
+	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, listener->aListener));
+	callback = JAVA_ENV_CHECK(GetMethodID(env, listenerCls, "inquiryCompleted", "(I)V"));
 	printMessage("inquiryComplete: got callback", DEBUG_INFO_LEVEL);
 
 	if(aborted) {
@@ -514,12 +490,12 @@ void inquiryComplete(void *						v_listener,
 		}
 	}
 
-	(*env)->CallVoidMethod(env, listener->aListener, callback, discType);
+	JAVA_ENV_CHECK(CallVoidMethod(env, listener->aListener, callback, discType));
 
 	printMessage("inquiryComplete: cleaning up", DEBUG_INFO_LEVEL);
 	
 	/* clean up allocations */
-	(*env)->DeleteGlobalRef(env, listener->aListener);
+	JAVA_ENV_CHECK(DeleteGlobalRef(env, listener->aListener));
 	/* pull listener out of the list */
 	if(s_inquiryList == listener) {
 		/* most likely */
@@ -586,9 +562,9 @@ void  asyncSearchServices(void* in) {
 	printMessage("asyncSearchServices: called", DEBUG_INFO_LEVEL);
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 	
-	chars = (*env)->GetStringChars(env, record->deviceAddress, NULL);
+	chars = JAVA_ENV_CHECK(GetStringChars(env, record->deviceAddress, NULL));
 	localString = CFStringCreateWithCharacters (kCFAllocatorDefault, chars, (*env)->GetStringLength(env, record->deviceAddress));
-	(*env)->ReleaseStringChars(env, record->deviceAddress, chars);
+	JAVA_ENV_CHECK(ReleaseStringChars(env, record->deviceAddress, chars));
 
 	err = IOBluetoothCFStringToDeviceAddress( localString, &btAddress );
 	osRecord->aDevice = IOBluetoothDeviceCreateWithAddress( &btAddress);
@@ -596,11 +572,12 @@ void  asyncSearchServices(void* in) {
 	printMessage("asyncSearchServices: exiting", DEBUG_INFO_LEVEL);
 	
 }
-void getServiceAttributes(void *in) {
+void getServiceAttributes(void *voidPtr) {
 	
+	todoListRoot					*aRoot;
+	threadPassType					*aTypePtr;
 	jint							j, numAttr;
 	jint							*attributes;
-	populateAttributesRec			*params = (populateAttributesRec*)in;
 	JNIEnv							*env;
 	jint							jErr;
 	jclass							serviceClass;
@@ -617,33 +594,40 @@ void getServiceAttributes(void *in) {
 	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
+	aRoot = (todoListRoot*)voidPtr;
+	aTypePtr = getNextToDoItem(aRoot);
 	
-	serviceClass = JAVA_ENV_CHECK(GetObjectClass(env, params->serviceRecord));
-	serviceHandleID = JAVA_ENV_CHECK(GetFieldID(env, serviceClass, "handle", "I"));
-	serviceHandle = JAVA_ENV_CHECK(GetIntField(env, params->serviceRecord, serviceHandleID));
-	/* YUCK! */
-	serviceRef = (IOBluetoothSDPServiceRecordRef)serviceHandle;
-	
-	
-	numAttr = (*env)->GetArrayLength(env, params->attrSet);
-	attributes = (*env)->GetIntArrayElements(env, params->attrSet, NULL);
-	jHashtableClass = (*env)->FindClass(env, "java/util/Hashtable");
-	servRecordHashField = (*env)->GetFieldID(env, serviceClass, "attributes", "Ljava/util/Hashtable;");
-	hashTable = (*env)->GetObjectField(env, params->serviceRecord, servRecordHashField);
-	setAttribute = (*env)->GetMethodID(env, jHashtableClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-	intClass = (*env)->FindClass(env, "java/lang/Integer");
-	intConstructor = (*env)->GetMethodID(env, intClass, "<init>", "(I)V");
-	
-	for(j=0; j<numAttr;j++) {
-		IOBluetoothSDPDataElementRef	dataElement;
-		jobject							jDataElement;
-		jobject							jResult;
-		jobject							attributeID;
+	while(aTypePtr){
+		populateAttributesRec			*params = aTypePtr->dataReq.populateAttrPtr;
 		
-		attributeID = (*env)->NewObject(env, intClass, intConstructor, attributes[j]);
-		dataElement = IOBluetoothSDPServiceRecordGetAttributeDataElement(serviceRef, attributes[j]);
-		jDataElement = getjDataElement(env, dataElement);
-		jResult = JAVA_ENV_CHECK(CallObjectMethod(env, hashTable, setAttribute, attributeID, jDataElement));
+		serviceClass = JAVA_ENV_CHECK(GetObjectClass(env, params->serviceRecord));
+		serviceHandleID = JAVA_ENV_CHECK(GetFieldID(env, serviceClass, "handle", "I"));
+		serviceHandle = JAVA_ENV_CHECK(GetIntField(env, params->serviceRecord, serviceHandleID));
+		/* YUCK! */
+		serviceRef = (IOBluetoothSDPServiceRecordRef)serviceHandle;
+	
+	
+		numAttr = JAVA_ENV_CHECK(GetArrayLength(env, params->attrSet));
+		attributes = JAVA_ENV_CHECK(GetIntArrayElements(env, params->attrSet, NULL));
+		jHashtableClass = JAVA_ENV_CHECK(FindClass(env, "java/util/Hashtable"));
+		servRecordHashField = JAVA_ENV_CHECK(GetFieldID(env, serviceClass, "attributes", "Ljava/util/Hashtable;"));
+		hashTable = JAVA_ENV_CHECK(GetObjectField(env, params->serviceRecord, servRecordHashField));
+		setAttribute = JAVA_ENV_CHECK(GetMethodID(env, jHashtableClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"));
+		intClass = JAVA_ENV_CHECK(FindClass(env, "java/lang/Integer"));
+		intConstructor = JAVA_ENV_CHECK(GetMethodID(env, intClass, "<init>", "(I)V"));
+	
+		for(j=0; j<numAttr;j++) {
+			IOBluetoothSDPDataElementRef	dataElement;
+			jobject							jDataElement;
+			jobject							jResult;
+			jobject							attributeID;
+		
+			attributeID = JAVA_ENV_CHECK(NewObject(env, intClass, intConstructor, attributes[j]));
+			dataElement = IOBluetoothSDPServiceRecordGetAttributeDataElement(serviceRef, attributes[j]);
+			jDataElement = getjDataElement(env, dataElement);
+			jResult = JAVA_ENV_CHECK(CallObjectMethod(env, hashTable, setAttribute, attributeID, jDataElement));
+		}
+		aTypePtr = getNextToDoItem(aRoot);
 	}
 }
 
@@ -658,15 +642,15 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 	
 	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
-	listenerClass = (*env)->GetObjectClass(env, record->listener);
+	listenerClass = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
 	if(status != 0) {
 		respCode = 3;
 	} else {
 		jobject				aUUID;
 		jsize				foundServices;
 		
-		aClass = (*env)->FindClass(env, "javax/bluetooth/UUID");
-		len = (*env)->GetArrayLength(env, record->uuidSet);
+		aClass = JAVA_ENV_CHECK(FindClass(env, "javax/bluetooth/UUID"));
+		len = JAVA_ENV_CHECK(GetArrayLength(env, record->uuidSet));
 		serviceArray = (jobject*)malloc(sizeof(jobject) * len);
 		foundServices=0;
 		for(i=0;i<len;i++) {
@@ -678,13 +662,13 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 			jfieldID						uuidField;
 			
 		// get a UUID
-			aUUID = (*env)->GetObjectArrayElement(env, record->uuidSet, i);
-			uuidField = (*env)->GetFieldID(env, aClass, "uuidValue", "[B");
-			uuidValue = (jbyteArray)(*env)->GetObjectField(env, aUUID, uuidField);
-			arrayLen = (*env)->GetArrayLength(env, uuidValue);
-			UUIDBytes = (*env)->GetByteArrayElements(env, uuidValue, NULL);
+			aUUID = JAVA_ENV_CHECK(GetObjectArrayElement(env, record->uuidSet, i));
+			uuidField = JAVA_ENV_CHECK(GetFieldID(env, aClass, "uuidValue", "[B"));
+			uuidValue = (jbyteArray)JAVA_ENV_CHECK(GetObjectField(env, aUUID, uuidField));
+			arrayLen = JAVA_ENV_CHECK(GetArrayLength(env, uuidValue));
+			UUIDBytes = JAVA_ENV_CHECK(GetByteArrayElements(env, uuidValue, NULL));
 			uuidRef =  IOBluetoothSDPUUIDCreateWithBytes(UUIDBytes, arrayLen);
-			(*env)->ReleaseByteArrayElements(env, uuidValue, UUIDBytes, JNI_ABORT);
+			JAVA_ENV_CHECK(ReleaseByteArrayElements(env, uuidValue, UUIDBytes, JNI_ABORT));
 			osServiceRecord =  IOBluetoothDeviceGetServiceRecordForUUID(record->theInq->aDevice, uuidRef);
 			if(osServiceRecord) {
 				
@@ -692,33 +676,42 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 				jclass					serviceRecImpl;
 				jobject					aServiceRecord;
 				jmethodID				constructor;
-				populateAttributesRec	someParams;
+				populateAttributesRec	someParams, userParams;
 				jint					anArray[5] = {0x0000, 0x0001, 0x0002, 0x0003, 0x0004};
 				jintArray				javaArray;
+				threadPassType			aType, userTypes;
+				todoListRoot			tempRoot;
 					
-				serviceRecImpl = (*env)->FindClass(env, "com/intel/bluetooth/ServiceRecordImpl");
-				constructor = (*env)->GetMethodID(env, serviceRecImpl, "<init>", "(Ljavax/bluetooth/RemoteDevice;I)V");
+				serviceRecImpl = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/ServiceRecordImpl"));
+				constructor = JAVA_ENV_CHECK(GetMethodID(env, serviceRecImpl, "<init>", "(Ljavax/bluetooth/RemoteDevice;I)V"));
 					
-				aServiceRecord = (*env)->NewObject(env, serviceRecImpl, constructor, record->device, (jint)osServiceRecord);
+				aServiceRecord = JAVA_ENV_CHECK(NewObject(env, serviceRecImpl, constructor, record->device, (jint)osServiceRecord));
 				serviceArray[foundServices] = aServiceRecord;
 				foundServices++;
 					
 				/* call for the defaults */
 					
-				javaArray =(*env)->NewIntArray(env, 5);
-				(*env)->SetIntArrayRegion(env, javaArray, 0, 5, anArray); 
+				javaArray =JAVA_ENV_CHECK(NewIntArray(env, 5));
+				JAVA_ENV_CHECK(SetIntArrayRegion(env, javaArray, 0, 5, anArray)); 
 
+				initializeToDoList(&tempRoot);
+				
+				aType.dataReq.populateAttrPtr = &someParams;
+				
 				someParams.serviceRecord = aServiceRecord;
 				someParams.attrSet = javaArray;
-				someParams.validCondition = 0;
-					
-				getServiceAttributes(&someParams);
+				aType.validCondition = FALSE;
+				addToDoItem(&tempRoot, &aType);
 				
-				
+				/* get the extra attributes if any set by the user */
 				if(record->attrSet) {
-					someParams.attrSet = record->attrSet;
-					getServiceAttributes(&someParams);
+					userParams.attrSet = record->attrSet;
+					userParams.serviceRecord = aServiceRecord;
+					userTypes.dataReq.populateAttrPtr = &userParams;
+					userTypes.validCondition = FALSE;
+					addToDoItem(&tempRoot, &userTypes);
 					}
+				getServiceAttributes(&tempRoot);
 
 			}
 		}
@@ -728,16 +721,16 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 			jclass			serviceClass;
 			jmethodID		listenerCallback;
 			
-			serviceClass = (*env)->FindClass(env, "javax/bluetooth/ServiceRecord");
-			theServiceArray = (*env)->NewObjectArray(env, foundServices, serviceClass, NULL);
+			serviceClass = JAVA_ENV_CHECK(FindClass(env, "javax/bluetooth/ServiceRecord"));
+			theServiceArray = JAVA_ENV_CHECK(NewObjectArray(env, foundServices, serviceClass, NULL));
 			for(i=0;i<foundServices;i++ ) {
-				(*env)->SetObjectArrayElement(env, theServiceArray, i, serviceArray[i]);
+				JAVA_ENV_CHECK(SetObjectArrayElement(env, theServiceArray, i, serviceArray[i]));
 			}
 			/* notify the listener */
-			listenerClass = (*env)->GetObjectClass(env, record->listener);
-			listenerCallback = (*env)->GetMethodID(env, listenerClass, "servicesDiscovered", "(I[Ljavax/bluetooth/ServiceRecord;)V");
+			listenerClass = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
+			listenerCallback = JAVA_ENV_CHECK(GetMethodID(env, listenerClass, "servicesDiscovered", "(I[Ljavax/bluetooth/ServiceRecord;)V"));
 			
-			(*env)->CallVoidMethod(env, record->listener, listenerCallback, record->theInq->index, theServiceArray);
+			JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCallback, record->theInq->index, theServiceArray));
 			respCode = 1; /*SERVICE_SEARCH_COMPLETED*/
 		} else {
 			respCode = 4; /*SERVICE_SEARCH_NO_RECORDS*/
@@ -749,8 +742,8 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 		/* notify listener of completetion */
 		jmethodID			listenerCompletionCallback;
 	
-		listenerCompletionCallback = (*env)->GetMethodID(env, listenerClass, "serviceSearchCompleted", "(II)V");
-		(*env)->CallVoidMethod(env, record->listener, listenerCompletionCallback, (jint)record->theInq->index, (jint)respCode);
+		listenerCompletionCallback = JAVA_ENV_CHECK(GetMethodID(env, listenerClass, "serviceSearchCompleted", "(II)V"));
+		JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCompletionCallback, (jint)record->theInq->index, (jint)respCode));
 
 	}
 	
@@ -762,7 +755,7 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 void RFCOMMConnect(void* voidPtr) {
 
 	todoListRoot		*pendingConnections;
-	threadPassType		aType;
+	threadPassType		*aTypePtr;
 	jint				jErr;
 	JNIEnv				*env;
 
@@ -772,14 +765,14 @@ void RFCOMMConnect(void* voidPtr) {
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	pendingConnections = (todoListRoot*)voidPtr;
-	aType = getNextToDoItem(pendingConnections);
-	while(aType.voidPtr ) {
+	aTypePtr = getNextToDoItem(pendingConnections);
+	while(aTypePtr ) {
 		IOReturn			err;
 		connectRec			*currentRequest;
 		macSocket			*aSocket;
 		
 								
-		currentRequest = aType.connectPtr;
+		currentRequest = aTypePtr->dataReq.connectPtr;
 		aSocket = getMacSocket(currentRequest->socket);
 		if(aSocket != NULL) {
 			BluetoothDeviceAddress	anAddress;
@@ -825,11 +818,11 @@ void RFCOMMConnect(void* voidPtr) {
 			}
 				
 			IOBluetoothObjectRelease(devRef);
-			if(currentRequest->validCondition)
-				pthread_cond_signal(& (currentRequest->callComplete));
+			if(aTypePtr->validCondition)
+				pthread_cond_signal(& (aTypePtr->callComplete));
 		}
 		
-		aType = getNextToDoItem(pendingConnections);
+		aTypePtr = getNextToDoItem(pendingConnections);
 	}
 
 	printMessage("Exiting RFCOMMConnect", DEBUG_INFO_LEVEL);
@@ -902,7 +895,7 @@ void rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCo
 
 void getLocalDeviceName(void	*voidPtr) {
 	todoListRoot		*pendingNameReqs;
-	threadPassType		aType;
+	threadPassType		*aTypePtr;
 	jint				jErr;
 	JNIEnv				*env;
 
@@ -912,10 +905,10 @@ void getLocalDeviceName(void	*voidPtr) {
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	pendingNameReqs = (todoListRoot*)voidPtr;
-	aType = getNextToDoItem(pendingNameReqs);
-	while(aType.voidPtr ) {
+	aTypePtr = getNextToDoItem(pendingNameReqs);
+	while(aTypePtr ) {
 		IOReturn			err;
-		localNameRec		*currentRequest = aType.localNamePtr;
+		localNameRec		*currentRequest = aTypePtr->dataReq.localNamePtr;
 		BluetoothDeviceName	theUTFName;
 		
 		err = IOBluetoothLocalDeviceReadName(theUTFName, NULL, NULL, NULL);
@@ -926,17 +919,17 @@ void getLocalDeviceName(void	*voidPtr) {
 			JAVA_ENV_CHECK(DeleteLocalRef(env, jName));
 		} /* else the name remains null */
 		
-		if(currentRequest->validCondition)
-			pthread_cond_signal(& (currentRequest->callComplete));
+		if(aTypePtr->validCondition)
+			pthread_cond_signal(& (aTypePtr->callComplete));
 		
-		aType = getNextToDoItem(pendingNameReqs);
+		aTypePtr = getNextToDoItem(pendingNameReqs);
 	}
 	printMessage("Exiting getLocalDeviceName", DEBUG_INFO_LEVEL);
 	
 }
 void getLocalDeviceClass(void *voidPtr) {
 	todoListRoot		*pendingDevClsReqs;
-	threadPassType		aType;
+	threadPassType		*aTypePtr;
 	jint				jErr;
 	JNIEnv				*env;
 
@@ -946,10 +939,10 @@ void getLocalDeviceClass(void *voidPtr) {
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	pendingDevClsReqs = (todoListRoot*)voidPtr;
-	aType = getNextToDoItem(pendingDevClsReqs);
-	while(aType.voidPtr ) {
+	aTypePtr = getNextToDoItem(pendingDevClsReqs);
+	while(aTypePtr) {
 		IOReturn			err;
-		localDeviceClassRec	*currentRequest = aType.localDevClassPtr;
+		localDeviceClassRec	*currentRequest = aTypePtr->dataReq.localDevClassPtr;
 		BluetoothClassOfDevice	theDevClass;
 		
 		err = IOBluetoothLocalDeviceReadClassOfDevice(&theDevClass, NULL, NULL, NULL);
@@ -966,9 +959,9 @@ void getLocalDeviceClass(void *voidPtr) {
 			JAVA_ENV_CHECK(DeleteLocalRef(env, jLocalDevClass));
 		} /* else the object remains null */
 
-		if(currentRequest->validCondition)
-			pthread_cond_signal(& (currentRequest->callComplete));
-		aType = getNextToDoItem(pendingDevClsReqs);
+		if(aTypePtr->validCondition)
+			pthread_cond_signal(& (aTypePtr->callComplete));
+		aTypePtr = getNextToDoItem(pendingDevClsReqs);
 	}
 	printMessage("Exiting getLocalDeviceClass", DEBUG_INFO_LEVEL);
 
@@ -999,7 +992,7 @@ IOReturn getCurrentModeInternal(int		*mode) {
 
 void getLocalDiscoveryMode(void *voidPtr){
 	todoListRoot		*aRoot;
-	threadPassType		aType;
+	threadPassType		*aTypePtr;
 	jint				jErr;
 	JNIEnv				*env;
 
@@ -1009,18 +1002,18 @@ void getLocalDiscoveryMode(void *voidPtr){
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	aRoot = (todoListRoot*)voidPtr;
-	aType = getNextToDoItem(aRoot);
-	while(aType.voidPtr ) {
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr) {
 		IOReturn				err;
-		getDiscoveryModeRec		*currentRequest = aType.getDiscoveryModePtr;
+		getDiscoveryModeRec		*currentRequest = aTypePtr->dataReq.getDiscoveryModePtr;
 		int						mode=0;
 		
 		err = getCurrentModeInternal(&mode);
 		currentRequest->mode = mode;
 
-		if(currentRequest->validCondition)
-			pthread_cond_signal(& (currentRequest->callComplete));
-		aType = getNextToDoItem(aRoot);
+		if(aTypePtr->validCondition)
+			pthread_cond_signal(& (aTypePtr->callComplete));
+		aTypePtr = getNextToDoItem(aRoot);
 	}
 	printMessage("Exiting getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
 }
@@ -1028,7 +1021,7 @@ void getLocalDiscoveryMode(void *voidPtr){
 
 void setLocalDiscoveryMode(void *voidPtr){
 	todoListRoot		*aRoot;
-	threadPassType		aType;
+	threadPassType		*aTypePtr;
 	jint				jErr;
 	JNIEnv				*env;
 
@@ -1038,10 +1031,10 @@ void setLocalDiscoveryMode(void *voidPtr){
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	aRoot = (todoListRoot*)voidPtr;
-	aType = getNextToDoItem(aRoot);
-	while(aType.voidPtr ) {
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr) {
 		IOReturn				err;
-		setDiscoveryModeRec		*currentRequest = aType.setDiscoveryModePtr;
+		setDiscoveryModeRec		*currentRequest = aTypePtr->dataReq.setDiscoveryModePtr;
 		int						mode=0;
 		
 		err = getCurrentModeInternal(&mode);
@@ -1053,10 +1046,10 @@ void setLocalDiscoveryMode(void *voidPtr){
 		
 		currentRequest->mode = mode;
 
-		if(currentRequest->validCondition)
-			pthread_cond_signal(& (currentRequest->callComplete));
+		if(aTypePtr->validCondition)
+			pthread_cond_signal(& (aTypePtr->callComplete));
 		
-		aType = getNextToDoItem(aRoot);
+		aTypePtr = getNextToDoItem(aRoot);
 	}
 	printMessage("Exiting getLocalDiscoveryMode", DEBUG_INFO_LEVEL);
 
@@ -1065,7 +1058,7 @@ void setLocalDiscoveryMode(void *voidPtr){
 void rfcommSendData(void *voidPtr) {
 
 	todoListRoot		*aRoot;
-	threadPassType		aType;
+	threadPassType		*aTypePtr;
 	jint				jErr;
 	JNIEnv				*env;
 
@@ -1075,10 +1068,10 @@ void rfcommSendData(void *voidPtr) {
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
 	aRoot = (todoListRoot*)voidPtr;
-	aType = getNextToDoItem(aRoot);
-	while(aType.voidPtr ) {
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr) {
 		IOReturn				err;
-		sendRFCOMMDataRec		*currentRequest = aType.sendRFCOMMDataPtr;
+		sendRFCOMMDataRec		*currentRequest = aTypePtr->dataReq.sendRFCOMMDataPtr;
 		macSocket				*aSocket;
 		UInt32					sent;
 
@@ -1091,8 +1084,77 @@ void rfcommSendData(void *voidPtr) {
 		/* clean up the memory */
 		free( currentRequest->bytes);
 		free(currentRequest);
-		aType = getNextToDoItem(aRoot);
+		aTypePtr = getNextToDoItem(aRoot);
 	}
 	printMessage("Exiting rfcommSendData", DEBUG_INFO_LEVEL);
 }
+void getRemoteDeviceFriendlyName(void *voidPtr) {
+		
+	todoListRoot		*aRoot;
+	threadPassType		*aTypePtr;
+	jint				jErr;
+	JNIEnv				*env;
 
+
+	printMessage("Entering getRemoteDeviceFriendlyName", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+
+	aRoot = (todoListRoot*)voidPtr;
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr ) {
+		IOReturn					err;
+		getRemoteNameRec			*currentRequest = aTypePtr->dataReq.getRemoteNamePtr;
+		BluetoothDeviceAddress		btAddress;
+		IOBluetoothDeviceRef		aDevRef;
+		CFStringRef					localString;
+		const jchar					*chars;
+		int							length;
+		BluetoothDeviceName			aName;
+		
+		chars = JAVA_ENV_CHECK(GetStringChars(env, currentRequest->address, NULL));
+		length = JAVA_ENV_CHECK(GetStringLength(env, currentRequest->address));
+		localString = CFStringCreateWithCharacters (kCFAllocatorDefault, chars, length);
+		JAVA_ENV_CHECK(ReleaseStringChars(env, currentRequest->address, chars));
+		CFRelease(localString);
+		
+		err = IOBluetoothCFStringToDeviceAddress( localString, &btAddress );
+		aDevRef = IOBluetoothDeviceCreateWithAddress( &btAddress);
+		localString = IOBluetoothDeviceGetName(aDevRef);
+		if(localString != NULL) {
+			CFRange			range;
+			UniChar			*charBuf;
+				
+			range.location = 0;
+			range.length = CFStringGetLength(localString);
+				
+			charBuf = malloc(sizeof(UniChar) * range.length);
+			CFStringGetCharacters(localString, range, charBuf);
+				
+			currentRequest->result = JAVA_ENV_CHECK(NewString(env, (jchar *)charBuf, (jsize)range.length));
+			free(charBuf);
+		} 
+
+		if(currentRequest->alwaysAsk || (localString==NULL)){
+			// we contact the remote device
+			err = IOBluetoothDeviceRemoteNameRequest(aDevRef, NULL, NULL, aName);
+			if(err) {
+				/* TODO add some details */
+				jclass				ioExp;
+				jmethodID			defaultCnstr;
+				
+				ioExp = JAVA_ENV_CHECK(FindClass(env, "java/io/IOException"));
+				defaultCnstr = JAVA_ENV_CHECK(GetMethodID(env, ioExp, "<init>", "()V"));
+				currentRequest->errorException = JAVA_ENV_CHECK(NewObject(env, ioExp, defaultCnstr));
+			} else {
+				currentRequest->result = JAVA_ENV_CHECK(NewStringUTF(env, (char*)aName));
+			}
+		} 
+	
+		if(aTypePtr->validCondition)
+			pthread_cond_signal(& (aTypePtr->callComplete));
+		
+		aTypePtr = getNextToDoItem(aRoot);
+	}
+	printMessage("Exiting getRemoteDeviceFriendlyName", DEBUG_INFO_LEVEL);
+}
