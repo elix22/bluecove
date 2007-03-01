@@ -537,6 +537,32 @@ void longToAddress(jlong	aLong, BluetoothDeviceAddress*	anAddress) {
 
 }
 
+void doSynchronousTask(CFRunLoopSourceRef  theSource, threadPassType  *typeMaskPtr) {
+	pthread_mutex_t			callInProgress;
+	CFRunLoopSourceContext	aContext={0};
+	todoListRoot			*todoListPtr;
+	
+	CFRunLoopSourceGetContext(theSource, &aContext);
+	todoListPtr = (todoListRoot*)aContext.info;
+	
+	addToDoItem(todoListPtr, typeMaskPtr);
+	if(inOSXThread()) {
+		typeMaskPtr->validCondition = FALSE;
+		aContext.perform(todoListPtr);
+	} else {
+		pthread_cond_init(& (typeMaskPtr->callComplete), NULL);
+		pthread_mutex_init(&callInProgress, NULL);
+		pthread_mutex_lock(&callInProgress);
+		typeMaskPtr->validCondition = TRUE;
+		CFRunLoopSourceSignal(theSource);
+		CFRunLoopWakeUp(s_runLoop);
+		pthread_cond_wait(& (typeMaskPtr->callComplete), &callInProgress);
+		pthread_mutex_unlock(&callInProgress);
+		pthread_mutex_destroy(&callInProgress);
+		pthread_cond_destroy(&typeMaskPtr->callComplete);
+	}
+}
+
 /* in order to avoid deadlocks we need to determine if we're in the OS X thread before halting the current thread */
 int		inOSXThread(void) {
 		CFRunLoopRef				aRunLoopRef = CFRunLoopGetCurrent();

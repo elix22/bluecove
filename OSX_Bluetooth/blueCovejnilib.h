@@ -18,7 +18,8 @@
  *
  */
  
- 
+#ifndef __BLUE_COVE_JNI_LIB__INCLUDED
+#define __BLUE_COVE_JNI_LIB__INCLUDED 
 #include <AvailabilityMacros.h>
 #define BLUETOOTH_VERSION_USE_CURRENT
 
@@ -149,8 +150,6 @@ typedef struct searchServicesRec {
 typedef struct populateAttributesRec {
 	jobject			serviceRecord;
 	jintArray		attrSet;
-	pthread_cond_t	waiter;
-	jboolean		validCondition;
 	jboolean		result;
 } populateAttributesRec;
 
@@ -160,8 +159,6 @@ typedef struct connectRec {
 	jlong			address;
 	jint			channel;
 	jthrowable		errorException;
-	char			validCondition;
-	pthread_cond_t	callComplete;
 } connectRec;
 
 typedef struct	sendRFCOMMDataRec {
@@ -172,35 +169,36 @@ typedef struct	sendRFCOMMDataRec {
 
 typedef struct localNameRec {
 	jstring			aName;
-	char			validCondition;
-	pthread_cond_t	callComplete;
 } localNameRec;
 
 typedef struct localDeviceClassRec {
 	jobject			devClass;
-	char			validCondition;
-	pthread_cond_t	callComplete;
 } localDeviceClassRec;
 
 typedef struct setDiscoveryModeRec {
 	jint			mode;
 	jthrowable		errorException;
-	char			validCondition;
-	pthread_cond_t	callComplete;
 } setDiscoveryModeRec;
 
 typedef struct getDiscoveryModeRec {
 	jint			mode;
-	char			validCondition;
-	pthread_cond_t	callComplete;
 } getDiscoveryModeRec;
+typedef struct getRemoteNameRec {
+	jstring			address;
+	jboolean		alwaysAsk;
+	jstring			result;
+	jthrowable		errorException;
+} getRemoteNameRec;
  /**
  * ----------------------------------------------
  * structures to maintain thread safety
  * ----------------------------------------------
  */ 
  
-typedef union threadPassType {
+typedef struct threadPassType {
+	char					validCondition;
+	pthread_cond_t			callComplete;	
+	union {
 		getServiceHandlesRec		*getSrvHandlePtr;
 		searchServicesRec			*searchSrvPtr;
 		populateAttributesRec		*populateAttrPtr;
@@ -210,11 +208,13 @@ typedef union threadPassType {
 		localDeviceClassRec			*localDevClassPtr;
 		setDiscoveryModeRec			*setDiscoveryModePtr;
 		getDiscoveryModeRec			*getDiscoveryModePtr;
+		getRemoteNameRec			*getRemoteNamePtr;
 		void						*voidPtr;
+	}						dataReq;
 	}						threadPassType;
 typedef struct todoListItem {
 	struct todoListItem		*next;
-	threadPassType			type;
+	threadPassType			*threadPass;
 	} todoListItem;
 	
 typedef struct todoListRoot {
@@ -252,9 +252,9 @@ void				throwIOException(JNIEnv *env, const char *msg);
 jobject				getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement);
 void				setBreakPoint(void);
 void				initializeToDoList(todoListRoot *rootPtr);
-void				addToDoItem(todoListRoot *rootPtr, threadPassType aRec);
-void				deleteToDoItem(todoListRoot *rootPtr, threadPassType aRec);
-threadPassType		getNextToDoItem(todoListRoot *rootPtr);
+void				addToDoItem(todoListRoot *rootPtr, threadPassType* aRecPtr);
+void				deleteToDoItem(todoListRoot *rootPtr, threadPassType* aRecPtr);
+threadPassType*		getNextToDoItem(todoListRoot *rootPtr);
 void				longToAddress(jlong	aLong, BluetoothDeviceAddress	*btDevAddress);
 void				RFCOMMConnect(void* voidPtr);
 void				rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCon, IOBluetoothRFCOMMChannelEvent *event);
@@ -264,6 +264,8 @@ void				getLocalDeviceClass(void *voidPtr);
 void				getLocalDiscoveryMode(void *voidPtr);
 void				setLocalDiscoveryMode(void *voidPtr);
 IOReturn			getCurrentModeInternal(int *mode);
+void				doSynchronousTask(CFRunLoopSourceRef  theSource, threadPassType  *typeMaskPtr);
+void				getRemoteDeviceFriendlyName(void *voidPtr);
 /* Library Globals */
 extern 	currInq					*s_inquiryList;
 extern 	currServiceInq			*s_serviceInqList;
@@ -279,6 +281,7 @@ extern	CFRunLoopSourceRef		s_LocalDeviceClassRequest;
 extern	CFRunLoopSourceRef		s_LocalDeviceNameRequest;
 extern	CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;
 extern	CFRunLoopSourceRef		s_LocalDeviceGetDiscoveryMode;
+extern 	CFRunLoopSourceRef		s_RemoteDeviceGetFriendlyName;
 extern 	jobject					s_systemProperties;
 extern 	const char*				s_errorBase;
 extern 	char					s_errorBuffer[];
@@ -286,3 +289,5 @@ extern	macSocket*				s_openSocketList;
 
 
  
+#endif
+

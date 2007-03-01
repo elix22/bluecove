@@ -1,13 +1,18 @@
-#Tue Feb 27 22:09:18 HST 2007
+#Thu Mar 01 00:51:33 HST 2007
+cdt.managedbuild.config.macosx.so.debug.1963325139/internalBuilder/enabled=false
+cdt.managedbuild.config.macosx.so.debug.1963325139/internalBuilder/ignoreErr=true
 cdt.managedbuild.config.macosx.so.debug.40568665/internalBuilder/enabled=false
 cdt.managedbuild.config.macosx.so.debug.40568665/internalBuilder/ignoreErr=true
 cdt.managedbuild.config.macosx.so.release.647732503/internalBuilder/enabled=false
 cdt.managedbuild.config.macosx.so.release.647732503/internalBuilder/ignoreErr=true
 eclipse.preferences.version=1
+environment/buildEnvironmentInclude/cdt.managedbuild.config.macosx.so.debug.1963325139=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
 environment/buildEnvironmentInclude/cdt.managedbuild.config.macosx.so.debug.40568665=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
 environment/buildEnvironmentInclude/cdt.managedbuild.config.macosx.so.release.647732503=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="CPATH" operation\="remove"/>\n<variable name\="C_INCLUDE_PATH" operation\="remove"/>\n</environment>\n
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.macosx.so.debug.1963325139=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="LIBRARY_PATH" operation\="remove"/>\n</environment>\n
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.macosx.so.debug.40568665=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="LIBRARY_PATH" operation\="remove"/>\n</environment>\n
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.macosx.so.release.647732503=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment>\n<variable name\="LIBRARY_PATH" operation\="remove"/>\n</environment>\n
 environment/project=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
+environment/project/cdt.managedbuild.config.macosx.so.debug.1963325139=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
 environment/project/cdt.managedbuild.config.macosx.so.debug.40568665=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n
 environment/project/cdt.managedbuild.config.macosx.so.release.647732503=<?xml version\="1.0" encoding\="UTF-8"?>\n<environment/>\n

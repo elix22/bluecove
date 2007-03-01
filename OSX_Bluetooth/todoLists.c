@@ -31,7 +31,7 @@ void initializeToDoList(todoListRoot *rootPtr){
 	rootPtr->listHead = NULL;
 
 }
-void addToDoItem(todoListRoot *rootPtr, threadPassType aRec){
+void addToDoItem(todoListRoot *rootPtr, threadPassType *aRecPtr){
 		
 	todoListItem			*anItem;
 	todoListItem			*newItem;
@@ -39,7 +39,7 @@ void addToDoItem(todoListRoot *rootPtr, threadPassType aRec){
 	/* initialize a new item*/
 	newItem = (todoListItem*) malloc(sizeof(todoListItem));
 	newItem->next = NULL;
-	newItem->type = aRec;
+	newItem->threadPass = aRecPtr;
 
 	pthread_mutex_lock(&(rootPtr->listLock));
 	/* special case if first on list */
@@ -54,7 +54,7 @@ void addToDoItem(todoListRoot *rootPtr, threadPassType aRec){
 	pthread_mutex_unlock(&(rootPtr->listLock));
 }
 
-void deleteToDoItem(todoListRoot *rootPtr, threadPassType aRec){
+void deleteToDoItem(todoListRoot *rootPtr, threadPassType *aRecPtr){
 	
 	todoListItem			*previousItem;
 	todoListItem*			toFree;
@@ -62,7 +62,7 @@ void deleteToDoItem(todoListRoot *rootPtr, threadPassType aRec){
 	pthread_mutex_lock(&(rootPtr->listLock));
 	/* check if its the first item */
 	if(rootPtr->listHead) {
-		if(rootPtr->listHead->type.voidPtr == aRec.voidPtr) {
+		if(rootPtr->listHead->threadPass->dataReq.voidPtr == aRecPtr->dataReq.voidPtr) {
 			toFree = rootPtr->listHead;
 			rootPtr->listHead = rootPtr->listHead->next;
 			free(toFree);
@@ -70,7 +70,7 @@ void deleteToDoItem(todoListRoot *rootPtr, threadPassType aRec){
 	
 			/* find the item*/
 			previousItem = rootPtr->listHead;
-			while( (previousItem->next !=NULL) && (previousItem->next->type.voidPtr != aRec.voidPtr))
+			while( (previousItem->next !=NULL) && (previousItem->next->threadPass->dataReq.voidPtr != aRecPtr->dataReq.voidPtr))
 					previousItem = previousItem->next;
 			if(previousItem->next == NULL) {
 				printMessage("deleteToDoItem asked to delete non existant item!", DEBUG_ERROR_LEVEL);
@@ -85,8 +85,8 @@ void deleteToDoItem(todoListRoot *rootPtr, threadPassType aRec){
 
 
 }
-threadPassType getNextToDoItem(todoListRoot *rootPtr){
-	threadPassType		aType ={0};
+threadPassType* getNextToDoItem(todoListRoot *rootPtr){
+	threadPassType		*aTypePtr=NULL;
 	todoListItem		*toFree;
 	
 	pthread_mutex_lock(&(rootPtr->listLock));
@@ -94,10 +94,11 @@ threadPassType getNextToDoItem(todoListRoot *rootPtr){
 	toFree = rootPtr->listHead;
 	if(toFree) {
 		rootPtr->listHead = toFree->next;
-		aType = toFree->type;
+		aTypePtr = toFree->threadPass;
 		free(toFree);
 	}
 
 	pthread_mutex_unlock(&(rootPtr->listLock));
-	return aType;
+	return aTypePtr;
 }
+
