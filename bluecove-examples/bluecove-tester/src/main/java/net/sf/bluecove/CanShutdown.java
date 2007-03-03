@@ -20,31 +20,10 @@
  */ 
 package net.sf.bluecove;
 
-public interface Consts {
+/**
+ * @author vlads
+ */
+public interface CanShutdown {
 
-	public static final String RESPONDER_UUID = "B1011111111111111111111111110001";
-
-	public static final String RESPONDER_SERVERNAME = "bluecoveResponderSrv";
-
-	public static final int reconnectSleep = 1000;
-	
-    public static final int DEVICE_COMPUTER = 0x0100;
-
-    public static final int DEVICE_PHONE = 0x0200;
-    
-	public static final int TEST_REPLY_OK = 77;
-	
-	public static final int TEST_TERMINATE = 99;
-	
-	public static final int TEST_START = 1;
-	
-	public static final int TEST_STRING = 1;
-	
-	public static final int TEST_STRING_BACK = 2;
-	
-	public static final int TEST_BYTE = 3;
-	
-	public static final int TEST_BYTE_BACK = 4;
-	
-	public static final int TEST_LAST = 4;
+	public void shutdown();
 }
