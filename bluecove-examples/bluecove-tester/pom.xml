@@ -13,10 +13,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>bluecove-microemu-starter</artifactId>
-    <name>bluecove-microemu-starter</name>
+    <artifactId>bluecove-tester</artifactId>
+    <name>bluecove-tester</name>
 
-    <description>Project used to start MIDlet application in eclipse</description>
+    <description>Project used to test bluecove, Contains MIDlet responder application and J2SE application</description>
 
     <dependencies>
 
@@ -31,6 +31,7 @@
             <artifactId>microemulator</artifactId>
             <version>${me2Version}</version>
         </dependency>
+
 
     </dependencies>
 

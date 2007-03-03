@@ -10,13 +10,13 @@
     <parent>
         <groupId>net.sf.bluecove</groupId>
         <artifactId>bluecove</artifactId>
-        <version>1.2.2-SNAPSHOT</version>
+        <version>1.2.2</version>
         <relativePath>../bluecove/pom.xml</relativePath>
     </parent>
     -->
 
     <groupId>net.sf.bluecove</groupId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.2</version><!--bluecove-version-->
     <artifactId>bluecove-examples</artifactId>
     <name>bluecove-examples</name>
     <packaging>pom</packaging>
@@ -56,6 +56,7 @@
     </properties>
 
     <modules>
+        <module>bluecove-tester</module>
         <module>bluecove-webstart</module>
         <module>bluecove-microemu-starter</module>
     </modules>
