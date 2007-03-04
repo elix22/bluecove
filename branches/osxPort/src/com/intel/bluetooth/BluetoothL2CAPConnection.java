@@ -156,4 +156,13 @@ public class BluetoothL2CAPConnection implements L2CAPConnection {
 		closeSocket(socket);
 	}
 	private native void closeSocket(int aSocket);
+	
+	public void finalize() throws Throwable {
+		try {
+			if(!closing) close();
+		} catch (IOException exp) {
+			System.err.println("IOException attempting to close abanded Bluetooth Exception");
+			exp.printStackTrace();
+		}
+	}
 }

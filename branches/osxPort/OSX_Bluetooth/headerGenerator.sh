@@ -29,8 +29,6 @@ echo "/* DO NOT EDIT, this file is machine generated */" > ../Version.h
 echo "#define BUILD_VERSION \"$CURRENT\"" >> ../Version.h
 
 echo "Starting java header build"
-#echo -n "Working Directory "
-pwd
 
 javah -classpath ../../bluecove/bin -force -o ../JavaHeaders.h com.intel.bluetooth.BluetoothInputStream com.intel.bluetooth.BluetoothL2CAPConnection com.intel.bluetooth.BluetoothOBEXConnection com.intel.bluetooth.BluetoothRFCOMMConnection com.intel.bluetooth.DiscoveryAgentImpl com.intel.bluetooth.LocalDeviceImpl com.intel.bluetooth.RemoteDeviceImpl com.intel.bluetooth.ServiceRecordImpl
 echo "Java headers complete"
