@@ -5,7 +5,7 @@
 
 == About ==
 
-BlueCove is a LGPL licensed JSR-82 implementation that currently interfaces with
+BlueCove is a LGPL licensed JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
 the Microsoft Bluetooth stack. Originally developed by Intel Research and
 currently maintained by volunteers.
 
@@ -40,7 +40,7 @@ For maven2 users see [maven2 Using maven2 to build application or MIDlet]
 
 Native Library location
 
-  # By default Native Library is extracted from from jar to temporary directory `${java.io.tmpdir}/bluecove_${user.name}_N` and loaded from this location. 
+  # By default Native Library is extracted from from jar to temporary directory `${java.io.tmpdir}/bluecove_${user.name}_N` and loaded from this location.
   # If you wish to load library (.dll) from another location add this system property `-Dbluecove.native.path=/your/path`.
   # If you wish to load library from default location in path e.g. `%SystemRoot%\system32` or any other location in %PATH% use `-Dbluecove.native.resource=false`
 
