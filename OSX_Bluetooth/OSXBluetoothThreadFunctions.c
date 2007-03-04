@@ -26,8 +26,6 @@
 #include <stdlib.h>
 
 /* library globals */
-currInq					*s_inquiryList;
-currServiceInq			*s_serviceInqList;
 macSocket				*s_openSocketList;
 JavaVM					*s_vm;		
 CFRunLoopRef			s_runLoop;
@@ -42,6 +40,7 @@ CFRunLoopSourceRef		s_LocalDeviceClassRequest;
 CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;
 CFRunLoopSourceRef		s_LocalDeviceGetDiscoveryMode;
 CFRunLoopSourceRef		s_RemoteDeviceGetFriendlyName;
+CFRunLoopSourceRef		s_GetPreknownDevices;
 jobject					s_systemProperties;
 
 
@@ -66,10 +65,6 @@ void* cocoaWrapper(void* v_pthreadCond) {
 void* runLoopThread(void* v_threadValues) {
 	jint					jErr;
 	JNIEnv					*env;
-	/* TODO add mutexes for these to be safe */
-	doInquiryRec			inquiryRec;
-	cancelInquiryRec		cancelRec;
-	searchServicesRec		searchSrvStartRec;
 	todoListRoot			pendingConnections;
 	todoListRoot			rfCOMMDataQueue;
 	todoListRoot			pendingLocalDeviceRequests;
@@ -78,6 +73,10 @@ void* runLoopThread(void* v_threadValues) {
 	todoListRoot			setDiscoveryModeList;
 	todoListRoot			populateAttributesList;
 	todoListRoot			getRemoteDevFriendlyNameList;
+	todoListRoot			getPreknownDeviceList;
+	todoListRoot			startInquiryList;
+	todoListRoot			cancelInquiryList;
+	todoListRoot			searchSrvStartList;
 	int						propGenErr;
 	
 
@@ -103,22 +102,24 @@ void* runLoopThread(void* v_threadValues) {
 		s_runLoop = CFRunLoopGetCurrent();
 				
 		/* create/install the inquiry start source */
-		aContext.info = &inquiryRec;
-
+		initializeToDoList(&startInquiryList);
+		aContext.info = &startInquiryList;
 		aContext.perform = performInquiry;
 		s_inquiryStartSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
 		CFRunLoopAddSource(s_runLoop, s_inquiryStartSource, kCFRunLoopDefaultMode);
 		printMessage("Registed inquiry Start Source", DEBUG_INFO_LEVEL);
 		
 		/* create/install the inquiry stop source */
-		aContext.info = &cancelRec;
+		initializeToDoList(&cancelInquiryList);
+		aContext.info = &cancelInquiryList;
 		aContext.perform = cancelInquiry;
 		s_inquiryStopSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
 		CFRunLoopAddSource(s_runLoop, s_inquiryStopSource, kCFRunLoopDefaultMode);
 		printMessage("Registered inquiry Stop Source", DEBUG_INFO_LEVEL);
 		
 		/* create/istall the search services start source */
-		aContext.info = &searchSrvStartRec;
+		initializeToDoList(&searchSrvStartList);
+		aContext.info = &searchSrvStartList;
 		aContext.perform = asyncSearchServices;
 		s_searchServicesStart = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
 		CFRunLoopAddSource(s_runLoop, s_searchServicesStart, kCFRunLoopDefaultMode);
@@ -188,6 +189,14 @@ void* runLoopThread(void* v_threadValues) {
 		s_RemoteDeviceGetFriendlyName = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
 		CFRunLoopAddSource(s_runLoop, s_RemoteDeviceGetFriendlyName, kCFRunLoopDefaultMode);
 		printMessage("Registered get remote device name Source", DEBUG_INFO_LEVEL);
+
+		/* create/install the set discovery mode here */
+		initializeToDoList(&getPreknownDeviceList);
+		aContext.info = &getPreknownDeviceList;
+		aContext.perform = getPreknownDevices;
+		s_GetPreknownDevices = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &aContext);
+		CFRunLoopAddSource(s_runLoop, s_GetPreknownDevices, kCFRunLoopDefaultMode);
+		printMessage("Registered get preknown devices Source", DEBUG_INFO_LEVEL);
 		
 	}
 
@@ -265,116 +274,63 @@ void* runLoopThread(void* v_threadValues) {
 
 
 
-void performInquiry(void *info) {
+void performInquiry(void *voidPtr) {
 
 		/* now in the run loop thread */
-		doInquiryRec				*record = (doInquiryRec*)info;
-		JNIEnv						*env;
-  
-		IOReturn						error;
-		currInq							*inquiryItem, *iter;
-		jint							jError;
+	todoListRoot		*aRoot;
+	threadPassType		*aTypePtr;
+	jint				jError;
+	JNIEnv				*env;
+ 	
 		
-		printMessage("performInquiry: called", DEBUG_INFO_LEVEL);
-		jError = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
-		if(jError != JNI_OK) {
-			printMessage("performInquiry: unable to get java environment!", DEBUG_ERROR_LEVEL);
-		}
+	printMessage("performInquiry: called", DEBUG_INFO_LEVEL);
+	jError = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+	if(jError != JNI_OK) {
+		printMessage("performInquiry: unable to get java environment!", DEBUG_ERROR_LEVEL);
+	}
 		
-		/* Alloc an inquiry item for the list for the current inquiry */
-		inquiryItem = malloc(sizeof(currInq));
-		if(inquiryItem == 0L) {
-			/* can't do much, even constructing an excpetion is too much at this point */
-			printMessage("performInquiry: Ran out of memory!", DEBUG_ERROR_LEVEL);
-			goto performInquiry_cleanup;
-		}
+	aRoot = (todoListRoot*)voidPtr;
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr) {
+		doInquiryRec			*record = aTypePtr->dataReq.doInquiryPtr;
+		IOReturn				error;
+		IOBluetoothDeviceInquiryRef		aRef;
 		
+		aRef = IOBluetoothDeviceInquiryCreateWithCallbackRefCon(record);
+		addInquiry(record->listener, aRef);
 		
-		/* create the list item */
-		inquiryItem->aListener = record->listener;
-		inquiryItem->refCount = 1;
-		inquiryItem->next = 0L;
-		inquiryItem->inquiryStarted = 0;
-		
-		/* store the item in the list */
-		if(!s_inquiryList) {
-			s_inquiryList = inquiryItem;
-		} else {
-			iter = s_inquiryList;
-			while(iter->next != 0L) iter = iter->next;
-			iter->next = inquiryItem;
-		}
-		
-		/* create the inquiry */
-		inquiryItem->anInquiry = IOBluetoothDeviceInquiryCreateWithCallbackRefCon(inquiryItem);
-
-			
 		/* listen for found devices */
-		error = IOBluetoothDeviceInquirySetDeviceFoundCallback(inquiryItem->anInquiry, inquiryDeviceFound);
+		error = IOBluetoothDeviceInquirySetDeviceFoundCallback(aRef, inquiryDeviceFound);
 			if(error != kIOReturnSuccess) {
 				printMessage("performInquiry: IOBluetoothDeviceInquirySetDeviceFoundCallback Failed", DEBUG_ERROR_LEVEL);
 				sprintf(s_errorBuffer, "%s%i", s_errorBase, error);
 				printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
-				inquiryComplete(inquiryItem, inquiryItem->anInquiry, error, TRUE);
-				goto performInquiry_cleanup; /* inquiry error */
+				inquiryComplete(record->listener, aRef, error, TRUE);
+				return;
 			}
-		error = IOBluetoothDeviceInquirySetStartedCallback(inquiryItem->anInquiry,inquiryStarted );
-			if(error != kIOReturnSuccess) {
-				printMessage("performInquiry: IOBluetoothDeviceInquirySetStartedCallback Failed", DEBUG_ERROR_LEVEL);
-				sprintf(s_errorBuffer, "%s%i", s_errorBase, error);
-				printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
-				inquiryComplete(inquiryItem, inquiryItem->anInquiry, error, TRUE);
-				goto performInquiry_cleanup; /* inquiry error */
-			}		
 		/* set the completeion callback */
-		error = IOBluetoothDeviceInquirySetCompleteCallback(inquiryItem->anInquiry, inquiryComplete);
+		error = IOBluetoothDeviceInquirySetCompleteCallback(aRef, inquiryComplete);
 			if(error != kIOReturnSuccess) {
 				printMessage("performInquiry: IOBluetoothDeviceInquirySetCompleteCallback Failed", DEBUG_ERROR_LEVEL);
 				sprintf(s_errorBuffer, "%s%i", s_errorBase, error);
 				printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
-				inquiryComplete(inquiryItem, inquiryItem->anInquiry, error, TRUE);
-				goto performInquiry_cleanup; /* inquiry error */
+				inquiryComplete(record->listener, aRef, error, TRUE);
+				return;
 			}
-		if (record->accessCode == kBluetoothLimitedInquiryAccessCodeLAPValue) 	{
-			inquiryItem->isLimited = 1;
-		/* The following doesn't work. The bit map specifies the Major Service class, since most limited discovery
-			mode devices are more than JUST limited discovery it filters out pretty much everything 
-				error = IOBluetoothDeviceInquirySetSearchCriteria(inquiryItem->anInquiry,
-																kBluetoothServiceClassMajorLimitedDiscoverableMode,
-																kBluetoothDeviceClassMajorAny,
-																kBluetoothDeviceClassMinorAny	);
-				if(error != kIOReturnSuccess) {
-					printMessage("performInquiry: IOBluetoothDeviceInquirySetSearchCriteria Failed", DEBUG_ERROR_LEVEL);
-					sprintf(s_errorBuffer, "%s%i", s_errorBase, error);
-					printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
-					inquiryComplete(inquiryItem, inquiryItem->anInquiry, error, TRUE);
-					goto performInquiry_cleanup; 
-			} else printMessage("performInquiry: IOBluetoothDeviceInquirySetSearchCriteria succeeded", DEBUG_INFO_LEVEL);	
-		*/
-		} else inquiryItem->isLimited = 0;
 		
-		error = IOBluetoothDeviceInquiryStart(inquiryItem->anInquiry);
+		error = IOBluetoothDeviceInquiryStart(aRef);
 			if(error != kIOReturnSuccess) {
 				printMessage("performInquiry: IOBluetoothDeviceInquiryStart Failed", DEBUG_ERROR_LEVEL);
 				sprintf(s_errorBuffer, "%s%i", s_errorBase, error);
 					printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
-					inquiryComplete(inquiryItem, inquiryItem->anInquiry, error, TRUE);
-					goto performInquiry_cleanup; /* inquiry error */
+					inquiryComplete(record->listener, aRef, error, TRUE);
+					return;
 			} else printMessage("performInquiry: IOBluetoothDeviceInquiryStart succeeded", DEBUG_INFO_LEVEL);
 	
+		
+		aTypePtr = getNextToDoItem(aRoot);
+	}
 	
-	/* clean up the doInquiry record */
-performInquiry_cleanup:
-	
-	printMessage("performInquiry: Cleanup started", DEBUG_INFO_LEVEL);
-/*	
-	(*env)->DeleteGlobalRef(env, record->peer);
-	record->peer = NULL;
-	
-	(*env)->DeleteGlobalRef(env, record->listener);
-	record->listener = NULL;
-*/
-	printMessage("performInquiry: Exiting", DEBUG_INFO_LEVEL);
 }
 
 
@@ -391,14 +347,12 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	char							devAddressString[13];
 	jstring							devAddressJString;
 	jint							jErr;
-	currInq							*listener = (currInq*)v_listener;
-	
+	doInquiryRec					*record = (doInquiryRec*)v_listener;
+		
 	printMessage("inquiryDeviceFound called", DEBUG_INFO_LEVEL);
-	if(listener == NULL) printMessage("listener data is NULL!", DEBUG_ERROR_LEVEL);
-	if(listener->aListener == NULL) printMessage("listener jobject is NULL!", DEBUG_ERROR_LEVEL);
 		
 	/* Step 0: check if we're only looking for limited items */
-	if(listener->isLimited) {
+	if(record->accessCode == kBluetoothLimitedInquiryAccessCodeLAPValue) {
 		BluetoothServiceClassMajor	majorClass;
 		
 		majorClass = IOBluetoothDeviceGetServiceClassMajor(deviceRef);
@@ -436,47 +390,33 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	
 	remoteDeviceClass = JAVA_ENV_CHECK(NewObject(env, devCls, constructor, devClass));
 	printMessage("Device Class Object constructed", DEBUG_INFO_LEVEL);
-	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, listener->aListener));
+	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
 	printMessage("Listener Class obtained", DEBUG_INFO_LEVEL);
 	callback = JAVA_ENV_CHECK(GetMethodID(env, listenerCls, "deviceDiscovered", "(Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DeviceClass;)V"));
 	printMessage("Calling callback on listener", DEBUG_INFO_LEVEL);
 	/* call the java callback */
-	JAVA_ENV_CHECK(CallVoidMethod(env, listener->aListener, callback, remoteDev, remoteDeviceClass));
+	JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, callback, remoteDev, remoteDeviceClass));
 	printMessage("Callback returned", DEBUG_INFO_LEVEL);
 }
 
-void inquiryStarted(void * v_listener, IOBluetoothDeviceInquiryRef		inquiryRef	){
-							
-	currInq			*listener = (currInq*)v_listener;						
-	
-	printMessage("inquiryStarted: entered", DEBUG_INFO_LEVEL);
-	if(listener->inquiryStarted) {
-		printMessage("inquiryStarted: Warning, this listener has more than one inquiry running!", DEBUG_WARN_LEVEL);
-	}
-	
-	listener->inquiryStarted ++;
-	printMessage("inquiryStarted: exiting", DEBUG_INFO_LEVEL);
-	
-}
 
-void inquiryComplete(void *						v_listener,
-						IOBluetoothDeviceInquiryRef inquiryRef,
-						IOReturn					error,
-						Boolean						aborted		)
+void inquiryComplete(void * 						userRefCon,
+					IOBluetoothDeviceInquiryRef	inquiryRef,
+					IOReturn					error,
+					Boolean						aborted )
 {
-	JNIEnv							*env;
-	jmethodID						callback;
-	jclass							listenerCls;
-	jint							discType;
-	jint							jErr;
-	currInq							*aPtr;
-	currInq							*listener = (currInq*)v_listener;
+	JNIEnv					*env;
+	jmethodID				callback;
+	jclass					listenerCls;
+	jint					discType;
+	jint					jErr;
+	doInquiryRec			*record  = (doInquiryRec*)userRefCon;
 	
 	printMessage("inquiryComplete: called", DEBUG_INFO_LEVEL);
 
 
 	jErr = (*s_vm)->GetEnv(s_vm, (void**) &env, JNI_VERSION_1_2);
-	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, listener->aListener));
+	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
 	callback = JAVA_ENV_CHECK(GetMethodID(env, listenerCls, "inquiryCompleted", "(I)V"));
 	printMessage("inquiryComplete: got callback", DEBUG_INFO_LEVEL);
 
@@ -489,88 +429,97 @@ void inquiryComplete(void *						v_listener,
 			discType = 0;
 		}
 	}
-
-	JAVA_ENV_CHECK(CallVoidMethod(env, listener->aListener, callback, discType));
+	// remove from the lookup dictionary
+	removeInquiry(record->listener);
+	JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, callback, discType));
 
 	printMessage("inquiryComplete: cleaning up", DEBUG_INFO_LEVEL);
 	
 	/* clean up allocations */
-	JAVA_ENV_CHECK(DeleteGlobalRef(env, listener->aListener));
-	/* pull listener out of the list */
-	if(s_inquiryList == listener) {
-		/* most likely */
-		s_inquiryList = listener->next;
-	} else {
-		aPtr = s_inquiryList;
-		while (aPtr->next != listener) aPtr = aPtr->next;
-		aPtr->next = listener->next;
-	}
-	free(listener);
+	JAVA_ENV_CHECK(DeleteGlobalRef(env, record->listener));
+	free(record);
+	IOBluetoothDeviceInquiryDelete(inquiryRef);
 	printMessage("inquiryComplete: complete", DEBUG_INFO_LEVEL);
 
 }
 
 void	cancelInquiry(void *v_cancel){
-	
-	cancelInquiryRec			*aRec = (cancelInquiryRec*)v_cancel;
-	currInq						*anInquiryListItem = s_inquiryList;
+	todoListRoot				*aRoot;
+	threadPassType				*aTypePtr;
 	JNIEnv						*env;
 	jint						jErr;
+	IOBluetoothDeviceInquiryRef	aRef;
 	
 	printMessage("cancelInquiry: called", DEBUG_INFO_LEVEL);
 	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**) &env, JNI_VERSION_1_2);
+	aRoot = (todoListRoot*)v_cancel;
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr) {
+		cancelInquiryRec			*aRec = aTypePtr->dataReq.cancelInquiryPtr;
+		
+		aRec->success = 0;
+		aRef = getPendingInquiryRef(aRec->listener);
 	
-	
-	// extract the record for this listener
-	
-	while(anInquiryListItem!=NULL && !( (*env)->IsSameObject(env, anInquiryListItem->aListener, aRec->listener)) ) {
-		anInquiryListItem = anInquiryListItem->next;
-	}
-	
-	if(anInquiryListItem) {
-		IOReturn					err;
-	
-		err =	IOBluetoothDeviceInquiryStop(anInquiryListItem->anInquiry);
-		if(!err && (anInquiryListItem->inquiryStarted)) {
-			// active inquiry was stopped
-			aRec->success = 1;
+		if(aRef) {
+			IOReturn					err;
+		
+			// TODO see if this calles the stop callback
+			err =	IOBluetoothDeviceInquiryStop(aRef);
+			if(!err ) {
+				// active inquiry was stopped without error
+				aRec->success = 1;
+			} 
+		} else {
+			printMessage("cancelInquiry: called with a nonexistant inquiry!", DEBUG_WARN_LEVEL);
 		}
-	} else {
-		printMessage("cancelInquiry: called with a nonexistant inquiry!", DEBUG_WARN_LEVEL);
+		// let the java caller proceed
+		if(aTypePtr->validCondition)
+			pthread_cond_signal(& (aTypePtr->callComplete));
+		
+		aTypePtr = getNextToDoItem(aRoot);
 	}
-	// let the java caller proceed
-	if(aRec->validCondition)
-		pthread_cond_signal(&aRec->waiter);
 	
 	// TODO check if the OS calls the inquiry complete function
 	printMessage("cancelInquiry: exiting", DEBUG_INFO_LEVEL);
   }
 
 
-void  asyncSearchServices(void* in) {
+void  asyncSearchServices(void* voidPtr) {
 	/* now in the run loop thread */
-	searchServicesRec			*record = (searchServicesRec*)in;
-	JNIEnv						*env;
-	IOReturn					err;
-	jint						jErr;
-	currServiceInq				*osRecord = record->theInq;
-	BluetoothDeviceAddress		btAddress;
-	CFStringRef					localString;
-	const jchar					*chars;
 	
+	todoListRoot				*aRoot;
+	threadPassType				*aTypePtr;
+	
+	JNIEnv						*env;
+	jint						jErr;
+		
 	printMessage("asyncSearchServices: called", DEBUG_INFO_LEVEL);
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
-	
-	chars = JAVA_ENV_CHECK(GetStringChars(env, record->deviceAddress, NULL));
-	localString = CFStringCreateWithCharacters (kCFAllocatorDefault, chars, (*env)->GetStringLength(env, record->deviceAddress));
-	JAVA_ENV_CHECK(ReleaseStringChars(env, record->deviceAddress, chars));
+	aRoot = (todoListRoot*)voidPtr;
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr) {
+		searchServicesRec			*record = aTypePtr->dataReq.searchSrvPtr;
+		IOReturn					err;
+		BluetoothDeviceAddress		btAddress;
+		CFStringRef					localString;
+		const jchar					*chars;
+		IOBluetoothDeviceRef		aRef;
+		
+		chars = JAVA_ENV_CHECK(GetStringChars(env, record->deviceAddress, NULL));
+		localString = CFStringCreateWithCharacters (kCFAllocatorDefault, chars, (*env)->GetStringLength(env, record->deviceAddress));
+		JAVA_ENV_CHECK(ReleaseStringChars(env, record->deviceAddress, chars));
 
-	err = IOBluetoothCFStringToDeviceAddress( localString, &btAddress );
-	osRecord->aDevice = IOBluetoothDeviceCreateWithAddress( &btAddress);
-	err = IOBluetoothDevicePerformSDPQuery(osRecord->aDevice, bluetoothSDPQueryCallback, in);
-	printMessage("asyncSearchServices: exiting", DEBUG_INFO_LEVEL);
+		err = IOBluetoothCFStringToDeviceAddress( localString, &btAddress );
+		aRef = IOBluetoothDeviceCreateWithAddress( &btAddress);
+		err = IOBluetoothDevicePerformSDPQuery(aRef, bluetoothSDPQueryCallback, record);
+		/* clean up memory alloc*/
+		IOBluetoothObjectRelease(aRef);
+		free(aTypePtr);
+		aTypePtr = getNextToDoItem(aRoot);
+	}
 	
+	printMessage("asyncSearchServices: exiting", DEBUG_INFO_LEVEL);
 }
 void getServiceAttributes(void *voidPtr) {
 	
@@ -669,7 +618,7 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 			UUIDBytes = JAVA_ENV_CHECK(GetByteArrayElements(env, uuidValue, NULL));
 			uuidRef =  IOBluetoothSDPUUIDCreateWithBytes(UUIDBytes, arrayLen);
 			JAVA_ENV_CHECK(ReleaseByteArrayElements(env, uuidValue, UUIDBytes, JNI_ABORT));
-			osServiceRecord =  IOBluetoothDeviceGetServiceRecordForUUID(record->theInq->aDevice, uuidRef);
+			osServiceRecord =  IOBluetoothDeviceGetServiceRecordForUUID(deviceRef, uuidRef);
 			if(osServiceRecord) {
 				
 				/* create the service record ServiceRecordImpl(RemoteDevice device, int handle)*/
@@ -727,24 +676,37 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 				JAVA_ENV_CHECK(SetObjectArrayElement(env, theServiceArray, i, serviceArray[i]));
 			}
 			/* notify the listener */
-			listenerClass = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
-			listenerCallback = JAVA_ENV_CHECK(GetMethodID(env, listenerClass, "servicesDiscovered", "(I[Ljavax/bluetooth/ServiceRecord;)V"));
+				/* but first check if we haven't been cancelled */
+			if(!record->stopped) {
+				listenerClass = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
+				listenerCallback = JAVA_ENV_CHECK(GetMethodID(env, listenerClass, "servicesDiscovered", "(I[Ljavax/bluetooth/ServiceRecord;)V"));
 			
-			JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCallback, record->theInq->index, theServiceArray));
-			respCode = 1; /*SERVICE_SEARCH_COMPLETED*/
+				JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCallback, record->refNum, theServiceArray));
+				respCode = 1; /*SERVICE_SEARCH_COMPLETED*/
+			} else respCode = 2;
 		} else {
 			respCode = 4; /*SERVICE_SEARCH_NO_RECORDS*/
 		}
 		if(serviceArray) free(serviceArray);
+		serviceArray = NULL;
 	}
 				
 	{
 		/* notify listener of completetion */
 		jmethodID			listenerCompletionCallback;
 	
+		/* first remove this search from the active list */
+		removeServiceSearchRec(record->refNum);
 		listenerCompletionCallback = JAVA_ENV_CHECK(GetMethodID(env, listenerClass, "serviceSearchCompleted", "(II)V"));
-		JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCompletionCallback, (jint)record->theInq->index, (jint)respCode));
-
+		JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCompletionCallback, record->refNum, (jint)respCode));
+		/* clean up global references */
+		if(record->attrSet) JAVA_ENV_CHECK(DeleteGlobalRef(env, record->attrSet));
+		if(record->uuidSet) JAVA_ENV_CHECK(DeleteGlobalRef(env, record->uuidSet));
+		JAVA_ENV_CHECK(DeleteGlobalRef(env, record->deviceAddress));
+		JAVA_ENV_CHECK(DeleteGlobalRef(env, record->listener));
+		JAVA_ENV_CHECK(DeleteGlobalRef(env, record->device));
+		free(record);
+		
 	}
 	
 
@@ -1157,4 +1119,62 @@ void getRemoteDeviceFriendlyName(void *voidPtr) {
 		aTypePtr = getNextToDoItem(aRoot);
 	}
 	printMessage("Exiting getRemoteDeviceFriendlyName", DEBUG_INFO_LEVEL);
+}
+
+void getPreknownDevices(void *voidPtr) {		
+	todoListRoot		*aRoot;
+	threadPassType		*aTypePtr;
+	jint				jErr;
+	JNIEnv				*env;
+	jmethodID			cnstr;
+	jclass				remDevCls;
+	
+	printMessage("Entering getPreknownDevices", DEBUG_INFO_LEVEL);
+
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+	remDevCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/RemoteDeviceImpl"));
+	cnstr = JAVA_ENV_CHECK(GetMethodID(env, remDevCls, "<init>", "(Ljava/lang/String;)V"));
+	
+	aRoot = (todoListRoot*)voidPtr;
+	aTypePtr = getNextToDoItem(aRoot);
+	while(aTypePtr ) {
+		getPreknownDevicesRec		*currentRequest = aTypePtr->dataReq.getPreknownDevicesPtr;
+		CFArrayRef					deviceList;
+		CFIndex						i, count;
+		jstring						anAddress;
+		BluetoothDeviceAddress		*btAddress;
+		IOBluetoothDeviceRef		aDevRef;
+		char						utfAddress[13];
+		jobject						jRemDev;
+
+		if(currentRequest->option == 0) {
+			/* looking for cached devices */
+			deviceList = IOBluetoothRecentDevices(0);
+		} else {
+			deviceList = IOBluetoothFavoriteDevices();
+		}
+		count = CFArrayGetCount(deviceList);
+		if(count) {
+			currentRequest->result = JAVA_ENV_CHECK(NewObjectArray(env, count, remDevCls, NULL));
+			
+			for(i=0;i<count;i++) {
+				aDevRef = (IOBluetoothDeviceRef)CFArrayGetValueAtIndex(deviceList, i);
+				btAddress = (BluetoothDeviceAddress*)IOBluetoothDeviceGetAddress(aDevRef);
+				sprintf(utfAddress, "%02x%02x%02x%02x%02x%02x", btAddress->data[0], btAddress->data[1],
+					btAddress->data[2], btAddress->data[3], btAddress->data[4], btAddress->data[5]);
+				anAddress = JAVA_ENV_CHECK(NewStringUTF(env, utfAddress));
+				jRemDev = JAVA_ENV_CHECK(NewObject(env, remDevCls, cnstr, anAddress));
+				JAVA_ENV_CHECK(SetObjectArrayElement(env,  currentRequest->result, i, jRemDev));
+			}
+		}
+		
+		
+		CFRelease(deviceList);
+	
+		if(aTypePtr->validCondition)
+			pthread_cond_signal(& (aTypePtr->callComplete));
+		
+		aTypePtr = getNextToDoItem(aRoot);
+	}
+	printMessage("Exiting getPreknownDevices", DEBUG_INFO_LEVEL);
 }

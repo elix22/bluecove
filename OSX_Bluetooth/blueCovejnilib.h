@@ -44,7 +44,7 @@
 #define DEBUG_ERROR_LEVEL	10
 
 #ifndef DEBUG
-	#define DEBUG 100
+	#define DEBUG 101
 #endif
 
 #ifdef NATIVE_NAME
@@ -76,37 +76,11 @@
 /* create a linked lists of inquiries associating the native inquiry with the listener */
 /* this list should never get very long so I'm going to be a bit lazy with it */
 
-typedef struct currInq {
-	IOBluetoothDeviceInquiryRef		anInquiry;
-	jobject							aListener;
-	int								refCount;
-	char							inquiryStarted;
-	char							isLimited; /* LAIC set */
-	struct currInq					*next;
-}  currInq;
-
-typedef struct currServiceInq {
-	int								index;
-	IOBluetoothDeviceRef			aDevice;
-	struct currServiceInq			*next;
-} currServiceInq;
 
 
 
-typedef struct doInquiryRec {
-	jobject			peer;
-	jint			accessCode;
-	jobject			listener;
-	
-}  doInquiryRec;
 
-typedef struct cancelInquiryRec{
-	jobject			peer;
-	jobject			listener;
-	pthread_cond_t	waiter;
-	char			validCondition;
-	char			success;
-}  cancelInquiryRec;
+
 
 typedef struct macSocket {
 	int							index;
@@ -138,14 +112,15 @@ typedef struct getServiceHandlesRec {
 } getServiceHandlesRec;
 
 typedef struct searchServicesRec {
-	jobject			peer;
 	jintArray		attrSet;
 	jobjectArray	uuidSet;
 	jstring			deviceAddress;
-	jobject			device;
 	jobject			listener;
-	currServiceInq	*theInq;
-}searchServicesRec;
+	jobject			device;
+	int				refNum;
+	Boolean			stopped;
+} searchServicesRec;
+
 
 typedef struct populateAttributesRec {
 	jobject			serviceRecord;
@@ -183,12 +158,29 @@ typedef struct setDiscoveryModeRec {
 typedef struct getDiscoveryModeRec {
 	jint			mode;
 } getDiscoveryModeRec;
+
 typedef struct getRemoteNameRec {
 	jstring			address;
 	jboolean		alwaysAsk;
 	jstring			result;
 	jthrowable		errorException;
 } getRemoteNameRec;
+
+typedef struct getPreknownDevicesRec {
+	jint			option;
+	jobjectArray	result;
+} getPreknownDevicesRec;
+
+typedef struct doInquiryRec {
+	jint			accessCode;
+	jobject			listener;
+}  doInquiryRec;
+
+typedef struct cancelInquiryRec{
+	jobject			listener;
+	char			success;
+}  cancelInquiryRec;
+
  /**
  * ----------------------------------------------
  * structures to maintain thread safety
@@ -209,6 +201,9 @@ typedef struct threadPassType {
 		setDiscoveryModeRec			*setDiscoveryModePtr;
 		getDiscoveryModeRec			*getDiscoveryModePtr;
 		getRemoteNameRec			*getRemoteNamePtr;
+		getPreknownDevicesRec		*getPreknownDevicesPtr;
+		doInquiryRec				*doInquiryPtr;
+		cancelInquiryRec			*cancelInquiryPtr;
 		void						*voidPtr;
 	}						dataReq;
 	}						threadPassType;
@@ -241,9 +236,6 @@ void*				cocoaWrapper(void* v_pthreadCond);
 void				inquiryStarted(void * v_listener, IOBluetoothDeviceInquiryRef inquiryRef);
 void				getServiceAttributes(void *in);
 void				printMessage(const char* msg, int level);
-currServiceInq*		newServiceInqRec(void);
-currServiceInq*		getServiceInqRec(int index);
-void				disposeServiceInqRec(currServiceInq*  toDelete);
 macSocket*			getMacSocket(int index);
 macSocket*			newMacSocket(void);
 void				disposeMacSocket(macSocket*  toDelete);
@@ -255,6 +247,12 @@ void				initializeToDoList(todoListRoot *rootPtr);
 void				addToDoItem(todoListRoot *rootPtr, threadPassType* aRecPtr);
 void				deleteToDoItem(todoListRoot *rootPtr, threadPassType* aRecPtr);
 threadPassType*		getNextToDoItem(todoListRoot *rootPtr);
+IOBluetoothDeviceInquiryRef getPendingInquiryRef(jobject	listener);
+void 				addInquiry(jobject listener, IOBluetoothDeviceInquiryRef aRef);
+void 				removeInquiry(jobject listener);
+int 				addServiceSearch(searchServicesRec	*aSearch);
+searchServicesRec*	getServiceSearchRec(int  ref);
+void 				removeServiceSearchRec(int ref);
 void				longToAddress(jlong	aLong, BluetoothDeviceAddress	*btDevAddress);
 void				RFCOMMConnect(void* voidPtr);
 void				rfcommEventListener (IOBluetoothRFCOMMChannelRef rfcommChannel, void *refCon, IOBluetoothRFCOMMChannelEvent *event);
@@ -266,9 +264,8 @@ void				setLocalDiscoveryMode(void *voidPtr);
 IOReturn			getCurrentModeInternal(int *mode);
 void				doSynchronousTask(CFRunLoopSourceRef  theSource, threadPassType  *typeMaskPtr);
 void				getRemoteDeviceFriendlyName(void *voidPtr);
+void 				getPreknownDevices(void *voidPtr);
 /* Library Globals */
-extern 	currInq					*s_inquiryList;
-extern 	currServiceInq			*s_serviceInqList;
 extern 	JavaVM					*s_vm;		
 extern 	CFRunLoopRef			s_runLoop;
 extern 	CFRunLoopSourceRef		s_inquiryStartSource;
@@ -282,6 +279,7 @@ extern	CFRunLoopSourceRef		s_LocalDeviceNameRequest;
 extern	CFRunLoopSourceRef		s_LocalDeviceSetDiscoveryMode;
 extern	CFRunLoopSourceRef		s_LocalDeviceGetDiscoveryMode;
 extern 	CFRunLoopSourceRef		s_RemoteDeviceGetFriendlyName;
+extern 	CFRunLoopSourceRef		s_GetPreknownDevices;
 extern 	jobject					s_systemProperties;
 extern 	const char*				s_errorBase;
 extern 	char					s_errorBuffer[];
