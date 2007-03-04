@@ -20,7 +20,9 @@
 package com.intel.bluetooth.test;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
@@ -40,6 +42,7 @@ public class RFCOMMTest implements DiscoveryListener {
 	/**
 	 * @param args
 	 */
+	Vector<RemoteDevice>			devs;
 	public static void main(String[] args) {
 		RFCOMMTest		worker = new RFCOMMTest();
 		
@@ -47,6 +50,7 @@ public class RFCOMMTest implements DiscoveryListener {
 	}
 	
 	public RFCOMMTest(){
+		devs = new Vector<RemoteDevice>();
 	}
 	
 	public void doWork() {
@@ -74,23 +78,22 @@ public class RFCOMMTest implements DiscoveryListener {
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod){
 		System.out.println("deviceDiscovered:" + btDevice.toString());
 		System.out.println("deviceDiscovered DeviceClass: " + cod.toString());
+		devs.add(btDevice);
 		/* search for RFCOMM */
 		int[]			attrs = new int[]{
 				0x0005, 0x0006, 7, 8, 9, 10, 11, 12, 13, 0x200, 0x300, 0x301, 0x302,
 				0x303, 0x304, 0x305, 0x306, 0x307, 0x308, 0x30C, 0x30A, 0x309, 0x311,
 				0x312, 0x313, 0x656e, 0x656f, 0x6570, 0x6672, 0x6673, 0x6674, 0x6573, 0x6574, 0x6575,
 				0x7074, 0x7075, 0x7076};
-		
+
 		UUID[]			allKnown = new UUID[]{UUID.RFCOMM_PROTOCOL_UUID};
-		try {
-			
-		
+		try {			
 			LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attrs,
 				allKnown, btDevice, this);
 		} catch (Exception exp) {
 			exp.printStackTrace();
 		}
-		
+
 	}
 
 	
@@ -131,9 +134,12 @@ public class RFCOMMTest implements DiscoveryListener {
 	}
 	public void inquiryCompleted(int discType){
 		System.out.println("inquiryCompleted");
-	
+		Iterator<RemoteDevice>			i = devs.iterator();
+		RemoteDevice		btDevice;
+		while(i.hasNext()) {
+			btDevice = i.next();
 		
-		
+			
+		}
 	}
-	
 }

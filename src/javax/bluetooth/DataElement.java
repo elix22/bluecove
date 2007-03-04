@@ -22,6 +22,8 @@ package javax.bluetooth;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import com.intel.bluetooth.UUIDNames;
+
 
 
 
@@ -747,7 +749,7 @@ public class DataElement {
 		case URL:
 		case STRING:
 		case UUID:
-			return value.toString();
+			return UUIDNames.getUUIDDescrip((UUID)value);
 		case U_INT_8:
 		case U_INT_16:
 		case INT_16: {

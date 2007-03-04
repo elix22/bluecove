@@ -586,11 +586,11 @@ int addServiceSearch(searchServicesRec	*aSearch) {
 		printMessage("ERROR: too many concurrent searchs occuring, around 2 billion!", DEBUG_ERROR_LEVEL);
 		storedAt = -1;
 	} else {
-		while(CFDictionaryGetValue(s_pendingInquiriesDict, (void*)nextIndex)) {
+		while(CFDictionaryGetValue(s_runningSearchesDict, (void*)nextIndex)) {
 			nextIndex++;
 			if(nextIndex<0) nextIndex=1;
 		}
-		CFDictionaryAddValue (s_pendingInquiriesDict, (void*)nextIndex, aSearch);
+		CFDictionaryAddValue (s_runningSearchesDict, (void*)nextIndex, aSearch);
 		/* don't simply this or thread hell will decend */
 		storedAt = nextIndex;
 		nextIndex++;
@@ -605,7 +605,7 @@ searchServicesRec*	getServiceSearchRec(int  ref) {
 	if(!s_runningSearchesDict) initializeServiceSearchUtilities();
 	
 	pthread_mutex_lock(&s_safety4runningSearches);
-	aVal = (searchServicesRec*)CFDictionaryGetValue(s_pendingInquiriesDict, (void*)ref);
+	aVal = (searchServicesRec*)CFDictionaryGetValue(s_runningSearchesDict, (void*)ref);
 	pthread_mutex_unlock(&s_safety4runningSearches);
 	return aVal;
 }
@@ -613,7 +613,7 @@ void removeServiceSearchRec(int ref) {
 	if(!s_runningSearchesDict) initializeServiceSearchUtilities();
 	
 	pthread_mutex_lock(&s_safety4runningSearches);
-	CFDictionaryRemoveValue(s_pendingInquiriesDict, (void*)ref);
+	CFDictionaryRemoveValue(s_runningSearchesDict, (void*)ref);
 	pthread_mutex_unlock(&s_safety4runningSearches);
 }
 

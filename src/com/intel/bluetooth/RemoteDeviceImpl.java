@@ -45,12 +45,8 @@ public class RemoteDeviceImpl extends RemoteDevice {
 		String	summary = "RemoteDevice(address: " + getBluetoothAddress() +
 				", trusted: " + Boolean.valueOf(isTrustedDevice()).toString()+
 				", encrypted: " + Boolean.valueOf(isEncrypted()).toString();
-		try {
-				summary += ", friendlyName: "+ getFriendlyName(false);
-		} catch (Exception exp) {
+		// don't add friendly name, toString shouldn't cause network activity
 		
-		}
-				
 		return summary;
 	}
 	/**

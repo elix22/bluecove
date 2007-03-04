@@ -42,6 +42,7 @@ CFRunLoopSourceRef		s_LocalDeviceGetDiscoveryMode;
 CFRunLoopSourceRef		s_RemoteDeviceGetFriendlyName;
 CFRunLoopSourceRef		s_GetPreknownDevices;
 jobject					s_systemProperties;
+pthread_mutex_t			s_inquiryInProgress;
 
 
 /**
@@ -254,6 +255,8 @@ void* runLoopThread(void* v_threadValues) {
 		JAVA_ENV_CHECK(DeleteLocalRef(env, inputStream));
 	}
 	
+	pthread_mutex_init(&s_inquiryInProgress, NULL);
+	
 	printMessage("Init complete, releasing the library load thread", DEBUG_INFO_LEVEL);
 	
 	pthread_cond_signal((pthread_cond_t*)v_threadValues);
@@ -279,16 +282,14 @@ void performInquiry(void *voidPtr) {
 		/* now in the run loop thread */
 	todoListRoot		*aRoot;
 	threadPassType		*aTypePtr;
-	jint				jError;
-	JNIEnv				*env;
+	uint8_t				qLen;
  	
 		
 	printMessage("performInquiry: called", DEBUG_INFO_LEVEL);
-	jError = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
-	if(jError != JNI_OK) {
-		printMessage("performInquiry: unable to get java environment!", DEBUG_ERROR_LEVEL);
-	}
-		
+
+	pthread_mutex_lock(&s_inquiryInProgress);
+
+
 	aRoot = (todoListRoot*)voidPtr;
 	aTypePtr = getNextToDoItem(aRoot);
 	while(aTypePtr) {
@@ -298,6 +299,8 @@ void performInquiry(void *voidPtr) {
 		
 		aRef = IOBluetoothDeviceInquiryCreateWithCallbackRefCon(record);
 		addInquiry(record->listener, aRef);
+//		error = IOBluetoothDeviceInquirySetInquiryLength(aRef, 30);
+		error = IOBluetoothDeviceInquiryClearFoundDevices(aRef);
 		
 		/* listen for found devices */
 		error = IOBluetoothDeviceInquirySetDeviceFoundCallback(aRef, inquiryDeviceFound);
@@ -339,18 +342,20 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	/* need to create a RemoteDevice and DeviceClass objects for the device */
 	
 	JNIEnv							*env;
-	jclass							remoteDevCls, devCls, listenerCls;
+	jclass							remoteDevCls, devCls;
 	jmethodID						constructor, callback;
 	jobject							remoteDev, remoteDeviceClass;
+	jobject							wrapperObj;
+	jclass							wrapperCls;
 	BluetoothClassOfDevice			devClass;
 	const BluetoothDeviceAddress	*devAddress;
 	char							devAddressString[13];
 	jstring							devAddressJString;
 	jint							jErr;
 	doInquiryRec					*record = (doInquiryRec*)v_listener;
-		
+	
 	printMessage("inquiryDeviceFound called", DEBUG_INFO_LEVEL);
-		
+
 	/* Step 0: check if we're only looking for limited items */
 	if(record->accessCode == kBluetoothLimitedInquiryAccessCodeLAPValue) {
 		BluetoothServiceClassMajor	majorClass;
@@ -367,7 +372,7 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 		sprintf(s_errorBuffer, "%s%ld", s_errorBase, jErr);
 		printMessage(s_errorBuffer, DEBUG_ERROR_LEVEL);
 	}
-
+	JAVA_ENV_CHECK(PushLocalFrame(env, 10));
 	/* Step 1: extract the address and name */
 	devAddress = IOBluetoothDeviceGetAddress(deviceRef);
 	if(!devAddress) {
@@ -390,13 +395,19 @@ void inquiryDeviceFound(void *v_listener, IOBluetoothDeviceInquiryRef inquiryRef
 	
 	remoteDeviceClass = JAVA_ENV_CHECK(NewObject(env, devCls, constructor, devClass));
 	printMessage("Device Class Object constructed", DEBUG_INFO_LEVEL);
-	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
-	printMessage("Listener Class obtained", DEBUG_INFO_LEVEL);
-	callback = JAVA_ENV_CHECK(GetMethodID(env, listenerCls, "deviceDiscovered", "(Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DeviceClass;)V"));
+	wrapperCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/DiscoveryListenerWrapper"));
+	callback = JAVA_ENV_CHECK(GetMethodID(env, wrapperCls, "deviceDiscovered", "(Ljavax/bluetooth/RemoteDevice;Ljavax/bluetooth/DeviceClass;)V"));
+	constructor = JAVA_ENV_CHECK(GetMethodID(env, wrapperCls, "<init>", "(Ljavax/bluetooth/DiscoveryListener;)V"));
+	wrapperObj = JAVA_ENV_CHECK(NewObject(env, wrapperCls, constructor, record->listener));
 	printMessage("Calling callback on listener", DEBUG_INFO_LEVEL);
 	/* call the java callback */
-	JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, callback, remoteDev, remoteDeviceClass));
+	
+	JAVA_ENV_CHECK(CallVoidMethod(env, wrapperObj, callback, remoteDev, remoteDeviceClass));
 	printMessage("Callback returned", DEBUG_INFO_LEVEL);
+	
+	JAVA_ENV_CHECK(PopLocalFrame(env, NULL));
+	printMessage("inquiryDeviceFound exiting", DEBUG_INFO_LEVEL);
+
 }
 
 
@@ -407,17 +418,23 @@ void inquiryComplete(void * 						userRefCon,
 {
 	JNIEnv					*env;
 	jmethodID				callback;
-	jclass					listenerCls;
+	jclass					listenerCls, wrapperCls;
+	jobject					wrapperObj;
+	jmethodID				cnstr;
 	jint					discType;
 	jint					jErr;
 	doInquiryRec			*record  = (doInquiryRec*)userRefCon;
 	
 	printMessage("inquiryComplete: called", DEBUG_INFO_LEVEL);
-
-
+	pthread_mutex_unlock(&s_inquiryInProgress);
+	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**) &env, JNI_VERSION_1_2);
-	listenerCls = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
-	callback = JAVA_ENV_CHECK(GetMethodID(env, listenerCls, "inquiryCompleted", "(I)V"));
+	JAVA_ENV_CHECK(PushLocalFrame(env, 10));
+	
+	wrapperCls = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/DiscoveryListenerWrapper"));
+	callback = JAVA_ENV_CHECK(GetMethodID(env, wrapperCls, "inquiryCompleted", "(I)V"));
+	cnstr = JAVA_ENV_CHECK(GetMethodID(env, wrapperCls, "<init>", "(Ljavax/bluetooth/DiscoveryListener;)V"));
+	
 	printMessage("inquiryComplete: got callback", DEBUG_INFO_LEVEL);
 
 	if(aborted) {
@@ -431,7 +448,8 @@ void inquiryComplete(void * 						userRefCon,
 	}
 	// remove from the lookup dictionary
 	removeInquiry(record->listener);
-	JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, callback, discType));
+	wrapperObj = JAVA_ENV_CHECK(NewObject(env, wrapperCls, cnstr, record->listener));
+	JAVA_ENV_CHECK(CallVoidMethod(env, wrapperObj, callback, discType));
 
 	printMessage("inquiryComplete: cleaning up", DEBUG_INFO_LEVEL);
 	
@@ -439,6 +457,8 @@ void inquiryComplete(void * 						userRefCon,
 	JAVA_ENV_CHECK(DeleteGlobalRef(env, record->listener));
 	free(record);
 	IOBluetoothDeviceInquiryDelete(inquiryRef);
+	
+	JAVA_ENV_CHECK(PopLocalFrame(env, NULL));
 	printMessage("inquiryComplete: complete", DEBUG_INFO_LEVEL);
 
 }
@@ -446,13 +466,11 @@ void inquiryComplete(void * 						userRefCon,
 void	cancelInquiry(void *v_cancel){
 	todoListRoot				*aRoot;
 	threadPassType				*aTypePtr;
-	JNIEnv						*env;
 	jint						jErr;
 	IOBluetoothDeviceInquiryRef	aRef;
 	
 	printMessage("cancelInquiry: called", DEBUG_INFO_LEVEL);
 	
-	jErr = (*s_vm)->GetEnv(s_vm, (void**) &env, JNI_VERSION_1_2);
 	aRoot = (todoListRoot*)v_cancel;
 	aTypePtr = getNextToDoItem(aRoot);
 	while(aTypePtr) {
@@ -540,6 +558,7 @@ void getServiceAttributes(void *voidPtr) {
 	jmethodID						intConstructor;
 	jclass							intClass;
 	
+	printMessage("getServiceAttributes: entered", DEBUG_INFO_LEVEL);
 	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 
@@ -547,6 +566,7 @@ void getServiceAttributes(void *voidPtr) {
 	aTypePtr = getNextToDoItem(aRoot);
 	
 	while(aTypePtr){
+		JAVA_ENV_CHECK(PushLocalFrame(env, 10));
 		populateAttributesRec			*params = aTypePtr->dataReq.populateAttrPtr;
 		
 		serviceClass = JAVA_ENV_CHECK(GetObjectClass(env, params->serviceRecord));
@@ -571,13 +591,18 @@ void getServiceAttributes(void *voidPtr) {
 			jobject							jResult;
 			jobject							attributeID;
 		
+			JAVA_ENV_CHECK(PushLocalFrame(env, 5));
 			attributeID = JAVA_ENV_CHECK(NewObject(env, intClass, intConstructor, attributes[j]));
 			dataElement = IOBluetoothSDPServiceRecordGetAttributeDataElement(serviceRef, attributes[j]);
 			jDataElement = getjDataElement(env, dataElement);
 			jResult = JAVA_ENV_CHECK(CallObjectMethod(env, hashTable, setAttribute, attributeID, jDataElement));
+			JAVA_ENV_CHECK(PopLocalFrame(env, NULL));
 		}
 		aTypePtr = getNextToDoItem(aRoot);
+		JAVA_ENV_CHECK(PopLocalFrame(env, NULL));
 	}
+	printMessage("getServiceAttributes: exiting", DEBUG_INFO_LEVEL);
+
 }
 
   
@@ -588,10 +613,17 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 	jsize				i, len;
 	jclass				listenerClass, aClass;
 	jobject				*serviceArray = NULL;
+	jclass				wrapper;
+	jmethodID			cnstr;
+	jobject				wrapperObj;
 	
+	printMessage("bluetoothSDPQueryCallback entered", DEBUG_INFO_LEVEL);
 	
 	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
 	listenerClass = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
+	wrapper = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/DiscoveryListenerWrapper"));
+	cnstr = JAVA_ENV_CHECK(GetMethodID(env, wrapper, "<init>", "(Ljavax/bluetooth/DiscoveryListener;)V"));
+
 	if(status != 0) {
 		respCode = 3;
 	} else {
@@ -678,10 +710,12 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 			/* notify the listener */
 				/* but first check if we haven't been cancelled */
 			if(!record->stopped) {
-				listenerClass = JAVA_ENV_CHECK(GetObjectClass(env, record->listener));
-				listenerCallback = JAVA_ENV_CHECK(GetMethodID(env, listenerClass, "servicesDiscovered", "(I[Ljavax/bluetooth/ServiceRecord;)V"));
+				
+				wrapperObj = JAVA_ENV_CHECK(NewObject(env, wrapper, cnstr, record->listener));
+				
+				listenerCallback = JAVA_ENV_CHECK(GetMethodID(env, wrapper, "servicesDiscovered", "(I[Ljavax/bluetooth/ServiceRecord;)V"));
 			
-				JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCallback, record->refNum, theServiceArray));
+				JAVA_ENV_CHECK(CallVoidMethod(env, wrapperObj, listenerCallback, record->refNum, theServiceArray));
 				respCode = 1; /*SERVICE_SEARCH_COMPLETED*/
 			} else respCode = 2;
 		} else {
@@ -697,8 +731,9 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 	
 		/* first remove this search from the active list */
 		removeServiceSearchRec(record->refNum);
-		listenerCompletionCallback = JAVA_ENV_CHECK(GetMethodID(env, listenerClass, "serviceSearchCompleted", "(II)V"));
-		JAVA_ENV_CHECK(CallVoidMethod(env, record->listener, listenerCompletionCallback, record->refNum, (jint)respCode));
+		listenerCompletionCallback = JAVA_ENV_CHECK(GetMethodID(env, wrapper, "serviceSearchCompleted", "(II)V"));
+		wrapperObj = JAVA_ENV_CHECK(NewObject(env, wrapper, cnstr, record->listener));
+		JAVA_ENV_CHECK(CallVoidMethod(env, wrapperObj, listenerCompletionCallback, record->refNum, (jint)respCode));
 		/* clean up global references */
 		if(record->attrSet) JAVA_ENV_CHECK(DeleteGlobalRef(env, record->attrSet));
 		if(record->uuidSet) JAVA_ENV_CHECK(DeleteGlobalRef(env, record->uuidSet));
@@ -709,6 +744,7 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 		
 	}
 	
+	printMessage("bluetoothSDPQueryCallback exiting", DEBUG_INFO_LEVEL);
 
 	
 
@@ -1073,6 +1109,7 @@ void getRemoteDeviceFriendlyName(void *voidPtr) {
 		const jchar					*chars;
 		int							length;
 		BluetoothDeviceName			aName;
+		Boolean						releaseCaller = TRUE;
 		
 		chars = JAVA_ENV_CHECK(GetStringChars(env, currentRequest->address, NULL));
 		length = JAVA_ENV_CHECK(GetStringLength(env, currentRequest->address));
@@ -1099,26 +1136,97 @@ void getRemoteDeviceFriendlyName(void *voidPtr) {
 
 		if(currentRequest->alwaysAsk || (localString==NULL)){
 			// we contact the remote device
-			err = IOBluetoothDeviceRemoteNameRequest(aDevRef, NULL, NULL, aName);
-			if(err) {
-				/* TODO add some details */
-				jclass				ioExp;
-				jmethodID			defaultCnstr;
+			int				pErr;
+			jclass				ioExp;
+			jobject				localRef;
+			
+			ioExp = JAVA_ENV_CHECK(FindClass(env, "java/io/IOException"));
+			pErr = pthread_mutex_trylock(&s_inquiryInProgress);
+			if(pErr == EBUSY) {
+				jmethodID			stringCnstr;
+				jstring				reason;
 				
-				ioExp = JAVA_ENV_CHECK(FindClass(env, "java/io/IOException"));
-				defaultCnstr = JAVA_ENV_CHECK(GetMethodID(env, ioExp, "<init>", "()V"));
-				currentRequest->errorException = JAVA_ENV_CHECK(NewObject(env, ioExp, defaultCnstr));
+				reason = JAVA_ENV_CHECK(NewStringUTF(env, "OS X doesn't support remote name inquiries during discovery inquiry!"));
+				
+				stringCnstr = JAVA_ENV_CHECK(GetMethodID(env, ioExp, "<init>", "(Ljava/lang/String;)V"));
+				localRef = JAVA_ENV_CHECK(NewObject(env, ioExp, stringCnstr, reason));
+				currentRequest->errorException = JAVA_ENV_CHECK(NewGlobalRef(env, localRef));
 			} else {
-				currentRequest->result = JAVA_ENV_CHECK(NewStringUTF(env, (char*)aName));
+				err = IOBluetoothDeviceRemoteNameRequest(aDevRef, remoteNameRequestResponse, currentRequest, NULL);
+				pthread_mutex_unlock(&s_inquiryInProgress);
+				if(err) {
+					/* TODO add some details */
+					jmethodID			defaultCnstr;
+				
+					defaultCnstr = JAVA_ENV_CHECK(GetMethodID(env, ioExp, "<init>", "()V"));
+					localRef = JAVA_ENV_CHECK(NewObject(env, ioExp, defaultCnstr));
+					currentRequest->errorException = JAVA_ENV_CHECK(NewGlobalRef(env, localRef));
+				} else {
+					releaseCaller = FALSE;
+				}
 			}
 		} 
 	
-		if(aTypePtr->validCondition)
+		if(aTypePtr->validCondition && releaseCaller)
 			pthread_cond_signal(& (aTypePtr->callComplete));
 		
 		aTypePtr = getNextToDoItem(aRoot);
 	}
 	printMessage("Exiting getRemoteDeviceFriendlyName", DEBUG_INFO_LEVEL);
+}
+
+
+void remoteNameRequestResponse(void *userRefCon, IOBluetoothDeviceRef deviceRef, IOReturn status ){
+
+	threadPassType				*aTypePtr = (threadPassType*) userRefCon;
+	getRemoteNameRec			*currentRequest;
+	JNIEnv						*env;
+	int							jErr;
+	
+	printMessage("Entering remoteNameRequestResponse", DEBUG_INFO_LEVEL);
+	
+	currentRequest = aTypePtr->dataReq.getRemoteNamePtr;
+	
+	jErr = (*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+	
+	if(status) {
+		jobject		exception;
+		jclass		expCls;
+		jmethodID	cnstr;
+		jstring		reason;
+		
+		/* error in the request */
+		sprintf(s_errorBuffer, "%s%i", s_errorBase, status);
+		reason = JAVA_ENV_CHECK(NewStringUTF(env, s_errorBuffer));
+		expCls = JAVA_ENV_CHECK(FindClass(env, "java/io/IOException"));
+		cnstr = JAVA_ENV_CHECK(GetMethodID(env, expCls, "<init>", "(Ljava/lang/String;)V"));
+		exception = JAVA_ENV_CHECK(NewObject(env, expCls, cnstr, reason));
+		currentRequest->errorException = JAVA_ENV_CHECK(NewGlobalRef(env, exception));
+	} else {
+		CFStringRef		localString;
+		CFRange			range;
+		UniChar			*charBuf;
+	
+		localString = IOBluetoothDeviceGetName(deviceRef);
+				
+		range.location = 0;
+		range.length = CFStringGetLength(localString);
+				
+		charBuf = malloc(sizeof(UniChar) * range.length);
+		CFStringGetCharacters(localString, range, charBuf);
+				
+		currentRequest->result = JAVA_ENV_CHECK(NewString(env, (jchar *)charBuf, (jsize)range.length));
+		free(charBuf);
+		
+		currentRequest->result = JAVA_ENV_CHECK(NewGlobalRef(env, currentRequest->result));
+	}
+	
+	if(aTypePtr->validCondition)
+		pthread_cond_signal(& (aTypePtr->callComplete));
+
+	
+	printMessage("Exiting remoteNameRequestResponse", DEBUG_INFO_LEVEL);
+
 }
 
 void getPreknownDevices(void *voidPtr) {		

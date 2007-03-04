@@ -265,6 +265,7 @@ IOReturn			getCurrentModeInternal(int *mode);
 void				doSynchronousTask(CFRunLoopSourceRef  theSource, threadPassType  *typeMaskPtr);
 void				getRemoteDeviceFriendlyName(void *voidPtr);
 void 				getPreknownDevices(void *voidPtr);
+void				remoteNameRequestResponse(void *userRefCon, IOBluetoothDeviceRef deviceRef, IOReturn status);
 /* Library Globals */
 extern 	JavaVM					*s_vm;		
 extern 	CFRunLoopRef			s_runLoop;
@@ -284,6 +285,7 @@ extern 	jobject					s_systemProperties;
 extern 	const char*				s_errorBase;
 extern 	char					s_errorBuffer[];
 extern	macSocket*				s_openSocketList;
+extern	pthread_mutex_t			s_inquiryInProgress;
 
 
  

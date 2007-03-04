@@ -106,30 +106,37 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_startInqu
 		doInquiryRec				*record;
 		threadPassType				*typeMaskPtr;
 		todoListRoot				*todoListPtr;
-		
+		int							error=0;
 		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry called", DEBUG_INFO_LEVEL);
 		
-		
-		/* verify that the listener isn't aready being used */
-		if(getPendingInquiryRef(listener)) {
-			throwException(env, "java/lang/IllegalArgumentException", "DiscoveryListener is already being utilized in an inquiry!");
+		error = pthread_mutex_trylock(&s_inquiryInProgress);
+		if(error == EBUSY) {
+			/* stack is busy with an inquiry */
+			throwException(env, "javax/bluetooth/BluetoothStateException", "Inquiry already in progress");
+			
 		} else {
-			CFRunLoopSourceGetContext(s_inquiryStartSource, &aContext);
-			todoListPtr = (todoListRoot*)aContext.info;
+			if(getPendingInquiryRef(listener)) { /* verify that the listener isn't aready being used */
+				throwException(env, "java/lang/IllegalArgumentException", "DiscoveryListener is already being utilized in an inquiry!");
 			
-			/* set the data for the work function */
-			record = (doInquiryRec*)malloc(sizeof(doInquiryRec));
-			typeMaskPtr = (threadPassType*)malloc(sizeof(threadPassType));
+			} else {
+				CFRunLoopSourceGetContext(s_inquiryStartSource, &aContext);
+				todoListPtr = (todoListRoot*)aContext.info;
 			
-			record->accessCode = accessCode;
-			record->listener = JAVA_ENV_CHECK(NewGlobalRef(env, listener));
+				/* set the data for the work function */
+				record = (doInquiryRec*)malloc(sizeof(doInquiryRec));
+				typeMaskPtr = (threadPassType*)malloc(sizeof(threadPassType));
+			
+				record->accessCode = accessCode;
+				record->listener = JAVA_ENV_CHECK(NewGlobalRef(env, listener));
 
-			typeMaskPtr->validCondition = FALSE;
-			typeMaskPtr->dataReq.doInquiryPtr = record;
-			addToDoItem(todoListPtr, typeMaskPtr);
+				typeMaskPtr->validCondition = FALSE;
+				typeMaskPtr->dataReq.doInquiryPtr = record;
+				addToDoItem(todoListPtr, typeMaskPtr);
 			
-			CFRunLoopSourceSignal(s_inquiryStartSource);
-			CFRunLoopWakeUp (s_runLoop);
+				CFRunLoopSourceSignal(s_inquiryStartSource);
+				CFRunLoopWakeUp (s_runLoop);
+			}
+			pthread_mutex_unlock(&s_inquiryInProgress);
 		}
 		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry exiting", DEBUG_INFO_LEVEL);
 		return 1;
@@ -169,7 +176,8 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_searchService
 	
 	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices: called", DEBUG_INFO_LEVEL);
 	/* TODO check for illeagal arguments */
-	
+	pthread_mutex_lock(&s_inquiryInProgress);
+
 	/* get the address of the remote device */
 	deviceClass = JAVA_ENV_CHECK(GetObjectClass(env, device));
 	getAddress = JAVA_ENV_CHECK(GetMethodID(env, deviceClass, "getBluetoothAddress", "()Ljava/lang/String;"));
@@ -205,7 +213,9 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_searchService
 	
 	CFRunLoopSourceSignal(s_searchServicesStart);
 	CFRunLoopWakeUp(s_runLoop);
-	
+
+	pthread_mutex_unlock(&s_inquiryInProgress);
+
 	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices exiting", DEBUG_INFO_LEVEL);
 
 	return myRef;
@@ -325,24 +335,32 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothRFCOMMConnection_native
 
 	connectRec					connectionRequest;
 	threadPassType				typeMask;
-
+	int							error;
 	
     printMessage("Java_com_intel_bluetooth_BluetoothRFCOMMConnection_nativeConnect called", DEBUG_INFO_LEVEL);
 
-	typeMask.dataReq.connectPtr = &connectionRequest;
+	error = pthread_mutex_trylock(&s_inquiryInProgress);
+	if(error == EBUSY) {
+		/* stack is busy with an inquiry */
+		throwException(env, "java/io/IOException", "Can't make connections during Discovery Inquiry!");
+	} else {
+
+		typeMask.dataReq.connectPtr = &connectionRequest;
 	
-	connectionRequest.peer = peer;
-	connectionRequest.socket = socket;
-	connectionRequest.address = address;
-	connectionRequest.channel = channel;
-	connectionRequest.errorException = NULL;
+		connectionRequest.peer = peer;
+		connectionRequest.socket = socket;
+		connectionRequest.address = address;
+		connectionRequest.channel = channel;
+		connectionRequest.errorException = NULL;
 	
-	doSynchronousTask(s_NewRFCOMMConnectionRequest, &typeMask);
+		pthread_mutex_unlock(&s_inquiryInProgress);
+		doSynchronousTask(s_NewRFCOMMConnectionRequest, &typeMask);
 	
-	if(connectionRequest.errorException) {
-		/* there was a problem */
-		(*env)->Throw(env, connectionRequest.errorException);
-		(*env)->DeleteGlobalRef(env, connectionRequest.errorException);
+		if(connectionRequest.errorException) {
+			/* there was a problem */
+			(*env)->Throw(env, connectionRequest.errorException);
+			(*env)->DeleteGlobalRef(env, connectionRequest.errorException);
+		}
 	}
 	
     printMessage("Java_com_intel_bluetooth_BluetoothRFCOMMConnection_nativeConnect exiting", DEBUG_INFO_LEVEL);
@@ -395,6 +413,10 @@ JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_RemoteDeviceImpl_getFriendlyN
  	
  	typeMask.dataReq.getRemoteNamePtr = &getNameRec;
  	doSynchronousTask(s_RemoteDeviceGetFriendlyName, &typeMask);
+	if(getNameRec.errorException) {
+		(*env)->Throw(env, getNameRec.errorException);
+		(*env)->DeleteGlobalRef(env, getNameRec.errorException);
+	}
  	
  	printMessage("Java_com_intel_bluetooth_RemoteDeviceImpl_getFriendlyName exiting", DEBUG_INFO_LEVEL);
 
