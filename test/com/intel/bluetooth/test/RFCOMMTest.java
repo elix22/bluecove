@@ -31,6 +31,7 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
+import javax.swing.SwingUtilities;
 
 import com.intel.bluetooth.BluetoothRFCOMMConnection;
 
@@ -50,21 +51,19 @@ public class RFCOMMTest implements DiscoveryListener {
 	
 	public void doWork() {
 		
+		try {
+		Properties		sysProps;
 		
-		Properties		sysProps = System.getProperties();
-		System.out.print(sysProps);
-//		System.out.println("\n\n-------------------------------------------\n\n");
-	//	System.out.println("API Version = " + LocalDevice.getProperty("bluetooth.api.version"));
-		System.out.println("\n\n-------------------------------------------\n\n");	
+		LocalDevice.getLocalDevice();
 		sysProps = System.getProperties();
 		System.out.print(sysProps);
 		System.out.println("\n\n-------------------------------------------\n\n");
-		try {
-		LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC,
-                this);
-		System.out.println(LocalDevice.getLocalDevice().getBluetoothAddress());
-		System.out.println(LocalDevice.getLocalDevice().getFriendlyName());
+		System.out.println("Local Address: "+LocalDevice.getLocalDevice().getBluetoothAddress());
+		System.out.println("Local Name: " +LocalDevice.getLocalDevice().getFriendlyName());
 		
+
+			LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC,
+	                this);
 		
 		Thread.sleep(6000000);
 		
@@ -108,7 +107,10 @@ public class RFCOMMTest implements DiscoveryListener {
 				System.out.println(connectionURL);
 				try {
 						aConn = Connector.open(connectionURL);
-						new SerialTerminal((BluetoothRFCOMMConnection)	aConn);
+						System.out.println("Connector returned from open");
+						SerialTerminal 	aTerm = new SerialTerminal((BluetoothRFCOMMConnection)	aConn);
+						System.out.println("Asking Swing to execute later thread");
+						SwingUtilities.invokeLater(aTerm);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

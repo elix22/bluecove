@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry excluding="org/microemu/|org/" kind="src" path="test">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="BlueCoveOSX/resources"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="bluecove/resources"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry excluding="com/intel/bluetooth/BluetoothStreamConnectionNotifier.java|com/intel/bluetooth/BluetoothPeer.java" kind="src" path="src"/>

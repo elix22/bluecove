@@ -114,7 +114,7 @@ public class DiscoveryAgentImpl extends DiscoveryAgent {
 	 * @see #LIAC
 	 */
 
-	public native boolean startInquiry(int accessCode, DiscoveryListener listener)
+	public synchronized native boolean startInquiry(int accessCode, DiscoveryListener listener)
 			throws BluetoothStateException;
 	/**
 	 * Removes the device from inquiry mode. An {@link DiscoveryListener#inquiryCompleted(int)} 

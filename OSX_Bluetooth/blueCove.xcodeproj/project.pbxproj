@@ -26,7 +26,6 @@
 		4CEBA79C08679F510015D03E /* JavaVM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE2200B0208CA9C0CC91562 /* JavaVM.framework */; };
 		963567340B81670300141C67 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963567330B81670300141C67 /* IOBluetooth.framework */; };
 		963568360B81BA9100141C67 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963568350B81BA9100141C67 /* CoreFoundation.framework */; };
-		963C74DC0B893F5800AC5EC5 /* currentVersion.c in Sources */ = {isa = PBXBuildFile; fileRef = 963C74DB0B893F5800AC5EC5 /* currentVersion.c */; };
 		963C751F0B89437100AC5EC5 /* Version.h in Headers */ = {isa = PBXBuildFile; fileRef = 963C751E0B89437100AC5EC5 /* Version.h */; };
 		9673497D0B84581400A056FE /* blueCovejnilib.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A52677B022AFE3B0CC91562 /* blueCovejnilib.c */; };
 		9673497E0B84581800A056FE /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 963567330B81670300141C67 /* IOBluetooth.framework */; };
@@ -64,13 +63,6 @@
 			remoteGlobalIDString = 4CEBA78E08679EF10015D03E;
 			remoteInfo = JNILib;
 		};
-		963C751A0B89434B00AC5EC5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 963C74D80B893F3D00AC5EC5;
-			remoteInfo = versionIncrement;
-		};
 		96E915E20B86FE6B007DDC2D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00E6828EFEC88D1A11DB9C8B /* Project object */;
@@ -86,13 +78,12 @@
 		963567330B81670300141C67 /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = /System/Library/Frameworks/IOBluetooth.framework; sourceTree = "<absolute>"; };
 		963568350B81BA9100141C67 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		963C74D10B893E9F00AC5EC5 /* currentVersion */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = currentVersion; sourceTree = "<group>"; };
-		963C74D90B893F3D00AC5EC5 /* versionIncrement */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = versionIncrement; sourceTree = BUILT_PRODUCTS_DIR; };
 		963C74DB0B893F5800AC5EC5 /* currentVersion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = currentVersion.c; sourceTree = "<group>"; };
 		963C751E0B89437100AC5EC5 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		963C75B10B89512500AC5EC5 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		968A02230B82F69E00E7D4C1 /* blueCovejnilib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blueCovejnilib.h; sourceTree = "<group>"; };
-		96B476F90B844204003E53AA /* DebugProject */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = DebugProject; sourceTree = BUILT_PRODUCTS_DIR; };
-		96B477B00B84426F003E53AA /* debugMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debugMain.c; sourceTree = "<group>"; };
+		96B476F90B844204003E53AA /* DebugProject */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DebugProject; sourceTree = BUILT_PRODUCTS_DIR; };
+		96B477B00B84426F003E53AA /* debugMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = debugMain.c; path = ../debug/OSX/debugMain.c; sourceTree = "<group>"; };
 		96E316680B89670E009935EE /* libintelbth.jnilib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libintelbth.jnilib; sourceTree = BUILT_PRODUCTS_DIR; };
 		96E3166B0B89670E009935EE /* nativeHeaders */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = nativeHeaders; sourceTree = BUILT_PRODUCTS_DIR; };
 		96E911FA0B868972007DDC2D /* NativeCommons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeCommons.h; sourceTree = "<group>"; };
@@ -118,13 +109,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		6A9FA6020246AD840CC91562 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		963C74D70B893F3D00AC5EC5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -162,7 +146,6 @@
 			isa = PBXGroup;
 			children = (
 				96B476F90B844204003E53AA /* DebugProject */,
-				963C74D90B893F3D00AC5EC5 /* versionIncrement */,
 			);
 			name = Outputs;
 			sourceTree = "<group>";
@@ -251,7 +234,6 @@
 				6A9FA6020246AD840CC91562 /* Frameworks */,
 			);
 			dependencies = (
-				963C751B0B89434B00AC5EC5 /* PBXTargetDependency */,
 			);
 			name = Headers;
 			productInstallPath = /usr/local/lib;
@@ -279,22 +261,6 @@
 			productName = JNILibN;
 			productReference = 96E316680B89670E009935EE /* libintelbth.jnilib */;
 			productType = "com.apple.product-type.library.dynamic";
-		};
-		963C74D80B893F3D00AC5EC5 /* versionIncrement */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 963C74DD0B893F5800AC5EC5 /* Build configuration list for PBXNativeTarget "versionIncrement" */;
-			buildPhases = (
-				963C74D60B893F3D00AC5EC5 /* Sources */,
-				963C74D70B893F3D00AC5EC5 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = versionIncrement;
-			productName = versionIncrement;
-			productReference = 963C74D90B893F3D00AC5EC5 /* versionIncrement */;
-			productType = "com.apple.product-type.tool";
 		};
 		96B476F80B844204003E53AA /* DebugProject */ = {
 			isa = PBXNativeTarget;
@@ -327,7 +293,6 @@
 				6A9FA6030246AD840CC91562 /* Headers */,
 				4CEBA78E08679EF10015D03E /* intelbth */,
 				96B476F80B844204003E53AA /* DebugProject */,
-				963C74D80B893F3D00AC5EC5 /* versionIncrement */,
 			);
 		};
 /* End PBXProject section */
@@ -340,7 +305,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "javah -classpath \"${SOURCE_ROOT}/../resources/bluecove.jar\" -force -o \"${SOURCE_ROOT}/JavaHeaders.h\" com.intel.bluetooth.BluetoothInputStream com.intel.bluetooth.BluetoothL2CAPConnection com.intel.bluetooth.BluetoothOBEXConnection com.intel.bluetooth.BluetoothPeer com.intel.bluetooth.BluetoothRFCOMMConnection com.intel.bluetooth.ServiceRecordImpl  com.intel.bluetooth.BluetoothConnection javax.bluetooth.LocalDevice\n${BUILD_DIR}/versionIncrement ${SOURCE_ROOT}/currentVersion Version.h\n\n";
+			shellScript = "read CURRENT <currentVersion\nCURRENT=`expr $CURRENT + 1`\n\necho \"Increasing build version number to $CURRENT\"\n\necho $CURRENT >currentVersion\necho \"/* DO NOT EDIT, this file is machine generated */\" > Version.h\necho \"#define BUILD_VERSION \\\"$CURRENT\\\"\" >> Version.h\n\necho \"Starting java header build\"\n\n\njavah -classpath ../bin -force -o JavaHeaders.h com.intel.bluetooth.BluetoothInputStream com.intel.bluetooth.BluetoothL2CAPConnection com.intel.bluetooth.BluetoothOBEXConnection com.intel.bluetooth.BluetoothRFCOMMConnection com.intel.bluetooth.DiscoveryAgentImpl com.intel.bluetooth.LocalDeviceImpl com.intel.bluetooth.RemoteDeviceImpl com.intel.bluetooth.ServiceRecordImpl\necho \"Java headers complete\"\n\n\n";
 		};
 		963C735A0B8931BB00AC5EC5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -377,14 +342,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		963C74D60B893F3D00AC5EC5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				963C74DC0B893F5800AC5EC5 /* currentVersion.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		96B476F60B844204003E53AA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -410,11 +367,6 @@
 			isa = PBXTargetDependency;
 			target = 6A9FA6030246AD840CC91562 /* Headers */;
 			targetProxy = 36ABB26A061E0EED00C43093 /* PBXContainerItemProxy */;
-		};
-		963C751B0B89434B00AC5EC5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 963C74D80B893F3D00AC5EC5 /* versionIncrement */;
-			targetProxy = 963C751A0B89434B00AC5EC5 /* PBXContainerItemProxy */;
 		};
 		96E915E30B86FE6B007DDC2D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -624,38 +576,6 @@
 			};
 			name = Release;
 		};
-		963C74DE0B893F5800AC5EC5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = "$(HOME)/bin";
-				PREBINDING = NO;
-				PRODUCT_NAME = versionIncrement;
-				ZERO_LINK = YES;
-			};
-			name = Debug;
-		};
-		963C74DF0B893F5800AC5EC5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				INSTALL_PATH = "$(HOME)/bin";
-				PREBINDING = NO;
-				PRODUCT_NAME = versionIncrement;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
 		96B477030B84422B003E53AA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -727,15 +647,6 @@
 			buildConfigurations = (
 				4CEBA79208679F100015D03E /* Debug */,
 				4CEBA79308679F100015D03E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		963C74DD0B893F5800AC5EC5 /* Build configuration list for PBXNativeTarget "versionIncrement" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				963C74DE0B893F5800AC5EC5 /* Debug */,
-				963C74DF0B893F5800AC5EC5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

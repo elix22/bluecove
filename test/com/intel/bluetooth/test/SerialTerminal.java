@@ -19,12 +19,13 @@ import javax.swing.text.Document;
 
 import com.intel.bluetooth.BluetoothRFCOMMConnection;
 
-public class SerialTerminal extends JFrame implements DocumentListener {
+public class SerialTerminal extends JFrame implements DocumentListener, Runnable {
 	JTextArea		tRecArea, tSenArea;
 	OutputStream	out;
+	BluetoothRFCOMMConnection	myConnection;
 	
-	public		SerialTerminal(BluetoothRFCOMMConnection	aConnection) {
-		
+	public void run() {
+		System.out.println("Running Serial Terminal GUI builder in swing thread");
 		JLabel			aSendLable = new JLabel("Send:");
 		JLabel			aRecvLable = new JLabel("Receive:");
 		Container		contentPane = getContentPane();
@@ -51,14 +52,19 @@ public class SerialTerminal extends JFrame implements DocumentListener {
 		tRecArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		tSenArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		try {
-		InputStream		inStream = aConnection.openInputStream();
-		out = aConnection.openOutputStream();
+		InputStream		inStream = myConnection.openInputStream();
+		out = myConnection.openOutputStream();
 		new Listener(inStream).start();
 		} catch (Exception exp) {
 			exp.printStackTrace();
 		}
 		pack();
 		setVisible(true);
+	}
+	public		SerialTerminal(BluetoothRFCOMMConnection	aConnection) {
+		System.out.println("SerialTerminal Constructor");
+		myConnection = aConnection;
+
 	}
 	public void insertUpdate(DocumentEvent e) {
 		int		start, len;
