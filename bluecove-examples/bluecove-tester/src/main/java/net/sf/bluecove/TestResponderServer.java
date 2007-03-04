@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
@@ -32,23 +33,65 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import junit.framework.Assert;
 
-public class TestResponderServer implements CanShutdown {
+public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static int countSuccess = 0; 
 	
 	public static int countFailure = 0;
 	
+	public static int countConnection = 0;
+	
 	private boolean stoped = false;
+	
+	boolean isRunning = false;
 	
 	private StreamConnectionNotifier server;
 	
 	private TestTimeOutMonitor monitor;
 	
+	private class ConnectionTread extends Thread {
+		
+		StreamConnection conn;
+		
+		ConnectionTread(StreamConnection conn) {
+			super("ConnectionTread" + (++countConnection));
+			this.conn = conn;
+		}
+		
+		public void run() {
+			InputStream is = null;
+			OutputStream os = null;
+			int testType = 0;
+			try {
+				is = conn.openInputStream();
+				os = conn.openOutputStream();
+				testType = is.read();
+
+				if (testType == Consts.TEST_TERMINATE) {
+					Logger.info("Stop requested");
+					shutdown();
+					return;
+				}
+				CommunicationTester.runTest(testType, true, is, os);
+				os.write(Consts.TEST_REPLY_OK);
+				os.write(testType);
+				os.flush();
+				countSuccess++;
+				Logger.debug("Test# " + testType + " ok");
+			} catch (Throwable e) {
+				countFailure++;
+				Logger.error("Test# " + testType + " error", e);
+			} finally {
+				IOUtils.closeQuietly(os);
+				IOUtils.closeQuietly(is);
+				IOUtils.closeQuietly(conn);
+			}
+			Logger.info("*Test Success:" + countSuccess + " Failure:" + countFailure);
+		}
+		
+	}
+	
 	public TestResponderServer() throws BluetoothStateException {
-		
-		//System.setProperty("bluecove.debug", "true");
-		//System.setProperty("bluecove.native.path", ".");
-		
 		
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
@@ -56,14 +99,16 @@ public class TestResponderServer implements CanShutdown {
  	    
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 		Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
-
-		run();
+		
+		localDevice.setDiscoverable(DiscoveryAgent.GIAC);
 
 	}
 	
 	public void run() {
+		stoped = false;
+		isRunning = true;
 		if (!CommunicationTester.continuous) {
-			monitor = new TestTimeOutMonitor(this, 1);
+			monitor = new TestTimeOutMonitor(this, Consts.serverTimeOutMin);
 		}
 		try {
 			server = (StreamConnectionNotifier) Connector
@@ -75,40 +120,12 @@ public class TestResponderServer implements CanShutdown {
 
 			Logger.info("ResponderServer started");
 			
-			connctionLoop: while (true) {
-				
+			while (!stoped) {
 				Logger.info("Accepting connection");
 				StreamConnection conn = server.acceptAndOpen();
 
 				Logger.info("Received connection");
-
-				InputStream is = null;
-				OutputStream os = null;
-				int testType = 0;
-				try {
-					is = conn.openInputStream();
-					os = conn.openOutputStream();
-					testType = is.read();
-
-					if (testType == Consts.TEST_TERMINATE) {
-						Logger.info("Stop requested");
-						break connctionLoop;
-					}
-					CommunicationTester.runTest(testType, true, is, os);
-					os.write(Consts.TEST_REPLY_OK);
-					os.write(testType);
-					os.flush();
-					countSuccess++;
-					Logger.debug("Test# " + testType + " ok");
-				} catch (Throwable e) {
-					countFailure++;
-					Logger.error("Test# " + testType + " error", e);
-				} finally {
-					IOUtils.closeQuietly(os);
-					IOUtils.closeQuietly(is);
-					IOUtils.closeQuietly(conn);
-				}
-				Logger.info("*Test Success:" + countSuccess + " Failure:" + countFailure);
+				(new ConnectionTread(conn)).start();
 			}
 
 			server.close();
@@ -119,6 +136,7 @@ public class TestResponderServer implements CanShutdown {
 			}
 		} finally {
 			Logger.info("Server finished");
+			isRunning = false;
 		}
 		if (monitor != null) {
 			monitor.finish();
@@ -137,16 +155,16 @@ public class TestResponderServer implements CanShutdown {
 	}
 	
 	public static void main(String[] args) {
+		JavaSECommon.initOnce();
 		try {
-			new TestResponderServer();
+			(new TestResponderServer()).run();
 			if (TestResponderServer.countFailure > 0) {
 				System.exit(1);
 			} else {
 				System.exit(0);
 			}
 		} catch (Throwable e) {
-			System.out.println("start error " + e);
-			e.printStackTrace(System.out);
+			Logger.error("start error ", e);
 			System.exit(1);
 		}
 	}

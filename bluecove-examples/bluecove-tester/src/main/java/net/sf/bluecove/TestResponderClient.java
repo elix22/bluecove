@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.DiscoveryListener;
@@ -45,11 +46,13 @@ import junit.framework.Assert;
  * @author vlads
  *
  */
-public class TestResponderClient {
+public class TestResponderClient implements Runnable {
 
 	public static int countSuccess = 0; 
 	
 	public static int countFailure = 0;
+
+	boolean isRunning = false;
 	
 	/**
 	 * Limit connections to precompiled list of test devices.
@@ -58,11 +61,17 @@ public class TestResponderClient {
 	
 	private static Hashtable whiteDeviceNames = null;
 	
+	public static final int TEST_SERVICE_ID_ATTRIBUTE = 0x0A0;
+	
+	public static final int TEST_SERVICE_VALUE1_ATTRIBUTE = 0x0A1;
+    
+    public static final int TEST_SERVICE_VALUE2_ATTRIBUTE = 0x0A2;
+    
     static {
 		whiteDeviceNames = new Hashtable();
-		//whiteDeviceNames.put("00E003506231", "Nokia D1");
-		//whiteDeviceNames.put("00E0035046C1", "Nokia D2");
-		//whiteDeviceNames.put("0015A8DDF300", "Moto M1");
+		whiteDeviceNames.put("00E003506231", "Nokia D1");
+		whiteDeviceNames.put("00E0035046C1", "Nokia D2");
+		whiteDeviceNames.put("0015A8DDF300", "Moto M1");
 		whiteDeviceNames.put("0050F2E8D4A6", "Desk MS");
 		whiteDeviceNames.put("000D3AA5E36C", "Lapt MS");
 		whiteDeviceNames.put("0020E027CE32", "Lapt HP");
@@ -75,6 +84,18 @@ public class TestResponderClient {
 		Vector devices;
 		
 		Vector serverURLs;
+
+	    public static int[] attrIDs = new int[] { 
+	    	TEST_SERVICE_ID_ATTRIBUTE, 
+	    	TEST_SERVICE_VALUE1_ATTRIBUTE,
+			TEST_SERVICE_VALUE2_ATTRIBUTE 
+			};
+
+	    public static final UUID L2CAP = new UUID(0x0100);
+
+	    public static final UUID RFCOMM = new UUID(0x0003);
+	    
+		private UUID searchUuidSet[] = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
 		
 	    public boolean startDeviceInquiry() {
 			Logger.debug("Starting Device inquiry");
@@ -101,15 +122,33 @@ public class TestResponderClient {
 			}
 	    }
 
+        public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
+        	if (onlyWhiteDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
+        		return;
+        	}
+        	if ((cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER) || (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)) {
+	        	devices.addElement(remoteDevice);				
+			} else {
+				return;
+			}
+        	String name = null;
+        	try {
+        		name = remoteDevice.getFriendlyName(false);
+			} catch (IOException e) {
+				Logger.debug("getFriendlyName of " + remoteDevice.getBluetoothAddress(), e);
+			}
+			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + name);
+        }
+
 	    public boolean startServicesInquiry() {
 	        Logger.debug("Starting Services inquiry");
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
-				Logger.debug("Search Services on " + remoteDevice.getBluetoothAddress());
+				Logger.debug("Search Services on " + niceDeviceName(remoteDevice.getBluetoothAddress()));
 		        synchronized (this) {
 			    	try {
-			    		LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(new int[] { 0x0100, 0x0101 },
-								new UUID[] { CommunicationTester.uuid }, remoteDevice, this);
+			    		DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+			    		discoveryAgent.searchServices(attrIDs, searchUuidSet, remoteDevice, this);
 			        } catch(BluetoothStateException e) {
 			        	Logger.error("Cannot start searchServices", e);
 				    }
@@ -123,26 +162,14 @@ public class TestResponderClient {
 	        Logger.debug("Inquiry completed");
 	        return true;
 	    }
-	    
-        public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
-        	if (onlyWhiteDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
-        		return;
-        	}
-        	if ((cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER) || (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)) {
-	        	devices.addElement(remoteDevice);				
-			} else {
-				return;
-			}
-        	try {
-				Logger.debug("deviceDiscovered " + remoteDevice.getBluetoothAddress() + " " + remoteDevice.getFriendlyName(false));
-			} catch (IOException e) {
-				Logger.error("getFriendlyName", e);
-			}
-        }
 
         public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
         	for (int i = 0; i < servRecord.length; i++) {
-				String name = servRecord[i].getAttributeValue(0x0100).getValue().toString();
+        		DataElement attr = servRecord[i].getAttributeValue(0x0100);
+        		if ((attr == null) || (attr.getValue() == null)) {
+        			continue;
+        		}
+				String name =  attr.getValue().toString();
 				Logger.debug("attribute " + name);
 
 				if (Consts.RESPONDER_SERVERNAME.equals(name)) {
@@ -174,7 +201,6 @@ public class TestResponderClient {
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 		Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
 		
-		run();
 	}
 	
 	 public static boolean isWhiteDevice(String bluetoothAddress) {
@@ -182,6 +208,11 @@ public class TestResponderClient {
 		return (whiteDeviceNames.get(addr) != null);
 	}
 
+	 public static String niceDeviceName(String bluetoothAddress) {
+		 String w = getWhiteDeviceName(bluetoothAddress);
+		 return (w != null)?w:bluetoothAddress;
+	}
+	 
 	public static String getWhiteDeviceName(String bluetoothAddress) {
 		if ((bluetoothAddress == null) || (whiteDeviceNames == null)) {
 			return null;
@@ -256,39 +287,45 @@ public class TestResponderClient {
 	}
 	
 	public void run() {
+		Logger.debug("Client started...");
+		isRunning = true;
+		try {
+			BluetoothInquirer bi = new BluetoothInquirer();
 
-		BluetoothInquirer bi = new BluetoothInquirer();
-
-		while (true) {
-			if (!bi.startDeviceInquiry()) {
-				break;
-			}
-			while (bi.inquiring) {
-				try {
-					Thread.sleep(1000);
-				} catch (Exception e) {
+			while (true) {
+				if (!bi.startDeviceInquiry()) {
+					break;
+				}
+				while (bi.inquiring) {
+					try {
+						Thread.sleep(1000);
+					} catch (Exception e) {
+					}
+				}
+				if (bi.serverURLs != null) {
+					for (Enumeration iter = bi.serverURLs.elements(); iter.hasMoreElements();) {
+						String url = (String) iter.nextElement();
+						connectAndTest(url);
+					}
+				}
+				Logger.info("*Success:" + countSuccess + " Failure:" + countFailure);
+				if ((countSuccess + countFailure > 0) && (!CommunicationTester.continuous)) {
+					break;
 				}
 			}
-			if (bi.serverURLs != null) {
-				for (Enumeration iter = bi.serverURLs.elements(); iter.hasMoreElements();) {
-					String url = (String) iter.nextElement();
-					connectAndTest(url);					
-				}
-			}
-			Logger.info("*Test Success:" + countSuccess + " Failure:" + countFailure);
-			if ((countSuccess + countFailure > 0) && (!CommunicationTester.continuous)) {
-				break;
-			}
+		} finally {
+			isRunning = false;
+			Logger.info("Client finished");
 		}
 	}
 	
 	public static void main(String[] args) {
+		JavaSECommon.initOnce();
 		try {
-			new TestResponderClient();
+			(new TestResponderClient()).run();
 			//System.exit(0);
 		} catch (Throwable e) {
-			System.out.println("start error " + e);
-			e.printStackTrace(System.out);
+			Logger.error("start error ", e);
 		}
 	}
 }

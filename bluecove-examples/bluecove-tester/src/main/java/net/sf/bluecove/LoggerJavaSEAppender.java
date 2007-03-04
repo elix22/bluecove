@@ -20,33 +20,14 @@
  */ 
 package net.sf.bluecove;
 
-public interface Consts {
+import net.sf.bluecove.Logger.LoggerAppender;
 
-	public static final String RESPONDER_UUID = "B1011111111111111111111111110001";
+public class LoggerJavaSEAppender implements LoggerAppender {
 
-	public static final String RESPONDER_SERVERNAME = "bluecoveResponderSrv";
+	public void appendLog(int level, String message, Throwable throwable) {
+		if (throwable!= null) {
+			throwable.printStackTrace(System.out);
+		}
+	}
 
-	public static final int reconnectSleep = 2000;
-	
-	public static final int serverTimeOutMin = 3;
-	
-    public static final int DEVICE_COMPUTER = 0x0100;
-
-    public static final int DEVICE_PHONE = 0x0200;
-    
-	public static final int TEST_REPLY_OK = 77;
-	
-	public static final int TEST_TERMINATE = 99;
-	
-	public static final int TEST_START = 1;
-	
-	public static final int TEST_STRING = 1;
-	
-	public static final int TEST_STRING_BACK = 2;
-	
-	public static final int TEST_BYTE = 3;
-	
-	public static final int TEST_BYTE_BACK = 4;
-	
-	public static final int TEST_LAST = 4;
 }
