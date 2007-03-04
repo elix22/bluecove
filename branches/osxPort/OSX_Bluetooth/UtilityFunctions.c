@@ -130,19 +130,22 @@ int generateProperties(JNIEnv	*env) {
 				CFStringRef		aString = IOBluetoothCFStringFromDeviceAddress( &localAddress );
 				CFRange			range;
 				UniChar			*charBuf;
-				
+				printMessage("Local Address:", DEBUG_DEVEL_LEVEL);
+				CFShow(aString);
 				range.location = 0;
 				range.length = CFStringGetLength(aString);
 				
 				charBuf = malloc(sizeof(UniChar) * range.length);
 				CFStringGetCharacters(aString, range, charBuf);
-				
+					
 				prop = (*env)->NewString(env, (jchar *)charBuf, (jsize)range.length);
 				
 				
 				key = (*env)->NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS);
 				oldProp = (*env)->CallObjectMethod(env, s_systemProperties, setPropMethod, key, prop);
 				free(charBuf);
+			} else {
+				printMessage("Unable to get local Address!!", DEBUG_WARN_LEVEL);
 			}
 		}
 		
@@ -288,78 +291,6 @@ void disposeMacSocket(macSocket*  toDelete) {
 	free(toDelete);
 	
 }
-
-currServiceInq*		getServiceInqRec(int index) {
-	/* searchs the current linked list the current inquiry */
-	currServiceInq			*current = s_serviceInqList;
-	
-	while( (current != NULL) && (current->index != index)) {
-		current = current->next;
-	}
-	
-	return current;
-}
-
-
-currServiceInq*		newServiceInqRec(void) {
-	static					signed int		nextInq = 1;
-
-	currServiceInq			*current = s_serviceInqList;
-	
-	while(getServiceInqRec(nextInq) != NULL) nextInq++;
-	if(nextInq < 0) {
-		nextInq = 1;
-		while(getServiceInqRec(nextInq) != NULL) nextInq++;
-	}
-	/* should never happen */
-	if(nextInq < 0) 
-		printMessage("Ran out of available new service inquiry indexes, you have more than 2 billion current inquiries :-O",
-					DEBUG_ERROR_LEVEL);
-			
-	if(s_serviceInqList != NULL ) {
-		while(current->next != NULL) current = current->next;
-		current->next = (currServiceInq*)malloc(sizeof(currServiceInq));
-		current = current->next;
-	} else {
-		s_serviceInqList = (currServiceInq*)malloc(sizeof(currServiceInq));
-		current = s_serviceInqList;
-	}
-	current->next = NULL;
-	current->index = nextInq;
-	
-	nextInq ++;
-	
-	return current;
-}
-
-
-
-
-void disposeServiceInqRec(currServiceInq*  toDelete) {
-	/* first find the prior item */
-	currServiceInq			*current = s_serviceInqList;
-	
-	if(s_serviceInqList== NULL) {
-		printMessage("disposeServiceInqRec called with an unknown currServiceInq!", DEBUG_WARN_LEVEL);
-		return;
-	}
-	if(toDelete == s_serviceInqList) {
-		s_serviceInqList = toDelete->next;
-		free(toDelete);
-		return;
-	}
-	while((current->next !=NULL) && (current->next != toDelete)) current = current->next;
-	
-	if(current->next == NULL) {
-		printMessage("disposeServiceInqRec called with an unknown currServiceInq!", DEBUG_WARN_LEVEL);
-		return;
-	}
-	current->next = toDelete->next;
-	free(toDelete);
-	
-}
-
-
 
 jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 
@@ -574,3 +505,115 @@ void				setBreakPoint(void){
 
 
 }
+
+#if 0
+#pragma mark -
+#pragma mark === Device Inquiry Management Utilites ===
+#endif
+static Boolean  equalListeners (const void *value1, const void *value2);
+static void initializeInquiryUtilities();
+
+static CFMutableDictionaryRef		s_pendingInquiriesDict = NULL;
+static pthread_mutex_t				s_safety4pendingInquiries;
+
+static Boolean  equalListeners (const void *value1, const void *value2) {
+	JNIEnv				*env;
+	(*s_vm)->GetEnv(s_vm, (void**)&env, JNI_VERSION_1_2);
+	return JAVA_ENV_CHECK(IsSameObject(env, (jobject)value1, (jobject)value2));
+}
+	
+static void initializeInquiryUtilities() {
+	CFDictionaryKeyCallBacks 	keyCallbacks={0};
+	keyCallbacks.equal = equalListeners;
+
+	s_pendingInquiriesDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, 
+						&keyCallbacks, NULL);
+	pthread_mutex_init(&s_safety4pendingInquiries, NULL);
+}
+
+IOBluetoothDeviceInquiryRef getPendingInquiryRef(jobject	listener) {
+	IOBluetoothDeviceInquiryRef		aRef;
+
+	if(!s_pendingInquiriesDict) initializeInquiryUtilities();
+	
+	pthread_mutex_lock(&s_safety4pendingInquiries);
+	aRef = (IOBluetoothDeviceInquiryRef)CFDictionaryGetValue (s_pendingInquiriesDict, listener);
+   	pthread_mutex_unlock(&s_safety4pendingInquiries);
+   	return aRef;
+}
+void addInquiry(jobject listener, IOBluetoothDeviceInquiryRef aRef) {
+	if(!s_pendingInquiriesDict) initializeInquiryUtilities();
+	
+	pthread_mutex_lock(&s_safety4pendingInquiries);
+	CFDictionaryAddValue (s_pendingInquiriesDict, listener, aRef);
+  	pthread_mutex_unlock(&s_safety4pendingInquiries);
+}
+void removeInquiry(jobject listener) {
+	IOBluetoothDeviceInquiryRef		aRef;
+
+	if(!s_pendingInquiriesDict) initializeInquiryUtilities();
+	
+	pthread_mutex_lock(&s_safety4pendingInquiries);
+	aRef = (IOBluetoothDeviceInquiryRef)CFDictionaryGetValue (s_pendingInquiriesDict, listener);
+ 	CFDictionaryRemoveValue (s_pendingInquiriesDict, listener);
+   	pthread_mutex_unlock(&s_safety4pendingInquiries);
+}
+
+
+
+#if 0
+#pragma mark -
+#pragma mark === Service Searching Management Utilites ===
+#endif
+
+static CFMutableDictionaryRef		s_runningSearchesDict = NULL;
+static pthread_mutex_t			s_safety4runningSearches;
+static void initializeServiceSearchUtilities();
+	
+static void initializeServiceSearchUtilities() {
+	s_runningSearchesDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, 
+						NULL, NULL);
+	pthread_mutex_init(&s_safety4runningSearches, NULL);
+}
+int addServiceSearch(searchServicesRec	*aSearch) {
+	static		int		nextIndex = 1;
+	int			storedAt;
+	
+	if(!s_runningSearchesDict) initializeServiceSearchUtilities();
+
+	pthread_mutex_lock(&s_safety4runningSearches);
+	if(CFDictionaryGetCount(s_pendingInquiriesDict) > 0x8FFFFFFF) {
+		printMessage("ERROR: too many concurrent searchs occuring, around 2 billion!", DEBUG_ERROR_LEVEL);
+		storedAt = -1;
+	} else {
+		while(CFDictionaryGetValue(s_pendingInquiriesDict, (void*)nextIndex)) {
+			nextIndex++;
+			if(nextIndex<0) nextIndex=1;
+		}
+		CFDictionaryAddValue (s_pendingInquiriesDict, (void*)nextIndex, aSearch);
+		/* don't simply this or thread hell will decend */
+		storedAt = nextIndex;
+		nextIndex++;
+		if(nextIndex < 0) nextIndex = 1;
+	}
+	pthread_mutex_unlock(&s_safety4runningSearches);
+	
+	return storedAt;
+}
+searchServicesRec*	getServiceSearchRec(int  ref) {
+	searchServicesRec*		aVal;
+	if(!s_runningSearchesDict) initializeServiceSearchUtilities();
+	
+	pthread_mutex_lock(&s_safety4runningSearches);
+	aVal = (searchServicesRec*)CFDictionaryGetValue(s_pendingInquiriesDict, (void*)ref);
+	pthread_mutex_unlock(&s_safety4runningSearches);
+	return aVal;
+}
+void removeServiceSearchRec(int ref) {
+	if(!s_runningSearchesDict) initializeServiceSearchUtilities();
+	
+	pthread_mutex_lock(&s_safety4runningSearches);
+	CFDictionaryRemoveValue(s_pendingInquiriesDict, (void*)ref);
+	pthread_mutex_unlock(&s_safety4runningSearches);
+}
+

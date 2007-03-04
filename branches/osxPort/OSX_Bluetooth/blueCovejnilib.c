@@ -29,8 +29,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 		pthread_mutex_t			initializeMutex;
 		pthread_cond_t			initializeCond;		
 		
-		s_inquiryList = NULL;
-		s_serviceInqList = NULL;
 		s_openSocketList = NULL;
 		printMessage("Loading " NATIVE_DESCRIP "\n", DEBUG_INFO_LEVEL);
 		
@@ -73,13 +71,27 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved){
  */
 JNIEXPORT jobjectArray JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_retrieveDevices
   (JNIEnv *env, jobject peer, jint option) {
+  	
+  		getPreknownDevicesRec			record;
+  		threadPassType					typeMask;
+  		
   		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_retrieveDevices entered", DEBUG_INFO_LEVEL);
   	
-		throwException(env, "com/intel/bluetooth/NotImplementedError", NULL);
-  	
+ 		record.option = option;
+ 		record.result = NULL;
+ 
+  		if((option != 0) && (option != 1)) {
+			throwException(env, "java/lang/IllegalArgumentException", "Option not valid");
+  		} else {
+  			
+  			typeMask.dataReq.getPreknownDevicesPtr = &record;
+  			
+  			doSynchronousTask(s_GetPreknownDevices, &typeMask);
+  		}
+  			
   		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_retrieveDevices exited", DEBUG_INFO_LEVEL);
   	
-  		return NULL;
+  		return record.result;
   }
 /*
  * Class:     com_intel_bluetooth_DiscoveryAgentImpl
@@ -89,27 +101,38 @@ JNIEXPORT jobjectArray JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_retri
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry
   (JNIEnv *env, jobject peer, jint accessCode, jobject listener){
 		
+		
 		CFRunLoopSourceContext		aContext={0};
 		doInquiryRec				*record;
+		threadPassType				*typeMaskPtr;
+		todoListRoot				*todoListPtr;
 		
 		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry called", DEBUG_INFO_LEVEL);
 		
-		CFRunLoopSourceGetContext(s_inquiryStartSource, &aContext);
-
-		/* set the data for the work function */
-		record = (doInquiryRec*) aContext.info;
-		record->peer = JAVA_ENV_CHECK(NewGlobalRef(env, peer));
-		record->accessCode = accessCode;
-		record->listener = JAVA_ENV_CHECK(NewGlobalRef(env, listener));
 		
-		if(inOSXThread()) {
-			aContext.perform(record);
+		/* verify that the listener isn't aready being used */
+		if(getPendingInquiryRef(listener)) {
+			throwException(env, "java/lang/IllegalArgumentException", "DiscoveryListener is already being utilized in an inquiry!");
 		} else {
+			CFRunLoopSourceGetContext(s_inquiryStartSource, &aContext);
+			todoListPtr = (todoListRoot*)aContext.info;
+			
+			/* set the data for the work function */
+			record = (doInquiryRec*)malloc(sizeof(doInquiryRec));
+			typeMaskPtr = (threadPassType*)malloc(sizeof(threadPassType));
+			
+			record->accessCode = accessCode;
+			record->listener = JAVA_ENV_CHECK(NewGlobalRef(env, listener));
+
+			typeMaskPtr->validCondition = FALSE;
+			typeMaskPtr->dataReq.doInquiryPtr = record;
+			addToDoItem(todoListPtr, typeMaskPtr);
+			
 			CFRunLoopSourceSignal(s_inquiryStartSource);
 			CFRunLoopWakeUp (s_runLoop);
 		}
 		printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_startInquiry exiting", DEBUG_INFO_LEVEL);
-		return -1;
+		return 1;
 	
 }
 
@@ -117,81 +140,75 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_startInqu
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelInquiry
   (JNIEnv *env, jobject peer, jobject listener){
 	
-	cancelInquiryRec			*record;
-	pthread_mutex_t				aMutex;
-	CFRunLoopSourceContext		aContext = {0};
+	cancelInquiryRec			record;
+	threadPassType				typeMask;
 	
 	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelInquiry: called", DEBUG_INFO_LEVEL);
 	
+	typeMask.dataReq.cancelInquiryPtr = &record;
+	record.listener = listener; /* no need for a global ref since we're done with this when we return */
+	doSynchronousTask(s_inquiryStopSource, &typeMask);
 
-	CFRunLoopSourceGetContext(s_inquiryStopSource, &aContext);
-
-	record = (cancelInquiryRec*) aContext.info;
-	record->peer = peer;
-	record->listener = listener; /* no need for a global ref since we're done with this when we return */
-	record->validCondition = 0;
-	if(inOSXThread()) {
-			aContext.perform(record);
-	} else {
-		pthread_cond_init(&record->waiter, NULL);
-		pthread_mutex_init(&aMutex, NULL);
-		pthread_mutex_lock(&aMutex);
-		record->validCondition = 1;
-
-		CFRunLoopSourceSignal(s_inquiryStopSource);
-		CFRunLoopWakeUp (s_runLoop);
-	
-		/* wait until the work is done */
-		pthread_cond_wait(&record->waiter, &aMutex);
-	
-		/* cleanup */
-		pthread_cond_destroy(&record->waiter);
-		pthread_mutex_destroy(&aMutex);
-	}
 	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelInquiry: exiting", DEBUG_INFO_LEVEL);
 
-	
-	return record->success;
+	return record.success;
   }
   
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices
   (JNIEnv *env, jobject peer, jintArray attrSet, jobjectArray uuidSet, jobject device, jobject listener){
 	
-	searchServicesRec				*record;
 	CFRunLoopSourceContext		aContext = {0};
-	currServiceInq				*mySearchServices;
+	searchServicesRec			*record;
+	threadPassType				*typeMaskPtr;
+	todoListRoot				*todoListPtr;
+	
 	jstring						deviceAddress;
 	jmethodID					getAddress;
 	jclass						deviceClass;
+	jint						myRef;
 	
 	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices: called", DEBUG_INFO_LEVEL);
+	/* TODO check for illeagal arguments */
 	
+	/* get the address of the remote device */
 	deviceClass = JAVA_ENV_CHECK(GetObjectClass(env, device));
 	getAddress = JAVA_ENV_CHECK(GetMethodID(env, deviceClass, "getBluetoothAddress", "()Ljava/lang/String;"));
 	deviceAddress = JAVA_ENV_CHECK(CallObjectMethod(env, device, getAddress));
 	
 	
-	mySearchServices = newServiceInqRec();
 	CFRunLoopSourceGetContext(s_searchServicesStart, &aContext);
-
-	record = (searchServicesRec*) aContext.info;
-	record->peer =  JAVA_ENV_CHECK(NewGlobalRef(env, peer));
-	// what if attrSet is NULL?
-	record->attrSet =  JAVA_ENV_CHECK(NewGlobalRef(env, attrSet));
-	record->uuidSet = JAVA_ENV_CHECK(NewGlobalRef(env, uuidSet));
-	record->deviceAddress = JAVA_ENV_CHECK(NewGlobalRef(env, deviceAddress));
-	record->device = JAVA_ENV_CHECK(NewGlobalRef(env, device));
-	record->listener = JAVA_ENV_CHECK(NewGlobalRef(env, listener)); /* no need for a global ref since we're done with this when we return */
-	record->theInq = mySearchServices;
-	if(inOSXThread()) {
-			aContext.perform(record);
-	} else {
-		CFRunLoopSourceSignal(s_searchServicesStart);
-		CFRunLoopWakeUp(s_runLoop);
+	todoListPtr = (todoListRoot*)aContext.info;
+	
+	record = (searchServicesRec*)malloc(sizeof(searchServicesRec));
+	typeMaskPtr = (threadPassType*)malloc(sizeof(threadPassType));
+	
+	if(attrSet) {
+		record->attrSet = JAVA_ENV_CHECK(NewGlobalRef(env, attrSet));
+	} else { 
+		record->attrSet = NULL;
 	}
+	record->deviceAddress = JAVA_ENV_CHECK(NewGlobalRef(env, deviceAddress));
+	record->listener = JAVA_ENV_CHECK(NewGlobalRef(env, listener));
+	record->device = JAVA_ENV_CHECK(NewGlobalRef(env, device));
+	record->stopped = FALSE;
+	if(uuidSet) {
+		record->uuidSet = JAVA_ENV_CHECK(NewGlobalRef(env, uuidSet));
+	} else 
+		record->uuidSet = NULL;
+	
+	myRef = addServiceSearch(record);
+	record->refNum = myRef;
+	
+	typeMaskPtr->validCondition = FALSE;
+	typeMaskPtr->dataReq.searchSrvPtr = record;
+	addToDoItem(todoListPtr, typeMaskPtr);
+	
+	CFRunLoopSourceSignal(s_searchServicesStart);
+	CFRunLoopWakeUp(s_runLoop);
+	
 	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_searchServices exiting", DEBUG_INFO_LEVEL);
 
-	return mySearchServices->index;
+	return myRef;
   
 }
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_ServiceRecordImpl_native_1populateRecord
@@ -214,10 +231,19 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_ServiceRecordImpl_native_1po
   
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelServiceSearch
   (JNIEnv *env, jobject peer, jint transID){
+  	searchServicesRec*		aRec;
+  	jboolean				result;
   	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelServiceSearch called", DEBUG_INFO_LEVEL);
+  	/* we have no way of actually canceling the radio call but we can swallow the results */
+  	aRec = getServiceSearchRec(transID);
+  	if(aRec) {
+  		result = TRUE;
+  		aRec->stopped = TRUE;
+  	} else result = FALSE;
+
 	printMessage("Java_com_intel_bluetooth_DiscoveryAgentImpl_cancelServiceSearch exiting", DEBUG_INFO_LEVEL);
 	
-	return 0;
+	return result;
   
 }
 /*
@@ -392,13 +418,17 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_LocalDeviceImpl_getLocalAddress
 	int					addressValue[6];
 	int					i;
 	UInt64				intAddress;
-	
+	/* TODO need to fix to actually check if the local address is available, if the hard
+	 * ware isn't turned on when the library initializes then we'll not have a local address
+	 * set */
+	 
 	printMessage("Java_com_intel_bluetooth_LocalDeviceImpl_getLocalAddress entered", DEBUG_INFO_LEVEL);
 	/* I assume this always just for the local device */
 	propertyName = JAVA_ENV_CHECK(NewStringUTF(env, BLUECOVE_SYSTEM_PROP_LOCAL_ADDRESS));
 	propList = JAVA_ENV_CHECK(GetObjectClass(env, s_systemProperties));
 	getProperty =  JAVA_ENV_CHECK(GetMethodID(env, propList, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;"));
 	localAddress = JAVA_ENV_CHECK(CallObjectMethod(env, s_systemProperties, getProperty, propertyName));
+	fprintf(stderr, "localAddress %p\n", localAddress);
 	addressString =  JAVA_ENV_CHECK(GetStringUTFChars(env, localAddress, NULL));
 	sscanf(addressString, "%2x-%2x-%2x-%2x-%2x-%2x", &addressValue[0], &addressValue[1], &addressValue[2],
 									&addressValue[3], &addressValue[4], &addressValue[5]);
@@ -526,12 +556,14 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothL2CAPConnection_nativeC
 								(JNIEnv *env, jobject peer, jint socket, jlong address, jint channel,
 								 jint rMTU, jint tMTU){
     printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_nativeConnect entering", DEBUG_INFO_LEVEL);
+	throwException(env, "com/intel/bluetooth/NotImplementedError", "L2CAP not yet implemented on Mac OS X");
     printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_nativeConnect exiting", DEBUG_INFO_LEVEL);
   
   }
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothL2CAPConnection_send
 								(JNIEnv *env, jobject jConn, jbyteArray jData){
     printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_send entering", DEBUG_INFO_LEVEL);
+	throwException(env, "com/intel/bluetooth/NotImplementedError", "L2CAP not yet implemented on Mac OS X");
     printMessage("Java_com_intel_bluetooth_BluetoothL2CAPConnection_send exiting", DEBUG_INFO_LEVEL);
 								
 								}
@@ -541,6 +573,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeCo
 (JNIEnv *env, jobject peer, jint socket, jlong address, jint channel,
 								 jint rMTU, jint tMTU){
     printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeConnect entering", DEBUG_INFO_LEVEL);
+	throwException(env, "com/intel/bluetooth/NotImplementedError", "OBEX not yet implemented on Mac OS X");
     printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeConnect exiting", DEBUG_INFO_LEVEL);
   
   }
@@ -549,6 +582,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothOBEXConnection_nativeCo
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothOBEXConnection_send
 								(JNIEnv *env, jobject jConn, jbyteArray jData){
     printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_send entering", DEBUG_INFO_LEVEL);
+ 	throwException(env, "com/intel/bluetooth/NotImplementedError", "OBEX not yet implemented on Mac OS X");
     printMessage("Java_com_intel_bluetooth_BluetoothOBEXConnection_send exiting", DEBUG_INFO_LEVEL);
 								
 }
