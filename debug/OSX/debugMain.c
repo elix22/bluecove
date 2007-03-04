@@ -27,27 +27,82 @@
 #include <jni.h>
 #include <pthread.h>
 
+
+void*	creationThread(void* nullPtr);
+void 	dummyFunction(void* voidPtr) {}
+
 int main(int argc, const char * argv[]) {
+	/* Start the thread that runs the VM. */
+	pthread_t vmthread;
+
+	/* create a new pthread copying the stack size of the primordial pthread */
+	struct rlimit limit;
+	size_t stack_size = 0;
+	int rc = getrlimit(RLIMIT_STACK, &limit);
+	if (rc == 0) {
+	  if (limit.rlim_cur != 0LL) {
+	    stack_size = (size_t)limit.rlim_cur;
+	  }
+	}
+
+	pthread_attr_t thread_attr;
+	pthread_attr_init(&thread_attr);
+	pthread_attr_setscope(&thread_attr, PTHREAD_SCOPE_SYSTEM);
+	pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
+	if (stack_size > 0) {
+	  pthread_attr_setstacksize(&thread_attr, stack_size);
+	}
+
+	/* Start the thread that we will start the JVM on. */
+	/* startupJava is a separate function that creates the JVM */
+	pthread_create(&vmthread, &thread_attr, creationThread, NULL);
+	pthread_attr_destroy(&thread_attr);
+	{
+		// create a dummy run loop for the GUI stuff
+		CFRunLoopSourceContext	aContext = {0};
+		CFRunLoopSourceRef		dummySource;
+		
+		aContext.perform = dummyFunction;
+		dummySource = CFRunLoopSourceCreate(NULL, 0, &aContext);
+		
+  	  	CFRunLoopAddSource (CFRunLoopGetCurrent(),dummySource,kCFRunLoopCommonModes); 
+		printMessage("dummy Source added to GUI thread", DEBUG_DEVEL_LEVEL);
+		CFRunLoopRun();
+		printMessage("GUI Run loop exiting!", DEBUG_DEVEL_LEVEL);
+	}
+	return 0;
+}
+
+	
+void*	creationThread(void* nullPtr) {
+	/* can't create a VM in main thread
+	 * http://developer.apple.com/technotes/tn2005/tn2147.html
+	 */
+	 
 	JavaVM	*jvm;
 	JNIEnv	*env;
 	jint	err;
 	jclass	cls, stringCls;
 	JavaVMInitArgs vm_args={0};
-	JavaVMOption	options[3];
+	JavaVMOption	options[6];
+	
 	options[0].optionString = "-Djava.compiler=NONE";
 	
 	/* set this to the path location specific to your OS tha contains the java code
 	 * which interfaces with your native library */
 	 
 	options[1].optionString = "-Djava.class.path=/Users/work/Documents/workspace/bluecove/bin";
-	options[2].optionString = "-verbose:jni";
-	
+	options[2].optionString = "-Xrs";
+//	options[2].optionString = "-verbose:jni";
+	options[3].optionString = "-verbose:gc"; // document garbage collection
+	options[4].optionString = "-ea"; // enable assertions
+	options[5].optionString = "-Xdebug";
 	err = JNI_GetDefaultJavaVMInitArgs(&vm_args);
 		vm_args.version = JNI_VERSION_1_2;
 	vm_args.options = options;
 	
 	/* set this to 3 if you want to see the linker actions logged to the console */
-	vm_args.nOptions = 2;
+	vm_args.nOptions = 5;
 	/* load and initialize the JVM */
 	err = JNI_CreateJavaVM(&jvm, (void**) &env, &vm_args);
 	/* trick the Native Library load class into thinking its already loaded the library
