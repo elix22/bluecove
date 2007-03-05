@@ -144,7 +144,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				if (record == null) {
 					Logger.warn("Bluetooth ServiceRecord is null");
 				} else {
-					buildServiceRecord(record, server);
+					buildServiceRecord(record);
 				}
 			}
 			
@@ -202,7 +202,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
 	}
 	
-    public void buildServiceRecord(ServiceRecord record, StreamConnectionNotifier notifier) throws ServiceRegistrationException {
+    public void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
         String id = "";
     	try {
     		id = "pub";
@@ -216,6 +216,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			id = "url";
 			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
 			        new DataElement(DataElement.URL, Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE));
+			
+			id = "update";
+			//LocalDevice.getLocalDevice().updateRecord(record);
+			
 		} catch (Throwable e) {
 			Logger.error("ServiceRecord " + id, e);
 		}
