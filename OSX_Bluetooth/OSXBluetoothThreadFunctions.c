@@ -665,7 +665,9 @@ void bluetoothSDPQueryCallback( void * v_serviceRec, IOBluetoothDeviceRef device
 					
 				serviceRecImpl = JAVA_ENV_CHECK(FindClass(env, "com/intel/bluetooth/ServiceRecordImpl"));
 				constructor = JAVA_ENV_CHECK(GetMethodID(env, serviceRecImpl, "<init>", "(Ljavax/bluetooth/RemoteDevice;I)V"));
-					
+				
+				/* TODO release the retain in a finalize method */
+				IOBluetoothObjectRetain(osServiceRecord);
 				aServiceRecord = JAVA_ENV_CHECK(NewObject(env, serviceRecImpl, constructor, record->device, (jint)osServiceRecord));
 				serviceArray[foundServices] = aServiceRecord;
 				foundServices++;

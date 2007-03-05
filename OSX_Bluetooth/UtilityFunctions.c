@@ -131,7 +131,7 @@ int generateProperties(JNIEnv	*env) {
 				CFRange			range;
 				UniChar			*charBuf;
 				printMessage("Local Address:", DEBUG_DEVEL_LEVEL);
-				CFShow(aString);
+
 				range.location = 0;
 				range.length = CFStringGetLength(aString);
 				
@@ -301,7 +301,7 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 	BluetoothSDPDataElementSizeDescriptor	typeSize;
 	UInt32									byteSize;
 	jboolean								isUnsigned, isURL, isSequence;
-	
+		
 	if((*env)->ExceptionOccurred(env)) (*env)->ExceptionDescribe(env);
 	dataElementClass = (*env)->FindClass(env, "javax/bluetooth/DataElement");
 	typeDescrip = IOBluetoothSDPDataElementGetTypeDescriptor(dataElement);
@@ -310,7 +310,6 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 	isUnsigned = 0;
 	isURL = 0;
 	isSequence = 0;
-	
 	
 	switch(typeDescrip) {
 		case kBluetoothSDPDataElementTypeNil:
@@ -334,7 +333,7 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 			} else {
 				CFNumberRef		aNumber;
 				jint			typeValue;
-				jlong			aBigInt;
+				jlong			aBigInt = 0LL;
 				
 				constructor = (*env)->GetMethodID(env, dataElementClass, "<init>", "(IJ)V");
 				typeValue = 0;
@@ -342,16 +341,19 @@ jobject getjDataElement(JNIEnv *env, IOBluetoothSDPDataElementRef dataElement) {
 				aNumber = IOBluetoothSDPDataElementGetNumberValue(dataElement);
 				CFNumberGetValue (aNumber, kCFNumberLongLongType, &aBigInt);
 				switch(typeSize) {
-					case 0:
+					case 0: /* 1 byte int */
+						if(isUnsigned && (aBigInt < 0)) aBigInt += 0x100;
 						typeValue = (isUnsigned ? 0x08 : 0x10 );
 						break;
-					case 1:
+					case 1: /* 2 byte int */
+						if(isUnsigned && (aBigInt < 0)) aBigInt += 0x10000;
 						typeValue = (isUnsigned ? 0x09 : 0x11 );
 						break;
-					case 2:
+					case 2: /* 4 byte int */
+						if(isUnsigned && (aBigInt < 0)) aBigInt += 0x100000000;
 						typeValue	= (isUnsigned ? 0x0A : 0x12 );
 						break;
-					case 3:
+					case 3: /* 8 byte int */
 						typeValue = (isUnsigned ? 0x0B : 0x13 );
 						break;
 					}
