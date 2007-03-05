@@ -36,21 +36,17 @@ public class TestTimeOutMonitor extends Thread {
         super("TestMonitor");
         this.testThread = testThread;
         this.gracePeriod = gracePeriod;
-        super.start();
+        if (this.gracePeriod != 0)  {
+        	super.start();
+        }
     }
     
     public void run() {
-        try {
-            if (gracePeriod != 0) {
-                sleep(gracePeriod * 60 * 1000);    
-            } else {
-            	return;
-            }
-        } catch (InterruptedException e) {
-            return;
-        }
+    	if (gracePeriod == 0) {
+    		return;
+    	}
         
-        while ((System.currentTimeMillis() - testThread.lastActivityTime()) < this.gracePeriod) {
+        while ((!testFinished) && (System.currentTimeMillis() < (testThread.lastActivityTime() + this.gracePeriod  * 60 * 1000))) {
         	try {
         		sleep(20 * 1000);    
             } catch (InterruptedException e) {
@@ -58,13 +54,13 @@ public class TestTimeOutMonitor extends Thread {
             }
         }
 
-        while (!testFinished) {
+        if (!testFinished) {
+        	Logger.info("shutdown by TimeOut");
         	testThread.shutdown();
         }
     }
     
     public void finish() {
         testFinished = true;
-        interrupt();
     }
 }

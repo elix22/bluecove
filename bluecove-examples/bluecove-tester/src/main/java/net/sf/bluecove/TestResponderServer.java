@@ -126,6 +126,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		stoped = false;
 		isRunning = true;
 		if (!CommunicationTester.continuous) {
+			lastActivityTime = System.currentTimeMillis();
 			monitor = new TestTimeOutMonitor(this, Consts.serverTimeOutMin);
 		}
 		try {
