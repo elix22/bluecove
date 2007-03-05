@@ -40,6 +40,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
 import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 
 
 /**
@@ -57,16 +58,10 @@ public class TestResponderClient implements Runnable {
 	/**
 	 * Limit connections to precompiled list of test devices.
 	 */
-	private static boolean onlyWhiteDevices = true;
+	private static boolean onlyWhiteDevices = false;
 	
 	private static Hashtable whiteDeviceNames = null;
 	
-	public static final int TEST_SERVICE_ID_ATTRIBUTE = 0x0A0;
-	
-	public static final int TEST_SERVICE_VALUE1_ATTRIBUTE = 0x0A1;
-    
-    public static final int TEST_SERVICE_VALUE2_ATTRIBUTE = 0x0A2;
-    
     static {
 		whiteDeviceNames = new Hashtable();
 		whiteDeviceNames.put("00E003506231", "Nokia D1");
@@ -86,9 +81,11 @@ public class TestResponderClient implements Runnable {
 		Vector serverURLs;
 
 	    public static int[] attrIDs = new int[] { 
-	    	TEST_SERVICE_ID_ATTRIBUTE, 
-	    	TEST_SERVICE_VALUE1_ATTRIBUTE,
-			TEST_SERVICE_VALUE2_ATTRIBUTE 
+	    	0x0100,
+	    	0x0101,
+	    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
+	    	Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
+	    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
 			};
 
 	    public static final UUID L2CAP = new UUID(0x0100);
@@ -164,23 +161,85 @@ public class TestResponderClient implements Runnable {
 	    }
 
         public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-        	for (int i = 0; i < servRecord.length; i++) {
-        		DataElement attr = servRecord[i].getAttributeValue(0x0100);
-        		if ((attr == null) || (attr.getValue() == null)) {
-        			continue;
-        		}
-				String name =  attr.getValue().toString();
-				Logger.debug("attribute " + name);
-
-				if (Consts.RESPONDER_SERVERNAME.equals(name)) {
+			for (int i = 0; i < servRecord.length; i++) {
+				boolean hadError = false;
+				try {
 					String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 					serverURLs.addElement(url);
 					Logger.info("*found server " + url);
-				} else {
-					Logger.debug("found attribute " + name);
+					if (CommunicationTester.testServiceAttributes) {
+						int[] attributeIDs = servRecord[i].getAttributeIDs();
+						// Logger.debug("attributes " + attributeIDs.length);
+
+						boolean foundName = false;
+						boolean foundInt = false;
+						boolean foundStr = false;
+						boolean foundUrl = false;
+
+						for (int j = 0; j < attributeIDs.length; j++) {
+							int id = attributeIDs[j];
+							try {
+								DataElement attrDataElement = servRecord[i].getAttributeValue(id);
+								Assert.assertNotNull("attrValue null", attrDataElement);
+								switch (id) {
+								case 0x0100:
+									foundName = true;
+									Assert
+											.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement
+													.getValue());
+									break;
+								case Consts.TEST_SERVICE_ATTRIBUTE_INT_ID:
+									foundInt = true;
+									Assert.assertEquals("int", Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE, attrDataElement
+											.getLong());
+									break;
+								case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
+									foundStr = true;
+									Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement
+											.getValue());
+									break;
+								case Consts.TEST_SERVICE_ATTRIBUTE_URL_ID:
+									foundUrl = true;
+									Assert.assertEquals("url", Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE, attrDataElement
+											.getValue());
+									break;
+								default:
+									// Logger.debug("attribute " + id + " " +
+									// BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
+								}
+
+							} catch (AssertionFailedError e) {
+								Logger.warn("attr " + id + " " + e.getMessage());
+								countFailure++;
+								hadError = true;
+							}
+						}
+						if (!foundName) {
+							Logger.warn("srv name attr. not found");
+							countFailure++;
+						}
+						if (!foundInt) {
+							Logger.warn("srv INT attr. not found");
+							countFailure++;
+						}
+						if (!foundStr) {
+							Logger.warn("srv STR attr. not found");
+							countFailure++;
+						}
+						if (!foundUrl) {
+							Logger.warn("srv URL attr. not found");
+							countFailure++;
+						}
+						if (foundName && foundUrl && foundInt && foundStr && !hadError) {
+							Logger.info("service Attr OK");
+							countSuccess++;
+						}
+					}
+				} catch (Throwable e) {
+					Logger.error("attrs", e);
 				}
-    		}
-        }
+			}
+		}
 
         public synchronized void serviceSearchCompleted(int transID, int respCode) {
         	notifyAll();
@@ -253,7 +312,7 @@ public class TestResponderClient implements Runnable {
 			IOUtils.closeQuietly(conn);
 			// Let the server restart
 			try {
-				Thread.sleep(Consts.reconnectSleep);
+				Thread.sleep(Consts.clientReconnectSleep);
 			} catch (InterruptedException e) {
 				break;
 			}

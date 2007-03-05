@@ -26,7 +26,21 @@ public interface Consts {
 
 	public static final String RESPONDER_SERVERNAME = "bluecoveResponderSrv";
 
-	public static final int reconnectSleep = 2000;
+	public static final int TEST_SERVICE_ATTRIBUTE_INT_ID = 0x0A0;
+	
+	public static final int TEST_SERVICE_ATTRIBUTE_INT_VALUE = 77;
+	
+	public static final int TEST_SERVICE_ATTRIBUTE_STR_ID = 0x0A1;
+    
+	public static final String TEST_SERVICE_ATTRIBUTE_STR_VALUE = "SomeData";
+	
+    public static final int TEST_SERVICE_ATTRIBUTE_URL_ID = 0x0A2;
+    
+    public static final String TEST_SERVICE_ATTRIBUTE_URL_VALUE = "http:/localhost:80/someUrl?q=10";
+	
+	public static final int clientReconnectSleep = 2100;
+	
+	public static final int serverSendSleep = 1000;
 	
 	public static final int serverTimeOutMin = 3;
 	
@@ -48,5 +62,17 @@ public interface Consts {
 	
 	public static final int TEST_BYTE_BACK = 4;
 	
-	public static final int TEST_LAST = 4;
+	public static final int TEST_STRING_UTF = 5;
+	
+	public static final int TEST_STRING_UTF_BACK = 6;
+	
+	public static final int TEST_BYTE_ARRAY = 7;
+	
+	public static final int TEST_BYTE_ARRAY_BACK = 8;
+	
+	public static final int TEST_DataStream = 9;
+	
+	public static final int TEST_DataStream_BACK = 10;
+	
+	public static final int TEST_LAST = 10;
 }

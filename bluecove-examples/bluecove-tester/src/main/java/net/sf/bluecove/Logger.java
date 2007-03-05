@@ -54,6 +54,11 @@ public class Logger {
 		System.out.println(message);
 		callAppenders(INFO, message, null);
 	}
+
+	public static void warn(String message) {
+		System.out.println(message);
+		callAppenders(WARN, message, null);
+	}
 	
 	public static void error(String message, Throwable t) {
 		System.out.println("error " + message + " " + t);

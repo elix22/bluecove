@@ -36,9 +36,15 @@ public class CommunicationTester implements Consts {
 
 	public static boolean continuous = false;
 	
+	public static boolean testServiceAttributes = true;
+	
 	private static final String stringData = "TestString2007";
 	
+	private static final String stringUTFData = "\u0413\u043E\u043B\u0443\u0431\u043E\u0439\u0417\u0443\u0431";
+	
 	private static final int byteCount = 12; //1024;
+	
+	private static final byte[] byteAray = new byte[] {1 , 7, -40, 80, 90, 100, 87, -10, 127, -127, 0, -77};  
 	
 	static void sendString(OutputStream os) throws IOException {
 		DataOutputStream dos = new DataOutputStream(os);
@@ -49,6 +55,17 @@ public class CommunicationTester implements Consts {
 		DataInputStream dis = new DataInputStream(is);
 		String got = dis.readUTF();
 		Assert.assertEquals("ReadString", stringData, got);
+	}
+
+	static void sendUTFString(OutputStream os) throws IOException {
+		DataOutputStream dos = new DataOutputStream(os);
+		dos.writeUTF(stringUTFData);
+	}
+	
+	static void readUTFString(InputStream is) throws IOException {
+		DataInputStream dis = new DataInputStream(is);
+		String got = dis.readUTF();
+		Assert.assertEquals("ReadString", stringUTFData, got);
 	}
 	
 	static void sendByte(OutputStream os) throws IOException {
@@ -62,6 +79,40 @@ public class CommunicationTester implements Consts {
 			int got = is.read();
 			Assert.assertEquals("byte", 255 & i, got);
 		}
+	}
+
+	static void sendByteAray(OutputStream os) throws IOException {
+		os.write(byteAray);
+	}
+
+	static void readByteAray(InputStream is) throws IOException {
+		byte[] byteArayGot = new byte[byteAray.length];
+		int got = is.read(byteArayGot);
+		Assert.assertEquals("byteAray.len", byteAray.length, got);
+		for(int i = 1; i < byteAray.length; i++) {
+			Assert.assertEquals("byte", byteAray[i], byteArayGot[i]);
+		}
+	}
+
+	static void sendDataStream(OutputStream os) throws IOException {
+		DataOutputStream dos = new DataOutputStream(os);
+		dos.writeUTF(stringData);
+		dos.writeInt(1025);
+		dos.writeLong(567890025);
+		dos.writeBoolean(true);
+		dos.writeBoolean(false);
+		dos.writeChar('O');
+	}
+	
+	static void readDataStream(InputStream is) throws IOException {
+		DataInputStream dis = new DataInputStream(is);
+		String got = dis.readUTF();
+		Assert.assertEquals("ReadString", stringData, got);
+		Assert.assertEquals("ReadInt", 1025, dis.readInt());
+		Assert.assertEquals("ReadLong", 567890025, dis.readLong());
+		Assert.assertEquals("ReadBoolean", true, dis.readBoolean());
+		Assert.assertEquals("ReadBoolean2", false, dis.readBoolean());
+		Assert.assertEquals("ReadChar", 'O', dis.readChar());
 	}
 	
 	public static void runTest(int testType, boolean server, InputStream is, OutputStream os) throws IOException {
@@ -92,6 +143,46 @@ public class CommunicationTester implements Consts {
 				CommunicationTester.readByte(is);
 			} else {
 				CommunicationTester.sendByte(os);
+			}
+			break;
+		case TEST_STRING_UTF:
+			if (server) {
+				CommunicationTester.readUTFString(is);
+			} else {
+				CommunicationTester.sendUTFString(os);
+			}
+		case TEST_STRING_UTF_BACK:
+			if (!server) {
+				CommunicationTester.readUTFString(is);
+			} else {
+				CommunicationTester.sendUTFString(os);
+			}
+		case TEST_BYTE_ARRAY:
+			if (server) {
+				CommunicationTester.readByteAray(is);
+			} else {
+				CommunicationTester.sendByteAray(os);
+			}
+			break;
+		case TEST_BYTE_ARRAY_BACK:
+			if (!server) {
+				CommunicationTester.readByteAray(is);
+			} else {
+				CommunicationTester.sendByteAray(os);
+			}
+			break;
+		case TEST_DataStream:
+			if (server) {
+				CommunicationTester.readDataStream(is);
+			} else {
+				CommunicationTester.sendDataStream(os);
+			}
+			break;
+		case TEST_DataStream_BACK:
+			if (!server) {
+				CommunicationTester.readDataStream(is);
+			} else {
+				CommunicationTester.sendDataStream(os);
 			}
 			break;
 		case TEST_TERMINATE:

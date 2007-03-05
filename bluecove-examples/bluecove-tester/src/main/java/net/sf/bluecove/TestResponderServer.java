@@ -25,8 +25,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DataElement;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
+import javax.bluetooth.ServiceRecord;
+import javax.bluetooth.ServiceRegistrationException;
+import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
@@ -78,12 +82,16 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				os.flush();
 				countSuccess++;
 				Logger.debug("Test# " + testType + " ok");
+				try {
+					Thread.sleep(Consts.serverSendSleep);
+				} catch (InterruptedException e) {
+				}
 			} catch (Throwable e) {
 				countFailure++;
 				Logger.error("Test# " + testType + " error", e);
 			} finally {
-				IOUtils.closeQuietly(os);
 				IOUtils.closeQuietly(is);
+				IOUtils.closeQuietly(os);
 				IOUtils.closeQuietly(conn);
 			}
 			Logger.info("*Test Success:" + countSuccess + " Failure:" + countFailure);
@@ -116,16 +124,28 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							+ CommunicationTester.uuid
 							+ ";name="
 							+ Consts.RESPONDER_SERVERNAME
-							+ ";authorize=false;authenticate=false;encrypt=false");
+							//;authenticate=false;encrypt=false
+							+ ";authorize=false");
 
 			Logger.info("ResponderServer started");
+			if (CommunicationTester.testServiceAttributes) {
+				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(server);
+				if (record == null) {
+					Logger.warn("Bluetooth ServiceRecord is null");
+				} else {
+					buildServiceRecord(record, server);
+				}
+			}
 			
 			while (!stoped) {
 				Logger.info("Accepting connection");
 				StreamConnection conn = server.acceptAndOpen();
-
-				Logger.info("Received connection");
-				(new ConnectionTread(conn)).start();
+				if (!stoped) {
+					Logger.info("Received connection");
+					(new ConnectionTread(conn)).start();
+				} else {
+					IOUtils.closeQuietly(conn);
+				}
 			}
 
 			server.close();
@@ -154,6 +174,45 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
 	}
 	
+    public void buildServiceRecord(ServiceRecord record, StreamConnectionNotifier notifier) throws ServiceRegistrationException {
+        String id = "";
+    	try {
+    		id = "pub";
+			buildServiceRecordPub(record);
+			id = "int";
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID,
+			        new DataElement(DataElement.INT_1, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE));
+			id = "str";
+            record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
+            new DataElement(DataElement.STRING, Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE));
+			id = "url";
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
+			        new DataElement(DataElement.URL, Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE));
+		} catch (Throwable e) {
+			Logger.error("ServiceRecord " + id, e);
+		}
+    }
+    
+    public void setAttributeValue(ServiceRecord record, int attrID, DataElement attrValue) {
+        try {
+            if (!record.setAttributeValue(attrID, attrValue)) {
+                Logger.error("SrvReg attrID=" + attrID);
+            }
+        } catch (Exception e) {
+            Logger.error("SrvReg attrID=" + attrID, e);
+        }
+    }
+    
+    public void buildServiceRecordPub(ServiceRecord record) throws ServiceRegistrationException {
+        final short UUID_PUBLICBROWSE_GROUP = 0x1002;
+        final short ATTR_BROWSE_GRP_LIST = 0x0005;
+        // Add the service to the 'Public Browse Group'
+        DataElement browseClassIDList = new DataElement(DataElement.DATSEQ);
+        UUID browseClassUUID = new UUID(UUID_PUBLICBROWSE_GROUP);
+        browseClassIDList.addElement(new DataElement(DataElement.UUID, browseClassUUID));
+        setAttributeValue(record, ATTR_BROWSE_GRP_LIST, browseClassIDList);
+    }
+    
 	public static void main(String[] args) {
 		JavaSECommon.initOnce();
 		try {
