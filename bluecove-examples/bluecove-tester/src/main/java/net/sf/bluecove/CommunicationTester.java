@@ -36,9 +36,13 @@ public class CommunicationTester implements Consts {
 
 	public static boolean acceptWhileConnected = false;
 	
+	public static boolean dataOutputStreamFlush = true;
+	
 	public static boolean continuous = false;
 	
 	public static boolean testServiceAttributes = true;
+	
+	public static int clientConnectionOpenRetry = 3;
 	
 	private static final String stringData = "TestString2007";
 	
@@ -51,6 +55,9 @@ public class CommunicationTester implements Consts {
 	static void sendString(OutputStream os) throws IOException {
 		DataOutputStream dos = new DataOutputStream(os);
 		dos.writeUTF(stringData);
+		if (dataOutputStreamFlush) {
+			dos.flush();
+		}
 	}
 	
 	static void readString(InputStream is) throws IOException {
@@ -62,6 +69,9 @@ public class CommunicationTester implements Consts {
 	static void sendUTFString(OutputStream os) throws IOException {
 		DataOutputStream dos = new DataOutputStream(os);
 		dos.writeUTF(stringUTFData);
+		if (dataOutputStreamFlush) {
+			dos.flush();
+		}
 	}
 	
 	static void readUTFString(InputStream is) throws IOException {
@@ -104,6 +114,9 @@ public class CommunicationTester implements Consts {
 		dos.writeBoolean(true);
 		dos.writeBoolean(false);
 		dos.writeChar('O');
+		if (dataOutputStreamFlush) {
+			dos.flush();
+		}
 	}
 	
 	static void readDataStream(InputStream is) throws IOException {

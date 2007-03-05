@@ -78,7 +78,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					shutdown();
 					return;
 				}
+				Logger.debug("run test# " + testType);
 				CommunicationTester.runTest(testType, true, is, os);
+				Logger.debug("reply OK");
 				os.write(Consts.TEST_REPLY_OK);
 				os.write(testType);
 				os.flush();

@@ -39,8 +39,13 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command startServerCommand = new Command("Start server", Command.ITEM, 6);
 	static final Command clearCommand = new Command("Clear", Command.ITEM, 7);
 	
+	private boolean showLogDebug = true;
+	
 	private int line;
+	
 	private int lineOffsetY;
+	
+	private int lineOffsetX;
 	
 	private TestResponderClient client;
 	
@@ -50,7 +55,10 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	
 	private int logLine = 0;
 	
+	private int logScrollX;
+	
 	private int logVisibleLines = 0;
+	
 	private boolean logLastEvenVisible = true;
 	
 	public BlueCoveTestCanvas() {
@@ -68,13 +76,14 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	public int writeln(Graphics g, String s) {
 		int h = (g.getFont().getHeight() + 1);
 		int y = lineOffsetY + h * line;
-		g.drawString(s, 0, y, Graphics.LEFT | Graphics.TOP);
+		g.drawString(s, lineOffsetX, y, Graphics.LEFT | Graphics.TOP);
 		line ++;
 		return y + h;
 	}
 	
 	protected void paint(Graphics g) {
 		lineOffsetY = 0;
+		lineOffsetX = 0;
 		line = 0;
 		int width = getWidth();
         int height = getHeight();
@@ -91,7 +100,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		lineOffsetY = lastY;
 		int lineHeight = g.getFont().getHeight() + 1;
 		logVisibleLines = (height - lastY ) / lineHeight;
-		
+		lineOffsetX = logScrollX;
 		int logIndex = logLine;
 		while (((lastY) < height) && (logIndex < logMessages.size())) {
 			String message = (String)logMessages.elementAt(logIndex);
@@ -102,7 +111,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	}
 	
 	public void appendLog(int level, String message, Throwable throwable) {
-		if (level == Logger.DEBUG) {
+		if (!showLogDebug && (level == Logger.DEBUG)) {
 			return;
 		}
 		StringBuffer buf = new StringBuffer();
@@ -119,7 +128,11 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		}
 		buf.append(message);
 		if (throwable != null) {
-			buf.append(' ').append(throwable.toString());
+			buf.append(' ');
+			String className = throwable.getClass().getName();
+			buf.append(className.substring(className.lastIndexOf('.')));
+			buf.append(':');
+			buf.append(throwable.getMessage());
 		}
 		
 		logMessages.addElement(buf.toString());
@@ -140,12 +153,22 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		switch (action) {
 		case UP:
 			if (logLine > 0) {
-				logLine --;
+				logLine--;
 			}
 			break;
 		case DOWN:
 			if ((logLine + logVisibleLines - 1) < logMessages.size()) {
-				logLine ++;
+				logLine++;
+			}
+			break;
+		case RIGHT:
+			if (logScrollX > -300) {
+				logScrollX-=5;
+			}
+			break;
+		case LEFT:
+			if (logScrollX < 0) {
+				logScrollX+=5;
 			}
 			break;
 		}
@@ -158,6 +181,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		} else if (c == clearCommand) {
 			logMessages.removeAllElements();
 			logLine = 0;
+			logScrollX = 0;
 			repaint();
 		} else if (c == startClientCommand) {
 			try {

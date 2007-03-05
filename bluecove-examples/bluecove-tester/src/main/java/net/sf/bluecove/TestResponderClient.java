@@ -55,10 +55,11 @@ public class TestResponderClient implements Runnable {
 
 	boolean isRunning = false;
 	
+	public static boolean searchOnlyBluecoveUuid = false;
 	/**
 	 * Limit connections to precompiled list of test devices.
 	 */
-	private static boolean onlyWhiteDevices = false;
+	private static boolean onlyWhiteDevices = true;
 	
 	private static Hashtable whiteDeviceNames = null;
 	
@@ -92,7 +93,15 @@ public class TestResponderClient implements Runnable {
 
 	    public static final UUID RFCOMM = new UUID(0x0003);
 	    
-		private UUID searchUuidSet[] = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
+		private UUID searchUuidSet[];
+		
+		public BluetoothInquirer() {
+			if (searchOnlyBluecoveUuid) {
+				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
+			} else {
+				searchUuidSet = new UUID[] { L2CAP };
+			}
+		}
 		
 	    public boolean startDeviceInquiry() {
 			Logger.debug("Starting Device inquiry");
@@ -132,7 +141,7 @@ public class TestResponderClient implements Runnable {
         	try {
         		name = remoteDevice.getFriendlyName(false);
 			} catch (IOException e) {
-				Logger.debug("getFriendlyName of " + remoteDevice.getBluetoothAddress(), e);
+				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 			}
 			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + name);
         }
@@ -163,10 +172,10 @@ public class TestResponderClient implements Runnable {
         public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
 			for (int i = 0; i < servRecord.length; i++) {
 				boolean hadError = false;
+				boolean isBlueCoveTestService = false;
+				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+				Logger.info("*found server " + url);
 				try {
-					String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-					serverURLs.addElement(url);
-					Logger.info("*found server " + url);
 					if (CommunicationTester.testServiceAttributes) {
 						int[] attributeIDs = servRecord[i].getAttributeIDs();
 						// Logger.debug("attributes " + attributeIDs.length);
@@ -184,28 +193,27 @@ public class TestResponderClient implements Runnable {
 								switch (id) {
 								case 0x0100:
 									foundName = true;
-									Assert
-											.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement
-													.getValue());
+									Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
+									isBlueCoveTestService = true;
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_INT_ID:
 									foundInt = true;
-									Assert.assertEquals("int", Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE, attrDataElement
-											.getLong());
+									Assert.assertEquals("int", Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE, attrDataElement.getLong());
+									isBlueCoveTestService = true;
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
 									foundStr = true;
-									Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement
-											.getValue());
+									Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
+									isBlueCoveTestService = true;
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_URL_ID:
 									foundUrl = true;
-									Assert.assertEquals("url", Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE, attrDataElement
-											.getValue());
+									Assert.assertEquals("url", Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE, attrDataElement.getValue());
+									isBlueCoveTestService = true;
 									break;
 								default:
-									// Logger.debug("attribute " + id + " " +
-									// BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
+									 Logger.debug("attribute " + id + " " 
+											 + BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
 								}
 
 							} catch (AssertionFailedError e) {
@@ -238,6 +246,13 @@ public class TestResponderClient implements Runnable {
 				} catch (Throwable e) {
 					Logger.error("attrs", e);
 				}
+				
+				if (searchOnlyBluecoveUuid || isBlueCoveTestService) {
+					serverURLs.addElement(url);
+				} else {
+					Logger.info("is not TestService on" + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
+				}
+				
 			}
 		}
 
@@ -287,7 +302,18 @@ public class TestResponderClient implements Runnable {
 			OutputStream os = null;
 			try {
 				Logger.debug("test connect:" + testType);
-				conn = (StreamConnection) Connector.open(serverURL);
+				int connectionOpenTry = 0;
+				while (conn == null) {
+					try {
+						conn = (StreamConnection) Connector.open(serverURL);
+					} catch (IOException e) {
+						connectionOpenTry ++;
+						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {
+							throw e;
+						}
+						Logger.debug("connect try:" + connectionOpenTry);
+					}
+				}
 				is = conn.openInputStream();
 				os = conn.openOutputStream();
 				
@@ -296,7 +322,7 @@ public class TestResponderClient implements Runnable {
 				Logger.debug("test run:" + testType);
 				CommunicationTester.runTest(testType, false, is, os);
 				os.flush();
-				
+				Logger.debug("read server status");
 				int ok = is.read();
 				Assert.assertEquals("Test reply ok", Consts.TEST_REPLY_OK, ok);
 				int conformTestType = is.read();
