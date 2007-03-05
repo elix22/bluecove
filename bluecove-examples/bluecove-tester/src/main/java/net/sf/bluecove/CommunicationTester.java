@@ -34,6 +34,8 @@ public class CommunicationTester implements Consts {
 
 	public static final UUID uuid = new UUID(Consts.RESPONDER_UUID, false); 
 
+	public static boolean acceptWhileConnected = false;
+	
 	public static boolean continuous = false;
 	
 	public static boolean testServiceAttributes = true;

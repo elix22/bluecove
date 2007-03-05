@@ -38,7 +38,7 @@ public interface Consts {
     
     public static final String TEST_SERVICE_ATTRIBUTE_URL_VALUE = "http:/localhost:80/someUrl?q=10";
 	
-	public static final int clientReconnectSleep = 2100;
+	public static final int clientReconnectSleep = 5100;
 	
 	public static final int serverSendSleep = 1000;
 	

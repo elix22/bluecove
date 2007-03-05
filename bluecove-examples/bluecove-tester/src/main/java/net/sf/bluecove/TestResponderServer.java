@@ -57,6 +57,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		
 		StreamConnection conn;
 		
+		boolean isRunning = true;
+		
 		ConnectionTread(StreamConnection conn) {
 			super("ConnectionTread" + (++countConnection));
 			this.conn = conn;
@@ -93,6 +95,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				IOUtils.closeQuietly(is);
 				IOUtils.closeQuietly(os);
 				IOUtils.closeQuietly(conn);
+				isRunning = false;
+				synchronized (this) {
+					notifyAll();
+				}
 			}
 			Logger.info("*Test Success:" + countSuccess + " Failure:" + countFailure);
 		}
@@ -142,7 +148,19 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				StreamConnection conn = server.acceptAndOpen();
 				if (!stoped) {
 					Logger.info("Received connection");
-					(new ConnectionTread(conn)).start();
+					ConnectionTread t = new ConnectionTread(conn);
+					t.start();
+					if (!CommunicationTester.acceptWhileConnected) {
+						while (t.isRunning) {
+							 synchronized (t) {
+								 try {
+									t.wait();
+								} catch (InterruptedException e) {
+									break;
+								}
+							 }
+						}
+					}
 				} else {
 					IOUtils.closeQuietly(conn);
 				}
