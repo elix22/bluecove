@@ -55,11 +55,11 @@ public class TestResponderClient implements Runnable {
 
 	boolean isRunning = false;
 	
-	public static boolean searchOnlyBluecoveUuid = false;
+	public static boolean searchOnlyBluecoveUuid = true;
 	/**
 	 * Limit connections to precompiled list of test devices.
 	 */
-	private static boolean onlyWhiteDevices = true;
+	private static boolean onlyWhiteDevices = false;
 	
 	private static Hashtable whiteDeviceNames = null;
 	
@@ -250,7 +250,7 @@ public class TestResponderClient implements Runnable {
 				if (searchOnlyBluecoveUuid || isBlueCoveTestService) {
 					serverURLs.addElement(url);
 				} else {
-					Logger.info("is not TestService on" + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
+					Logger.info("is not TestService on " + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 				}
 				
 			}
@@ -314,12 +314,13 @@ public class TestResponderClient implements Runnable {
 						Logger.debug("connect try:" + connectionOpenTry);
 					}
 				}
-				is = conn.openInputStream();
 				os = conn.openOutputStream();
-				
-				os.write(testType);
-
 				Logger.debug("test run:" + testType);
+				os.write(testType);
+				os.flush();
+				
+				is = conn.openInputStream();
+
 				CommunicationTester.runTest(testType, false, is, os);
 				os.flush();
 				Logger.debug("read server status");

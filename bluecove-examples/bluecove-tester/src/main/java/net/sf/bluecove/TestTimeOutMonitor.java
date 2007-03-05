@@ -43,9 +43,19 @@ public class TestTimeOutMonitor extends Thread {
         try {
             if (gracePeriod != 0) {
                 sleep(gracePeriod * 60 * 1000);    
+            } else {
+            	return;
             }
         } catch (InterruptedException e) {
             return;
+        }
+        
+        while ((System.currentTimeMillis() - testThread.lastActivityTime()) < this.gracePeriod) {
+        	try {
+        		sleep(20 * 1000);    
+            } catch (InterruptedException e) {
+                return;
+            }
         }
 
         while (!testFinished) {

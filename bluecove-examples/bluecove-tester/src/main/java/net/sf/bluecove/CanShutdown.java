@@ -26,4 +26,6 @@ package net.sf.bluecove;
 public interface CanShutdown {
 
 	public void shutdown();
+	
+	public long lastActivityTime();
 }

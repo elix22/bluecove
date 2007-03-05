@@ -32,7 +32,7 @@ import junit.framework.Assert;
 
 public class CommunicationTester implements Consts {
 
-	public static final UUID uuid = new UUID(Consts.RESPONDER_UUID, false); 
+	public static final UUID uuid = new UUID(Consts.RESPONDER_UUID, Consts.useShortUUID); 
 
 	public static boolean acceptWhileConnected = false;
 	

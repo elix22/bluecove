@@ -22,7 +22,13 @@ package net.sf.bluecove;
 
 public interface Consts {
 
+	public static final boolean useShortUUID = false;
+	
 	public static final String RESPONDER_UUID = "B1011111111111111111111111110001";
+	
+	//public static final boolean useShortUUID = true;
+	
+	//public static final String RESPONDER_UUID = "1212";
 
 	public static final String RESPONDER_SERVERNAME = "bluecoveResponderSrv";
 
@@ -42,7 +48,7 @@ public interface Consts {
 	
 	public static final int serverSendSleep = 1000;
 	
-	public static final int serverTimeOutMin = 3;
+	public static final int serverTimeOutMin = 2;
 	
     public static final int DEVICE_COMPUTER = 0x0100;
 

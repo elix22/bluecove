@@ -45,6 +45,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static int countConnection = 0;
 	
+	private long lastActivityTime;
+	
 	private boolean stoped = false;
 	
 	boolean isRunning = false;
@@ -70,7 +72,6 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			int testType = 0;
 			try {
 				is = conn.openInputStream();
-				os = conn.openOutputStream();
 				testType = is.read();
 
 				if (testType == Consts.TEST_TERMINATE) {
@@ -79,6 +80,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					return;
 				}
 				Logger.debug("run test# " + testType);
+				os = conn.openOutputStream();
 				CommunicationTester.runTest(testType, true, is, os);
 				Logger.debug("reply OK");
 				os.write(Consts.TEST_REPLY_OK);
@@ -150,6 +152,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				StreamConnection conn = server.acceptAndOpen();
 				if (!stoped) {
 					Logger.info("Received connection");
+					lastActivityTime = System.currentTimeMillis();
 					ConnectionTread t = new ConnectionTread(conn);
 					t.start();
 					if (!CommunicationTester.acceptWhileConnected) {
@@ -183,6 +186,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
 	}
 
+	public long lastActivityTime() {
+		return lastActivityTime;
+		
+	}
 	public void shutdown() {
 		Logger.info("shutdownServer");
 		stoped = true;
