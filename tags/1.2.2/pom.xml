@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+    <!-- @version $Revision$ ($Author$) $Date$ -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.sf.bluecove</groupId>
+    <artifactId>bluecove</artifactId>
+    <version>1.2.2</version>
+    <packaging>jar</packaging>
+    <url>http://sourceforge.net/projects/bluecove/</url>
+
+    <name>bluecove</name>
+
+    <description>BlueCove is a LGPL licensed JSR-82 J2SE implementation that currently interfaces with the Microsoft Bluetooth stack</description>
+
+    <organization>
+        <name>BlueCove Team</name>
+        <url>http://code.google.com/p/bluecove/</url>
+    </organization>
+    <inceptionYear>2004</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>GNU Library or Lesser General Public License (LGPL)</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://bluecove.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:http://bluecove.googlecode.com/svn/trunk</developerConnection>
+        <url>http://bluecove.googlecode.com/svn/trunk</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Paul Totterman</name>
+            <id>paul.totterman</id>
+            <email>paul.totterman@gmail.com</email>
+            <roles>
+                <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <name>Vlad Skarzhevskyy</name>
+            <id>skarzhevskyy</id>
+            <email>skarzhevskyy@gmail.com</email>
+            <organization>pyx4me.com</organization>
+            <organizationUrl>http://www.pyx4me.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>Build master</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Eric Wagner</name>
+            <email>gnuloki@gmail.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </contributor>
+
+        <!--
+        <contributor>
+            <name></name>
+            <email></email>
+            <organization></organization>
+            <organizationUrl></organizationUrl>
+            <roles>
+                <role></role>
+            </roles>
+        </contributor>
+        -->
+    </contributors>
+
+
+    <dependencies>
+           <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>3.8.1</version>
+                <scope>test</scope>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>jboss</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.3.ga</version>
+                <scope>test</scope>
+                <optional>true</optional>
+            </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <outputDirectory>build</outputDirectory>
+        <!--testOutputDirectory></testOutputDirectory-->
+
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+        </resources>
+
+        <defaultGoal>install</defaultGoal>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.4</source>
+                    <target>1.4</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <!-- No tests now -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>flase</skip>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <includes>
+                        <include>**/*Test.*</include>
+                        <include>**/*Tests.*</include>
+                    </includes>
+                    <systemProperties>
+                        <!-- Used for APIDeclarations Tests -->
+                        <property>
+                            <name>WTK_HOME</name>
+                            <value>${env.WTK_HOME}</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Description>BlueCove JSR-82 implementation</Description>
+                            <License>GNU Library or Lesser General Public License (LGPL)</License>
+                            <Implementation-Version>${pom.version}</Implementation-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
