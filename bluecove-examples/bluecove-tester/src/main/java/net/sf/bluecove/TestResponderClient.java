@@ -137,13 +137,13 @@ public class TestResponderClient implements Runnable {
 			} else {
 				return;
 			}
-        	String name = null;
-        	try {
-        		name = remoteDevice.getFriendlyName(false);
-			} catch (IOException e) {
-				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
-			}
-			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + name);
+//        	String name = null;
+//        	try {
+//        		name = remoteDevice.getFriendlyName(false);
+//			} catch (IOException e) {
+//				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
+//			}
+			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()));
         }
 
 	    public boolean startServicesInquiry() {
