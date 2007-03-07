@@ -12,7 +12,7 @@
             <dependency>
                 <groupId>net.sf.bluecove</groupId>
                 <artifactId>bluecove</artifactId>
-               <version>1.2.1</version>
+               <version>1.2.2</version>
             </dependency>
 }}}
 
@@ -23,9 +23,9 @@
             <dependency>
                <groupId>net.sf.bluecove</groupId>
                <artifactId>bluecove</artifactId>
-               <version>1.2.1</version>
+               <version>1.2.2</version>
                <scope>provided</scope> 
             </dependency>
 }}}
 
- We recommend hat you use [http://www.microemu.org/ MicroEmulator] together with BlueCove for development and debugging J2ME MIDlet applications.
+ We recommend that you use [http://www.microemu.org/ MicroEmulator] together with BlueCove for development and debugging J2ME MIDlet applications.
