@@ -1,0 +1,2 @@
+RewriteEngine on
+RewriteRule   ^(.+)\.jnlp$  /bluecove-webstart/open/jnlp-opener.php?app-url=$1

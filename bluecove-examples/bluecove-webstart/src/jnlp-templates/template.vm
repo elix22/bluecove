@@ -27,6 +27,7 @@
   <application-desc main-class="$mainClass">
         <argument>--impl</argument>
         <argument>com.intel.bluetooth.BlueCoveImpl</argument>
+        <!--jadRewrite--> <!--jadRewrite-->
   </application-desc>
 
 </jnlp>

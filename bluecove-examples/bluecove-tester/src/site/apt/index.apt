@@ -1,0 +1,25 @@
+~~ @version $Revision$ ($Author$) $Date$
+~~ See this file format http://maven.apache.org/guides/mini/guide-apt-format.html
+
+                                    ------------------
+                                    BlueCove test application
+                                    ------------------
+
+
+BlueCove test application
+
+    Project used to test BlueCove, Contains MIDlet responder application and J2SE application. We are testing BlueCove before release on WinXP connecting to Nokia, Motorola and Sony Ericsson phones.
+
+    Server and Client application can be started directly from eclipse.
+
+    Client discovers server and connects to it and then sends and receives different types of data. This includes int, long, bytes, byte array, Strings.
+
+* Try this MIDlet on computer and on a cell phone with JSR-82
+
+   {{{bluecove-tester.jad}bluecove-tester.jad}}
+
+   {{{bluecove-tester.jar}bluecove-tester.jar}}
+
+* Tests BlueCove on windows
+
+   You can start two Java Web Start applications and see how they communicate. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bluecove-tester.jnlp}\u00bbStart now}}>>>.

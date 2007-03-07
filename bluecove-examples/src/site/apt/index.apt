@@ -7,14 +7,13 @@
 
 BlueCove
 
-
     BlueCove is a Java library for Bluetooth (JSR-82 implementation) that currently interfaces with the Microsoft Bluetooth stack found in Windows XP SP2 or Windows Vista.
     BlueCove can be used in  Java 2 Platform Standard Edition (J2SE).
 
     Main project website {{{http://code.google.com/p/bluecove/}http://code.google.com/p/bluecove/}}
 
 
-BlueCove examples projects
+BlueCove example project
 
     To start BlueCove with {{{http://www.microemu.org/}MicroEmulator}} click this link << {{{bluecove-webstart/demo.jnlp}Java Web Start}} >>.
 
@@ -22,13 +21,15 @@ BlueCove examples projects
 
     * GPS receiver over bluetooth {{{http://wap.mgmaps.com/mgmaps.jad}Mobile GMaps JAD}};  FREE application {{{http://www.mgmaps.com/}Mobile GMaps}} created by Cristian Streng
 
+    *  {{{bluecove-tester/bluecove-tester.jad}bluecove test application JAD}}
+
     []
 
-    Download examplese to cell Phone
+    Download example to cell Phone with JSR-82
 
-    * TODO
+    *  {{{bluecove-tester/bluecove-tester.jad}bluecove-tester.jad}}
 
-~~    * n/a  {{{test-bt/test-bt.jar}Bluetooth Test}}
+    *  {{{bluecove-tester/bluecove-tester.jar}bluecove-tester.jar}}
 
     []
 
@@ -38,4 +39,8 @@ BlueCove examples projects
 
 
     []
+
+* BlueCove Tests on windows
+
+   You can start two Java Web Start applications and see how {{{bluecove-tester}they}} communicate. <<<{{{bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bluecove-tester.jnlp}\u00bbStart now}}>>>.
 
