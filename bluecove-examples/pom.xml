@@ -16,7 +16,7 @@
     -->
 
     <groupId>net.sf.bluecove</groupId>
-    <version>1.2.2</version><!--bluecove-version-->
+    <version>1.2.3-SNAPSHOT</version><!--bluecove-version-->
     <artifactId>bluecove-examples</artifactId>
     <name>bluecove-examples</name>
     <packaging>pom</packaging>

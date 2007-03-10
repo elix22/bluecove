@@ -17,7 +17,7 @@
 
     <body>
 
-        <menu name="Ver 1.2.2" inherit="top"/>
+        <menu name="Ver 1.2.3-SNAPSHOT" inherit="top"/>
 
         <menu ref="parent" />
 
