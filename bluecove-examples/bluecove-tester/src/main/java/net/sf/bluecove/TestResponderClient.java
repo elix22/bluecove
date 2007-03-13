@@ -150,8 +150,15 @@ public class TestResponderClient implements Runnable {
 	        Logger.debug("Starting Services inquiry");
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
-				Logger.debug("Search Services on " + niceDeviceName(remoteDevice.getBluetoothAddress()));
-		        synchronized (this) {
+	        	String name = "";
+	        	try {
+	        		name = remoteDevice.getFriendlyName(false);
+				} catch (IOException e) {
+					//Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
+				}
+				Logger.debug("Search Services on " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + name);
+
+				synchronized (this) {
 			    	try {
 			    		DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 			    		discoveryAgent.searchServices(attrIDs, searchUuidSet, remoteDevice, this);
