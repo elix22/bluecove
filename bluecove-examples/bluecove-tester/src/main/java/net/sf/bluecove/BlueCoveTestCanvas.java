@@ -114,12 +114,13 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		g.setFont(font);
 		
 		StringBuffer msg = new StringBuffer();
-		msg.append("__ ");
-		msg.append("server:").append((Switcher.isRunningServer())?"on":"off");
-		msg.append(" client:").append((Switcher.isRunningClient())?"on":"off");
+		msg.append("(");
+		msg.append("srv:").append((Switcher.isRunningServer())?"on":"off").append(" ").append(Switcher.serverStartCount);
+		msg.append(" cli:").append((Switcher.isRunningClient())?"on":"off").append(" ").append(Switcher.clientStartCount);
+		msg.append(" X:").append((Switcher.isRunning())?"on":"off");
 		msg.append(" dc:").append(TestResponderClient.discoveryCount);
 		msg.append(" er:").append(errorCount);
-		msg.append(" __");
+		msg.append(")");
 		lastY = writeln(g, msg.toString());
 		
 		int lineHeight = g.getFont().getHeight() + 1;
@@ -261,6 +262,9 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			buf.append(" first:").append(timeToString(dev.discoveredFirstTime));
 			buf.append(" last:").append(timeToString(dev.discoveredLastTime));
 			Logger.info(buf.toString());
+			buf = new StringBuffer();
+			buf.append(" avg:").append(dev.avgDiscoverySec());
+			Logger.info(buf.toString());
 		}
 		Logger.info("-----------------------");
 		setLogEndLine();
@@ -279,6 +283,9 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			errorCount = 0;
 			logLine = 0;
 			logScrollX = 0;
+			TestResponderClient.clear();
+			Switcher.clear();
+			RemoteDeviceInfo.clear();
 			repaint();
 		} else if (c == startClientCommand) {
 			Switcher.startClient();

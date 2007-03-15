@@ -78,6 +78,10 @@ public class Logger {
 		loggerAppenders.removeElement(newAppender);
 	}
 	
+	public static String secSince(long start) {
+		return (System.currentTimeMillis() - start)/1000 + " sec";
+	}
+	
 	private static void callAppenders(int level, String message, Throwable throwable) {
 		for (Enumeration iter = loggerAppenders.elements(); iter.hasMoreElements();) {
 			LoggerAppender a = (LoggerAppender) iter.nextElement();

@@ -40,16 +40,29 @@ public class RemoteDeviceInfo {
 	
 	public long discoveredLastTime;
 	
+	private long avgDiscovery;
+	
+	public static synchronized void clear() {
+		devices = new Hashtable();
+	}
+	
 	public static synchronized void deviceFound(RemoteDevice remoteDevice) {
 		String addr = remoteDevice.getBluetoothAddress().toUpperCase();
 		RemoteDeviceInfo devInfo = (RemoteDeviceInfo)devices.get(addr);
+		long now = System.currentTimeMillis();
 		if (devInfo == null) {
 			devInfo = new RemoteDeviceInfo();
-			devInfo.discoveredFirstTime = System.currentTimeMillis();
+			devInfo.discoveredFirstTime = now;
 			devices.put(addr, devInfo);
+		} else {
+			devInfo.avgDiscovery += (now - devInfo.discoveredLastTime);
 		}
 		devInfo.remoteDevice = remoteDevice;
 		devInfo.discoveredCount ++;
-		devInfo.discoveredLastTime = System.currentTimeMillis(); 
+		devInfo.discoveredLastTime = now; 
+	}
+	
+	public long avgDiscoverySec() {
+		return (avgDiscovery/(1000 * discoveredCount));
 	}
 }

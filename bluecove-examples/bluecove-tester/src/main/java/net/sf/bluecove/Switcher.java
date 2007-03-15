@@ -20,6 +20,7 @@
  */ 
 package net.sf.bluecove;
 
+import java.util.Hashtable;
 import java.util.Random;
 
 
@@ -33,6 +34,10 @@ public class Switcher implements Runnable {
 
 	public static TestResponderServer server;
 
+	public static int clientStartCount = 0;
+	
+	public static int serverStartCount = 0;
+	
 	private boolean stoped = false;
 	
 	boolean isRunning = false;
@@ -43,6 +48,11 @@ public class Switcher implements Runnable {
 	
 	public Switcher() {
 		instance = this;
+	}
+	
+	public static synchronized void clear() {
+		clientStartCount = 0;
+		serverStartCount = 0;
 	}
 	
 	public static void yield(TestResponderClient client) {
@@ -67,6 +77,10 @@ public class Switcher implements Runnable {
 		}
 	}
 
+	public static boolean isRunning() {
+		return (instance != null) && instance.isRunning;
+	}
+	
 	public static boolean isRunningClient() {
 		return (client != null) && client.isRunning;
 	}
@@ -147,6 +161,7 @@ public class Switcher implements Runnable {
 				client = new TestResponderClient();
 			}
 			if (!client.isRunning) {
+				clientStartCount++;
 				new Thread(client).start();
 			} else {
 				BlueCoveTestMIDlet.message("Warn", "Client isRunning");
@@ -169,6 +184,7 @@ public class Switcher implements Runnable {
 				server = new TestResponderServer();
 			}
 			if (!server.isRunning) {
+				serverStartCount ++;
 				new Thread(server).start();
 			} else {
 				BlueCoveTestMIDlet.message("Warn", "Server isRunning");

@@ -100,6 +100,12 @@ public class TestResponderClient implements Runnable {
         whiteDeviceNames.put("000D88C03ACA", "bob2");
 	}
     
+	public static synchronized void clear() {
+		countSuccess = 0;
+		countFailure = 0;
+		discoveryCount = 0;
+	}
+    
 	public class BluetoothInquirer implements DiscoveryListener {
 	    
 		boolean inquiring;
@@ -138,6 +144,7 @@ public class TestResponderClient implements Runnable {
 			Logger.debug("Starting Device inquiry");
 	    	devices = new Vector();
 	    	serverURLs = new Vector();
+	    	long start = System.currentTimeMillis();
 	    	try {
 	    		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 	    		discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
@@ -155,6 +162,7 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 				if (!stoped) {
+					Logger.debug("  Device inquiry took " + Logger.secSince(start));
 					return startServicesInquiry();
 				} else {
 					return true;
@@ -201,10 +209,12 @@ public class TestResponderClient implements Runnable {
 
 	    public boolean startServicesInquiry() {
 	        Logger.debug("Starting Services inquiry");
+	        long inquiryStart = System.currentTimeMillis();
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
 	        	if (stoped) {
 	        		break;
 	        	}
+	        	long start = System.currentTimeMillis();
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
 	        	String name = "";
 	        	try {
@@ -227,9 +237,10 @@ public class TestResponderClient implements Runnable {
 						break;
 					}
 		        }	
+				Logger.debug("  Services Search took " + Logger.secSince(start));
 				servicesSearchTransID = 0;
 			}
-	        Logger.debug("Inquiry completed");
+	        Logger.debug("Inquiry completed " + Logger.secSince(inquiryStart));
 	        return true;
 	    }
 
