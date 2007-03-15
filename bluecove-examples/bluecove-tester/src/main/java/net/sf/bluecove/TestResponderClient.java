@@ -484,6 +484,7 @@ public class TestResponderClient implements Runnable {
 		} finally {
 			isRunning = false;
 			Logger.info("Client finished!");
+			Switcher.yield(this);
 		}
 	}
 	
