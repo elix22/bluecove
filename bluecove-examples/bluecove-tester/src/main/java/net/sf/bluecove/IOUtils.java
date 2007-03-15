@@ -20,7 +20,6 @@
  */
 package net.sf.bluecove;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -34,7 +33,7 @@ import javax.microedition.io.Connection;
  * <p>
  * This class provides static utility methods for input/output operations.
  * <ul>
- * <li>closeQuietly - these methods close a stream ignoring nulls and exceptions
+ * <li>closeQuietly - these methods close a stream ignoring nulls and all exceptions
  * </ul>
  * <p>
  */
@@ -54,7 +53,7 @@ public class IOUtils {
             if (input != null) {
                 input.close();
             }
-        } catch (IOException ignore) {
+        } catch (Throwable ignore) {
             // ignore
         }
     }
@@ -72,7 +71,7 @@ public class IOUtils {
             if (output != null) {
                 output.close();
             }
-        } catch (IOException ignore) {
+        } catch (Throwable ignore) {
             // ignore
         }
     }
@@ -90,7 +89,7 @@ public class IOUtils {
             if (output != null) {
                 output.close();
             }
-        } catch (IOException ioe) {
+        } catch (Throwable ioe) {
             // ignore
         }
     }
@@ -100,7 +99,7 @@ public class IOUtils {
             if (com != null) {
             	com.close();
             }
-        } catch (IOException ioe) {
+        } catch (Throwable ioe) {
             // ignore
         }
     }

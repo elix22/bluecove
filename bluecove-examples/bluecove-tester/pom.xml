@@ -60,6 +60,7 @@
 
     <properties>
         <wtk.bluetooth.enabled>true</wtk.bluetooth.enabled>
+        <mainjarname>bctest1.2.3</mainjarname>
     </properties>
 
     <build>
@@ -88,9 +89,12 @@
                     <wtkHome>${env.WTK_HOME}</wtkHome>
                     <proguard>true</proguard>
                     <obfuscate>false</obfuscate>
+                    <appendClassifier>false</appendClassifier>
+                    <jarfile>${mainjarname}</jarfile>
+                    <jadfile>${mainjarname}</jadfile>
                     <!--proguardInclude>${basedir}/proguard.conf</proguardInclude-->
                     <jadAttributes>
-                        <FlipInsensitive>true</FlipInsensitive>
+                        <!--FlipInsensitive>true</FlipInsensitive-->
                         <MIDlet-Permissions>javax.microedition.io.Connector.bluetooth.client,javax.microedition.io.Connector.bluetooth.server</MIDlet-Permissions>
                     </jadAttributes>
                     <midlets>
@@ -121,14 +125,14 @@
                         <configuration>
                             <tasks>
                                 <copy overwrite="true"
-                                    file="${project.build.directory}/${project.build.finalName}-me.jar"
-                                    tofile="${project.build.directory}/site/${artifactId}.jar"/>
+                                    file="${project.build.directory}/${mainjarname}.jar"
+                                    tofile="${project.build.directory}/site/${mainjarname}.jar"/>
                                 <copy overwrite="true"
-                                    file="${project.build.directory}/${project.build.finalName}-me.jad"
-                                    tofile="${project.build.directory}/site/${artifactId}.jad"/>
-                                <replace value="${artifactId}.jar" token="${project.build.finalName}-me.jar" dir="${project.build.directory}/site">
+                                    file="${project.build.directory}/${mainjarname}.jad"
+                                    tofile="${project.build.directory}/site/${mainjarname}.jad"/>
+                                <!--replace value="${artifactId}.jar" token="${project.build.finalName}-me.jar" dir="${project.build.directory}/site">
                                     <include name="${artifactId}.jad"></include>
-                                </replace>
+                                </replace-->
                             </tasks>
                         </configuration>
                     </execution>

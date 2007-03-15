@@ -34,7 +34,7 @@ public class BlueCoveTestMIDlet extends MIDlet {
 	
 	static Display display;
 	
-	static Displayable tester;
+	private Displayable tester;
 	
     /** The messages are shown in this app this amount of time. */
     static final int ALERT_TIMEOUT = 10000;
@@ -88,7 +88,7 @@ public class BlueCoveTestMIDlet extends MIDlet {
     public static void message(final String title, final String message) {
     	Logger.debug(title + " " + message);
     	Alert al = new Alert(title, message, null, AlertType.INFO);
-        al.setTimeout(Alert.FOREVER);
+        al.setTimeout(ALERT_TIMEOUT);
         showAlertLater(al);
     }
     

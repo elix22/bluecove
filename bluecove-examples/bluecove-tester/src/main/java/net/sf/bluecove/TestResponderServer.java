@@ -20,7 +20,6 @@
  */ 
 package net.sf.bluecove;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -44,6 +43,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public static int countFailure = 0;
 	
 	public static int countConnection = 0;
+	
+	public static int countRunningConnections = 0;
 	
 	private long lastActivityTime;
 	
@@ -70,6 +71,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			InputStream is = null;
 			OutputStream os = null;
 			int testType = 0;
+			countRunningConnections ++;
 			try {
 				is = conn.openInputStream();
 				testType = is.read();
@@ -100,6 +102,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				IOUtils.closeQuietly(os);
 				IOUtils.closeQuietly(conn);
 				isRunning = false;
+				countRunningConnections --;
 				synchronized (this) {
 					notifyAll();
 				}
@@ -130,6 +133,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			monitor = new TestTimeOutMonitor(this, Consts.serverTimeOutMin);
 		}
 		try {
+			LocalDevice localDevice = LocalDevice.getLocalDevice();
+			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE) || (CommunicationTester.testServerForceDiscoverable)) {
+				localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+				Logger.debug("SetDiscoverable");
+			}
+			
 			server = (StreamConnectionNotifier) Connector
 					.open("btspp://localhost:"
 							+ CommunicationTester.uuid
@@ -170,16 +179,16 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				} else {
 					IOUtils.closeQuietly(conn);
 				}
+				Switcher.yield(this);
 			}
 
-			server.close();
-			server = null;
-		} catch (IOException e) {
+			closeServer();
+		} catch (Throwable e) {
 			if (!stoped) {
 				Logger.error("Server start error", e);
 			}
 		} finally {
-			Logger.info("Server finished");
+			Logger.info("Server finished!");
 			isRunning = false;
 		}
 		if (monitor != null) {
@@ -187,19 +196,38 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
 	}
 
+	public boolean hasRunningConnections() {
+		return (countRunningConnections > 0);
+	}
+	
 	public long lastActivityTime() {
 		return lastActivityTime;
 		
 	}
+	
+	private void closeServer() {
+		if (server != null) {
+			synchronized (this) {
+				try {
+					server.close();
+				} catch (Throwable e) {
+				}
+			}
+			server = null;
+		}
+		try {
+			LocalDevice localDevice = LocalDevice.getLocalDevice();
+			localDevice.setDiscoverable(DiscoveryAgent.NOT_DISCOVERABLE);
+			Logger.debug("Set Not Discoverable");
+		} catch (Throwable e) {
+			Logger.error("Stop server error", e);
+		}
+	}
+	
 	public void shutdown() {
 		Logger.info("shutdownServer");
 		stoped = true;
-		if (server != null) {
-			try {
-				server.close();
-			} catch (IOException e) {
-			}
-		}
+		closeServer();
 	}
 	
     public void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {

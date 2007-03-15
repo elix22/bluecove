@@ -53,6 +53,10 @@ public class TestResponderClient implements Runnable {
 	
 	public static int countFailure = 0;
 
+	public static int discoveryCount = 0;
+	
+	private boolean stoped = false;
+	
 	boolean isRunning = false;
 	
 	public static boolean searchOnlyBluecoveUuid = true;
@@ -61,19 +65,42 @@ public class TestResponderClient implements Runnable {
 	 */
 	private static boolean onlyWhiteDevices = false;
 	
+	private static boolean devicesComputers = false;
+	
 	private static Hashtable whiteDeviceNames = null;
+	
+	BluetoothInquirer bluetoothInquirer;
 	
     static {
 		whiteDeviceNames = new Hashtable();
 		whiteDeviceNames.put("00E003506231", "Nokia D1");
 		whiteDeviceNames.put("00E0035046C1", "Nokia D2");
-		whiteDeviceNames.put("0015A8DDF300", "Moto M1");
+		whiteDeviceNames.put("0015A8DDF300", "Moto M1 v360");
 		whiteDeviceNames.put("0050F2E8D4A6", "Desk MS");
 		whiteDeviceNames.put("000D3AA5E36C", "Lapt MS");
 		whiteDeviceNames.put("0020E027CE32", "Lapt HP");
+		
+        whiteDeviceNames.put("0017841C5A8F", "Moto L7");
+        whiteDeviceNames.put("00123755AE71", "N 6265i (t)");
+        whiteDeviceNames.put("0013706C93D3", "N 6682 (r)");
+        whiteDeviceNames.put("0017005354DB", "M i870 (t)");
+        whiteDeviceNames.put("001700F07CF2", "M i605 (t)");  
+        
+        whiteDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
+        
+        
+        whiteDeviceNames.put("00149ABD52E7", "Anya");
+        whiteDeviceNames.put("00149ABD538D", "Natasha");
+        whiteDeviceNames.put("0007E05387E5", "Palm");
+        
+        whiteDeviceNames.put("000B0D1796FC", "GPS");
+        whiteDeviceNames.put("000D3AA4F7F9", "My Keyboard");
+        whiteDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
+        whiteDeviceNames.put("0020E03AC5B2", "bob1");
+        whiteDeviceNames.put("000D88C03ACA", "bob2");
 	}
     
-	public static class BluetoothInquirer implements DiscoveryListener {
+	public class BluetoothInquirer implements DiscoveryListener {
 	    
 		boolean inquiring;
 
@@ -81,7 +108,7 @@ public class TestResponderClient implements Runnable {
 		
 		Vector serverURLs;
 
-	    public static int[] attrIDs = new int[] { 
+	    public int[] attrIDs = new int[] { 
 	    	0x0100,
 	    	0x0101,
 	    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
@@ -89,11 +116,15 @@ public class TestResponderClient implements Runnable {
 	    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
 			};
 
-	    public static final UUID L2CAP = new UUID(0x0100);
+	    public final UUID L2CAP = new UUID(0x0100);
 
-	    public static final UUID RFCOMM = new UUID(0x0003);
+	    public final UUID RFCOMM = new UUID(0x0003);
 	    
 		private UUID searchUuidSet[];
+		
+		DiscoveryAgent discoveryAgent;
+		
+		int servicesSearchTransID;
 		
 		public BluetoothInquirer() {
 			if (searchOnlyBluecoveUuid) {
@@ -108,7 +139,8 @@ public class TestResponderClient implements Runnable {
 	    	devices = new Vector();
 	    	serverURLs = new Vector();
 	    	try {
-	            LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, this);
+	    		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+	    		discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
 	        } catch(BluetoothStateException e) {
 	        	Logger.error("Cannot start Device inquiry", e);
 		        return false;
@@ -122,17 +154,38 @@ public class TestResponderClient implements Runnable {
 						return false;
 					}
 				}
-				return startServicesInquiry();
+				if (!stoped) {
+					return startServicesInquiry();
+				} else {
+					return true;
+				}
 			} finally {
 		        inquiring = false;
 			}
 	    }
 
+	    public void shutdown() {
+	    	if (inquiring && (discoveryAgent != null)) {
+	    		try {
+	    			discoveryAgent.cancelInquiry(this);
+				} catch (Throwable e) {
+				}
+				try {
+					if (servicesSearchTransID != 0) {
+						discoveryAgent.cancelServiceSearch(servicesSearchTransID);
+						servicesSearchTransID = 0;
+					}
+				} catch (Throwable e) {
+				}
+	    	}
+	    }
+	    
         public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
         	if (onlyWhiteDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
         		return;
         	}
-        	if ((cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER) || (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)) {
+        	if ((devicesComputers && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER)) 
+        			|| (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)) {
 	        	devices.addElement(remoteDevice);				
 			} else {
 				return;
@@ -149,6 +202,9 @@ public class TestResponderClient implements Runnable {
 	    public boolean startServicesInquiry() {
 	        Logger.debug("Starting Services inquiry");
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
+	        	if (stoped) {
+	        		break;
+	        	}
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
 	        	String name = "";
 	        	try {
@@ -160,17 +216,18 @@ public class TestResponderClient implements Runnable {
 
 				synchronized (this) {
 			    	try {
-			    		DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-			    		discoveryAgent.searchServices(attrIDs, searchUuidSet, remoteDevice, this);
+			    		servicesSearchTransID = discoveryAgent.searchServices(attrIDs, searchUuidSet, remoteDevice, this);
 			        } catch(BluetoothStateException e) {
 			        	Logger.error("Cannot start searchServices", e);
+			        	return false;
 				    }
 			        try {
 						wait();
 					} catch (InterruptedException e) {
 						break;
 					}
-		        }				
+		        }	
+				servicesSearchTransID = 0;
 			}
 	        Logger.debug("Inquiry completed");
 	        return true;
@@ -192,6 +249,9 @@ public class TestResponderClient implements Runnable {
 						boolean foundStr = false;
 						boolean foundUrl = false;
 
+						boolean foundIntOK = false;
+						boolean foundUrlOK = false;
+						
 						for (int j = 0; j < attributeIDs.length; j++) {
 							int id = attributeIDs[j];
 							try {
@@ -200,23 +260,29 @@ public class TestResponderClient implements Runnable {
 								switch (id) {
 								case 0x0100:
 									foundName = true;
-									Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
-									isBlueCoveTestService = true;
+									if (CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+										Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
+										isBlueCoveTestService = true;
+									}
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_INT_ID:
 									foundInt = true;
 									Assert.assertEquals("int", Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE, attrDataElement.getLong());
 									isBlueCoveTestService = true;
+									foundIntOK = true;
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
 									foundStr = true;
-									Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
-									isBlueCoveTestService = true;
+									if (CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+										Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
+										isBlueCoveTestService = true;
+									}
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_URL_ID:
 									foundUrl = true;
 									Assert.assertEquals("url", Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE, attrDataElement.getValue());
 									isBlueCoveTestService = true;
+									foundUrlOK = true;
 									break;
 								default:
 									 Logger.debug("attribute " + id + " " 
@@ -225,11 +291,11 @@ public class TestResponderClient implements Runnable {
 
 							} catch (AssertionFailedError e) {
 								Logger.warn("attr " + id + " " + e.getMessage());
-								countFailure++;
+								//countFailure++;
 								hadError = true;
 							}
 						}
-						if (!foundName) {
+						if ((!CommunicationTester.testIgnoreNotWorkingServiceAttributes) && (!foundName)) {
 							Logger.warn("srv name attr. not found");
 							countFailure++;
 						}
@@ -237,7 +303,7 @@ public class TestResponderClient implements Runnable {
 							Logger.warn("srv INT attr. not found");
 							countFailure++;
 						}
-						if (!foundStr) {
+						if ((CommunicationTester.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
 							Logger.warn("srv STR attr. not found");
 							countFailure++;
 						}
@@ -249,6 +315,11 @@ public class TestResponderClient implements Runnable {
 							Logger.info("service Attr OK");
 							countSuccess++;
 						}
+						if (foundIntOK && foundUrlOK) {
+							Logger.info("Common Service Attr OK");
+							discoveryCount++;
+							Logger.info("Found " + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
+						}
 					}
 				} catch (Throwable e) {
 					Logger.error("attrs", e);
@@ -259,7 +330,10 @@ public class TestResponderClient implements Runnable {
 				} else {
 					Logger.info("is not TestService on " + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 				}
-				
+				if (isBlueCoveTestService) {
+					RemoteDeviceInfo.deviceFound(servRecord[i].getHostDevice());
+					break;
+				}
 			}
 		}
 
@@ -383,20 +457,20 @@ public class TestResponderClient implements Runnable {
 		Logger.debug("Client started...");
 		isRunning = true;
 		try {
-			BluetoothInquirer bi = new BluetoothInquirer();
+			bluetoothInquirer = new BluetoothInquirer();
 
-			while (true) {
-				if (!bi.startDeviceInquiry()) {
+			while (!stoped) {
+				if (!bluetoothInquirer.startDeviceInquiry()) {
 					break;
 				}
-				while (bi.inquiring) {
+				while (bluetoothInquirer.inquiring) {
 					try {
 						Thread.sleep(1000);
 					} catch (Exception e) {
 					}
 				}
-				if (bi.serverURLs != null) {
-					for (Enumeration iter = bi.serverURLs.elements(); iter.hasMoreElements();) {
+				if ((CommunicationTester.testConnections) && (bluetoothInquirer.serverURLs != null)) {
+					for (Enumeration iter = bluetoothInquirer.serverURLs.elements(); iter.hasMoreElements();) {
 						String url = (String) iter.nextElement();
 						connectAndTest(url);
 					}
@@ -405,11 +479,18 @@ public class TestResponderClient implements Runnable {
 				if ((countSuccess + countFailure > 0) && (!CommunicationTester.continuous)) {
 					break;
 				}
+				Switcher.yield(this);
 			}
 		} finally {
 			isRunning = false;
-			Logger.info("Client finished");
+			Logger.info("Client finished!");
 		}
+	}
+	
+	public void shutdown() {
+		Logger.info("shutdownClient");
+		stoped = true;
+		bluetoothInquirer.shutdown();
 	}
 	
 	public static void main(String[] args) {
