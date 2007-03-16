@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
@@ -61,47 +60,9 @@ public class TestResponderClient implements Runnable {
 	
 	boolean isRunning = false;
 	
-	public static boolean searchOnlyBluecoveUuid = true;
-	/**
-	 * Limit connections to precompiled list of test devices.
-	 */
-	private static boolean onlyWhiteDevices = false;
-	
-	private static boolean devicesComputers = true;
-	
-	private static Hashtable whiteDeviceNames = null;
-	
 	BluetoothInquirer bluetoothInquirer;
 	
-    static {
-		whiteDeviceNames = new Hashtable();
-		whiteDeviceNames.put("00E003506231", "Nokia D1");
-		whiteDeviceNames.put("00E0035046C1", "Nokia D2");
-		whiteDeviceNames.put("0015A8DDF300", "Moto M1 v360");
-		whiteDeviceNames.put("0050F2E8D4A6", "Desk MS");
-		whiteDeviceNames.put("000D3AA5E36C", "Lapt MS");
-		whiteDeviceNames.put("0020E027CE32", "Lapt HP");
-		
-        whiteDeviceNames.put("0017841C5A8F", "Moto L7");
-        whiteDeviceNames.put("00123755AE71", "N 6265i (t)");
-        whiteDeviceNames.put("0013706C93D3", "N 6682 (r)");
-        whiteDeviceNames.put("0017005354DB", "M i870 (t)");
-        whiteDeviceNames.put("001700F07CF2", "M i605 (t)");  
-        
-        whiteDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
-        
-        
-        whiteDeviceNames.put("00149ABD52E7", "Anya");
-        whiteDeviceNames.put("00149ABD538D", "Natasha");
-        whiteDeviceNames.put("0007E05387E5", "Palm");
-        
-        whiteDeviceNames.put("000B0D1796FC", "GPS");
-        whiteDeviceNames.put("000D3AA4F7F9", "My Keyboard");
-        whiteDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
-        whiteDeviceNames.put("0020E03AC5B2", "bob1");
-        whiteDeviceNames.put("000D88C03ACA", "bob2");
-	}
-    
+   
 	public static synchronized void clear() {
 		countSuccess = 0;
 		countFailure = 0;
@@ -129,12 +90,12 @@ public class TestResponderClient implements Runnable {
 		int servicesSearchTransID;
 		
 		public BluetoothInquirer() {
-			if (searchOnlyBluecoveUuid) {
+			if (Configuration.searchOnlyBluecoveUuid) {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
 			} else {
 				searchUuidSet = new UUID[] { L2CAP };
 			}
-			if (CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+			if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 				attrIDs = new int[] { 
 				    	0x0100,
 				    	0x0101,
@@ -183,6 +144,10 @@ public class TestResponderClient implements Runnable {
 		        inquiring = false;
 			}
 	    }
+	    
+	    public boolean hasServers() {
+	    	return ((serverURLs != null) && (serverURLs.size() >= 1));
+	    }
 
 	    public void shutdown() {
 	    	if (inquiring && (discoveryAgent != null)) {
@@ -201,13 +166,14 @@ public class TestResponderClient implements Runnable {
 	    }
 	    
         public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
-        	if (onlyWhiteDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
+        	if (Configuration.discoverOnlyTestDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
         		return;
         	}
-        	if ((devicesComputers && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER)) 
-        			|| (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)) {
+        	if ((Configuration.discoverDevicesComputers && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER)) 
+        			|| ((Configuration.discoverDevicesPhones && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)))) {
 	        	devices.addElement(remoteDevice);				
 			} else {
+				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()));
 				return;
 			}
 //        	String name = null;
@@ -263,7 +229,7 @@ public class TestResponderClient implements Runnable {
 				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 				Logger.info("*found server " + url);
 				try {
-					if (CommunicationTester.testServiceAttributes) {
+					if (Configuration.testServiceAttributes) {
 						int[] attributeIDs = servRecord[i].getAttributeIDs();
 						// Logger.debug("attributes " + attributeIDs.length);
 
@@ -283,7 +249,7 @@ public class TestResponderClient implements Runnable {
 								switch (id) {
 								case 0x0100:
 									foundName = true;
-									if (CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+									if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 										Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
 										isBlueCoveTestService = true;
 									}
@@ -296,7 +262,7 @@ public class TestResponderClient implements Runnable {
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
 									foundStr = true;
-									if (CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+									if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 										Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
 										isBlueCoveTestService = true;
 									}
@@ -318,7 +284,7 @@ public class TestResponderClient implements Runnable {
 								hadError = true;
 							}
 						}
-						if ((!CommunicationTester.testIgnoreNotWorkingServiceAttributes) && (!foundName)) {
+						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundName)) {
 							Logger.warn("srv name attr. not found");
 							countFailure++;
 						}
@@ -326,7 +292,7 @@ public class TestResponderClient implements Runnable {
 							Logger.warn("srv INT attr. not found");
 							countFailure++;
 						}
-						if ((CommunicationTester.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
+						if ((Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
 							Logger.warn("srv STR attr. not found");
 							countFailure++;
 						}
@@ -348,7 +314,7 @@ public class TestResponderClient implements Runnable {
 					Logger.error("attrs", e);
 				}
 				
-				if (searchOnlyBluecoveUuid || isBlueCoveTestService) {
+				if (Configuration.searchOnlyBluecoveUuid || isBlueCoveTestService) {
 					serverURLs.addElement(url);
 				} else {
 					Logger.info("is not TestService on " + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
@@ -383,7 +349,7 @@ public class TestResponderClient implements Runnable {
 	
 	 public static boolean isWhiteDevice(String bluetoothAddress) {
 		String addr = bluetoothAddress.toUpperCase();
-		return (whiteDeviceNames.get(addr) != null);
+		return (Configuration.testDeviceNames.get(addr) != null);
 	}
 
 	 public static String niceDeviceName(String bluetoothAddress) {
@@ -392,11 +358,11 @@ public class TestResponderClient implements Runnable {
 	}
 	 
 	public static String getWhiteDeviceName(String bluetoothAddress) {
-		if ((bluetoothAddress == null) || (whiteDeviceNames == null)) {
+		if ((bluetoothAddress == null) || (Configuration.testDeviceNames == null)) {
 			return null;
 		}
 		String addr = bluetoothAddress.toUpperCase();
-		return (String) whiteDeviceNames.get(addr);
+		return (String) Configuration.testDeviceNames.get(addr);
 	}
 	
 	public void connectAndTest(String serverURL) {
@@ -407,7 +373,7 @@ public class TestResponderClient implements Runnable {
 			try {
 				Logger.debug("test connect:" + testType);
 				int connectionOpenTry = 0;
-				while (conn == null) {
+				while ((conn == null) && (!stoped)) {
 					try {
 						conn = (StreamConnection) Connector.open(serverURL);
 					} catch (IOException e) {
@@ -448,7 +414,7 @@ public class TestResponderClient implements Runnable {
 				break;
 			}
 		} 
-		if (!CommunicationTester.continuous) {
+		if (!Configuration.continuous) {
 			stopServer(serverURL);
 		}
 	}
@@ -483,27 +449,34 @@ public class TestResponderClient implements Runnable {
 			bluetoothInquirer = new BluetoothInquirer();
 
 			while (!stoped) {
-				if (!bluetoothInquirer.startDeviceInquiry()) {
-					break;
-				}
-				while (bluetoothInquirer.inquiring) {
-					try {
-						Thread.sleep(1000);
-					} catch (Exception e) {
-						break;
+				if ((!bluetoothInquirer.hasServers()) || (Configuration.continuousDiscovery) || (!Configuration.testConnections) ) {
+					if (!bluetoothInquirer.startDeviceInquiry()) {
+						try {
+							Thread.sleep(1000);
+						} catch (Exception e) {
+							break;
+						}
+						continue;
+					}
+					while (bluetoothInquirer.inquiring) {
+						try {
+							Thread.sleep(1000);
+						} catch (Exception e) {
+							break;
+						}
 					}
 				}
-				if (stoped) {
-					break;
-				}
-				if ((CommunicationTester.testConnections) && (bluetoothInquirer.serverURLs != null)) {
+				if ((Configuration.testConnections) && (bluetoothInquirer.serverURLs != null)) {
 					for (Enumeration iter = bluetoothInquirer.serverURLs.elements(); iter.hasMoreElements();) {
+						if (stoped) {
+							break;
+						}
 						String url = (String) iter.nextElement();
 						connectAndTest(url);
 					}
 				}
 				Logger.info("*Success:" + countSuccess + " Failure:" + countFailure);
-				if ((countSuccess + countFailure > 0) && (!CommunicationTester.continuous)) {
+				if ((countSuccess + countFailure > 0) && (!Configuration.continuous)) {
 					break;
 				}
 				if (stoped || discoveryOnce) {

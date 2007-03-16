@@ -128,13 +128,13 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public void run() {
 		stoped = false;
 		isRunning = true;
-		if (!CommunicationTester.continuous) {
+		if (!Configuration.continuous) {
 			lastActivityTime = System.currentTimeMillis();
 			monitor = new TestTimeOutMonitor(this, Consts.serverTimeOutMin);
 		}
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
-			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE) || (CommunicationTester.testServerForceDiscoverable)) {
+			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE) || (Configuration.testServerForceDiscoverable)) {
 				localDevice.setDiscoverable(DiscoveryAgent.GIAC);
 				Logger.debug("SetDiscoverable");
 			}
@@ -148,7 +148,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							+ ";authorize=false");
 
 			Logger.info("ResponderServer started " + Logger.timeNowToString());
-			if (CommunicationTester.testServiceAttributes) {
+			if (Configuration.testServiceAttributes) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(server);
 				if (record == null) {
 					Logger.warn("Bluetooth ServiceRecord is null");
@@ -165,7 +165,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					lastActivityTime = System.currentTimeMillis();
 					ConnectionTread t = new ConnectionTread(conn);
 					t.start();
-					if (!CommunicationTester.acceptWhileConnected) {
+					if (!Configuration.serverAcceptWhileConnected) {
 						while (t.isRunning) {
 							 synchronized (t) {
 								 try {
@@ -238,7 +238,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			id = "int";
 			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID,
 			        new DataElement(DataElement.INT_1, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE));
-			if (!CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+			if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
 				id = "str";
 				record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_STR_ID, new DataElement(DataElement.STRING,
 						Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE));
