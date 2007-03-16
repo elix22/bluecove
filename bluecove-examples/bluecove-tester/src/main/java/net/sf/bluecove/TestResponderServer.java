@@ -238,9 +238,11 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			id = "int";
 			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID,
 			        new DataElement(DataElement.INT_1, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE));
-			id = "str";
-            record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
-            new DataElement(DataElement.STRING, Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE));
+			if (!CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+				id = "str";
+				record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_STR_ID, new DataElement(DataElement.STRING,
+						Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE));
+			}
 			id = "url";
 			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
 			        new DataElement(DataElement.URL, Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE));

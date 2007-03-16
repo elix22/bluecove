@@ -20,8 +20,6 @@
  */
 package net.sf.bluecove;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 

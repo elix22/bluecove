@@ -20,7 +20,6 @@
  */ 
 package net.sf.bluecove;
 
-import java.util.Hashtable;
 import java.util.Random;
 
 

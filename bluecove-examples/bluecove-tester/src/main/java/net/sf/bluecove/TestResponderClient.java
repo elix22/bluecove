@@ -116,13 +116,7 @@ public class TestResponderClient implements Runnable {
 		
 		Vector serverURLs;
 
-	    public int[] attrIDs = new int[] { 
-	    	0x0100,
-	    	0x0101,
-	    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
-	    	Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
-	    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
-			};
+	    public int[] attrIDs;
 
 	    public final UUID L2CAP = new UUID(0x0100);
 
@@ -139,6 +133,22 @@ public class TestResponderClient implements Runnable {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
 			} else {
 				searchUuidSet = new UUID[] { L2CAP };
+			}
+			if (CommunicationTester.testIgnoreNotWorkingServiceAttributes) {
+				attrIDs = new int[] { 
+				    	0x0100,
+				    	0x0101,
+				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
+				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
+						};
+			} else {
+				attrIDs = new int[] { 
+				    	0x0100,
+				    	0x0101,
+				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
+				    	Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
+				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
+						};
 			}
 		}
 		
