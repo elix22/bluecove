@@ -490,7 +490,11 @@ public class TestResponderClient implements Runnable {
 					try {
 						Thread.sleep(1000);
 					} catch (Exception e) {
+						break;
 					}
+				}
+				if (stoped) {
+					break;
 				}
 				if ((CommunicationTester.testConnections) && (bluetoothInquirer.serverURLs != null)) {
 					for (Enumeration iter = bluetoothInquirer.serverURLs.elements(); iter.hasMoreElements();) {
@@ -502,7 +506,7 @@ public class TestResponderClient implements Runnable {
 				if ((countSuccess + countFailure > 0) && (!CommunicationTester.continuous)) {
 					break;
 				}
-				if (discoveryOnce) {
+				if (stoped || discoveryOnce) {
 					break;
 				}
 				Switcher.yield(this);

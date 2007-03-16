@@ -39,6 +39,8 @@ public class Switcher implements Runnable {
 	
 	private boolean stoped = false;
 	
+	public Thread thread;
+	
 	boolean isRunning = false;
 	
 	private static Switcher instance;
@@ -103,15 +105,21 @@ public class Switcher implements Runnable {
 						break;
 					}
 				}
-
+				if (stoped) {
+					break;
+				}
 				try {
 					Thread.sleep(2000);
 				} catch (Exception e) {
 					break;
 				}
-
+				if (stoped) {
+					break;
+				}
 				startServer();
-
+				if (stoped) {
+					break;
+				}
 				try {
 					int sec = randomTTL(30, 80);
 					Logger.info("switch to client in " + sec + " sec");
@@ -121,13 +129,17 @@ public class Switcher implements Runnable {
 				}
 
 				yield(server);
-
+				if (stoped) {
+					break;
+				}
 				try {
 					Thread.sleep(2000);
 				} catch (Exception e) {
 					break;
 				}
-
+				if (stoped) {
+					break;
+				}
 				startClient();
 
 			}
@@ -148,6 +160,7 @@ public class Switcher implements Runnable {
 	public void shutdown() {
 		Logger.info("shutdownSwitcher");
 		stoped = true;
+		thread.interrupt();
 		synchronized (this) {
 			notifyAll();
 		}

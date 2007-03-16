@@ -38,12 +38,12 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command printStatsCommand = new Command("1-Print Stats", Command.ITEM, 1);
 	
 	static final Command startDiscoveryCommand = new Command("*-Discovery", Command.ITEM, 2);
-	static final Command startClientCommand = new Command("2-Start client", Command.ITEM, 2);
-	static final Command stopClientCommand = new Command("3-Stop client", Command.ITEM, 3);
-	static final Command startServerCommand = new Command("5-Start server", Command.ITEM, 4);
-	static final Command stopServerCommand = new Command("6-Stop server", Command.ITEM, 5);
-	static final Command startSwitcherCommand = new Command("Start Switcher", Command.ITEM, 6);
-	static final Command stopSwitcherCommand = new Command("Stop Switcher", Command.ITEM, 7);
+	static final Command startClientCommand = new Command("2-Client Start", Command.ITEM, 2);
+	static final Command stopClientCommand = new Command("3-Client Stop", Command.ITEM, 3);
+	static final Command startServerCommand = new Command("5-Server Start", Command.ITEM, 4);
+	static final Command stopServerCommand = new Command("6-Server Stop", Command.ITEM, 5);
+	static final Command startSwitcherCommand = new Command("Switcher Start", Command.ITEM, 6);
+	static final Command stopSwitcherCommand = new Command("Switcher Stop", Command.ITEM, 7);
 	static final Command clearCommand = new Command("#-Clear", Command.ITEM, 8);
 	
 	private boolean showLogDebug = true;
@@ -279,7 +279,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			switcher = new Switcher();
 		}
 		if (!switcher.isRunning) {
-			new Thread(switcher).start();
+			(switcher.thread = new Thread(switcher)).start();
 		} else {
 			BlueCoveTestMIDlet.message("Warn", "Switcher isRunning");
 		}
