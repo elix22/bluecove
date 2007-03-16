@@ -112,7 +112,35 @@ public class TestResponderClient implements Runnable {
 						};
 			}
 		}
-		
+	    
+		public boolean hasServers() {
+	    	return ((serverURLs != null) && (serverURLs.size() >= 1));
+	    }
+
+	    public void shutdown() {
+	    	if (inquiring && (discoveryAgent != null)) {
+	    		cancelInquiry();
+	    		cancelServiceSearch();
+	    	}
+	    }
+	    
+	    private void cancelInquiry() {
+	    	try {
+    			discoveryAgent.cancelInquiry(this);
+			} catch (Throwable e) {
+			}
+	    }
+	    
+	    private void cancelServiceSearch() {
+	    	try {
+				if (servicesSearchTransID != 0) {
+					discoveryAgent.cancelServiceSearch(servicesSearchTransID);
+					servicesSearchTransID = 0;
+				}
+			} catch (Throwable e) {
+			}
+	    }
+	    
 	    public boolean startDeviceInquiry() {
 			Logger.debug("Starting Device inquiry");
 	    	devices = new Vector();
@@ -135,34 +163,16 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 				if (!stoped) {
+					cancelInquiry();
 					Logger.debug("  Device inquiry took " + Logger.secSince(start));
 					return startServicesInquiry();
 				} else {
 					return true;
 				}
 			} finally {
+				cancelInquiry();
 		        inquiring = false;
 			}
-	    }
-	    
-	    public boolean hasServers() {
-	    	return ((serverURLs != null) && (serverURLs.size() >= 1));
-	    }
-
-	    public void shutdown() {
-	    	if (inquiring && (discoveryAgent != null)) {
-	    		try {
-	    			discoveryAgent.cancelInquiry(this);
-				} catch (Throwable e) {
-				}
-				try {
-					if (servicesSearchTransID != 0) {
-						discoveryAgent.cancelServiceSearch(servicesSearchTransID);
-						servicesSearchTransID = 0;
-					}
-				} catch (Throwable e) {
-				}
-	    	}
 	    }
 	    
         public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
@@ -213,10 +223,11 @@ public class TestResponderClient implements Runnable {
 						wait();
 					} catch (InterruptedException e) {
 						break;
+					} finally {
+			    		cancelServiceSearch();
 					}
 		        }	
 				Logger.debug("  Services Search took " + Logger.secSince(start));
-				servicesSearchTransID = 0;
 			}
 	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart));
 	        return true;
