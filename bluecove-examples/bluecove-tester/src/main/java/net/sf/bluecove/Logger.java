@@ -20,6 +20,8 @@
  */ 
 package net.sf.bluecove;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -78,6 +80,33 @@ public class Logger {
 		loggerAppenders.removeElement(newAppender);
 	}
 	
+    public static String d00(int i) {
+        if (i > 9) {
+            return String.valueOf(i);
+        } else {
+            return "0" + String.valueOf(i);
+        }
+    }
+    
+    public static String timeToString(Calendar calendar) {
+        StringBuffer sb;
+        sb = new StringBuffer();
+        sb.append(d00(calendar.get(Calendar.HOUR_OF_DAY))).append(":");
+        sb.append(d00(calendar.get(Calendar.MINUTE))).append(":");
+        sb.append(d00(calendar.get(Calendar.SECOND)));
+        return sb.toString();
+    }
+    
+    public static synchronized String timeToString(long timeStamp) {
+    	 Calendar calendar = Calendar.getInstance();
+         calendar.setTime(new Date(timeStamp));
+         return timeToString(calendar);
+    }
+    
+    public static String timeNowToString() {
+    	return timeToString(System.currentTimeMillis());
+    }
+    
 	public static String secSince(long start) {
 		return (System.currentTimeMillis() - start)/1000 + " sec";
 	}

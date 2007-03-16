@@ -39,6 +39,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command exitCommand = new Command("Exit", Command.EXIT, 0);
 	static final Command printStatsCommand = new Command("Print Stats", Command.ITEM, 1);
 	
+	static final Command startDiscoveryCommand = new Command("Discovery", Command.ITEM, 2);
 	static final Command startClientCommand = new Command("Start client", Command.ITEM, 2);
 	static final Command stopClientCommand = new Command("Stop client", Command.ITEM, 3);
 	static final Command startServerCommand = new Command("Start server", Command.ITEM, 4);
@@ -75,6 +76,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		super.setTitle("BlueCove");
 		
 		addCommand(exitCommand);
+		addCommand(startDiscoveryCommand);
 		addCommand(startClientCommand);
 		addCommand(stopClientCommand);
 		addCommand(startServerCommand);
@@ -229,29 +231,6 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		repaint();
 	}
 	
-    public static String d00(int i) {
-        if (i > 9) {
-            return String.valueOf(i);
-        } else {
-            return "0" + String.valueOf(i);
-        }
-    }
-    
-    public static String timeToString(Calendar calendar) {
-        StringBuffer sb;
-        sb = new StringBuffer();
-        sb.append(d00(calendar.get(Calendar.HOUR_OF_DAY))).append(":");
-        sb.append(d00(calendar.get(Calendar.MINUTE))).append(":");
-        sb.append(d00(calendar.get(Calendar.SECOND)));
-        return sb.toString();
-    }
-    
-    public static String timeToString(long timeStamp) {
-    	 Calendar calendar = Calendar.getInstance();
-         calendar.setTime(new Date(timeStamp));
-         return timeToString(calendar);
-    }
-    
 	private void printStats() {
 		Logger.info("--- discovery stats ---");
 		for (Enumeration iter = RemoteDeviceInfo.devices.elements(); iter.hasMoreElements();) {
@@ -259,8 +238,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			StringBuffer buf = new StringBuffer();
 			buf.append(TestResponderClient.niceDeviceName(dev.remoteDevice.getBluetoothAddress()));
 			buf.append(" dc:").append(dev.discoveredCount);
-			buf.append(" first:").append(timeToString(dev.discoveredFirstTime));
-			buf.append(" last:").append(timeToString(dev.discoveredLastTime));
+			buf.append(" first:").append(Logger.timeToString(dev.discoveredFirstTime));
+			buf.append(" last:").append(Logger.timeToString(dev.discoveredLastTime));
 			Logger.info(buf.toString());
 			buf = new StringBuffer();
 			buf.append(" avg:").append(dev.avgDiscoverySec());
@@ -287,6 +266,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			Switcher.clear();
 			RemoteDeviceInfo.clear();
 			repaint();
+		} else if (c == startDiscoveryCommand) {
+			Switcher.startDiscovery();
 		} else if (c == startClientCommand) {
 			Switcher.startClient();
 		} else if (c == stopClientCommand) {

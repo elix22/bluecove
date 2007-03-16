@@ -155,6 +155,20 @@ public class Switcher implements Runnable {
 		instance = null;
 	}
 
+	public static void startDiscovery() {
+		try {
+			if (client == null) {
+				client = new TestResponderClient();
+			}
+			client.discoveryOnce = true;
+			if (!client.isRunning) {
+				clientStartCount++;
+				new Thread(client).start();
+			}
+		} catch (Throwable e) {
+			Logger.error("start error ", e);
+		}
+	}
 	public static void startClient() {
 		try {
 			if (client == null) {

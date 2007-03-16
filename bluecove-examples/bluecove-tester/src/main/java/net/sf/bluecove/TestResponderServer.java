@@ -147,7 +147,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							//;authenticate=false;encrypt=false
 							+ ";authorize=false");
 
-			Logger.info("ResponderServer started");
+			Logger.info("ResponderServer started " + Logger.timeNowToString());
 			if (CommunicationTester.testServiceAttributes) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(server);
 				if (record == null) {
@@ -188,7 +188,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.error("Server start error", e);
 			}
 		} finally {
-			Logger.info("Server finished!");
+			Logger.info("Server finished! " + Logger.timeNowToString());
 			isRunning = false;
 		}
 		if (monitor != null) {

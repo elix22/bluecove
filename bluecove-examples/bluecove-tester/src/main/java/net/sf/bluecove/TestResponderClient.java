@@ -57,6 +57,8 @@ public class TestResponderClient implements Runnable {
 	
 	private boolean stoped = false;
 	
+	boolean discoveryOnce = false;
+	
 	boolean isRunning = false;
 	
 	public static boolean searchOnlyBluecoveUuid = true;
@@ -465,7 +467,7 @@ public class TestResponderClient implements Runnable {
 	}
 	
 	public void run() {
-		Logger.debug("Client started...");
+		Logger.debug("Client started..." + Logger.timeNowToString());
 		isRunning = true;
 		try {
 			bluetoothInquirer = new BluetoothInquirer();
@@ -490,11 +492,14 @@ public class TestResponderClient implements Runnable {
 				if ((countSuccess + countFailure > 0) && (!CommunicationTester.continuous)) {
 					break;
 				}
+				if (discoveryOnce) {
+					break;
+				}
 				Switcher.yield(this);
 			}
 		} finally {
 			isRunning = false;
-			Logger.info("Client finished!");
+			Logger.info("Client finished! " + Logger.timeNowToString());
 			Switcher.yield(this);
 		}
 	}
