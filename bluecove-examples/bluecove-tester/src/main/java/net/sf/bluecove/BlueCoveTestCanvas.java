@@ -176,7 +176,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			if (((logLine + logVisibleLines) < logMessages.size())) {
 				setLogEndLine();
 			}
-			BlueCoveTestMIDlet.display.flashBacklight(0);
+			//BlueCoveTestMIDlet.display.flashBacklight(0);
 			repaint();
 		}
 	}
