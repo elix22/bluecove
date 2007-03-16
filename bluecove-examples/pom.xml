@@ -44,6 +44,11 @@
         <url>http://bluecove.googlecode.com/svn/bluecove-examples</url>
     </scm>
 
+	<issueManagement>
+		<system>Google Code Issue Tracking</system>
+		<url>http://code.google.com/p/bluecove/issues/list</url>
+	</issueManagement>
+
     <distributionManagement>
         <site>
             <id>test-site</id>
