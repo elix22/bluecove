@@ -30,7 +30,7 @@ public interface Consts {
 	
 	//public static final String RESPONDER_UUID = "1212";
 
-	public static final String RESPONDER_SERVERNAME = "bluecoveResponderSrv";
+	public static final String RESPONDER_SERVERNAME = "bluecovesrv";
 
 	public static final int TEST_SERVICE_ATTRIBUTE_INT_ID = 0x0A0;
 	

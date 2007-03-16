@@ -67,7 +67,7 @@ public class TestResponderClient implements Runnable {
 	 */
 	private static boolean onlyWhiteDevices = false;
 	
-	private static boolean devicesComputers = false;
+	private static boolean devicesComputers = true;
 	
 	private static Hashtable whiteDeviceNames = null;
 	
@@ -210,7 +210,7 @@ public class TestResponderClient implements Runnable {
         }
 
 	    public boolean startServicesInquiry() {
-	        Logger.debug("Starting Services inquiry");
+	        Logger.debug("Starting Services search");
 	        long inquiryStart = System.currentTimeMillis();
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
 	        	if (stoped) {
@@ -242,7 +242,7 @@ public class TestResponderClient implements Runnable {
 				Logger.debug("  Services Search took " + Logger.secSince(start));
 				servicesSearchTransID = 0;
 			}
-	        Logger.debug("Inquiry completed " + Logger.secSince(inquiryStart));
+	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart));
 	        return true;
 	    }
 
@@ -331,7 +331,7 @@ public class TestResponderClient implements Runnable {
 						if (foundIntOK && foundUrlOK) {
 							Logger.info("Common Service Attr OK");
 							discoveryCount++;
-							Logger.info("Found " + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
+							Logger.info("Found BlueCove SRV:" + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 						}
 					}
 				} catch (Throwable e) {

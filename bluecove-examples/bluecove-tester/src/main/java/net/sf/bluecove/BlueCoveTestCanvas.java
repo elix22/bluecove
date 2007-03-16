@@ -37,17 +37,16 @@ import net.sf.bluecove.Logger.LoggerAppender;
 public class BlueCoveTestCanvas extends Canvas implements CommandListener, LoggerAppender {
 
 	static final Command exitCommand = new Command("Exit", Command.EXIT, 0);
-	static final Command printStatsCommand = new Command("Print Stats", Command.ITEM, 1);
+	static final Command printStatsCommand = new Command("1-Print Stats", Command.ITEM, 1);
 	
-	static final Command startDiscoveryCommand = new Command("Discovery", Command.ITEM, 2);
-	static final Command startClientCommand = new Command("Start client", Command.ITEM, 2);
-	static final Command stopClientCommand = new Command("Stop client", Command.ITEM, 3);
-	static final Command startServerCommand = new Command("Start server", Command.ITEM, 4);
-	static final Command stopServerCommand = new Command("Stop server", Command.ITEM, 5);
+	static final Command startDiscoveryCommand = new Command("*-Discovery", Command.ITEM, 2);
+	static final Command startClientCommand = new Command("2-Start client", Command.ITEM, 2);
+	static final Command stopClientCommand = new Command("3-Stop client", Command.ITEM, 3);
+	static final Command startServerCommand = new Command("5-Start server", Command.ITEM, 4);
+	static final Command stopServerCommand = new Command("6-Stop server", Command.ITEM, 5);
 	static final Command startSwitcherCommand = new Command("Start Switcher", Command.ITEM, 6);
 	static final Command stopSwitcherCommand = new Command("Stop Switcher", Command.ITEM, 7);
-
-	static final Command clearCommand = new Command("Clear", Command.ITEM, 8);
+	static final Command clearCommand = new Command("#-Clear", Command.ITEM, 8);
 	
 	private boolean showLogDebug = true;
 	
@@ -192,41 +191,58 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	}
 
 	protected void keyPressed(int keyCode) {
-		int action = getGameAction(keyCode);
-		switch (action) {
-		case UP:
-			if (logLine > 0) {
-				logLine--;
-			}
+		switch (keyCode) {
+		case '1':
+			printStats();
 			break;
-		case DOWN:
-			if ((logLine + logVisibleLines - 1) < logMessages.size()) {
-				logLine++;
-			}
+		case '8':
+			logLine = 0;
 			break;
-		case RIGHT:
-			if (logScrollX > -300) {
-				logScrollX -= 5;
-			}
+		case '0':
+			setLogEndLine();
 			break;
-		case LEFT:
-			if (logScrollX < 0) {
-				logScrollX += 5;
-			}
+		case '*':
+			Switcher.startDiscovery();
+			break;
+		case '2':
+			Switcher.startClient();
+			break;
+		case '3':
+			Switcher.clientShutdown();
+			break;
+		case '5':
+			Switcher.startServer();
+			break;
+		case '6':
+			Switcher.serverShutdown();
+			break;
+		case '#':
+			clear();
 			break;
 		default:
-			switch (keyCode) {
-			case '1':
-				printStats();
+			int action = getGameAction(keyCode);
+			switch (action) {
+			case UP:
+				if (logLine > 0) {
+					logLine--;
+				}
 				break;
-			case '2':
-				logLine = 0;
+			case DOWN:
+				if ((logLine + logVisibleLines - 1) < logMessages.size()) {
+					logLine++;
+				}
 				break;
-			case '0':
-				setLogEndLine();
+			case RIGHT:
+				if (logScrollX > -300) {
+					logScrollX -= 5;
+				}
+				break;
+			case LEFT:
+				if (logScrollX < 0) {
+					logScrollX += 5;
+				}
 				break;
 			}
-			break;
 		}
 		repaint();
 	}
@@ -249,6 +265,28 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		setLogEndLine();
 	}
 	
+	private void clear() {
+		logMessages.removeAllElements();
+		errorCount = 0;
+		logLine = 0;
+		logScrollX = 0;
+		TestResponderClient.clear();
+		Switcher.clear();
+		RemoteDeviceInfo.clear();
+		repaint();
+	}
+	
+	private void startSwitcher() {
+		if (switcher == null) {
+			switcher = new Switcher();
+		}
+		if (!switcher.isRunning) {
+			new Thread(switcher).start();
+		} else {
+			BlueCoveTestMIDlet.message("Warn", "Switcher isRunning");
+		}
+	}
+	
 	public void commandAction(Command c, Displayable d) {
 		if (c == exitCommand) {
 			Switcher.clientShutdown();
@@ -258,14 +296,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		} else if (c == printStatsCommand) {
 			printStats();
 		} else if (c == clearCommand) {
-			logMessages.removeAllElements();
-			errorCount = 0;
-			logLine = 0;
-			logScrollX = 0;
-			TestResponderClient.clear();
-			Switcher.clear();
-			RemoteDeviceInfo.clear();
-			repaint();
+			 clear();
 		} else if (c == startDiscoveryCommand) {
 			Switcher.startDiscovery();
 		} else if (c == startClientCommand) {
@@ -277,14 +308,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		} else if (c == startServerCommand) {
 			Switcher.startServer();
 		} else if (c == startSwitcherCommand) {
-			if (switcher == null) {
-				switcher = new Switcher();
-			}
-			if (!switcher.isRunning) {
-				new Thread(switcher).start();
-			} else {
-				BlueCoveTestMIDlet.message("Warn", "Switcher isRunning");
-			}
+			startSwitcher();
 		}  else if (c == stopSwitcherCommand) {
 			if (switcher != null) {
 				switcher.shutdown();
