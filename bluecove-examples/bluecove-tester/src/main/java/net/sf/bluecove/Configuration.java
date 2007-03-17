@@ -78,8 +78,8 @@ public class Configuration {
         testDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
         
         
-        testDeviceNames.put("00149ABD52E7", "Anya");
-        testDeviceNames.put("00149ABD538D", "Natasha");
+        testDeviceNames.put("00149ABD52E7", "M V551 A");
+        testDeviceNames.put("00149ABD538D", "M V551 N");
         testDeviceNames.put("0007E05387E5", "Palm");
         
         testDeviceNames.put("000B0D1796FC", "GPS");

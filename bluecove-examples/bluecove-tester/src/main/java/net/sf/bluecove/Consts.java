@@ -42,7 +42,7 @@ public interface Consts {
 	
     public static final int TEST_SERVICE_ATTRIBUTE_URL_ID = 0x0A2;
     
-    public static final String TEST_SERVICE_ATTRIBUTE_URL_VALUE = "http:/localhost:80/someUrl?q=10";
+    public static final String TEST_SERVICE_ATTRIBUTE_URL_VALUE = "http:/bluecove.sourceforge.net:80/someUrl?q=10&bluecove=123&ServiceDiscovery=Test";
 	
 	public static final int clientReconnectSleep = 5100;
 	

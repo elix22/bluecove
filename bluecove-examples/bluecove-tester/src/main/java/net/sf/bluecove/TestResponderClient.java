@@ -100,14 +100,12 @@ public class TestResponderClient implements Runnable {
 			if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 				attrIDs = new int[] { 
 				    	0x0100,
-				    	0x0101,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
 				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
 						};
 			} else {
 				attrIDs = new int[] { 
 				    	0x0100,
-				    	0x0101,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
 				    	Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
@@ -266,7 +264,7 @@ public class TestResponderClient implements Runnable {
 								switch (id) {
 								case 0x0100:
 									foundName = true;
-									if (Configuration.testIgnoreNotWorkingServiceAttributes) {
+									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
 										Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
 										isBlueCoveTestService = true;
 									}
@@ -279,7 +277,7 @@ public class TestResponderClient implements Runnable {
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
 									foundStr = true;
-									if (Configuration.testIgnoreNotWorkingServiceAttributes) {
+									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
 										Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
 										isBlueCoveTestService = true;
 									}
@@ -291,8 +289,9 @@ public class TestResponderClient implements Runnable {
 									foundUrlOK = true;
 									break;
 								default:
-									 Logger.debug("attribute " + id + " " 
-											 + BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
+									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
+										Logger.debug("attribute " + id + " " + BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
+									}
 								}
 
 							} catch (AssertionFailedError e) {
@@ -309,7 +308,7 @@ public class TestResponderClient implements Runnable {
 							Logger.warn("srv INT attr. not found");
 							countFailure++;
 						}
-						if ((Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
+						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
 							Logger.warn("srv STR attr. not found");
 							countFailure++;
 						}
@@ -319,6 +318,9 @@ public class TestResponderClient implements Runnable {
 						}
 						if (foundName && foundUrl && foundInt && foundStr && !hadError) {
 							Logger.info("service Attr OK");
+							countSuccess++;
+						} else if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && foundUrl && foundInt && !hadError) {
+							Logger.info("service Attr found");
 							countSuccess++;
 						}
 						if (foundIntOK && foundUrlOK) {

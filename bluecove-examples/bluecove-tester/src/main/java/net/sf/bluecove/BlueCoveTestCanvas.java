@@ -238,12 +238,12 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 				break;
 			case RIGHT:
 				if (logScrollX > -300) {
-					logScrollX -= 5;
+					logScrollX -= 20;
 				}
 				break;
 			case LEFT:
 				if (logScrollX < 0) {
-					logScrollX += 5;
+					logScrollX += 20;
 				}
 				break;
 			}
@@ -261,8 +261,12 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 
 	private void printStats() {
 		Logger.info("--- discovery stats ---");
+		int deviceCnt = 0;
+		int deviceActiveCnt = 0;
+		long activeDeadline = System.currentTimeMillis() - 1000 * 60 * 4;
 		for (Enumeration iter = RemoteDeviceInfo.devices.elements(); iter.hasMoreElements();) {
 			RemoteDeviceInfo dev = (RemoteDeviceInfo) iter.nextElement();
+			deviceCnt ++;
 			StringBuffer buf = new StringBuffer();
 			buf.append(TestResponderClient.niceDeviceName(dev.remoteDevice.getBluetoothAddress()));
 			buf.append(" dc:").append(dev.serviceDiscoveredCount);
@@ -274,6 +278,12 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			buf.append(" sdf:").append(dev.avgServiceDiscoveryFrequencySec());
 			buf.append(" ss:").append(dev.avgServiceSearchDurationSec());
 			buf.append(" sss:").append(dev.serviceSearchSuccess()).append("%");
+			if (dev.serviceDiscoveredLastTime > activeDeadline) {
+				deviceActiveCnt ++;
+				buf.append(" Active");
+			} else {
+				buf.append(" Down");
+			}
 			Logger.info(buf.toString());
 		}
 		StringBuffer buf = new StringBuffer();
@@ -281,6 +291,9 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		buf.append(" srv:").append(TestResponderServer.avgServerDurationSec());
 		buf.append(" di:").append(RemoteDeviceInfo.allAvgDeviceInquiryDurationSec());
 		buf.append(" ss:").append(RemoteDeviceInfo.allAvgServiceSearchDurationSec());
+		Logger.info(buf.toString());
+		buf = new StringBuffer();
+		buf.append("devices:").append(deviceCnt).append(" active:").append(deviceActiveCnt);
 		Logger.info(buf.toString());
 		Logger.info("-----------------------");
 		setLogEndLine();
