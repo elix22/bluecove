@@ -42,8 +42,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command stopClientCommand = new Command("3-Client Stop", Command.ITEM, 3);
 	static final Command startServerCommand = new Command("5-Server Start", Command.ITEM, 4);
 	static final Command stopServerCommand = new Command("6-Server Stop", Command.ITEM, 5);
-	static final Command startSwitcherCommand = new Command("Switcher Start", Command.ITEM, 6);
-	static final Command stopSwitcherCommand = new Command("Switcher Stop", Command.ITEM, 7);
+	static final Command startSwitcherCommand = new Command("8-Switcher Start", Command.ITEM, 6);
+	static final Command stopSwitcherCommand = new Command("9-Switcher Stop", Command.ITEM, 7);
 	static final Command clearCommand = new Command("#-Clear", Command.ITEM, 8);
 	
 	private boolean showLogDebug = true;
@@ -193,7 +193,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		case '1':
 			printStats();
 			break;
-		case '8':
+		case '4':
 			logLine = 0;
 			break;
 		case '0':
@@ -213,6 +213,12 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			break;
 		case '6':
 			Switcher.serverShutdown();
+			break;
+		case '8':
+			startSwitcher();
+			break;
+		case '9':
+			stopSwitcher();
 			break;
 		case '#':
 			clear();
@@ -245,6 +251,14 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		repaint();
 	}
 	
+
+	private void stopSwitcher() {
+		if (switcher != null) {
+			switcher.shutdown();
+			switcher = null;
+		}
+	}
+
 	private void printStats() {
 		Logger.info("--- discovery stats ---");
 		for (Enumeration iter = RemoteDeviceInfo.devices.elements(); iter.hasMoreElements();) {
@@ -256,14 +270,15 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			buf.append(" last:").append(Logger.timeToString(dev.serviceDiscoveredLastTime));
 			Logger.info(buf.toString());
 			buf = new StringBuffer();
-			buf.append(" avg d:").append(dev.avgDiscoveryFrequencySec());
-			buf.append(" sd:").append(dev.avgServiceDiscoverySec());
+			buf.append(" avg ddf:").append(dev.avgDiscoveryFrequencySec());
+			buf.append(" sdf:").append(dev.avgServiceDiscoveryFrequencySec());
 			buf.append(" ss:").append(dev.avgServiceSearchDurationSec());
 			buf.append(" sss:").append(dev.serviceSearchSuccess()).append("%");
 			Logger.info(buf.toString());
 		}
 		StringBuffer buf = new StringBuffer();
 		buf.append("all avg");
+		buf.append(" srv:").append(TestResponderServer.avgServerDurationSec());
 		buf.append(" di:").append(RemoteDeviceInfo.allAvgDeviceInquiryDurationSec());
 		buf.append(" ss:").append(RemoteDeviceInfo.allAvgServiceSearchDurationSec());
 		Logger.info(buf.toString());
@@ -316,10 +331,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		} else if (c == startSwitcherCommand) {
 			startSwitcher();
 		}  else if (c == stopSwitcherCommand) {
-			if (switcher != null) {
-				switcher.shutdown();
-				switcher = null;
-			}
+			stopSwitcher();
 		}
 	}
 

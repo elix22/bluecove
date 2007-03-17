@@ -42,6 +42,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static int countFailure = 0;
 	
+	public static long allServerDuration;
+	
 	public static int countConnection = 0;
 	
 	public static int countRunningConnections = 0;
@@ -132,6 +134,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			lastActivityTime = System.currentTimeMillis();
 			monitor = new TestTimeOutMonitor(this, Consts.serverTimeOutMin);
 		}
+		long start = System.currentTimeMillis();
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE) || (Configuration.testServerForceDiscoverable)) {
@@ -188,12 +191,20 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.error("Server start error", e);
 			}
 		} finally {
+			allServerDuration += Logger.since(start);
 			Logger.info("Server finished! " + Logger.timeNowToString());
 			isRunning = false;
 		}
 		if (monitor != null) {
 			monitor.finish();
 		}
+	}
+	
+	public static long avgServerDurationSec() {
+		if (Switcher.serverStartCount == 0) {
+			return 0;
+		}
+		return (allServerDuration) /(1000 * Switcher.serverStartCount);
 	}
 
 	public boolean hasRunningConnections() {

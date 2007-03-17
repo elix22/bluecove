@@ -136,7 +136,7 @@ public class RemoteDeviceInfo {
 		return (totalDiscovery/(1000 * discoveredCount));
 	}
 
-	public long avgServiceDiscoverySec() {
+	public long avgServiceDiscoveryFrequencySec() {
 		if (serviceDiscoveredCount == 0) {
 			return 0;
 		}
