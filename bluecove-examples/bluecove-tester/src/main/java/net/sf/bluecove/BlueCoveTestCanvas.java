@@ -251,14 +251,22 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			RemoteDeviceInfo dev = (RemoteDeviceInfo) iter.nextElement();
 			StringBuffer buf = new StringBuffer();
 			buf.append(TestResponderClient.niceDeviceName(dev.remoteDevice.getBluetoothAddress()));
-			buf.append(" dc:").append(dev.discoveredCount);
-			buf.append(" first:").append(Logger.timeToString(dev.discoveredFirstTime));
-			buf.append(" last:").append(Logger.timeToString(dev.discoveredLastTime));
+			buf.append(" dc:").append(dev.serviceDiscoveredCount);
+			buf.append(" first:").append(Logger.timeToString(dev.serviceDiscoveredFirstTime));
+			buf.append(" last:").append(Logger.timeToString(dev.serviceDiscoveredLastTime));
 			Logger.info(buf.toString());
 			buf = new StringBuffer();
-			buf.append(" avg:").append(dev.avgDiscoverySec());
+			buf.append(" avg d:").append(dev.avgDiscoveryFrequencySec());
+			buf.append(" sd:").append(dev.avgServiceDiscoverySec());
+			buf.append(" ss:").append(dev.avgServiceSearchDurationSec());
+			buf.append(" sss:").append(dev.serviceSearchSuccess()).append("%");
 			Logger.info(buf.toString());
 		}
+		StringBuffer buf = new StringBuffer();
+		buf.append("all avg");
+		buf.append(" di:").append(RemoteDeviceInfo.allAvgDeviceInquiryDurationSec());
+		buf.append(" ss:").append(RemoteDeviceInfo.allAvgServiceSearchDurationSec());
+		Logger.info(buf.toString());
 		Logger.info("-----------------------");
 		setLogEndLine();
 	}

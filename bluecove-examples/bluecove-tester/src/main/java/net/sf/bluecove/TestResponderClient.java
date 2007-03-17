@@ -89,6 +89,8 @@ public class TestResponderClient implements Runnable {
 		
 		int servicesSearchTransID;
 		
+		private boolean servicesFound = false;
+		
 		public BluetoothInquirer() {
 			if (Configuration.searchOnlyBluecoveUuid) {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
@@ -165,6 +167,7 @@ public class TestResponderClient implements Runnable {
 				if (!stoped) {
 					cancelInquiry();
 					Logger.debug("  Device inquiry took " + Logger.secSince(start));
+					RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
 					return startServicesInquiry();
 				} else {
 					return true;
@@ -192,6 +195,7 @@ public class TestResponderClient implements Runnable {
 //			} catch (IOException e) {
 //				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 //			}
+        	RemoteDeviceInfo.deviceFound(remoteDevice);
 			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()));
         }
 
@@ -202,6 +206,7 @@ public class TestResponderClient implements Runnable {
 	        	if (stoped) {
 	        		break;
 	        	}
+	        	servicesFound = false;
 	        	long start = System.currentTimeMillis();
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
 	        	String name = "";
@@ -227,6 +232,7 @@ public class TestResponderClient implements Runnable {
 			    		cancelServiceSearch();
 					}
 		        }	
+				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, Logger.since(start));
 				Logger.debug("  Services Search took " + Logger.secSince(start));
 			}
 	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart));
@@ -331,7 +337,8 @@ public class TestResponderClient implements Runnable {
 					Logger.info("is not TestService on " + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 				}
 				if (isBlueCoveTestService) {
-					RemoteDeviceInfo.deviceFound(servRecord[i].getHostDevice());
+					servicesFound = true;
+					RemoteDeviceInfo.deviceServiceFound(servRecord[i].getHostDevice());
 					break;
 				}
 			}

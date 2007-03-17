@@ -33,36 +33,128 @@ public class RemoteDeviceInfo {
 	public static Hashtable devices = new Hashtable();
 	
 	public RemoteDevice remoteDevice;
-	
+
 	public int discoveredCount;
 	
 	public long discoveredFirstTime;
 	
 	public long discoveredLastTime;
 	
-	private long avgDiscovery;
+	private long totalDiscovery;
+
+	public static long totalDeviceInquiryCount;
+	
+	public static long totalDeviceInquiryDuration;
+	
+	public long serviceSearchCount;
+	
+	private long totalServiceSearchDuration;
+
+	public static long allServiceSearchCount;
+	
+	public static long allServiceSearchDuration;
+	
+	public int serviceDiscoveredCount;
+	
+	public long serviceDiscoveredFirstTime;
+	
+	public long serviceDiscoveredLastTime;
+	
+	private long totalServiceDiscovery;
 	
 	public static synchronized void clear() {
 		devices = new Hashtable();
 	}
 	
-	public static synchronized void deviceFound(RemoteDevice remoteDevice) {
+	public static synchronized RemoteDeviceInfo getDevice(RemoteDevice remoteDevice) {
 		String addr = remoteDevice.getBluetoothAddress().toUpperCase();
 		RemoteDeviceInfo devInfo = (RemoteDeviceInfo)devices.get(addr);
-		long now = System.currentTimeMillis();
 		if (devInfo == null) {
 			devInfo = new RemoteDeviceInfo();
-			devInfo.discoveredFirstTime = now;
 			devices.put(addr, devInfo);
+		}
+		return devInfo;
+	}
+
+	public static synchronized void deviceFound(RemoteDevice remoteDevice) {
+		RemoteDeviceInfo devInfo = getDevice(remoteDevice);
+		long now = System.currentTimeMillis();
+		if (devInfo.discoveredCount == 0) {
+			devInfo.discoveredFirstTime = now;
 		} else {
-			devInfo.avgDiscovery += (now - devInfo.discoveredLastTime);
+			devInfo.totalDiscovery += (now - devInfo.discoveredLastTime);
 		}
 		devInfo.remoteDevice = remoteDevice;
 		devInfo.discoveredCount ++;
 		devInfo.discoveredLastTime = now; 
 	}
 	
-	public long avgDiscoverySec() {
-		return (avgDiscovery/(1000 * discoveredCount));
+	public static synchronized void deviceServiceFound(RemoteDevice remoteDevice) {
+		RemoteDeviceInfo devInfo = getDevice(remoteDevice);
+		long now = System.currentTimeMillis();
+		if (devInfo.serviceDiscoveredCount == 0) {
+			devInfo.serviceDiscoveredFirstTime = now;
+		} else {
+			devInfo.totalServiceDiscovery += (now - devInfo.serviceDiscoveredLastTime);
+		}
+		devInfo.remoteDevice = remoteDevice;
+		devInfo.serviceDiscoveredCount ++;
+		devInfo.serviceDiscoveredLastTime = now; 
 	}
+	
+	public static synchronized void searchServices(RemoteDevice remoteDevice, boolean found, long servicesSearch) {
+		RemoteDeviceInfo devInfo = getDevice(remoteDevice);
+		devInfo.serviceSearchCount ++;
+		devInfo.totalServiceSearchDuration += servicesSearch;
+		allServiceSearchCount ++;
+		allServiceSearchDuration += servicesSearch;
+	}
+
+	public static void discoveryInquiryFinished(long discoveryInquiry) {
+		totalDeviceInquiryCount ++;
+		totalDeviceInquiryDuration += discoveryInquiry;
+	}
+	
+	public static long allAvgDeviceInquiryDurationSec() {
+		if (totalDeviceInquiryCount == 0) {
+			return 0;
+		}
+		return (totalDeviceInquiryDuration/(1000 * totalDeviceInquiryCount));
+	}
+	
+	public static long allAvgServiceSearchDurationSec() {
+		if (allServiceSearchCount == 0) {
+			return 0;
+		}
+		return (allServiceSearchDuration/(1000 * allServiceSearchCount));
+	}
+	
+	public long avgDiscoveryFrequencySec() {
+		if (discoveredCount == 0) {
+			return 0;
+		}
+		return (totalDiscovery/(1000 * discoveredCount));
+	}
+
+	public long avgServiceDiscoverySec() {
+		if (serviceDiscoveredCount == 0) {
+			return 0;
+		}
+		return (totalServiceDiscovery/(1000 * serviceDiscoveredCount));
+	}
+	
+	public long avgServiceSearchDurationSec() {
+		if (serviceSearchCount == 0) {
+			return 0;
+		}
+		return (totalServiceSearchDuration/(1000 * serviceSearchCount));
+	}
+	
+	public long serviceSearchSuccess() {
+		if ((serviceSearchCount) == 0) {
+			return 0;
+		}
+		return (100 * serviceDiscoveredCount)/(serviceSearchCount);
+	}
+	
 }

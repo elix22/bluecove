@@ -108,7 +108,11 @@ public class Logger {
     }
     
 	public static String secSince(long start) {
-		return (System.currentTimeMillis() - start)/1000 + " sec";
+		return since(start)/1000 + " sec";
+	}
+	
+	public static long since(long start) {
+		return (System.currentTimeMillis() - start);
 	}
 	
 	private static void callAppenders(int level, String message, Throwable throwable) {
