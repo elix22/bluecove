@@ -22,6 +22,8 @@ package net.sf.bluecove;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DataElement;
@@ -48,13 +50,19 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static int countRunningConnections = 0;
 	
+	public Thread thread;
+	
 	private long lastActivityTime;
 	
 	private boolean stoped = false;
 	
 	boolean isRunning = false;
 	
-	private StreamConnectionNotifier server;
+	public static boolean discoverable = false;
+	
+	public static long discoverableStartTime = 0;
+	
+	private StreamConnectionNotifier serverConnection;
 	
 	private TestTimeOutMonitor monitor;
 	
@@ -123,8 +131,6 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 		Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
 		
-		localDevice.setDiscoverable(DiscoveryAgent.GIAC);
-
 	}
 	
 	public void run() {
@@ -134,15 +140,15 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			lastActivityTime = System.currentTimeMillis();
 			monitor = new TestTimeOutMonitor(this, Consts.serverTimeOutMin);
 		}
-		long start = System.currentTimeMillis();
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE) || (Configuration.testServerForceDiscoverable)) {
-				localDevice.setDiscoverable(DiscoveryAgent.GIAC);
-				Logger.debug("SetDiscoverable");
+				if (!setDiscoverable()) {
+					return;
+				}
 			}
 			
-			server = (StreamConnectionNotifier) Connector
+			serverConnection = (StreamConnectionNotifier) Connector
 					.open("btspp://localhost:"
 							+ CommunicationTester.uuid
 							+ ";name="
@@ -152,7 +158,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 
 			Logger.info("ResponderServer started " + Logger.timeNowToString());
 			if (Configuration.testServiceAttributes) {
-				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(server);
+				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 				if (record == null) {
 					Logger.warn("Bluetooth ServiceRecord is null");
 				} else {
@@ -162,7 +168,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			
 			while (!stoped) {
 				Logger.info("Accepting connection");
-				StreamConnection conn = server.acceptAndOpen();
+				StreamConnection conn = serverConnection.acceptAndOpen();
 				if (!stoped) {
 					Logger.info("Received connection");
 					lastActivityTime = System.currentTimeMillis();
@@ -191,7 +197,6 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.error("Server start error", e);
 			}
 		} finally {
-			allServerDuration += Logger.since(start);
 			Logger.info("Server finished! " + Logger.timeNowToString());
 			isRunning = false;
 		}
@@ -217,19 +222,41 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 	
 	private void closeServer() {
-		if (server != null) {
+		if (serverConnection != null) {
 			synchronized (this) {
 				try {
-					server.close();
+					serverConnection.close();
+					Logger.debug("serverConnection closed");
 				} catch (Throwable e) {
+					Logger.error("Server stop error", e);
 				}
 			}
-			server = null;
+			serverConnection = null;
 		}
+		setNotDiscoverable();
+	}
+
+	public static boolean setDiscoverable() {
 		try {
+			LocalDevice localDevice = LocalDevice.getLocalDevice();
+			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+			Logger.debug("Set Discoverable");
+			discoverable = true;
+			discoverableStartTime = System.currentTimeMillis();
+			return true;
+		} catch (Throwable e) {
+			Logger.error("Start server error", e);
+			return false;
+		}
+	}
+	
+	public static void setNotDiscoverable() {
+		try {
+			allServerDuration += Logger.since(discoverableStartTime);
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			localDevice.setDiscoverable(DiscoveryAgent.NOT_DISCOVERABLE);
 			Logger.debug("Set Not Discoverable");
+			discoverable = false;
 		} catch (Throwable e) {
 			Logger.error("Stop server error", e);
 		}
@@ -238,17 +265,49 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public void shutdown() {
 		Logger.info("shutdownServer");
 		stoped = true;
+		thread.interrupt();
 		closeServer();
 	}
 	
-    public void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
+	public void updateServiceRecord() {
+		if (serverConnection == null) {
+			return;
+		}
+		try {
+			ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
+			if (record != null) {
+				updateVariableServiceRecord(record);
+				LocalDevice.getLocalDevice().updateRecord(record);
+			}
+		} catch (Throwable e) {
+			Logger.error("updateServiceRecord", e);
+		}
+	}
+	
+	private void updateVariableServiceRecord(ServiceRecord record) {
+		byte[] data = new byte[16];
+		
+		data[0] = (byte)(Switcher.serverStartCount & 0xF);
+		
+		Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        data[1] = (byte)calendar.get(Calendar.MINUTE);
+        
+		record.setAttributeValue(Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID,
+		        new DataElement(DataElement.INT_16, data));
+	}
+	
+    private void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
         String id = "";
     	try {
     		id = "pub";
 			buildServiceRecordPub(record);
 			id = "int";
 			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID,
-			        new DataElement(DataElement.INT_1, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE));
+			        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_INT_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE));
+			id = "long";
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID,
+			        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_LONG_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_LONG_VALUE));
 			if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
 				id = "str";
 				record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_STR_ID, new DataElement(DataElement.STRING,
@@ -258,6 +317,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
 			        new DataElement(DataElement.URL, Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE));
 			
+			id = "bytes";
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID,
+			        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE));
+			
+			id = "variable";
+			updateVariableServiceRecord(record);
 			id = "update";
 			//LocalDevice.getLocalDevice().updateRecord(record);
 			

@@ -87,7 +87,7 @@ public class Switcher implements Runnable {
 	}
 	
 	public static boolean isRunningServer() {
-		return (server != null) && server.isRunning;
+		return (server != null) && TestResponderServer.discoverable && server.isRunning;
 	}
 
 	public void run() {
@@ -121,7 +121,7 @@ public class Switcher implements Runnable {
 					break;
 				}
 				try {
-					int sec = randomTTL(30, 80);
+					int sec = randomTTL(30, Configuration.serverMAXTimeSec);
 					Logger.info("switch to client in " + sec + " sec");
 					Thread.sleep(sec * 1000);
 				} catch (Exception e) {
@@ -175,7 +175,7 @@ public class Switcher implements Runnable {
 			client.discoveryOnce = true;
 			if (!client.isRunning) {
 				clientStartCount++;
-				new Thread(client).start();
+				(client.thread = new Thread(client)).start();
 			}
 		} catch (Throwable e) {
 			Logger.error("start error ", e);
@@ -188,7 +188,7 @@ public class Switcher implements Runnable {
 			}
 			if (!client.isRunning) {
 				clientStartCount++;
-				new Thread(client).start();
+				(client.thread = new Thread(client)).start();
 			} else {
 				BlueCoveTestMIDlet.message("Warn", "Client isRunning");
 			}
@@ -211,9 +211,15 @@ public class Switcher implements Runnable {
 			}
 			if (!server.isRunning) {
 				serverStartCount ++;
-				new Thread(server).start();
+				(server.thread = new Thread(server)).start();
 			} else {
-				BlueCoveTestMIDlet.message("Warn", "Server isRunning");
+				if (Configuration.canCloseServer) {
+					BlueCoveTestMIDlet.message("Warn", "Server isRunning");
+				} else {
+					serverStartCount ++;
+					server.updateServiceRecord();
+					TestResponderServer.setDiscoverable();
+				}
 			}
 		} catch (Throwable e) {
 			Logger.error("start error ", e);
@@ -221,6 +227,18 @@ public class Switcher implements Runnable {
 	}
 
 	public static void serverShutdown() {
+		if (Configuration.canCloseServer) {
+			serverShutdownForce();	
+		} else {
+			TestResponderServer.setNotDiscoverable();
+		}
+	}
+	
+	public static void serverShutdownOnExit() {
+		serverShutdownForce();
+	}
+	
+	public static void serverShutdownForce() {
 		if (server != null) {
 			server.shutdown();
 			server = null;

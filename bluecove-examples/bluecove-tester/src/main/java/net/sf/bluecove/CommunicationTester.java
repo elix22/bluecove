@@ -95,7 +95,7 @@ public class CommunicationTester implements Consts {
 		byte[] byteArayGot = new byte[byteAray.length];
 		int got = is.read(byteArayGot);
 		Assert.assertEquals("byteAray.len", byteAray.length, got);
-		for(int i = 1; i < byteAray.length; i++) {
+		for(int i = 0; i < byteAray.length; i++) {
 			Assert.assertEquals("byte", byteAray[i], byteArayGot[i]);
 		}
 	}

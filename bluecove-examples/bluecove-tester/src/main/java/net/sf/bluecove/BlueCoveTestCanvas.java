@@ -197,6 +197,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			logLine = 0;
 			break;
 		case '0':
+			logScrollX = 0;
 			setLogEndLine();
 			break;
 		case '*':
@@ -237,7 +238,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 				}
 				break;
 			case RIGHT:
-				if (logScrollX > -300) {
+				if (logScrollX > -400) {
 					logScrollX -= 20;
 				}
 				break;
@@ -284,6 +285,14 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			} else {
 				buf.append(" Down");
 			}
+			if (dev.variableData == null) {
+				buf.append(" No VarAttr");
+			} else {
+				buf.append(" srv:").append(dev.variableData[0]).append(" time:").append(dev.variableData[1]);
+				if (dev.variableDataUpdated) {
+					buf.append(" OK");
+				}
+			}
 			Logger.info(buf.toString());
 		}
 		StringBuffer buf = new StringBuffer();
@@ -294,8 +303,10 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		Logger.info(buf.toString());
 		buf = new StringBuffer();
 		buf.append("devices:").append(deviceCnt).append(" active:").append(deviceActiveCnt);
+		buf.append(" threads:").append(Thread.activeCount());
 		Logger.info(buf.toString());
 		Logger.info("-----------------------");
+		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.countFailure);
 		setLogEndLine();
 	}
 	
@@ -324,7 +335,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	public void commandAction(Command c, Displayable d) {
 		if (c == exitCommand) {
 			Switcher.clientShutdown();
-			Switcher.serverShutdown();
+			Switcher.serverShutdownOnExit();
 			BlueCoveTestMIDlet.exit();
 			return;
 		} else if (c == printStatsCommand) {

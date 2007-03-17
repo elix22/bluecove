@@ -54,6 +54,8 @@ public class TestResponderClient implements Runnable {
 
 	public static int discoveryCount = 0;
 	
+	public Thread thread;
+	
 	private boolean stoped = false;
 	
 	boolean discoveryOnce = false;
@@ -62,7 +64,6 @@ public class TestResponderClient implements Runnable {
 	
 	BluetoothInquirer bluetoothInquirer;
 	
-   
 	public static synchronized void clear() {
 		countSuccess = 0;
 		countFailure = 0;
@@ -91,6 +92,8 @@ public class TestResponderClient implements Runnable {
 		
 		private boolean servicesFound = false;
 		
+		private boolean anyServicesFound = false;
+		
 		public BluetoothInquirer() {
 			if (Configuration.searchOnlyBluecoveUuid) {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
@@ -99,16 +102,20 @@ public class TestResponderClient implements Runnable {
 			}
 			if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 				attrIDs = new int[] { 
-				    	0x0100,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
-				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
+				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
+				    	Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID,
+				    	Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID
 						};
 			} else {
 				attrIDs = new int[] { 
-				    	0x0100,
+				    	0x0100, // Service name
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
 				    	Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
-				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID 
+				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
+				    	Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID,
+				    	Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID,
+				    	Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID
 						};
 			}
 		}
@@ -198,20 +205,23 @@ public class TestResponderClient implements Runnable {
         }
 
 	    public boolean startServicesInquiry() {
-	        Logger.debug("Starting Services search");
+	        Logger.debug("Starting Services search " + Logger.timeNowToString());
 	        long inquiryStart = System.currentTimeMillis();
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
 	        	if (stoped) {
 	        		break;
 	        	}
 	        	servicesFound = false;
+	        	anyServicesFound = false;
 	        	long start = System.currentTimeMillis();
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
 	        	String name = "";
-	        	try {
-	        		name = remoteDevice.getFriendlyName(false);
-				} catch (IOException e) {
-					//Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
+	        	if (Configuration.discoveryGetDeviceFriendlyName) {
+					try {
+						name = remoteDevice.getFriendlyName(false);
+					} catch (Throwable e) {
+						Logger.error("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
+					}
 				}
 				Logger.debug("Search Services on " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + name);
 
@@ -231,7 +241,11 @@ public class TestResponderClient implements Runnable {
 					}
 		        }	
 				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, Logger.since(start));
-				Logger.debug("  Services Search took " + Logger.secSince(start));
+				String msg = "";
+				if (!anyServicesFound) {
+					msg = "; no services";
+				}
+				Logger.debug("  Services Search took " + Logger.secSince(start) + msg);
 			}
 	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart));
 	        return true;
@@ -239,8 +253,10 @@ public class TestResponderClient implements Runnable {
 
         public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
 			for (int i = 0; i < servRecord.length; i++) {
+				anyServicesFound = true;
 				boolean hadError = false;
 				boolean isBlueCoveTestService = false;
+				byte variableData[] = null;
 				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 				Logger.info("*found server " + url);
 				try {
@@ -252,9 +268,12 @@ public class TestResponderClient implements Runnable {
 						boolean foundInt = false;
 						boolean foundStr = false;
 						boolean foundUrl = false;
-
+						boolean foundLong = false;
+						boolean foundBytes = false;
+						
 						boolean foundIntOK = false;
 						boolean foundUrlOK = false;
+						boolean foundBytesOK = false;
 						
 						for (int j = 0; j < attributeIDs.length; j++) {
 							int id = attributeIDs[j];
@@ -271,12 +290,22 @@ public class TestResponderClient implements Runnable {
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_INT_ID:
 									foundInt = true;
+									Assert.assertEquals("int type", Consts.TEST_SERVICE_ATTRIBUTE_INT_TYPE, attrDataElement.getDataType());
 									Assert.assertEquals("int", Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE, attrDataElement.getLong());
 									isBlueCoveTestService = true;
 									foundIntOK = true;
 									break;
+								case Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID:
+									foundLong = true;
+									Assert.assertEquals("long type", Consts.TEST_SERVICE_ATTRIBUTE_LONG_TYPE, attrDataElement.getDataType());
+									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
+										Assert.assertEquals("long", Consts.TEST_SERVICE_ATTRIBUTE_LONG_VALUE, attrDataElement.getLong());
+										isBlueCoveTestService = true;
+									}
+									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
 									foundStr = true;
+									Assert.assertEquals("str type", DataElement.STRING, attrDataElement.getDataType());
 									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
 										Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
 										isBlueCoveTestService = true;
@@ -284,10 +313,38 @@ public class TestResponderClient implements Runnable {
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_URL_ID:
 									foundUrl = true;
+									Assert.assertEquals("url type", DataElement.URL, attrDataElement.getDataType());
 									Assert.assertEquals("url", Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE, attrDataElement.getValue());
 									isBlueCoveTestService = true;
 									foundUrlOK = true;
 									break;
+								case Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID:
+									foundBytes = true;
+									Assert.assertEquals("byte[] type", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, attrDataElement.getDataType());
+									byte[] byteAray;
+									try {
+										byteAray = (byte[])attrDataElement.getValue();
+									} catch (Throwable e) {
+										Logger.warn("attr " + id + " " + e.getMessage());
+										hadError = true;
+										break;
+									}
+									Assert.assertEquals("byteAray.len", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE.length, byteAray.length);
+									for(int k = 0; k < byteAray.length; k++) {
+										Assert.assertEquals("byte",  Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE[k], byteAray[k]);
+									}
+									isBlueCoveTestService = true;
+									foundBytesOK = true;
+									break;	
+								case Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID:
+									Assert.assertEquals("var byte[] type", DataElement.INT_16, attrDataElement.getDataType());
+									try {
+										variableData = (byte[])attrDataElement.getValue();
+									} catch (Throwable e) {
+										Logger.warn("attr " + id + " " + e.getMessage());
+										hadError = true;
+										break;
+									}
 								default:
 									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
 										Logger.debug("attribute " + id + " " + BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
@@ -308,6 +365,10 @@ public class TestResponderClient implements Runnable {
 							Logger.warn("srv INT attr. not found");
 							countFailure++;
 						}
+						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundLong)) {
+							Logger.warn("srv long attr. not found");
+							countFailure++;
+						}
 						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
 							Logger.warn("srv STR attr. not found");
 							countFailure++;
@@ -316,14 +377,22 @@ public class TestResponderClient implements Runnable {
 							Logger.warn("srv URL attr. not found");
 							countFailure++;
 						}
-						if (foundName && foundUrl && foundInt && foundStr && !hadError) {
-							Logger.info("service Attr OK");
+						if (!foundBytes) {
+							Logger.warn("srv byte[] attr. not found");
+							countFailure++;
+						}
+						if (variableData == null) {
+							Logger.warn("srv data byte[] attr. not found");
+							countFailure++;
+						}
+						if (foundName && foundUrl && foundInt && foundStr && foundLong && foundBytes && !hadError) {
+							Logger.info("all service Attr OK");
 							countSuccess++;
-						} else if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && foundUrl && foundInt && !hadError) {
+						} else if ((Configuration.testIgnoreNotWorkingServiceAttributes) && foundUrl && foundInt && foundBytes && !hadError) {
 							Logger.info("service Attr found");
 							countSuccess++;
 						}
-						if (foundIntOK && foundUrlOK) {
+						if (foundIntOK && foundUrlOK && foundBytesOK) {
 							Logger.info("Common Service Attr OK");
 							discoveryCount++;
 							Logger.info("Found BlueCove SRV:" + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
@@ -340,7 +409,7 @@ public class TestResponderClient implements Runnable {
 				}
 				if (isBlueCoveTestService) {
 					servicesFound = true;
-					RemoteDeviceInfo.deviceServiceFound(servRecord[i].getHostDevice());
+					RemoteDeviceInfo.deviceServiceFound(servRecord[i].getHostDevice(), variableData);
 					break;
 				}
 			}
@@ -468,15 +537,23 @@ public class TestResponderClient implements Runnable {
 		try {
 			bluetoothInquirer = new BluetoothInquirer();
 
+			int startTry = 0;
+			
 			while (!stoped) {
 				if ((!bluetoothInquirer.hasServers()) || (Configuration.continuousDiscovery) || (!Configuration.testConnections) ) {
 					if (!bluetoothInquirer.startDeviceInquiry()) {
-						try {
-							Thread.sleep(1000);
-						} catch (Exception e) {
-							break;
+						startTry ++;
+						if (startTry < 3) {
+							try {
+								Thread.sleep(1000);
+							} catch (Exception e) {
+								break;
+							}
+							continue;
 						}
-						continue;
+						Switcher.yield(this);
+					} else {
+						startTry = 0;
 					}
 					while (bluetoothInquirer.inquiring) {
 						try {
@@ -504,6 +581,10 @@ public class TestResponderClient implements Runnable {
 				}
 				Switcher.yield(this);
 			}
+		} catch (Throwable e) {
+			if (!stoped) {
+				Logger.error("cleint error ", e);
+			}
 		} finally {
 			isRunning = false;
 			Logger.info("Client finished! " + Logger.timeNowToString());
@@ -514,6 +595,7 @@ public class TestResponderClient implements Runnable {
 	public void shutdown() {
 		Logger.info("shutdownClient");
 		stoped = true;
+		thread.interrupt();
 		bluetoothInquirer.shutdown();
 	}
 	

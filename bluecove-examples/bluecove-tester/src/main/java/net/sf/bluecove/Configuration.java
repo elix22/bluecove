@@ -41,6 +41,11 @@ public class Configuration {
 	 */
 	public static boolean discoverOnlyTestDevices = false;
 	
+	/**
+	 * This may hung forever on some Nokia devices.
+	 */
+	public static boolean discoveryGetDeviceFriendlyName = false;
+	
 	public static Hashtable testDeviceNames = null;
 
 	public static boolean serverAcceptWhileConnected = false;
@@ -55,10 +60,17 @@ public class Configuration {
 
 	/**
 	 * Apperantly Motorola Service Attribute String is not working.
+	 * INT_4 not working on some Nokia and breakes its discovery by Motorola.
 	 */
 	public static boolean testIgnoreNotWorkingServiceAttributes = true;
 
 	public static boolean testServerForceDiscoverable = true;
+
+	public static int serverMAXTimeSec = 80;
+	/**
+	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
+	 */
+	public static boolean canCloseServer = false;
 	
     static {
 		testDeviceNames = new Hashtable();

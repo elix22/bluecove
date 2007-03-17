@@ -62,6 +62,12 @@ public class RemoteDeviceInfo {
 	
 	private long totalServiceDiscovery;
 	
+	public byte[] variableData;
+	
+	public long variableDataCheckLastTime;
+	
+	public boolean variableDataUpdated = false;
+	
 	public static synchronized void clear() {
 		devices = new Hashtable();
 	}
@@ -89,7 +95,7 @@ public class RemoteDeviceInfo {
 		devInfo.discoveredLastTime = now; 
 	}
 	
-	public static synchronized void deviceServiceFound(RemoteDevice remoteDevice) {
+	public static synchronized void deviceServiceFound(RemoteDevice remoteDevice, byte[] variableData) {
 		RemoteDeviceInfo devInfo = getDevice(remoteDevice);
 		long now = System.currentTimeMillis();
 		if (devInfo.serviceDiscoveredCount == 0) {
@@ -99,7 +105,30 @@ public class RemoteDeviceInfo {
 		}
 		devInfo.remoteDevice = remoteDevice;
 		devInfo.serviceDiscoveredCount ++;
-		devInfo.serviceDiscoveredLastTime = now; 
+		devInfo.serviceDiscoveredLastTime = now;
+		if (variableData != null) {
+			long frequencyMSec = now - devInfo.variableDataCheckLastTime;
+			if ((devInfo.variableData != null) && (frequencyMSec > 1000 * (20 + Configuration.serverMAXTimeSec))) {
+				devInfo.variableDataCheckLastTime = now;
+				boolean er = false; 
+				if (variableData[0] == devInfo.variableData[0]) {
+					Logger.warn("not updated count 0  " + variableData[0]);
+					TestResponderClient.countFailure++;
+					er = true;
+				}
+				if (variableData[1] == devInfo.variableData[1]) {
+					Logger.warn("not updated count 1  " + variableData[1]);
+					TestResponderClient.countFailure++;
+					er = true;
+				}
+				
+				if (!er) {
+					devInfo.variableDataUpdated = true;
+					Logger.warn("Var info OK" + variableData[0] + " " + variableData[1]);
+				}
+			}
+			devInfo.variableData = variableData;
+		}
 	}
 	
 	public static synchronized void searchServices(RemoteDevice remoteDevice, boolean found, long servicesSearch) {

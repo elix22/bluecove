@@ -20,6 +20,8 @@
  */ 
 package net.sf.bluecove;
 
+import javax.bluetooth.DataElement;
+
 public interface Consts {
 
 	public static final boolean useShortUUID = false;
@@ -34,6 +36,8 @@ public interface Consts {
 
 	public static final int TEST_SERVICE_ATTRIBUTE_INT_ID = 0x0A0;
 	
+	public static final int TEST_SERVICE_ATTRIBUTE_INT_TYPE = DataElement.INT_1;
+	
 	public static final int TEST_SERVICE_ATTRIBUTE_INT_VALUE = 77;
 	
 	public static final int TEST_SERVICE_ATTRIBUTE_STR_ID = 0x0A1;
@@ -43,6 +47,20 @@ public interface Consts {
     public static final int TEST_SERVICE_ATTRIBUTE_URL_ID = 0x0A2;
     
     public static final String TEST_SERVICE_ATTRIBUTE_URL_VALUE = "http:/bluecove.sourceforge.net:80/someUrl?q=10&bluecove=123&ServiceDiscovery=Test";
+
+	public static final int TEST_SERVICE_ATTRIBUTE_LONG_ID = 0x0A3;
+	
+	public static final int TEST_SERVICE_ATTRIBUTE_LONG_TYPE = DataElement.INT_4;
+	
+	public static final long TEST_SERVICE_ATTRIBUTE_LONG_VALUE = 128; //0xF1234567l; //4045620583
+	
+	public static final int TEST_SERVICE_ATTRIBUTE_BYTES_ID = 0x0A4;
+	
+	public static final int TEST_SERVICE_ATTRIBUTE_BYTES_TYPE = DataElement.INT_16;
+	
+	public static final byte[] TEST_SERVICE_ATTRIBUTE_BYTES_VALUE = new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+	
+	public static final int VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID = 0x0A5;
 	
 	public static final int clientReconnectSleep = 5100;
 	
