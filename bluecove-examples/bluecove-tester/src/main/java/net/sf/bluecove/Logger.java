@@ -98,9 +98,12 @@ public class Logger {
     }
     
     public static synchronized String timeToString(long timeStamp) {
-    	 Calendar calendar = Calendar.getInstance();
-         calendar.setTime(new Date(timeStamp));
-         return timeToString(calendar);
+    	if (timeStamp == 0) {
+    		return "n/a";
+    	}
+    	Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(timeStamp));
+        return timeToString(calendar);
     }
     
     public static String timeNowToString() {
@@ -108,10 +111,16 @@ public class Logger {
     }
     
 	public static String secSince(long start) {
+		if (start == 0) {
+    		return "n/a";
+    	}
 		return since(start)/1000 + " sec";
 	}
 	
 	public static long since(long start) {
+		if (start == 0) {
+			return 0;
+		}
 		return (System.currentTimeMillis() - start);
 	}
 	
