@@ -135,7 +135,7 @@ public class TestResponderClient implements Runnable {
 	    	}
 	    }
 	    
-	    private void cancelInquiry() {
+	    private synchronized void cancelInquiry() {
 	    	try {
     			discoveryAgent.cancelInquiry(this);
 			} catch (Throwable e) {
@@ -204,6 +204,9 @@ public class TestResponderClient implements Runnable {
 	    }
 	    
         public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
+        	if (stoped) {
+        		return;
+        	}
         	if (Configuration.discoverOnlyTestDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
         		return;
         	}
@@ -273,6 +276,9 @@ public class TestResponderClient implements Runnable {
 	    }
 
         public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
+        	if (stoped) {
+        		return;
+        	}
 			for (int i = 0; i < servRecord.length; i++) {
 				anyServicesFound = true;
 				boolean hadError = false;
@@ -617,7 +623,9 @@ public class TestResponderClient implements Runnable {
 		Logger.info("shutdownClient");
 		stoped = true;
 		thread.interrupt();
-		bluetoothInquirer.shutdown();
+		if (bluetoothInquirer != null) {
+			bluetoothInquirer.shutdown();
+		}
 	}
 	
 	public static void main(String[] args) {
