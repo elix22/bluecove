@@ -60,6 +60,7 @@
 
     <properties>
         <wtk.bluetooth.enabled>true</wtk.bluetooth.enabled>
+        <!-- short name for Motorola iDEN phones -->
         <mainjarname>bctest1.2.3</mainjarname>
     </properties>
 
@@ -111,6 +112,8 @@
                 <artifactId>gammu-maven-plugin</artifactId>
                 <configuration>
                     <gammurc>${env.HOME}/gammurc</gammurc>
+                    <appendClassifier>false</appendClassifier>
+                    <jarfile>${mainjarname}</jarfile>
                 </configuration>
             </plugin>
 
