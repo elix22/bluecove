@@ -60,6 +60,8 @@ public class TestResponderClient implements Runnable {
 	
 	boolean discoveryOnce = false;
 	
+	boolean useDiscoveredDevices = false;
+	
 	boolean isRunning = false;
 	
 	BluetoothInquirer bluetoothInquirer;
@@ -157,7 +159,13 @@ public class TestResponderClient implements Runnable {
 	    	long start = System.currentTimeMillis();
 	    	try {
 	    		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-	    		discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
+	    		if (!useDiscoveredDevices) {
+	    			discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
+	    		} else {
+	    			copyDiscoveredDevices();
+	    			useDiscoveredDevices = false;
+	    			return startServicesSearch();
+	    		}
 	        } catch(BluetoothStateException e) {
 	        	Logger.error("Cannot start Device inquiry", e);
 		        return false;
@@ -175,7 +183,7 @@ public class TestResponderClient implements Runnable {
 					cancelInquiry();
 					Logger.debug("  Device inquiry took " + Logger.secSince(start));
 					RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
-					return startServicesInquiry();
+					return startServicesSearch();
 				} else {
 					return true;
 				}
@@ -183,6 +191,16 @@ public class TestResponderClient implements Runnable {
 				cancelInquiry();
 		        inquiring = false;
 			}
+	    }
+	    
+	    private void copyDiscoveredDevices() {
+	    	if (RemoteDeviceInfo.devices.size() == 0) {
+	    		Logger.warn("No device in history, run Discovery");
+	    	}
+	    	for (Enumeration iter = RemoteDeviceInfo.devices.elements(); iter.hasMoreElements();) {
+				RemoteDeviceInfo dev = (RemoteDeviceInfo) iter.nextElement();
+				devices.addElement(dev.remoteDevice);	
+	    	}
 	    }
 	    
         public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
@@ -206,7 +224,7 @@ public class TestResponderClient implements Runnable {
 			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()));
         }
 
-	    public boolean startServicesInquiry() {
+	    private boolean startServicesSearch() {
 	        Logger.debug("Starting Services search " + Logger.timeNowToString());
 	        long inquiryStart = System.currentTimeMillis();
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
@@ -507,11 +525,11 @@ public class TestResponderClient implements Runnable {
 			}
 		} 
 		if (!Configuration.continuous) {
-			stopServer(serverURL);
+			sendStopServerCmd(serverURL);
 		}
 	}
 	
-	public void stopServer(String serverURL) {
+	public void sendStopServerCmd(String serverURL) {
 		StreamConnection conn = null;
 		InputStream is = null;
 		OutputStream os = null;

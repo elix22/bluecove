@@ -38,6 +38,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command printStatsCommand = new Command("1-Print Stats", Command.ITEM, 1);
 	
 	static final Command startDiscoveryCommand = new Command("*-Discovery", Command.ITEM, 2);
+	static final Command startServicesSearchCommand = new Command("7-Services Search", Command.ITEM, 2);
 	static final Command startClientCommand = new Command("2-Client Start", Command.ITEM, 2);
 	static final Command stopClientCommand = new Command("3-Client Stop", Command.ITEM, 3);
 	static final Command startServerCommand = new Command("5-Server Start", Command.ITEM, 4);
@@ -75,6 +76,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		
 		addCommand(exitCommand);
 		addCommand(startDiscoveryCommand);
+		addCommand(startServicesSearchCommand);
 		addCommand(startClientCommand);
 		addCommand(stopClientCommand);
 		addCommand(startServerCommand);
@@ -204,6 +206,9 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			break;
 		case '*':
 			Switcher.startDiscovery();
+			break;
+		case '7':
+			Switcher.startServicesSearch();
 			break;
 		case '2':
 			Switcher.startClient();
@@ -362,6 +367,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			 clear();
 		} else if (c == startDiscoveryCommand) {
 			Switcher.startDiscovery();
+		} else if (c == startServicesSearchCommand) {
+			Switcher.startServicesSearch();
 		} else if (c == startClientCommand) {
 			Switcher.startClient();
 		} else if (c == stopClientCommand) {

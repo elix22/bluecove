@@ -111,7 +111,7 @@ public class RemoteDeviceInfo {
 				boolean er = false; 
 				if (variableData[0] == devInfo.variableData[0]) {
 					Logger.warn("not updated [0]  " + variableData[0]);
-					TestResponderClient.failure.addFailure("not updated [0]  " + variableData[1] + " on " + devInfo.name);
+					TestResponderClient.failure.addFailure("not updated [0]  " + variableData[0] + " on " + devInfo.name);
 					er = true;
 				}
 				if (variableData[1] == devInfo.variableData[1]) {
