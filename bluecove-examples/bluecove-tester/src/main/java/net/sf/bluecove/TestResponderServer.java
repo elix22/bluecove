@@ -44,7 +44,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static int countFailure = 0;
 	
-	public static long allServerDuration;
+	public static TimeStatistic allServerDuration = new TimeStatistic(); 
 	
 	public static int countConnection = 0;
 	
@@ -206,10 +206,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 	
 	public static long avgServerDurationSec() {
-		if (Switcher.serverStartCount == 0) {
-			return 0;
-		}
-		return (allServerDuration) /(1000 * Switcher.serverStartCount);
+		return allServerDuration.avgSec();
 	}
 
 	public boolean hasRunningConnections() {
@@ -219,6 +216,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public long lastActivityTime() {
 		return lastActivityTime;
 		
+	}
+	
+	public static void clear() {
+		allServerDuration.clear();
 	}
 	
 	private void closeServer() {
@@ -252,7 +253,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static void setNotDiscoverable() {
 		try {
-			allServerDuration += Logger.since(discoverableStartTime);
+			allServerDuration.add(Logger.since(discoverableStartTime));
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			localDevice.setDiscoverable(DiscoveryAgent.NOT_DISCOVERABLE);
 			Logger.debug("Set Not Discoverable");
@@ -365,5 +366,6 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			System.exit(1);
 		}
 	}
+
 
 }

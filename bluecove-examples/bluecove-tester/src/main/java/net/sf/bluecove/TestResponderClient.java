@@ -50,7 +50,7 @@ public class TestResponderClient implements Runnable {
 
 	public static int countSuccess = 0; 
 	
-	public static int countFailure = 0;
+	public static FailureLog failure = new FailureLog("Client failure");
 
 	public static int discoveryCount = 0;
 	
@@ -66,7 +66,7 @@ public class TestResponderClient implements Runnable {
 	
 	public static synchronized void clear() {
 		countSuccess = 0;
-		countFailure = 0;
+		failure.clear();
 		discoveryCount = 0;
 	}
     
@@ -89,6 +89,8 @@ public class TestResponderClient implements Runnable {
 		DiscoveryAgent discoveryAgent;
 		
 		int servicesSearchTransID;
+		
+		private String servicesOnDeviceName = null;
 		
 		private boolean servicesFound = false;
 		
@@ -223,7 +225,8 @@ public class TestResponderClient implements Runnable {
 						Logger.error("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 					}
 				}
-				Logger.debug("Search Services on " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + name);
+	        	servicesOnDeviceName = niceDeviceName(remoteDevice.getBluetoothAddress());
+				Logger.debug("Search Services on " + servicesOnDeviceName + " " + name);
 
 				synchronized (this) {
 			    	try {
@@ -359,31 +362,31 @@ public class TestResponderClient implements Runnable {
 						}
 						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundName)) {
 							Logger.warn("srv name attr. not found");
-							countFailure++;
+							failure.addFailure("srv name attr. not found on " + servicesOnDeviceName);
 						}
 						if (!foundInt) {
 							Logger.warn("srv INT attr. not found");
-							countFailure++;
+							failure.addFailure("srv INT attr. not found on " + servicesOnDeviceName);
 						}
 						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundLong)) {
 							Logger.warn("srv long attr. not found");
-							countFailure++;
+							failure.addFailure("srv long attr. not found on " + servicesOnDeviceName);
 						}
 						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
 							Logger.warn("srv STR attr. not found");
-							countFailure++;
+							failure.addFailure("srv STR attr. not found on " + servicesOnDeviceName);
 						}
 						if (!foundUrl) {
 							Logger.warn("srv URL attr. not found");
-							countFailure++;
+							failure.addFailure("srv URL attr. not found on " + servicesOnDeviceName);
 						}
 						if (!foundBytes) {
 							Logger.warn("srv byte[] attr. not found");
-							countFailure++;
+							failure.addFailure("srv byte[] attr. not found on " + servicesOnDeviceName);
 						}
 						if (variableData == null) {
 							Logger.warn("srv data byte[] attr. not found");
-							countFailure++;
+							failure.addFailure("srv data byte[] attr. not found on " + servicesOnDeviceName);
 						}
 						if (foundName && foundUrl && foundInt && foundStr && foundLong && foundBytes && !hadError) {
 							Logger.info("all service Attr OK");
@@ -490,7 +493,7 @@ public class TestResponderClient implements Runnable {
 				countSuccess ++;
 				Logger.debug("test ok:" + testType);
 			} catch (Throwable e) {
-				countFailure ++;
+				failure.addFailure("test " + testType + " " + e);
 				Logger.error("test " + testType, e);
 			}
 			IOUtils.closeQuietly(os);
@@ -572,8 +575,8 @@ public class TestResponderClient implements Runnable {
 						connectAndTest(url);
 					}
 				}
-				Logger.info("*Success:" + countSuccess + " Failure:" + countFailure);
-				if ((countSuccess + countFailure > 0) && (!Configuration.continuous)) {
+				Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
+				if ((countSuccess + failure.countFailure > 0) && (!Configuration.continuous)) {
 					break;
 				}
 				if (stoped || discoveryOnce) {

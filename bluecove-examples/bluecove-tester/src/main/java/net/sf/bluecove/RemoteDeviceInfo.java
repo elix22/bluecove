@@ -32,6 +32,8 @@ public class RemoteDeviceInfo {
 	
 	public static Hashtable devices = new Hashtable();
 	
+	public String name;
+	
 	public RemoteDevice remoteDevice;
 
 	public int discoveredCount;
@@ -40,27 +42,19 @@ public class RemoteDeviceInfo {
 	
 	public long discoveredLastTime;
 	
-	private long totalDiscovery;
+	private TimeStatistic deviceDiscovery = new TimeStatistic();
 
-	public static long totalDeviceInquiryCount;
+	public static TimeStatistic deviceInquiryDuration = new TimeStatistic(); 
 	
-	public static long totalDeviceInquiryDuration;
-	
-	public long serviceSearchCount;
-	
-	private long totalServiceSearchDuration;
+	private TimeStatistic serviceSearch = new TimeStatistic();
 
-	public static long allServiceSearchCount;
-	
-	public static long allServiceSearchDuration;
-	
-	public int serviceDiscoveredCount;
+	public static TimeStatistic allServiceSearch = new TimeStatistic(); 
 	
 	public long serviceDiscoveredFirstTime;
 	
 	public long serviceDiscoveredLastTime;
 	
-	private long totalServiceDiscovery;
+	public TimeStatistic serviceDiscovered = new TimeStatistic();
 	
 	public byte[] variableData;
 	
@@ -70,6 +64,8 @@ public class RemoteDeviceInfo {
 	
 	public static synchronized void clear() {
 		devices = new Hashtable();
+		allServiceSearch.clear();
+		deviceInquiryDuration.clear();
 	}
 	
 	public static synchronized RemoteDeviceInfo getDevice(RemoteDevice remoteDevice) {
@@ -77,6 +73,7 @@ public class RemoteDeviceInfo {
 		RemoteDeviceInfo devInfo = (RemoteDeviceInfo)devices.get(addr);
 		if (devInfo == null) {
 			devInfo = new RemoteDeviceInfo();
+			devInfo.name = TestResponderClient.niceDeviceName(addr);
 			devices.put(addr, devInfo);
 		}
 		return devInfo;
@@ -87,8 +84,9 @@ public class RemoteDeviceInfo {
 		long now = System.currentTimeMillis();
 		if (devInfo.discoveredCount == 0) {
 			devInfo.discoveredFirstTime = now;
+			devInfo.deviceDiscovery.add(0);
 		} else {
-			devInfo.totalDiscovery += (now - devInfo.discoveredLastTime);
+			devInfo.deviceDiscovery.add(now - devInfo.discoveredLastTime);
 		}
 		devInfo.remoteDevice = remoteDevice;
 		devInfo.discoveredCount ++;
@@ -98,13 +96,13 @@ public class RemoteDeviceInfo {
 	public static synchronized void deviceServiceFound(RemoteDevice remoteDevice, byte[] variableData) {
 		RemoteDeviceInfo devInfo = getDevice(remoteDevice);
 		long now = System.currentTimeMillis();
-		if (devInfo.serviceDiscoveredCount == 0) {
+		if (devInfo.serviceDiscovered.count == 0) {
 			devInfo.serviceDiscoveredFirstTime = now;
+			devInfo.serviceDiscovered.add(0);
 		} else {
-			devInfo.totalServiceDiscovery += (now - devInfo.serviceDiscoveredLastTime);
+			devInfo.serviceDiscovered.add(now - devInfo.serviceDiscoveredLastTime);
 		}
 		devInfo.remoteDevice = remoteDevice;
-		devInfo.serviceDiscoveredCount ++;
 		devInfo.serviceDiscoveredLastTime = now;
 		if (variableData != null) {
 			long frequencyMSec = now - devInfo.variableDataCheckLastTime;
@@ -112,13 +110,13 @@ public class RemoteDeviceInfo {
 				devInfo.variableDataCheckLastTime = now;
 				boolean er = false; 
 				if (variableData[0] == devInfo.variableData[0]) {
-					Logger.warn("not updated count 0  " + variableData[0]);
-					TestResponderClient.countFailure++;
+					Logger.warn("not updated [0]  " + variableData[0]);
+					TestResponderClient.failure.addFailure("not updated [0]  " + variableData[1] + " on " + devInfo.name);
 					er = true;
 				}
 				if (variableData[1] == devInfo.variableData[1]) {
 					Logger.warn("not updated count 1  " + variableData[1]);
-					TestResponderClient.countFailure++;
+					TestResponderClient.failure.addFailure("not updated [1]  " + variableData[1] + " on " + devInfo.name);
 					er = true;
 				}
 				
@@ -133,57 +131,39 @@ public class RemoteDeviceInfo {
 	
 	public static synchronized void searchServices(RemoteDevice remoteDevice, boolean found, long servicesSearch) {
 		RemoteDeviceInfo devInfo = getDevice(remoteDevice);
-		devInfo.serviceSearchCount ++;
-		devInfo.totalServiceSearchDuration += servicesSearch;
-		allServiceSearchCount ++;
-		allServiceSearchDuration += servicesSearch;
+		devInfo.serviceSearch.add(servicesSearch);
+		allServiceSearch.add(servicesSearch);
 	}
 
 	public static void discoveryInquiryFinished(long discoveryInquiry) {
-		totalDeviceInquiryCount ++;
-		totalDeviceInquiryDuration += discoveryInquiry;
+		deviceInquiryDuration.add(discoveryInquiry);
 	}
 	
 	public static long allAvgDeviceInquiryDurationSec() {
-		if (totalDeviceInquiryCount == 0) {
-			return 0;
-		}
-		return (totalDeviceInquiryDuration/(1000 * totalDeviceInquiryCount));
+		return deviceInquiryDuration.avgSec();
 	}
 	
 	public static long allAvgServiceSearchDurationSec() {
-		if (allServiceSearchCount == 0) {
-			return 0;
-		}
-		return (allServiceSearchDuration/(1000 * allServiceSearchCount));
+		return allServiceSearch.avgSec();
 	}
 	
 	public long avgDiscoveryFrequencySec() {
-		if (discoveredCount == 0) {
-			return 0;
-		}
-		return (totalDiscovery/(1000 * discoveredCount));
+		return deviceDiscovery.avgSec();
 	}
 
 	public long avgServiceDiscoveryFrequencySec() {
-		if (serviceDiscoveredCount == 0) {
-			return 0;
-		}
-		return (totalServiceDiscovery/(1000 * serviceDiscoveredCount));
+		return serviceDiscovered.avgSec();
 	}
 	
 	public long avgServiceSearchDurationSec() {
-		if (serviceSearchCount == 0) {
-			return 0;
-		}
-		return (totalServiceSearchDuration/(1000 * serviceSearchCount));
+		return serviceSearch.durationMaxSec();
 	}
 	
-	public long serviceSearchSuccess() {
-		if ((serviceSearchCount) == 0) {
+	public long serviceSearchSuccessPrc() {
+		if ((serviceSearch.count) == 0) {
 			return 0;
 		}
-		return (100 * serviceDiscoveredCount)/(serviceSearchCount);
+		return (100 * serviceDiscovered.count)/(serviceSearch.count);
 	}
 	
 }
