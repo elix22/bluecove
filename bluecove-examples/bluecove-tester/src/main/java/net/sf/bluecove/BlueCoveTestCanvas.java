@@ -297,7 +297,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			} else {
 				buf.append(" srv:").append(dev.variableData[0]).append(" time:").append(dev.variableData[1]);
 				if (dev.variableDataUpdated) {
-					buf.append(" OK");
+					buf.append(" var.OK");
 				}
 			}
 			Logger.info(buf.toString());

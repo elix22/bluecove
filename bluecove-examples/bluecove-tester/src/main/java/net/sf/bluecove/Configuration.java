@@ -70,7 +70,7 @@ public class Configuration {
 	/**
 	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */
-	public static boolean canCloseServer = false;
+	public static boolean canCloseServer = true;
 	
     static {
 		testDeviceNames = new Hashtable();
@@ -89,6 +89,9 @@ public class Configuration {
         
         testDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
         
+        testDeviceNames.put("001ADBBFCA67", "Mi880(t-b)");
+        testDeviceNames.put("0019639C4007", "SEK790(r)");
+        testDeviceNames.put("001ADBBFCEED", "Mi880(t-m)");
         
         testDeviceNames.put("00149ABD52E7", "M V551 A");
         testDeviceNames.put("00149ABD538D", "M V551 N");
