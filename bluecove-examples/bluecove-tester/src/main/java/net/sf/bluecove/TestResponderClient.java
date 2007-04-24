@@ -481,8 +481,22 @@ public class TestResponderClient implements Runnable {
 		return (String) Configuration.testDeviceNames.get(addr);
 	}
 	
+	public static String extractBluetoothAddress(String serverURL) {
+		int start = serverURL.indexOf("//");
+		if (start == -1) {
+			return null;
+		}
+		start += 2;
+		int end = serverURL.indexOf(":", start);
+		if (end == -1) {
+			return null;
+		}
+		return serverURL.substring(start, end);
+	}
+	
 	public void connectAndTest(String serverURL) {
-		Logger.debug("connect:" + serverURL);
+		String deviceName = getWhiteDeviceName(extractBluetoothAddress(serverURL));
+		Logger.debug("connect:" + deviceName + " " + serverURL);
 		for(int testType = Consts.TEST_START; testType <= Consts.TEST_LAST; testType ++) {
 			StreamConnection conn = null;
 			InputStream is = null;
@@ -518,8 +532,8 @@ public class TestResponderClient implements Runnable {
 				countSuccess ++;
 				Logger.debug("test ok:" + testType);
 			} catch (Throwable e) {
-				failure.addFailure("test " + testType + " " + e);
-				Logger.error("test " + testType, e);
+				failure.addFailure(deviceName + " test " + testType + " " + e);
+				Logger.error(deviceName + " test " + testType, e);
 			}
 			IOUtils.closeQuietly(os);
 			IOUtils.closeQuietly(is);
