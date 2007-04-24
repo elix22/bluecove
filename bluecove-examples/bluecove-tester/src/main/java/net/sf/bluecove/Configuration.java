@@ -49,14 +49,16 @@ public class Configuration {
 	public static Hashtable testDeviceNames = null;
 
 	public static boolean serverAcceptWhileConnected = false;
+	
+	public static boolean serverAcceptWhileConnectedOnJavaSE = true;
 
 	public static boolean continuous = true;
 
 	public static boolean continuousDiscovery = true;
 	
-	public static boolean testConnections = false;
+	public static boolean testConnections = true;
 	
-	public static boolean testServiceAttributes = true;
+	public static boolean testServiceAttributes = false;
 
 	/**
 	 * Apperantly Motorola Service Attribute String is not working.

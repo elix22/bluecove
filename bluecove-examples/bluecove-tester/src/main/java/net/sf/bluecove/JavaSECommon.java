@@ -33,5 +33,9 @@ public class JavaSECommon {
 		
 		//System.setProperty("bluecove.debug", "true");
 		//System.setProperty("bluecove.native.path", "../../bluecove/target/obj");
+		
+		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
+			Configuration.serverAcceptWhileConnected = true;
+		}
 	}
 }

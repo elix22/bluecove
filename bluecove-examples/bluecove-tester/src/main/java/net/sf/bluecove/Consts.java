@@ -64,7 +64,7 @@ public interface Consts {
 	
 	public static final int clientReconnectSleep = 5100;
 	
-	public static final int serverSendSleep = 1000;
+	public static final int serverSendCloseSleep = 1000;
 	
 	public static final int serverTimeOutMin = 2;
 	
@@ -72,9 +72,11 @@ public interface Consts {
 
     public static final int DEVICE_PHONE = 0x0200;
     
-	public static final int TEST_REPLY_OK = 77;
+	public static final int SEND_TEST_REPLY_OK = 77;
 	
-	public static final int TEST_TERMINATE = 99;
+	public static final int TEST_SERVER_TERMINATE = 99;
+	
+	
 	
 	public static final int TEST_START = 1;
 	
@@ -97,6 +99,10 @@ public interface Consts {
 	public static final int TEST_DataStream = 9;
 	
 	public static final int TEST_DataStream_BACK = 10;
+
+	public static final int TEST_StreamAvailable = 11;
 	
-	public static final int TEST_LAST = 10;
+	public static final int TEST_StreamAvailable_BACK = 12;
+	
+	public static final int TEST_LAST = 12;
 }

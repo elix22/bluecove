@@ -46,6 +46,8 @@ public class CommunicationTester implements Consts {
 	
 	private static final byte[] byteAray = new byte[] {1 , 7, -40, 80, 90, 100, 87, -10, 127, -127, 0, -77};  
 	
+	private static final int streamAvailableByteCount = 147;
+	
 	static void sendString(OutputStream os) throws IOException {
 		DataOutputStream dos = new DataOutputStream(os);
 		dos.writeUTF(stringData);
@@ -124,6 +126,48 @@ public class CommunicationTester implements Consts {
 		Assert.assertEquals("ReadChar", 'O', dis.readChar());
 	}
 	
+	private static void sendStreamAvailable(InputStream is, OutputStream os) throws IOException {
+		for(int i = 1; i < streamAvailableByteCount; i++) {
+			os.write(i);
+			if (i % 10 == 0) {
+				os.flush();
+			}
+		}
+		// Long test need conformation
+		os.flush();
+		int got = is.read();
+		Assert.assertEquals("byte", 255 & streamAvailableByteCount, got);
+	}
+
+	private static void readStreamAvailable(InputStream is, OutputStream os) throws IOException {
+		for(int i = 1; i < streamAvailableByteCount; i++) {
+			boolean hasData = false;
+			int tryCount = 0;
+			do {
+				int avl = is.available();
+				if (avl > 0) {
+					hasData = true;
+				} else if (avl < 0) {
+					Assert.fail("negative available");
+				}
+				tryCount ++;
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					Assert.fail("Test Interrupted");
+				}
+				if (tryCount > 50) {
+					Assert.fail("Test Available took too long");
+				}
+			} while(!hasData);
+			
+			int got = is.read();
+			Assert.assertEquals("byte", 255 & i, got);
+		}
+		os.write(streamAvailableByteCount);
+		os.flush();
+	}
+	
 	public static void runTest(int testType, boolean server, InputStream is, OutputStream os) throws IOException {
 		switch (testType) {
 		case TEST_STRING:
@@ -194,11 +238,25 @@ public class CommunicationTester implements Consts {
 				CommunicationTester.sendDataStream(os);
 			}
 			break;
-		case TEST_TERMINATE:
+		case TEST_StreamAvailable:
+			if (server) {
+				CommunicationTester.readStreamAvailable(is, os);
+			} else {
+				CommunicationTester.sendStreamAvailable(is, os);
+			}
+			break;
+		case TEST_StreamAvailable_BACK:
+			if (!server) {
+				CommunicationTester.readStreamAvailable(is, os);
+			} else {
+				CommunicationTester.sendStreamAvailable(is, os);
+			}
+			break;
+		case TEST_SERVER_TERMINATE:
 			return;
 		default:
 			Assert.fail("Invalid test#" + testType);	
 		}
 	}
-	
+
 }

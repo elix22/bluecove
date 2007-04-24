@@ -1,7 +1,8 @@
 @version $Id$
 
 Devices used:
-  Nokia 6230, Moto V360,  BlueCove, avetanaBluetooth 1.3.12a on MS and WC (Widcomm by HP)
+  Phones: Nokia 6230, Moto V360, Sony Ericsson K790,
+  Windows PC: BlueCove, avetanaBluetooth 1.3.12a on MS and WC (Widcomm by HP)
 
 Server     | Client     | Problems
 -----------+------------+-----------------
@@ -25,5 +26,6 @@ avetana-MS | avetana-WC | -- // --
 
 BlueCove   | BlueCove   | -- // --
 BlueCove   | Nokia 6230 | -- // --
+BlueCove   | SE K790    | -- // --
 BlueCove   | avetana-MS | -- // --
 BlueCove   | Moto V360  | Not Discoverable   <---

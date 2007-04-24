@@ -86,7 +86,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				is = conn.openInputStream();
 				testType = is.read();
 
-				if (testType == Consts.TEST_TERMINATE) {
+				if (testType == Consts.TEST_SERVER_TERMINATE) {
 					Logger.info("Stop requested");
 					shutdown();
 					return;
@@ -95,13 +95,13 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				os = conn.openOutputStream();
 				CommunicationTester.runTest(testType, true, is, os);
 				Logger.debug("reply OK");
-				os.write(Consts.TEST_REPLY_OK);
+				os.write(Consts.SEND_TEST_REPLY_OK);
 				os.write(testType);
 				os.flush();
 				countSuccess++;
 				Logger.debug("Test# " + testType + " ok");
 				try {
-					Thread.sleep(Consts.serverSendSleep);
+					Thread.sleep(Consts.serverSendCloseSleep);
 				} catch (InterruptedException e) {
 				}
 			} catch (Throwable e) {

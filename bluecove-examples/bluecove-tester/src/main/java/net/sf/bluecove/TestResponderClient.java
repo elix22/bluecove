@@ -482,6 +482,7 @@ public class TestResponderClient implements Runnable {
 	}
 	
 	public void connectAndTest(String serverURL) {
+		Logger.debug("connect:" + serverURL);
 		for(int testType = Consts.TEST_START; testType <= Consts.TEST_LAST; testType ++) {
 			StreamConnection conn = null;
 			InputStream is = null;
@@ -511,7 +512,7 @@ public class TestResponderClient implements Runnable {
 				os.flush();
 				Logger.debug("read server status");
 				int ok = is.read();
-				Assert.assertEquals("Test reply ok", Consts.TEST_REPLY_OK, ok);
+				Assert.assertEquals("Test reply ok", Consts.SEND_TEST_REPLY_OK, ok);
 				int conformTestType = is.read();
 				Assert.assertEquals("Test reply conform", testType, conformTestType);
 				countSuccess ++;
@@ -544,7 +545,7 @@ public class TestResponderClient implements Runnable {
 			conn = (StreamConnection) Connector.open(serverURL);
 			os = conn.openOutputStream();
 			
-			os.write(Consts.TEST_TERMINATE);
+			os.write(Consts.TEST_SERVER_TERMINATE);
 			os.flush();
 			try {
 				Thread.sleep(1000);
