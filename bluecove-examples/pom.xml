@@ -56,6 +56,22 @@
         </site>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>pyx4me-web</id>
+            <url>http://www.pyx4me.com/maven2-snapshot</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+
+        <pluginRepository>
+            <id>pyx4me-web</id>
+            <url>http://www.pyx4me.com/maven2-snapshot</url>
+        </pluginRepository>
+
+    </pluginRepositories>
+
     <properties>
         <me2Version>2.0.1-SNAPSHOT</me2Version>
     </properties>
