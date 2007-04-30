@@ -1,0 +1,1 @@
+126#"\Program Files\J9\PPRO10\bin\j9w.exe" "-jcl:ppro10" -cp "\Storage Card\bluecove\bluecove-tester.jar" net.sf.bluecove.awt.Main

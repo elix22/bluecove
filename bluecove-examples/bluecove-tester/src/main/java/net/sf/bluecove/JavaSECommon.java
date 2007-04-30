@@ -30,9 +30,9 @@ public class JavaSECommon {
 		}
 		initialized = true;
 		Logger.addAppender(new LoggerJavaSEAppender());
-		
-		//System.setProperty("bluecove.debug", "true");
-		//System.setProperty("bluecove.native.path", "../../bluecove/target/obj");
+
+		//System.getProperties().put("bluecove.debug", "true");
+		//System.getProperties().put("bluecove.native.path", "../../bluecove/target/obj");
 		
 		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
 			Configuration.serverAcceptWhileConnected = true;

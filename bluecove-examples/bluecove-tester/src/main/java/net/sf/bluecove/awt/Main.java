@@ -23,6 +23,9 @@ package net.sf.bluecove.awt;
 import java.awt.*;
 import java.awt.event.*;
 
+import com.intel.bluetooth.BlueCoveImpl;
+
+import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.Logger.LoggerAppender;
@@ -40,7 +43,11 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 	ScrollPane scrollPane;
 
 	public static void main(String[] args) {
-		System.setProperty("bluecove.debug", "true");
+		//System.setProperty("bluecove.debug", "true");
+		System.getProperties().put("bluecove.debug", "true");
+		
+		//BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(true);
+		JavaSECommon.initOnce();
 		Main app = new Main();
 		app.setVisible(true);
 		Logger.debug("Stated app");
@@ -51,6 +58,8 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		com.intel.bluetooth.DebugLog.addAppender(this);
 		
 		Logger.debug("Stating app");
+		
+		this.setTitle("BlueCove tester");
 		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("Bluetooth");
