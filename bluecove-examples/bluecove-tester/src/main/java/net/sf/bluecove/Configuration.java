@@ -21,6 +21,7 @@
 package net.sf.bluecove;
 
 import java.util.Hashtable;
+import java.util.Locale;
 
 /**
  * TODO Create an editable Form for this Configuarion settings.
@@ -74,6 +75,14 @@ public class Configuration {
 	 */
 	public static boolean canCloseServer = true;
 	
+	public static boolean windowsXP = false;
+	
+	public static boolean windowsCE = false;
+	
+	public static boolean linux = false;
+	
+	public static boolean macOSx = false;
+	
     static {
 		testDeviceNames = new Hashtable();
 		testDeviceNames.put("00E003506231", "Nokia D1");
@@ -92,17 +101,34 @@ public class Configuration {
         testDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
         
         testDeviceNames.put("001ADBBFCA67", "Mi880(t-b)");
-        testDeviceNames.put("0019639C4007", "SEK790(r)");
+        //testDeviceNames.put("0019639C4007", "SEK790(r)");
         testDeviceNames.put("001ADBBFCEED", "Mi880(t-m)");
         
         testDeviceNames.put("00149ABD52E7", "M V551 A");
         testDeviceNames.put("00149ABD538D", "M V551 N");
         testDeviceNames.put("0007E05387E5", "Palm");
+        testDeviceNames.put("0010C65C08A3", "AximX30");
         
         testDeviceNames.put("000B0D1796FC", "GPS");
         testDeviceNames.put("000D3AA4F7F9", "My Keyboard");
         testDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
         testDeviceNames.put("0020E03AC5B2", "bob1");
         testDeviceNames.put("000D88C03ACA", "bob2");
+        
+        String sysName = System.getProperty("os.name");
+        if (sysName != null) {
+			sysName = sysName.toLowerCase(Locale.ENGLISH);
+			if (sysName.indexOf("windows") != -1) {
+				if (sysName.indexOf("ce") != -1) {
+					windowsCE = true;
+				} else {
+					windowsXP = true;
+				}
+			} else if (sysName.indexOf("mac os x") != -1) {
+				macOSx = true;
+			} else if (sysName.indexOf("linux") != -1) {
+				linux = true;
+			}
+		}
 	}
 }

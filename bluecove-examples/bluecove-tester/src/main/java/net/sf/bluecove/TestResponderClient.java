@@ -458,8 +458,10 @@ public class TestResponderClient implements Runnable {
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
  	    
-		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
-		Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
+		if (!Configuration.windowsCE) {
+			Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
+			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
+		}
 		
 	}
 	
@@ -496,6 +498,9 @@ public class TestResponderClient implements Runnable {
 	
 	public void connectAndTest(String serverURL) {
 		String deviceName = getWhiteDeviceName(extractBluetoothAddress(serverURL));
+		if (deviceName == null) {
+			deviceName = extractBluetoothAddress(serverURL);
+		}
 		Logger.debug("connect:" + deviceName + " " + serverURL);
 		for(int testType = Consts.TEST_START; testType <= Consts.TEST_LAST; testType ++) {
 			StreamConnection conn = null;
