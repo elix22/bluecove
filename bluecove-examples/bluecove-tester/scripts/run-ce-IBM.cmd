@@ -10,16 +10,16 @@ if errorlevel 1 (
     exit /b 1
 )
 
-rem %WMDPT%\RAPI_Start\rapistart \Program Files\J9\PPRO10\bin\j9w.exe -jcl:ppro10 -cp "\Storage Card\bluecove\bluecove-tester.jar" net.sf.bluecove.awt.Main
+%WMDPT%\RAPI_Start\rapistart "\Program Files\J9\PPRO10\bin\j9w.exe" -jcl:ppro10 -cp "%BLUECOVE_INSTALL_DIR%\bluecove-tester.jar" net.sf.bluecove.awt.Main
 
-%WMDPT%\RAPI_Start\rapistart "\Storage Card\bluecove\BlueCove-IBM"
+rem %WMDPT%\RAPI_Start\rapistart "\Storage Card\bluecove\BlueCove-IBM"
 
 if errorlevel 1 goto errormark
 echo [Launched OK]
 goto endmark
 :errormark
 	ENDLOCAL
-	echo Error in build
+	echo Error in start
 	pause
 :endmark
 ENDLOCAL
