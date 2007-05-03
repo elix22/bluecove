@@ -1,5 +1,4 @@
 #summary bluecove on Windows Mobile
-#labels Featured
 
 = Introduction =
 
@@ -44,5 +43,4 @@
    * [http://users.comp.lancs.ac.uk/computing/users/fittond/ppcjava.html List of Java Support on Pocket PC]
 
    * [http://www.berka.name/stan/jvm-ppc/java_for_pda.html JAVA for PocketPC PDA's]
-
 
