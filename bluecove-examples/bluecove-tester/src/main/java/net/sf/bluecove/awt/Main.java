@@ -51,6 +51,7 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		Main app = new Main();
 		app.setVisible(true);
 		Logger.debug("Stated app");
+		Logger.debug("OS:" + System.getProperty("os.name"));
 	}
 	
 	public Main() {
@@ -125,6 +126,18 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 //        scrollPane.add(output);
 //        this.add(scrollPane);
 		
+        output.addKeyListener(new KeyListener() {
+
+			public void keyPressed(KeyEvent e) {
+				Logger.debug("key:" + e.getKeyCode() + " " + KeyEvent.getKeyText(e.getKeyCode()));
+			}
+
+			public void keyReleased(KeyEvent e) {
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}});
+        
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if (screenSize.width > 600) {
 			screenSize.setSize(240, 320);
@@ -144,8 +157,7 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		this.dispose();
 		System.exit(0);
 	}
-
-
+	
 	public void appendLog(int level, String message, Throwable throwable) {
 		if (output == null) {
 			return;
