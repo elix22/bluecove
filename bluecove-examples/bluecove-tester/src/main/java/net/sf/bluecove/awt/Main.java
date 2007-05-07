@@ -117,6 +117,7 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		addMenu(menu, "Debug ON", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				com.intel.bluetooth.DebugLog.setDebugEnabled(true);
+				com.intel.bluetooth.BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(true);
 				com.intel.bluetooth.DebugLog.debug("Debug Enabled");
 			}
 		});
