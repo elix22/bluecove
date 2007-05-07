@@ -10,9 +10,9 @@ if errorlevel 1 (
     exit /b 1
 )
 
-%WMDPT%\RAPI_Start\rapistart "\Program Files\J9\PPRO10\bin\j9w.exe" -jcl:ppro10 -cp "%BLUECOVE_INSTALL_DIR%\bluecove-tester.jar" net.sf.bluecove.awt.Main
+%WMDPT%\RAPI_Start\rapistart "\Program Files\J9\PPRO10\bin\j9.exe" -jcl:ppro10 -Dmicroedition.connection.pkgs=com.intel.bluetooth -cp "%BLUECOVE_INSTALL_DIR%\bluecove-tester.jar" net.sf.bluecove.awt.Main
 
-rem %WMDPT%\RAPI_Start\rapistart "\Storage Card\bluecove\BlueCove-IBM"
+rem %WMDPT%\RAPI_Start\rapistart "\bluecove\BlueCove-IBM"
 
 if errorlevel 1 goto errormark
 echo [Launched OK]
