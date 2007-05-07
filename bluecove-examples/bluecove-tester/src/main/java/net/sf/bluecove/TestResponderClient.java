@@ -443,10 +443,16 @@ public class TestResponderClient implements Runnable {
 		}
 
         public synchronized void serviceSearchCompleted(int transID, int respCode) {
+        	if (respCode == SERVICE_SEARCH_ERROR) {
+        		Logger.error("error occurred while processing the service search");
+        	}
         	notifyAll();
         }
 
         public synchronized void inquiryCompleted(int discType) {
+        	if (discType == INQUIRY_ERROR) {
+        		Logger.error("inquiry ended abnormally"); 
+        	}
         	notifyAll();
         }
 	    
