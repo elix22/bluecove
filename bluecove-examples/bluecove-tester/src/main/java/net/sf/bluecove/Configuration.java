@@ -108,6 +108,7 @@ public class Configuration {
         testDeviceNames.put("00149ABD538D", "M V551 N");
         testDeviceNames.put("0007E05387E5", "Palm");
         testDeviceNames.put("0010C65C08A3", "AximX30");
+        testDeviceNames.put("00022B001234", "MPx220");
         
         testDeviceNames.put("000B0D1796FC", "GPS");
         testDeviceNames.put("000D3AA4F7F9", "My Keyboard");
@@ -117,7 +118,7 @@ public class Configuration {
         
         String sysName = System.getProperty("os.name");
         if (sysName != null) {
-			sysName = sysName.toLowerCase(Locale.ENGLISH);
+			sysName = sysName.toLowerCase();
 			if (sysName.indexOf("windows") != -1) {
 				if (sysName.indexOf("ce") != -1) {
 					windowsCE = true;

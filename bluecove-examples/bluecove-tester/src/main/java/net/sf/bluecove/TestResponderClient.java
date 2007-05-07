@@ -458,8 +458,8 @@ public class TestResponderClient implements Runnable {
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
  	    
+		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 		if (!Configuration.windowsCE) {
-			Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
 		}
 		
@@ -502,7 +502,7 @@ public class TestResponderClient implements Runnable {
 			deviceName = extractBluetoothAddress(serverURL);
 		}
 		Logger.debug("connect:" + deviceName + " " + serverURL);
-		for(int testType = Consts.TEST_START; testType <= Consts.TEST_LAST; testType ++) {
+		for(int testType = Consts.TEST_START; (!stoped) && testType <= Consts.TEST_LAST; testType ++) {
 			StreamConnection conn = null;
 			InputStream is = null;
 			OutputStream os = null;
@@ -519,6 +519,9 @@ public class TestResponderClient implements Runnable {
 						}
 						Logger.debug("connect try:" + connectionOpenTry);
 					}
+				}
+				if (stoped) {
+					return;
 				}
 				os = conn.openOutputStream();
 				Logger.debug("test run:" + testType);
@@ -539,10 +542,11 @@ public class TestResponderClient implements Runnable {
 			} catch (Throwable e) {
 				failure.addFailure(deviceName + " test " + testType + " " + e);
 				Logger.error(deviceName + " test " + testType, e);
+			} finally {
+				IOUtils.closeQuietly(os);
+				IOUtils.closeQuietly(is);
+				IOUtils.closeQuietly(conn);
 			}
-			IOUtils.closeQuietly(os);
-			IOUtils.closeQuietly(is);
-			IOUtils.closeQuietly(conn);
 			// Let the server restart
 			try {
 				Thread.sleep(Consts.clientReconnectSleep);

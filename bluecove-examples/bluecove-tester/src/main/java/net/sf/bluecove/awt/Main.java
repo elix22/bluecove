@@ -20,10 +20,20 @@
  */
 package net.sf.bluecove.awt;
 
-import java.awt.*;
-import java.awt.event.*;
-
-import com.intel.bluetooth.BlueCoveImpl;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.ScrollPane;
+import java.awt.TextArea;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
@@ -41,17 +51,19 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 	TextArea output = null;
 
 	ScrollPane scrollPane;
+	
+	int lastKeyCode;
 
 	public static void main(String[] args) {
 		//System.setProperty("bluecove.debug", "true");
-		System.getProperties().put("bluecove.debug", "true");
+		//System.getProperties().put("bluecove.debug", "true");
 		
 		//BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(true);
 		JavaSECommon.initOnce();
 		Main app = new Main();
 		app.setVisible(true);
 		Logger.debug("Stated app");
-		Logger.debug("OS:" + System.getProperty("os.name"));
+		Logger.debug("OS:" + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
 	}
 	
 	public Main() {
@@ -102,6 +114,13 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 			}
 		});
 		
+		addMenu(menu, "Debug ON", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				com.intel.bluetooth.DebugLog.setDebugEnabled(true);
+				com.intel.bluetooth.DebugLog.debug("Debug Enabled");
+			}
+		});
+		
 		addMenu(menu, "Quit", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				quit();
@@ -119,17 +138,15 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		});
 		
 		// Create a scrolled text area.
-        output = new TextArea(5, 30);
+        output = new TextArea("");
         output.setEditable(false);
         this.add(output);
-//        scrollPane = new ScrollPane();
-//        scrollPane.add(output);
-//        this.add(scrollPane);
 		
         output.addKeyListener(new KeyListener() {
 
 			public void keyPressed(KeyEvent e) {
-				Logger.debug("key:" + e.getKeyCode() + " " + KeyEvent.getKeyText(e.getKeyCode()));
+				//Logger.debug("key:" + e.getKeyCode() + " " + KeyEvent.getKeyText(e.getKeyCode()));
+				Main.this.keyPressed(e.getKeyCode());
 			}
 
 			public void keyReleased(KeyEvent e) {
@@ -151,10 +168,66 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		menu.add(clientStart);
 	}
 
+	protected void keyPressed(int keyCode) {
+		switch (keyCode) {
+		case '1':
+			//printStats();
+			break;
+		case '4':
+			//printFailureLog();
+			break;
+		case '0':
+			//logScrollX = 0;
+			//setLogEndLine();
+			break;
+		case '*':
+		case 119:
+			Switcher.startDiscovery();
+			break;
+		case '7':
+			Switcher.startServicesSearch();
+			break;
+		case '2':
+			Switcher.startClient();
+			break;
+		case '3':
+			Switcher.clientShutdown();
+			break;
+		case '5':
+			Switcher.startServer();
+			break;
+		case '6':
+			Switcher.serverShutdown();
+			break;
+		case '8':
+			//startSwitcher();
+			break;
+		case '9':
+			//stopSwitcher();
+			break;
+		case '#':
+		case 120:
+			if (lastKeyCode == keyCode) {
+				quit();
+			}
+			clear();
+			break;
+		}
+		lastKeyCode = keyCode; 
+	}
+	
+	private void clear() {
+		if (output == null) {
+			return;
+		}
+		output.setText("");
+	}
+	
 	private void quit() {
+		Logger.debug("quit");
 		Switcher.clientShutdown();
 		Switcher.serverShutdownOnExit();
-		this.dispose();
+		//this.dispose();
 		System.exit(0);
 	}
 	
@@ -186,7 +259,9 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 			}
 		}
 		buf.append("\n");
-		output.append(buf.toString());
+		synchronized (output) {
+			output.append(buf.toString());
+		}
 	}
 
 }

@@ -10,7 +10,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-%WMDPT%\RAPI_Start\rapistart "\Storage Card\Mysaifu JVM\jre\bin\jvm.exe" -jar -jar \bluecove\bluecove-tester.jar
+%WMDPT%\RAPI_Start\rapistart "\Storage Card\Mysaifu JVM\jre\bin\jvm.exe" -jar "%BLUECOVE_INSTALL_DIR%\bluecove-tester.jar"
 
 if errorlevel 1 goto errormark
 echo [Launched OK]
