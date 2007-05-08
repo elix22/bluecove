@@ -253,7 +253,7 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		if (throwable != null) {
 			buf.append(' ');
 			String className = throwable.getClass().getName();
-			buf.append(className.substring(className.lastIndexOf('.')));
+			buf.append(className.substring(1 + className.lastIndexOf('.')));
 			if (throwable.getMessage() != null) {
 				buf.append(':');
 				buf.append(throwable.getMessage());

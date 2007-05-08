@@ -463,7 +463,8 @@ public class TestResponderClient implements Runnable {
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
- 	    
+		Logger.info("class:" + localDevice.getDeviceClass());
+		
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 		if (!Configuration.windowsCE) {
 			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());

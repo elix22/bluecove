@@ -13,9 +13,18 @@ goto :errormark
 
 :pt_found
 
+set XWIN_CE_PHONE=true
+
+if NOT '%WIN_CE_PHONE%' EQU 'true' (
+    set BLUECOVE_INSTALL_DIR=\bluecove
+)
+
+if '%WIN_CE_PHONE%' EQU 'true' (
+    set BLUECOVE_INSTALL_DIR=\Storage\bluecove
+)
+
 rem set BLUECOVE_INSTALL_DIR=\Storage Card\bluecove
-set BLUECOVE_INSTALL_DIR=\bluecove
-rem set BLUECOVE_INSTALL_DIR=\Storage\bluecove
+
 
 @for /f "tokens=*" %%I in ('CD') do @set CurDir=%%~nI
 @title %CurDir%
