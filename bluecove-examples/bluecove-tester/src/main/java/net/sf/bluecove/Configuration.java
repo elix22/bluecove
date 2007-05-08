@@ -21,7 +21,6 @@
 package net.sf.bluecove;
 
 import java.util.Hashtable;
-import java.util.Locale;
 
 /**
  * TODO Create an editable Form for this Configuarion settings.
@@ -59,7 +58,7 @@ public class Configuration {
 	
 	public static boolean testConnections = true;
 	
-	public static boolean testServiceAttributes = false;
+	public static boolean testServiceAttributes = true;
 
 	/**
 	 * Apperantly Motorola Service Attribute String is not working.
