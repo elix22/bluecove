@@ -62,6 +62,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static long discoverableStartTime = 0;
 	
+	public static long connectorOpenTime = 0;
+	
 	private StreamConnectionNotifier serverConnection;
 	
 	private TestTimeOutMonitor monitor;
@@ -159,6 +161,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							//;authenticate=false;encrypt=false
 							+ ";authorize=false");
 
+			connectorOpenTime = System.currentTimeMillis();
 			Logger.info("ResponderServer started " + Logger.timeNowToString());
 			if (Configuration.testServiceAttributes) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
@@ -174,6 +177,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				StreamConnection conn = serverConnection.acceptAndOpen();
 				if (!stoped) {
 					Logger.info("Received connection");
+					if (countConnection % 5 == 0) {
+						Logger.debug("Server up time " + Logger.secSince(connectorOpenTime));
+					}
 					lastActivityTime = System.currentTimeMillis();
 					ConnectionTread t = new ConnectionTread(conn);
 					t.start();

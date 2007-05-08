@@ -216,6 +216,13 @@ public class Switcher implements Runnable {
 			Logger.error("start error ", e);
 		}
 	}
+	
+	public static void startClientStress() {
+		startClient();
+		if (client != null) {
+			client.runStressTest = true;
+		}
+	}
 
 	public static void clientShutdown() {
 		if (client != null) {

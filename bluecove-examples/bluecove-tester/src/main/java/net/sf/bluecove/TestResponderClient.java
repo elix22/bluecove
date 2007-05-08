@@ -64,6 +64,8 @@ public class TestResponderClient implements Runnable {
 	
 	boolean isRunning = false;
 	
+	boolean runStressTest = false;
+	
 	BluetoothInquirer bluetoothInquirer;
 	
 	public static synchronized void clear() {
@@ -508,13 +510,19 @@ public class TestResponderClient implements Runnable {
 		if (deviceName == null) {
 			deviceName = extractBluetoothAddress(serverURL);
 		}
+		long start = System.currentTimeMillis();
 		Logger.debug("connect:" + deviceName + " " + serverURL);
-		for(int testType = Consts.TEST_START; (!stoped) && testType <= Consts.TEST_LAST; testType ++) {
+		int connectionCount = 0;
+		for(int testType = Consts.TEST_START; (!stoped) && (runStressTest || testType <= Consts.TEST_LAST); testType ++) {
 			StreamConnection conn = null;
 			InputStream is = null;
 			OutputStream os = null;
 			try {
-				Logger.debug("test connect:" + testType);
+				if (!runStressTest) {
+					Logger.debug("test connect:" + testType);
+				} else {
+					testType = Consts.TEST_BYTE;	
+				}
 				int connectionOpenTry = 0;
 				while ((conn == null) && (!stoped)) {
 					try {
@@ -531,7 +539,17 @@ public class TestResponderClient implements Runnable {
 					return;
 				}
 				os = conn.openOutputStream();
-				Logger.debug("test run:" + testType);
+				connectionCount ++;
+				
+				if (!runStressTest) {
+					Logger.debug("test run:" + testType);
+				} else {
+					Logger.debug("connected:" + connectionCount);
+					if (connectionCount % 5 == 0) {
+						Logger.debug("Test time " + Logger.secSince(start));
+					}
+				}
+				
 				os.write(testType);
 				os.flush();
 				

@@ -47,6 +47,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command stopSwitcherCommand = new Command("9-Switcher Stop", Command.ITEM, 7);
 	static final Command clearCommand = new Command("#-Clear", Command.ITEM, 8);
 	static final Command printFailureLogCommand = new Command("4-Print FailureLog", Command.ITEM, 8);
+	static final Command startClientStressCommand = new Command("Client Stress Start", Command.ITEM, 9);
 	
 	private boolean showLogDebug = true;
 	
@@ -86,6 +87,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		addCommand(stopSwitcherCommand);
 		addCommand(printFailureLogCommand);
 		addCommand(clearCommand);
+		addCommand(startClientStressCommand);
 		setCommandListener(this);
 		Logger.addAppender(this);
 	}
@@ -371,6 +373,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			Switcher.startServicesSearch();
 		} else if (c == startClientCommand) {
 			Switcher.startClient();
+		} else if (c == startClientStressCommand) {
+			Switcher.startClientStress();	
 		} else if (c == stopClientCommand) {
 			Switcher.clientShutdown();
 		} else if (c == stopServerCommand) {

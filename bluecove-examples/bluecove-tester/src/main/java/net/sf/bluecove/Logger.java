@@ -114,7 +114,25 @@ public class Logger {
 		if (start == 0) {
     		return "n/a";
     	}
-		return since(start)/1000 + " sec";
+		long sec = since(start)/1000;
+		long min = sec / 60;
+		sec -= min * 60;
+		long h = min / 60;
+		min -= h * 60;
+		
+		StringBuffer sb;
+        sb = new StringBuffer();
+        if (h != 0) {
+        	sb.append(d00((int)h)).append(":");
+        }
+        if ((h != 0) || (min != 0)) {
+        	sb.append(d00((int)min)).append(":");
+        }
+        sb.append(d00((int)sec));
+        if ((h == 0) && (min == 0)) {
+        	sb.append(" sec");
+        }
+        return sb.toString();
 	}
 	
 	public static long since(long start) {
