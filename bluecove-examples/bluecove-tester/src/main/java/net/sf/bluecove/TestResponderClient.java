@@ -439,7 +439,6 @@ public class TestResponderClient implements Runnable {
 				if (isBlueCoveTestService) {
 					servicesFound = true;
 					RemoteDeviceInfo.deviceServiceFound(servRecord[i].getHostDevice(), variableData);
-					break;
 				}
 			}
 		}
