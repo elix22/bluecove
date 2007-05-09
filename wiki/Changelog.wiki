@@ -1,0 +1,26 @@
+#summary Release Notes and Changelog.
+
+= 1.2.2 =
+
+ * Fixed LocalDevice.getLocalDevice().getBluetoothAddress();
+
+ * dll build for Vista and XP
+
+ * Removed use of unimplemented exception that prevented multiple apps from running.
+
+ * Implement openOutputStream  and openInputStream in Connector
+
+ * Fixes for native Code to avoid JVM Errors
+
+
+=  1.2.1 =
+
+ * dll-in-the-jar 
+ 
+ * Merged WTK compatibility enhancements
+
+ * Merged avetanaOBEX compatibility fixes by jrincayc
+
+ * Windows CE support.
+    Remco Poortinga has contributed updated support for Windows CE. That has
+    been merged and now I merged some fixes by him.
