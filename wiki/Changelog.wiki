@@ -2,13 +2,13 @@
 
 = To be Released 1.2.3  2007-05-xx =
 
-    * acceptAndOpen will update ServiceRecord in SDDB
+    * acceptAndOpen will update` ServiceRecord` in SDDB
 
     * Implemented `LocalDevice.updateRecord`
 
     * `LocalDevice.getProperty("bluecove");`  will return bluecove version
 
-    * implement set/getDiscoverable and getDeviceClass() function of LocalDevice
+    * implement `set/getDiscoverable` and `getDeviceClass()` function of `LocalDevice`
 
     * Support IBM J9 JVM
 
