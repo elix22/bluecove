@@ -1,5 +1,23 @@
 #summary Release Notes and Changelog.
 
+= To be Released 1.2.3  2007-05-xx =
+
+    * acceptAndOpen will update ServiceRecord in SDDB
+
+    * Implemented `LocalDevice.updateRecord`
+
+    * `LocalDevice.getProperty("bluecove");`  will return bluecove version
+
+    * implement set/getDiscoverable and getDeviceClass() function of LocalDevice
+
+    * Support IBM J9 JVM
+
+    * Compiled dll for Windows Mobile (WinCE)
+
+    * Binary jar will run on Java 1.1
+
+    * `InputStream.available()` implemented
+
 = 1.2.2 =
 
  * Fixed `LocalDevice.getLocalDevice().getBluetoothAddress();`
