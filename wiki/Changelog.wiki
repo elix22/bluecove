@@ -2,7 +2,7 @@
 
 = 1.2.2 =
 
- * Fixed LocalDevice.getLocalDevice().getBluetoothAddress();
+ * Fixed `LocalDevice.getLocalDevice().getBluetoothAddress();`
 
  * dll build for Vista and XP
 
