@@ -11,9 +11,9 @@ currently maintained by volunteers.
 
 == Requirements ==
 
-  * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer)
+  * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
   * A Bluetooth device supported by the Microsoft bluetooth stack
-  * Java 1.4 or newer (for the binary, might compile on older)
+  * Java 1.1 or newer for the binary execution, Java 1.4 or newer to compile.
   * Another Bluetooth device to communicate with
 
 == Limitations ==
@@ -28,8 +28,6 @@ that can (possibly) be used to achieve OBEX functionality with BlueCove.
 
 == Not Implemented functionality ===
 
-  * `InputStream.available()`  returns 0 all the time.
-  * `LocalDevice.updateRecord(ServiceRecord srvRecord)`  Not implemented
   * `DiscoveryAgent.cancelServiceSearch(..)`  Not implemented
   * `DiscoveryAgent.selectService(..)`  Not implemented
   * `RemoteDevice` authenticate, authorize and encrypt Not implemented
@@ -39,7 +37,6 @@ that can (possibly) be used to achieve OBEX functionality with BlueCove.
 Installation of the binary (already compiled) version of BlueCove is as follows:
 
   # [http://code.google.com/p/bluecove/downloads/list Download BlueCove] binary release
-  # Unzip the archive
   # Add `bluecove.jar` to your classpath
 
 For maven2 users see [maven2 Using maven2 to build application or MIDlet]
@@ -52,6 +49,10 @@ Native Library location
   # If you wish to load library (.dll) from another location add this system property `-Dbluecove.native.path=/your/path`.
   # If you wish to load library from default location in path e.g. `%SystemRoot%\system32` or any other location in %PATH% use `-Dbluecove.native.resource=false`
 
+IBM J9
+
+    To run BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
+
 == Compilation ==
 
 You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition,
@@ -60,13 +61,11 @@ and the compilation is much easier using it.
 
   # [http://code.google.com/p/bluecove/downloads/list Download BlueCove] source release
   # Unzip the source
-  # Run `ant`
+  # Run `ant` or `mvn`
   # Go into `intelbth`
-  # Run `makeheaders.cmd`
   # Open `intelbth.sln`
   # Compile the project for your platform (e.g. 'Release' for 'Win32')
-  # Place `intelbth.dll` in `resources`
-  # Run `ant jar`
+  # Run `ant jar` or mvn again
 
 == Source ==
 
