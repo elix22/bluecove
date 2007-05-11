@@ -1,7 +1,7 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
-= To be Released 1.2.3  2007-05-xx =
+= 1.2.3 Released  2007-05-11 =
 
     * acceptAndOpen will update` ServiceRecord` in SDDB
 
