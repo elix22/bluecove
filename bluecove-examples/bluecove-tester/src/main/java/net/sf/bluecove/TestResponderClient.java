@@ -444,11 +444,19 @@ public class TestResponderClient implements Runnable {
 		}
 
         public synchronized void serviceSearchCompleted(int transID, int respCode) {
-        	if (respCode == SERVICE_SEARCH_ERROR) {
-        		Logger.error("error occurred while processing the service search");
-        	}
-        	notifyAll();
-        }
+			switch (respCode) {
+			case SERVICE_SEARCH_ERROR:
+				Logger.error("error occurred while processing the service search");
+				break;
+			case SERVICE_SEARCH_TERMINATED:
+				Logger.info("SERVICE_SEARCH_TERMINATED");
+				break;
+			case SERVICE_SEARCH_DEVICE_NOT_REACHABLE:
+				Logger.info("SERVICE_SEARCH_DEVICE_NOT_REACHABLE");
+				break;
+			}
+			notifyAll();
+		}
 
         public synchronized void inquiryCompleted(int discType) {
         	if (discType == INQUIRY_ERROR) {
