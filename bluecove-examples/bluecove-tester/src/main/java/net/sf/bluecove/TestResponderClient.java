@@ -342,7 +342,12 @@ public class TestResponderClient implements Runnable {
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_URL_ID:
 									foundUrl = true;
-									Assert.assertEquals("url type", DataElement.URL, attrDataElement.getDataType());
+									int urlType = attrDataElement.getDataType();
+									// URL is String on Widcomm
+									Assert.assertTrue("url type", (DataElement.URL == urlType) || (DataElement.STRING == urlType));
+									if (DataElement.URL != urlType) {
+										Logger.warn("attr URL decoded as STRING");
+									}
 									Assert.assertEquals("url", Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE, attrDataElement.getValue());
 									isBlueCoveTestService = true;
 									foundUrlOK = true;
@@ -360,7 +365,7 @@ public class TestResponderClient implements Runnable {
 									}
 									Assert.assertEquals("byteAray.len", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE.length, byteAray.length);
 									for(int k = 0; k < byteAray.length; k++) {
-										Assert.assertEquals("byte",  Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE[k], byteAray[k]);
+										Assert.assertEquals("byte[" + k + "]",  Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE[k], byteAray[k]);
 									}
 									isBlueCoveTestService = true;
 									foundBytesOK = true;
