@@ -103,6 +103,10 @@ public interface Consts {
 	public static final int TEST_StreamAvailable = 11;
 	
 	public static final int TEST_StreamAvailable_BACK = 12;
+
+	public static final int TEST_LARGE_BYTE_ARRAY = 13;
+	
+	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 14;
 	
 	public static final int TEST_LAST = 12;
 }

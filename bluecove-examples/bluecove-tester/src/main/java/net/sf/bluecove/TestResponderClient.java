@@ -478,10 +478,11 @@ public class TestResponderClient implements Runnable {
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
 		Logger.info("class:" + localDevice.getDeviceClass());
-		
+
+		printProperty("bluetooth.api.version");
+		printProperty("bluetooth.sd.trans.max");
 		printProperty("bluetooth.sd.attr.retrievable.max");
 		printProperty("bluetooth.connected.devices.max");
-		printProperty("bluetooth.sd.trans.max");
 		printProperty("bluetooth.connected.inquiry.scan");
 		printProperty("bluetooth.connected.page.scan");
 		printProperty("bluetooth.connected.inquiry");
@@ -489,6 +490,7 @@ public class TestResponderClient implements Runnable {
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
 		if (bluecoveVersion != null) {
 			Logger.info("bluecove:" + bluecoveVersion);
+			Logger.info("stack:" + LocalDevice.getProperty("bluecove.stack"));
 			Logger.info("radio manufacturer:" + LocalDevice.getProperty("bluecove.radio.manufacturer"));
 			Logger.info("radio version:" + LocalDevice.getProperty("bluecove.radio.version"));
 		}

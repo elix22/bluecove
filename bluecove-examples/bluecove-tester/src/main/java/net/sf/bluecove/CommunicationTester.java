@@ -48,6 +48,8 @@ public class CommunicationTester implements Consts {
 	
 	private static final int streamAvailableByteCount = 147;
 	
+	private static final int byteArayLargeSize = 0x2010; // More then 8K
+	
 	static void sendString(OutputStream os) throws IOException {
 		DataOutputStream dos = new DataOutputStream(os);
 		dos.writeUTF(stringData);
@@ -168,6 +170,31 @@ public class CommunicationTester implements Consts {
 		os.flush();
 	}
 	
+	static void sendByteArayLarge(OutputStream os) throws IOException {
+		byte[] byteArayLarge = new byte[byteArayLargeSize];
+		for(int i = 0; i < byteArayLargeSize; i++) {
+			byteArayLarge[i] = (byte)(i & 0xF);
+		}
+		os.write(byteArayLarge);
+	}
+
+	static void readByteArayLarge(InputStream is) throws IOException {
+		byte[] byteArayGot = new byte[byteArayLargeSize];
+		int got = 0;
+		while (got < byteArayLargeSize) {
+			int read = is.read(byteArayGot, got, byteArayLargeSize - got);
+			if (read == -1) {
+				break;
+			}
+			got += read; 
+		}
+		
+		Assert.assertEquals("byteArayLarge.len", byteArayLargeSize, got);
+		for(int i = 0; i < byteArayLargeSize; i++) {
+			Assert.assertEquals("byte", (i & 0xF), byteArayGot[i]);
+		}
+	}
+	
 	public static void runTest(int testType, boolean server, InputStream is, OutputStream os) throws IOException {
 		switch (testType) {
 		case TEST_STRING:
@@ -252,6 +279,20 @@ public class CommunicationTester implements Consts {
 				CommunicationTester.sendStreamAvailable(is, os);
 			}
 			break;
+		case TEST_LARGE_BYTE_ARRAY:
+			if (server) {
+				CommunicationTester.readByteArayLarge(is);
+			} else {
+				CommunicationTester.sendByteArayLarge(os);
+			}
+			break;
+		case TEST_LARGE_BYTE_ARRAY_BACK:
+			if (!server) {
+				CommunicationTester.readByteArayLarge(is);
+			} else {
+				CommunicationTester.sendByteArayLarge(os);
+			}
+			break;			
 		case TEST_SERVER_TERMINATE:
 			return;
 		default:
