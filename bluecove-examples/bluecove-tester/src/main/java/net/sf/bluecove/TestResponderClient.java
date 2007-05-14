@@ -479,11 +479,32 @@ public class TestResponderClient implements Runnable {
 		Logger.info("name:" + localDevice.getFriendlyName());
 		Logger.info("class:" + localDevice.getDeviceClass());
 		
+		printProperty("bluetooth.sd.attr.retrievable.max");
+		printProperty("bluetooth.connected.devices.max");
+		printProperty("bluetooth.sd.trans.max");
+		printProperty("bluetooth.connected.inquiry.scan");
+		printProperty("bluetooth.connected.page.scan");
+		printProperty("bluetooth.connected.inquiry");
+		
+		String bluecoveVersion = LocalDevice.getProperty("bluecove");
+		if (bluecoveVersion != null) {
+			Logger.info("bluecove:" + bluecoveVersion);
+			Logger.info("radio manufacturer:" + LocalDevice.getProperty("bluecove.radio.manufacturer"));
+			Logger.info("radio version:" + LocalDevice.getProperty("bluecove.radio.version"));
+		}
+		
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 		if (!Configuration.windowsCE) {
 			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
 		}
 		
+	}
+	
+	public static void printProperty(String property) {
+		String val = LocalDevice.getProperty(property);
+		if (val != null) {
+			Logger.info(property + ":" + val);
+		}
 	}
 	
 	 public static boolean isWhiteDevice(String bluetoothAddress) {
