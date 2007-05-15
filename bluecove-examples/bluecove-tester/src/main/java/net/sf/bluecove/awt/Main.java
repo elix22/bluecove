@@ -35,6 +35,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.bluetooth.LocalDevice;
+
 import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.Switcher;
@@ -80,6 +82,7 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		addMenu(menu, "Server Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startServer();
+				updateTitle();
 			}
 		});
 
@@ -93,6 +96,7 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		addMenu(menu, "Client Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startClient();
+				updateTitle();
 			}
 		});
 
@@ -105,12 +109,14 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		addMenu(menu, "Discovery", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startDiscovery();
+				updateTitle();
 			}
 		});
 
 		addMenu(menu, "Services Search", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startServicesSearch();
+				updateTitle();
 			}
 		});
 		
@@ -161,6 +167,15 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 			screenSize.setSize(240, 320);
 		}
 		setSize(screenSize);
+	}
+	
+	private void updateTitle() {
+		String title ="BlueCove tester";
+		String bluecoveVersion = LocalDevice.getProperty("bluecove");
+		if (bluecoveVersion != null) {
+			title += " on " + LocalDevice.getProperty("bluecove.stack");
+		}
+		this.setTitle(title);
 	}
 	
 	private void addMenu(Menu menu,String name, ActionListener l) {

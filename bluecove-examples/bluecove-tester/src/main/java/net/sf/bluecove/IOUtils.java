@@ -1,7 +1,7 @@
 /**
- *  MicroEmulator
+ *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
- *
+ * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */
+ */ 
 package net.sf.bluecove;
 
 import java.io.InputStream;

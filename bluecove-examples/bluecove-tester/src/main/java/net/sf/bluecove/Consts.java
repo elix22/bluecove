@@ -104,9 +104,17 @@ public interface Consts {
 	
 	public static final int TEST_StreamAvailable_BACK = 12;
 
-	public static final int TEST_LARGE_BYTE_ARRAY = 13;
+	public static final int TEST_EOF_READ = 13;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 14;
+	public static final int TEST_EOF_READ_BACK = 14;
 	
-	public static final int TEST_LAST = 12;
+	public static final int TEST_EOF_READ_ARRAY = 15;
+	
+	public static final int TEST_EOF_READ_ARRAY_BACK = 16;
+	
+	public static final int TEST_LARGE_BYTE_ARRAY = 17;
+	
+	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 18;
+	
+	public static final int TEST_LAST = 16;
 }

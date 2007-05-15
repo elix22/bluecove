@@ -161,7 +161,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		if (throwable != null) {
 			buf.append(' ');
 			String className = throwable.getClass().getName();
-			buf.append(className.substring(className.lastIndexOf('.')));
+			buf.append(className.substring(1 + className.lastIndexOf('.')));
 			buf.append(':');
 			buf.append(throwable.getMessage());
 		}
@@ -247,7 +247,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 				}
 				break;
 			case RIGHT:
-				if (logScrollX > -400) {
+				if (logScrollX > -500) {
 					logScrollX -= 20;
 				}
 				break;
@@ -257,6 +257,35 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 				}
 				break;
 			}
+		}
+		repaint();
+	}
+	
+	protected void keyRepeated(int keyCode) {
+		int action = getGameAction(keyCode);
+		switch (action) {
+		case UP:
+			if (logLine > 0) {
+				logLine--;
+			}
+			break;
+		case DOWN:
+			if ((logLine + logVisibleLines - 1) < logMessages.size()) {
+				logLine++;
+			}
+			break;
+		case RIGHT:
+			if (logScrollX > -500) {
+				logScrollX -= 20;
+			}
+			break;
+		case LEFT:
+			if (logScrollX < 0) {
+				logScrollX += 20;
+			}
+			break;
+		default:
+			return;
 		}
 		repaint();
 	}
@@ -324,11 +353,13 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		Logger.info(buf.toString());
 		Logger.info("-----------------------");
 		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
+		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
 		setLogEndLine();
 	}
 	
 	private void printFailureLog() {
 		TestResponderClient.failure.writeToLog();
+		TestResponderServer.failure.writeToLog();
 		setLogEndLine();
 	}
 	

@@ -90,7 +90,7 @@ public class Configuration {
 		testDeviceNames.put("0015A8DDF300", "Moto M1 v360");
 		testDeviceNames.put("0050F2E8D4A6", "Desk MS");
 		testDeviceNames.put("000D3AA5E36C", "Lapt MS");
-		testDeviceNames.put("0020E027CE32", "Lapt HP");
+		testDeviceNames.put("0020E027CE32", "Lapt WC");
 		
         testDeviceNames.put("0017841C5A8F", "Moto L7");
         testDeviceNames.put("00123755AE71", "N 6265i (t)");

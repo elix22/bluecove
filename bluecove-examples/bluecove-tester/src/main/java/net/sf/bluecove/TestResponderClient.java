@@ -549,9 +549,9 @@ public class TestResponderClient implements Runnable {
 		Logger.debug("connect:" + deviceName + " " + serverURL);
 		int connectionCount = 0;
 		for(int testType = Consts.TEST_START; (!stoped) && (runStressTest || testType <= Consts.TEST_LAST); testType ++) {
-			StreamConnection conn = null;
-			InputStream is = null;
-			OutputStream os = null;
+			StreamConnectionTimeOut c = new StreamConnectionTimeOut();
+			TestStatus testStatus = new TestStatus(testType);
+			TestTimeOutMonitor monitor = null;
 			try {
 				if (!runStressTest) {
 					Logger.debug("test connect:" + testType);
@@ -559,9 +559,9 @@ public class TestResponderClient implements Runnable {
 					testType = Consts.TEST_BYTE;	
 				}
 				int connectionOpenTry = 0;
-				while ((conn == null) && (!stoped)) {
+				while ((c.conn == null) && (!stoped)) {
 					try {
-						conn = (StreamConnection) Connector.open(serverURL);
+						c.conn = (StreamConnection) Connector.open(serverURL);
 					} catch (IOException e) {
 						connectionOpenTry ++;
 						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {
@@ -573,11 +573,12 @@ public class TestResponderClient implements Runnable {
 				if (stoped) {
 					return;
 				}
-				os = conn.openOutputStream();
+				c.os = c.conn.openOutputStream();
 				connectionCount ++;
-				
 				if (!runStressTest) {
 					Logger.debug("test run:" + testType);
+					c.active();
+					monitor = new TestTimeOutMonitor("test" + testType, c, 2);
 				} else {
 					Logger.debug("connected:" + connectionCount);
 					if (connectionCount % 5 == 0) {
@@ -585,27 +586,40 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 				
-				os.write(testType);
-				os.flush();
+				c.os.write(testType);
+				c.os.flush();
 				
-				is = conn.openInputStream();
+				c.is = c.conn.openInputStream();
+				c.active();
 
-				CommunicationTester.runTest(testType, false, is, os);
-				os.flush();
-				Logger.debug("read server status");
-				int ok = is.read();
-				Assert.assertEquals("Test reply ok", Consts.SEND_TEST_REPLY_OK, ok);
-				int conformTestType = is.read();
-				Assert.assertEquals("Test reply conform", testType, conformTestType);
-				countSuccess ++;
-				Logger.debug("test ok:" + testType);
+				CommunicationTester.runTest(testType, false, c.is, c.os, testStatus);
+				c.active();
+
+				if (testStatus.isSuccess) {
+					countSuccess++;
+					Logger.debug("test ok:" + testType + " " + testStatus.getName());
+				} else if (testStatus.streamClosed) {
+					Logger.debug("see server log");
+				} else {
+					c.os.flush();
+					Logger.debug("read server status");
+					int ok = c.is.read();
+					Assert.assertEquals("Test reply ok", Consts.SEND_TEST_REPLY_OK, ok);
+					int conformTestType = c.is.read();
+					Assert.assertEquals("Test reply conform", testType, conformTestType);
+					countSuccess++;
+					Logger.debug("test ok:" + testType + " " + testStatus.getName());
+				}
 			} catch (Throwable e) {
-				failure.addFailure(deviceName + " test " + testType + " " + e);
-				Logger.error(deviceName + " test " + testType, e);
+				failure.addFailure(deviceName + " test " + testType  + " " + testStatus.getName()+ " " + e);
+				Logger.error(deviceName + " test " + testType + " " + testStatus.getName(), e);
 			} finally {
-				IOUtils.closeQuietly(os);
-				IOUtils.closeQuietly(is);
-				IOUtils.closeQuietly(conn);
+				if (monitor != null) {
+					monitor.finish();
+				}
+				IOUtils.closeQuietly(c.os);
+				IOUtils.closeQuietly(c.is);
+				IOUtils.closeQuietly(c.conn);
 			}
 			// Let the server restart
 			try {

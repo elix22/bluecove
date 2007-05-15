@@ -20,8 +20,6 @@
  */ 
 package net.sf.bluecove;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -45,6 +43,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public static int countFailure = 0;
 	
 	public static TimeStatistic allServerDuration = new TimeStatistic(); 
+	
+	public static FailureLog failure = new FailureLog("Server failure");
 	
 	public static int countConnection = 0;
 	
@@ -70,49 +70,60 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	private class ConnectionTread extends Thread {
 		
-		StreamConnection conn;
+		StreamConnectionTimeOut c = new StreamConnectionTimeOut();
 		
 		boolean isRunning = true;
 		
 		ConnectionTread(StreamConnection conn) {
 			super("ConnectionTread" + (++countConnection));
-			this.conn = conn;
+			c.conn = conn;
 		}
 		
 		public void run() {
-			InputStream is = null;
-			OutputStream os = null;
 			int testType = 0;
 			countRunningConnections ++;
+			TestStatus testStatus = new TestStatus();
+			TestTimeOutMonitor monitor = null;
 			try {
-				is = conn.openInputStream();
-				testType = is.read();
+				c.is = c.conn.openInputStream();
+				testType = c.is.read();
 
 				if (testType == Consts.TEST_SERVER_TERMINATE) {
 					Logger.info("Stop requested");
 					shutdown();
 					return;
 				}
+				testStatus.setName(testType);
 				Logger.debug("run test# " + testType);
-				os = conn.openOutputStream();
-				CommunicationTester.runTest(testType, true, is, os);
-				Logger.debug("reply OK");
-				os.write(Consts.SEND_TEST_REPLY_OK);
-				os.write(testType);
-				os.flush();
+				monitor = new TestTimeOutMonitor("test" + testType, c, 2);
+				c.os = c.conn.openOutputStream();
+				c.active();
+				CommunicationTester.runTest(testType, true, c.is, c.os, testStatus);
+				if (!testStatus.streamClosed) {
+					Logger.debug("reply OK");
+					c.active();
+					c.os.write(Consts.SEND_TEST_REPLY_OK);
+					c.os.write(testType);
+					c.os.flush();
+				}
+				monitor.finish();
 				countSuccess++;
-				Logger.debug("Test# " + testType + " ok");
+				Logger.debug("Test# " + testType + " " + testStatus.getName() + " ok");
 				try {
 					Thread.sleep(Consts.serverSendCloseSleep);
 				} catch (InterruptedException e) {
 				}
 			} catch (Throwable e) {
 				countFailure++;
-				Logger.error("Test# " + testType + " error", e);
+				failure.addFailure("test " + testType  + " " + testStatus.getName()+ " " + e);
+				Logger.error("Test# " + testType  + " " + testStatus.getName() + " error", e);
 			} finally {
-				IOUtils.closeQuietly(is);
-				IOUtils.closeQuietly(os);
-				IOUtils.closeQuietly(conn);
+				if (monitor != null) {
+					monitor.finish();
+				}
+				IOUtils.closeQuietly(c.is);
+				IOUtils.closeQuietly(c.os);
+				IOUtils.closeQuietly(c.conn);
 				isRunning = false;
 				countRunningConnections --;
 				synchronized (this) {
@@ -143,7 +154,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		isRunning = true;
 		if (!Configuration.continuous) {
 			lastActivityTime = System.currentTimeMillis();
-			monitor = new TestTimeOutMonitor(this, Consts.serverTimeOutMin);
+			monitor = new TestTimeOutMonitor("ServerUp", this, Consts.serverTimeOutMin);
 		}
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
@@ -234,13 +245,16 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static void clear() {
 		allServerDuration.clear();
+		failure.clear();
 	}
 	
 	private void closeServer() {
 		if (serverConnection != null) {
 			synchronized (this) {
 				try {
-					serverConnection.close();
+					if (serverConnection != null) {
+						serverConnection.close();
+					}
 					Logger.debug("serverConnection closed");
 				} catch (Throwable e) {
 					Logger.error("Server stop error", e);

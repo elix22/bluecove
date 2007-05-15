@@ -30,10 +30,13 @@ public class TestTimeOutMonitor extends Thread {
     
     CanShutdown testThread;
     
+    String name;
+    
     int gracePeriod = 0;
     
-    TestTimeOutMonitor(CanShutdown testThread, int gracePeriod) {
-        super("TestMonitor");
+    TestTimeOutMonitor(String name, CanShutdown testThread, int gracePeriod) {
+        super(name + "Monitor");
+        this.name = name;
         this.testThread = testThread;
         this.gracePeriod = gracePeriod;
         if (this.gracePeriod != 0)  {
@@ -55,7 +58,7 @@ public class TestTimeOutMonitor extends Thread {
         }
 
         if (!testFinished) {
-        	Logger.info("shutdown by TimeOut");
+        	Logger.info("shutdown " + name + " by TimeOut");
         	testThread.shutdown();
         }
     }
