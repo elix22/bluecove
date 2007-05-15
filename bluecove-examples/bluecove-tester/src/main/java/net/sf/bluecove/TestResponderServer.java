@@ -40,8 +40,6 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static int countSuccess = 0; 
 	
-	public static int countFailure = 0;
-	
 	public static TimeStatistic allServerDuration = new TimeStatistic(); 
 	
 	public static FailureLog failure = new FailureLog("Server failure");
@@ -114,7 +112,6 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				} catch (InterruptedException e) {
 				}
 			} catch (Throwable e) {
-				countFailure++;
 				failure.addFailure("test " + testType  + " " + testStatus.getName()+ " " + e);
 				Logger.error("Test# " + testType  + " " + testStatus.getName() + " error", e);
 			} finally {
@@ -130,7 +127,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					notifyAll();
 				}
 			}
-			Logger.info("*Test Success:" + countSuccess + " Failure:" + countFailure);
+			Logger.info("*Test Success:" + countSuccess + " Failure:" + failure.countFailure);
 		}
 		
 	}
@@ -384,7 +381,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		JavaSECommon.initOnce();
 		try {
 			(new TestResponderServer()).run();
-			if (TestResponderServer.countFailure > 0) {
+			if (TestResponderServer.failure.countFailure > 0) {
 				System.exit(1);
 			} else {
 				System.exit(0);
