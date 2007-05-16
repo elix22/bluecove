@@ -7,7 +7,9 @@
 
 BlueCove and Bluetooth stack on Windows
 
-    BlueCove currently only supports the Broadcom (Widcomm) and Microsoft Bluetools stack.
+* Supported stacks
+
+    BlueCove currently supports the Microsoft (winsock) and WIDCOMM Bluetooth stack.
 
     To see which stack is installed for a specific Bluetooth hardware follow those steps on Windows XP
 
@@ -37,23 +39,32 @@ BlueCove and Bluetooth stack on Windows
 
     []
 
-    This is some examples from my system:
+**    This is some examples from my system
 
-    My computer has Widcomm first and Microsoft Bluetools stacks installed
+    My computer has Widcomm first and Microsoft Bluetooth stacks installed
 
 [images/xp-computer-management.png]
 
 
 
-    This is how Widcomm "Properties" look like
-
-[images/xp-widcomm.png]
-
-[images/xp-widcomm-driver.png]
-
-    This is Microsoft Bluetools stack "Properties"
+***    This is Microsoft Bluetooth stack "Properties"
 
 [images/xp-microsoft.png]
 
 [images/xp-microsoft-driver.png]
 
+
+
+***    This is how WIDCOMM (Broadcom) "Properties" looks like
+
+[images/xp-widcomm.png]
+
+[images/xp-widcomm-driver.png]
+
+
+
+***    This is BlueSoleil (IVT Corporation) Bluetooth stack "Properties"
+
+[images/xp-bluesoleil.png]
+
+[images/xp-bluesoleil-driver.png]
