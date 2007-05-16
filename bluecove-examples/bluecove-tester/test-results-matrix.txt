@@ -3,6 +3,7 @@
 Devices used:
   Phones: Nokia 6230, Moto V360, Sony Ericsson K790,
   Windows PC: BlueCove, avetanaBluetooth 1.3.12a on MS and WC (Widcomm by HP)
+  Windows PC: BlueCove with BlueSoleil stack on ES-388 Bluetooth USB Adapter
 
 Server     | Client     | Problems
 -----------+------------+-----------------
