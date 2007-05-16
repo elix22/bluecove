@@ -1,0 +1,7 @@
+#summary Frequently Asked Question(s)
+#labels Featured
+
+= How to determine Bluetooth stack on Windows =
+
+  [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
+
