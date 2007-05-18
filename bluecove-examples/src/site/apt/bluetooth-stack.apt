@@ -9,7 +9,7 @@ BlueCove and Bluetooth stack on Windows
 
 * Supported stacks
 
-    BlueCove currently supports the Microsoft (winsock) and WIDCOMM Bluetooth stack.
+    BlueCove currently supports the Microsoft (winsock), WIDCOMM and BlueSoleil Bluetooth stack.
 
     To see which stack is installed for a specific Bluetooth hardware follow those steps on Windows XP
 
