@@ -216,7 +216,7 @@ public class TestResponderClient implements Runnable {
         			|| ((Configuration.discoverDevicesPhones && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)))) {
 	        	devices.addElement(remoteDevice);				
 			} else {
-				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()));
+				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " "+ cod);
 				return;
 			}
 //        	String name = null;
@@ -230,6 +230,9 @@ public class TestResponderClient implements Runnable {
         }
 
 	    private boolean startServicesSearch() {
+	    	if (devices.size() == 0) {
+	    		return false;
+	    	}
 	        Logger.debug("Starting Services search " + Logger.timeNowToString());
 	        long inquiryStart = System.currentTimeMillis();
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
@@ -289,7 +292,7 @@ public class TestResponderClient implements Runnable {
 				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 				Logger.info("*found server " + url);
 				try {
-					if (Configuration.testServiceAttributes) {
+					if (Configuration.testServiceAttributes && (!"0".equals(LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max")))) {
 						int[] attributeIDs = servRecord[i].getAttributeIDs();
 						// Logger.debug("attributes " + attributeIDs.length);
 
@@ -668,12 +671,12 @@ public class TestResponderClient implements Runnable {
 				if ((!bluetoothInquirer.hasServers()) || (Configuration.continuousDiscovery) || (!Configuration.testConnections) ) {
 					if (!bluetoothInquirer.startDeviceInquiry()) {
 						startTry ++;
+						try {
+							Thread.sleep(2000);
+						} catch (Exception e) {
+							break;
+						}
 						if (startTry < 3) {
-							try {
-								Thread.sleep(1000);
-							} catch (Exception e) {
-								break;
-							}
 							continue;
 						}
 						Switcher.yield(this);
