@@ -1,5 +1,12 @@
 #summary Frequently Asked Question(s)
 #labels Featured
 
-* How to determine which Bluetooth stack is installed on my Windows? [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
+* How to determine which Bluetooth stack is installed on my Windows? 
 
+  [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
+
+* Where can I find API-Documentation of the BlueCove Library?
+
+    BlueCove is JSR-82, All JSR-82 API Documentation apply. See  [http://www.j2medev.com/api/btapi/ Java APIs for Bluetooth Wireless Technology]
+
+    Also this link may be useful [http://today.java.net/pub/a/today/2004/07/27/bluetooth.html  Getting Started with Java and Bluetooth]
