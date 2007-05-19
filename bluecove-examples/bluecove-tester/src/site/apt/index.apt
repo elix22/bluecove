@@ -16,10 +16,10 @@ BlueCove test application
 
 * Try this MIDlet on computer and on a cell phone with JSR-82
 
-   {{{bluecove-tester.jad}bluecove-tester.jad}}
+   {{{bctest.jad}bctest.jad}}
 
-   {{{bluecove-tester.jar}bluecove-tester.jar}}
+   {{{bctest.jar}bctest.jar}}
 
 * Tests BlueCove on windows
 
-   You can start two Java Web Start applications and see how they communicate. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bluecove-tester.jnlp}\u00bbStart now}}>>>.
+   You can start two Java Web Start applications and see how they communicate. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.

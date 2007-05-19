@@ -61,7 +61,7 @@
     <properties>
         <wtk.bluetooth.enabled>true</wtk.bluetooth.enabled>
         <!-- short name for Motorola iDEN phones -->
-        <mainjarname>bctest1.2.3</mainjarname>
+        <mainjarname>bctest</mainjarname>
     </properties>
 
     <build>
