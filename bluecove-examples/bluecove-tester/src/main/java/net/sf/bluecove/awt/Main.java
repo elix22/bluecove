@@ -55,6 +55,8 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 	ScrollPane scrollPane;
 	
 	int lastKeyCode;
+	
+	MenuItem debugOn;
 
 	public static void main(String[] args) {
 		//System.setProperty("bluecove.debug", "true");
@@ -120,11 +122,18 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 			}
 		});
 		
-		addMenu(menu, "Debug ON", new ActionListener() {
+		debugOn = addMenu(menu, "Debug ON", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				com.intel.bluetooth.DebugLog.setDebugEnabled(true);
-				com.intel.bluetooth.BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(true);
-				com.intel.bluetooth.DebugLog.debug("Debug Enabled");
+				boolean dbg = !com.intel.bluetooth.DebugLog.isDebugEnabled();
+				com.intel.bluetooth.DebugLog.setDebugEnabled(dbg);
+				com.intel.bluetooth.BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(dbg);
+				if (dbg) {
+					com.intel.bluetooth.DebugLog.debug("Debug enabled");
+					debugOn.setLabel("Debug OFF");
+				} else {
+					com.intel.bluetooth.DebugLog.debug("Debug disabled");
+					debugOn.setLabel("Debug ON");
+				}
 			}
 		});
 		
@@ -178,10 +187,11 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		this.setTitle(title);
 	}
 	
-	private void addMenu(Menu menu,String name, ActionListener l) {
-		MenuItem clientStart = new MenuItem(name);
-		clientStart.addActionListener(l);
-		menu.add(clientStart);
+	private MenuItem addMenu(Menu menu,String name, ActionListener l) {
+		MenuItem menuItem = new MenuItem(name);
+		menuItem.addActionListener(l);
+		menu.add(menuItem);
+		return menuItem;
 	}
 
 	protected void keyPressed(int keyCode) {
