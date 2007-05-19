@@ -62,14 +62,17 @@ public class Configuration {
 	public static boolean testServiceAttributes = true;
 
 	/**
-	 * Apperantly Motorola Service Attribute String is not working.
+	 * Apperantly Motorola Service Attribute STRING is not working.
 	 * INT_4 not working on some Nokia and breakes its discovery by Motorola.
+	 * INT_16 are truncated in discovery by WIDCOMM
+	 * Service attributes are not supported on BlueSoleil
 	 */
 	public static boolean testIgnoreNotWorkingServiceAttributes = true;
 
 	public static boolean testServerForceDiscoverable = true;
 
 	public static int serverMAXTimeSec = 80;
+	
 	/**
 	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */
@@ -82,6 +85,8 @@ public class Configuration {
 	public static boolean linux = false;
 	
 	public static boolean macOSx = false;
+	
+	public static boolean stackWIDCOMM = false;
 	
     static {
 		testDeviceNames = new Hashtable();

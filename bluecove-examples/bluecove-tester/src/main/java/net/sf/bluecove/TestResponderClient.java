@@ -54,6 +54,8 @@ public class TestResponderClient implements Runnable {
 
 	public static int discoveryCount = 0;
 	
+	public static int connectionCount = 0;
+	
 	public Thread thread;
 	
 	private boolean stoped = false;
@@ -357,18 +359,23 @@ public class TestResponderClient implements Runnable {
 									break;
 								case Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID:
 									foundBytes = true;
-									Assert.assertEquals("byte[] type", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, attrDataElement.getDataType());
+									String byteArrayTypeName = BluetoothTypes.getDataElementType(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE);
+									Assert.assertEquals("byte[] type " + byteArrayTypeName, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, attrDataElement.getDataType());
 									byte[] byteAray;
 									try {
 										byteAray = (byte[])attrDataElement.getValue();
 									} catch (Throwable e) {
-										Logger.warn("attr " + id + " " + e.getMessage());
+										Logger.warn("attr  " + byteArrayTypeName + " " + id + " " + e.getMessage());
 										hadError = true;
 										break;
 									}
-									Assert.assertEquals("byteAray.len", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE.length, byteAray.length);
+									Assert.assertEquals("byteAray.len of " + byteArrayTypeName, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE.length, byteAray.length);
 									for(int k = 0; k < byteAray.length; k++) {
-										Assert.assertEquals("byte[" + k + "]",  Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE[k], byteAray[k]);
+										if (Configuration.testIgnoreNotWorkingServiceAttributes && Configuration.stackWIDCOMM && k >= 4) {
+											// INT_16 are truncated in discovery
+											break;
+										}
+										Assert.assertEquals("byte[" + k + "] of " + byteArrayTypeName ,  Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE[k], byteAray[k]);
 									}
 									isBlueCoveTestService = true;
 									foundBytesOK = true;
@@ -496,6 +503,8 @@ public class TestResponderClient implements Runnable {
 			Logger.info("stack:" + LocalDevice.getProperty("bluecove.stack"));
 			Logger.info("radio manufacturer:" + LocalDevice.getProperty("bluecove.radio.manufacturer"));
 			Logger.info("radio version:" + LocalDevice.getProperty("bluecove.radio.version"));
+			
+			Configuration.stackWIDCOMM = "WIDCOMM".equalsIgnoreCase(LocalDevice.getProperty("bluecove.stack"));
 		}
 		
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
@@ -550,7 +559,6 @@ public class TestResponderClient implements Runnable {
 		}
 		long start = System.currentTimeMillis();
 		Logger.debug("connect:" + deviceName + " " + serverURL);
-		int connectionCount = 0;
 		for(int testType = Consts.TEST_START; (!stoped) && (runStressTest || testType <= Consts.TEST_LAST); testType ++) {
 			StreamConnectionTimeOut c = new StreamConnectionTimeOut();
 			TestStatus testStatus = new TestStatus(testType);
@@ -612,6 +620,9 @@ public class TestResponderClient implements Runnable {
 					Assert.assertEquals("Test reply conform", testType, conformTestType);
 					countSuccess++;
 					Logger.debug("test ok:" + testType + " " + testStatus.getName());
+				}
+				if (connectionCount % 5 == 0) {
+					Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
 				}
 			} catch (Throwable e) {
 				failure.addFailure(deviceName + " test " + testType  + " " + testStatus.getName()+ " " + e);

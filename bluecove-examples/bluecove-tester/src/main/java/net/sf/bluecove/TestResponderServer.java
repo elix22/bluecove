@@ -143,7 +143,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		if (!Configuration.windowsCE) {
 			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
 		}
-		
+		Configuration.stackWIDCOMM = "WIDCOMM".equalsIgnoreCase(LocalDevice.getProperty("bluecove.stack"));
 	}
 	
 	public void run() {
