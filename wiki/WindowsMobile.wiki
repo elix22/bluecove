@@ -2,10 +2,7 @@
 
 = Introduction =
 
-  Current BlueCove code can be compiled for Windows Mobile.
-  We can't test it because we don't have appropriate devices. If you have a mobile device with Microsoft Bluetooth Stack you can help us test.
-
-
+  Current BlueCove code compiled for Windows Mobile.
 
 == Windows Mobile 2003™ Phone Edition with Microsoft Bluetooth Stack ==
 
@@ -43,4 +40,3 @@
    * [http://users.comp.lancs.ac.uk/computing/users/fittond/ppcjava.html List of Java Support on Pocket PC]
 
    * [http://www.berka.name/stan/jvm-ppc/java_for_pda.html JAVA for PocketPC PDA's]
-
