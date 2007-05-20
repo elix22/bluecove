@@ -112,9 +112,11 @@ public interface Consts {
 	
 	public static final int TEST_EOF_READ_ARRAY_BACK = 16;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY = 17;
+	public static final int TEST_CONNECTION_INFO = 17;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 18;
+	public static final int TEST_LARGE_BYTE_ARRAY = 18;
 	
-	public static final int TEST_LAST = 16;
+	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 19;
+	
+	public static final int TEST_LAST = 17;
 }

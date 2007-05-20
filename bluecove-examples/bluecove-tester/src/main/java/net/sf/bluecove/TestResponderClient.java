@@ -624,7 +624,7 @@ public class TestResponderClient implements Runnable {
 				c.is = c.conn.openInputStream();
 				c.active();
 
-				CommunicationTester.runTest(testType, false, c.is, c.os, testStatus);
+				CommunicationTester.runTest(testType, false, c.conn, c.is, c.os, testStatus);
 				c.active();
 
 				if (testStatus.isSuccess) {

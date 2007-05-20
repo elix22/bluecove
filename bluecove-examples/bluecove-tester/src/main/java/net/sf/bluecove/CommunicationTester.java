@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
+import javax.microedition.io.StreamConnection;
 
 import junit.framework.Assert;
 
@@ -157,14 +159,16 @@ public class CommunicationTester implements Consts {
 	}
 
 	private static void readStreamAvailable(InputStream is, OutputStream os) throws IOException {
+		int available = 0; 
 		for(int i = 1; i < streamAvailableByteCount; i++) {
-			boolean hasData = false;
+			boolean hasData = (available > 0);
 			int tryCount = 0;
-			do {
-				int avl = is.available();
-				if (avl > 0) {
+			while(!hasData) {
+				// This blocks on Nokia(Srv) on second call connected to Widcomm(Client)
+				available = is.available();
+				if (available > 0) {
 					hasData = true;
-				} else if (avl < 0) {
+				} else if (available < 0) {
 					Assert.fail("negative available");
 				}
 				tryCount ++;
@@ -173,13 +177,14 @@ public class CommunicationTester implements Consts {
 				} catch (InterruptedException e) {
 					Assert.fail("Test Interrupted");
 				}
-				if (tryCount > 50) {
-					Assert.fail("Test Available took too long");
+				if (tryCount > 70) {
+					Assert.fail("Test Available took too long, got " + i + " bytes");
 				}
-			} while(!hasData);
+			}
 			
 			int got = is.read();
 			Assert.assertEquals("byte", 255 & i, got);
+			available --;
 		}
 		os.write(streamAvailableByteCount);
 		os.flush();
@@ -262,7 +267,7 @@ public class CommunicationTester implements Consts {
 		}
 	}
 	
-	public static void runTest(int testType, boolean server, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+	public static void runTest(int testType, boolean server, StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
 		switch (testType) {
 		case TEST_STRING:
 			testStatus.setName("STRING");
@@ -389,6 +394,11 @@ public class CommunicationTester implements Consts {
 			} else {
 				CommunicationTester.sendArayEOF(is, os, testStatus);
 			}
+			break;
+		case TEST_CONNECTION_INFO:
+			testStatus.setName("TEST_CONNECTION_INFO");
+			RemoteDevice device =	RemoteDevice.getRemoteDevice(conn);
+			Logger.debug("Connected to " + device.getBluetoothAddress());
 			break;
 		case TEST_LARGE_BYTE_ARRAY:
 			testStatus.setName("LARGE_BYTE_ARRAY");
