@@ -369,7 +369,7 @@ public class TestResponderClient implements Runnable {
 								case Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID:
 									foundBytes = true;
 									String byteArrayTypeName = BluetoothTypes.getDataElementType(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE);
-									Assert.assertEquals("byte[] type " + byteArrayTypeName, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, attrDataElement.getDataType());
+									Assert.assertEquals("byte[] " + byteArrayTypeName + " type", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, attrDataElement.getDataType());
 									byte[] byteAray;
 									try {
 										byteAray = (byte[])attrDataElement.getValue();

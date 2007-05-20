@@ -34,13 +34,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
 import javax.bluetooth.LocalDevice;
-
-import com.intel.bluetooth.BlueCoveImpl;
 
 import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
@@ -48,6 +43,8 @@ import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestResponderClient;
 import net.sf.bluecove.TestResponderServer;
 import net.sf.bluecove.Logger.LoggerAppender;
+
+import com.intel.bluetooth.BlueCoveImpl;
 
 /**
  * @author vlads
@@ -227,7 +224,9 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 	}
 	
 	private void printFailureLog() {
+		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
 		TestResponderClient.failure.writeToLog();
+		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
 		TestResponderServer.failure.writeToLog();
 	}
 	

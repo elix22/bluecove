@@ -358,7 +358,9 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	}
 	
 	private void printFailureLog() {
+		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
 		TestResponderClient.failure.writeToLog();
+		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
 		TestResponderServer.failure.writeToLog();
 		setLogEndLine();
 	}
