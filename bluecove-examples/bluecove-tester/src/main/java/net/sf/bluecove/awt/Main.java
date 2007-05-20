@@ -34,12 +34,19 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import javax.bluetooth.LocalDevice;
+
+import com.intel.bluetooth.BlueCoveImpl;
 
 import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.Switcher;
+import net.sf.bluecove.TestResponderClient;
+import net.sf.bluecove.TestResponderServer;
 import net.sf.bluecove.Logger.LoggerAppender;
 
 /**
@@ -68,6 +75,14 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		app.setVisible(true);
 		Logger.debug("Stated app");
 		Logger.debug("OS:" + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
+		
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equalsIgnoreCase("--stack")) {
+				i ++;
+				BlueCoveImpl.instance().setBluetoothStack(args[i]);
+				app.updateTitle();
+			}
+		}
 	}
 	
 	public Main() {
@@ -79,50 +94,68 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		this.setTitle("BlueCove tester");
 		
 		MenuBar menuBar = new MenuBar();
-		Menu menu = new Menu("Bluetooth");
+		Menu menuBluetooth = new Menu("Bluetooth");
 		
-		addMenu(menu, "Server Start", new ActionListener() {
+		addMenu(menuBluetooth, "Server Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startServer();
 				updateTitle();
 			}
 		});
 
-		addMenu(menu, "Server Stop", new ActionListener() {
+		addMenu(menuBluetooth, "Server Stop", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.serverShutdown();
 			}
 		});
 
 		
-		addMenu(menu, "Client Start", new ActionListener() {
+		addMenu(menuBluetooth, "Client Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startClient();
 				updateTitle();
 			}
 		});
 
-		addMenu(menu, "Client Stop", new ActionListener() {
+		addMenu(menuBluetooth, "Client Stop", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.clientShutdown();
 			}
 		});
 
-		addMenu(menu, "Discovery", new ActionListener() {
+		addMenu(menuBluetooth, "Discovery", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startDiscovery();
 				updateTitle();
 			}
 		});
 
-		addMenu(menu, "Services Search", new ActionListener() {
+		addMenu(menuBluetooth, "Services Search", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startServicesSearch();
 				updateTitle();
 			}
 		});
+
+		addMenu(menuBluetooth, "Client Stress Start", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Switcher.startClientStress();
+				updateTitle();
+			}
+		});
 		
-		debugOn = addMenu(menu, "Debug ON", new ActionListener() {
+		addMenu(menuBluetooth, "Quit", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				quit();
+			}
+		});
+
+		
+		menuBar.add(menuBluetooth);
+		
+		Menu menuLogs = new Menu("Logs");
+		
+		debugOn = addMenu(menuLogs, "Debug ON", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				boolean dbg = !com.intel.bluetooth.DebugLog.isDebugEnabled();
 				com.intel.bluetooth.DebugLog.setDebugEnabled(dbg);
@@ -137,14 +170,20 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 			}
 		});
 		
-		addMenu(menu, "Quit", new ActionListener() {
+		addMenu(menuLogs, "Clear Log", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				quit();
+				clear();
 			}
 		});
-
 		
-		menuBar.add(menu);
+		addMenu(menuLogs, "Print FailureLog", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				printFailureLog();
+			}
+		});
+		
+		menuBar.add(menuLogs);
+		
 		setMenuBar(menuBar);
 
 		addWindowListener(new WindowAdapter() {
@@ -187,6 +226,11 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		this.setTitle(title);
 	}
 	
+	private void printFailureLog() {
+		TestResponderClient.failure.writeToLog();
+		TestResponderServer.failure.writeToLog();
+	}
+	
 	private MenuItem addMenu(Menu menu,String name, ActionListener l) {
 		MenuItem menuItem = new MenuItem(name);
 		menuItem.addActionListener(l);
@@ -200,7 +244,7 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 			//printStats();
 			break;
 		case '4':
-			//printFailureLog();
+			printFailureLog();
 			break;
 		case '0':
 			//logScrollX = 0;

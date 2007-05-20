@@ -78,6 +78,8 @@ public class Configuration {
 	 */
 	public static boolean canCloseServer = true;
 	
+	public static boolean isBlueCove = false;
+	
 	public static boolean windowsXP = false;
 	
 	public static boolean windowsCE = false;
@@ -90,6 +92,7 @@ public class Configuration {
 	
     static {
 		testDeviceNames = new Hashtable();
+		// This is the list of my test devices with names for My convenience
 		testDeviceNames.put("00E003506231", "Nokia D1");
 		testDeviceNames.put("00E0035046C1", "Nokia D2");
 		testDeviceNames.put("0015A8DDF300", "Moto M1 v360");

@@ -46,7 +46,7 @@ public class FailureLog {
 
 	public void addFailure(String message) {
 		countFailure ++;
-		logMessages.addElement(Logger.timeNowToString() + message);
+		logMessages.addElement(Logger.timeNowToString() + " " + message);
 	}
 	
 	public void writeToLog() {

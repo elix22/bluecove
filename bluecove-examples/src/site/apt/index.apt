@@ -12,28 +12,19 @@ BlueCove
 
     Main project website {{{http://code.google.com/p/bluecove/}http://code.google.com/p/bluecove/}}
 
-
 BlueCove example project
 
     To start BlueCove with {{{http://www.microemu.org/}MicroEmulator}} click this link << {{{bluecove-webstart/demo.jnlp}Java Web Start}} >>.
 
-    You can Drag and Drop .jad files links to running MicroEmulator application.
+    This will start J2ME Emulator with JSR-82 spport.
 
-    * GPS receiver over bluetooth {{{http://wap.mgmaps.com/mgmaps.jad}Mobile GMaps JAD}};  FREE application {{{http://www.mgmaps.com/}Mobile GMaps}} created by Cristian Streng
+    You can Drag and Drop .jad files or links to running MicroEmulator application.
 
-    * {{{bluecove-tester/bctest.jad}bluecove test application JAD}}
+    * GPS receiver over bluetooth {{{http://wap.mgmaps.com/mgmaps.jad}Mobile GMaps JAD}};  FREE application {{{http://www.mgmaps.com/}Mobile GMaps}} created by Cristian Streng. <<<{{{bluecove-webstart/open/wap.mgmaps.com/mgmaps.jnlp}\u00bbStart now}}>>>.
 
-    []
-
-    Download example to cell Phone with JSR-82
-
-    *  {{{bluecove-tester/bctest.jad}bctest.jad}}
-
-    *  {{{bluecove-tester/bctest.jar}bctest.jar}}
-
-    []
+    * {{{bluecove-tester/bctest.jad}bluecove test application JAD}}. <<<{{{bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
 
 * BlueCove Tests on windows
 
-   You can start two Java Web Start applications and see how {{{bluecove-tester}they}} communicate. <<<{{{bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
+    You can help us to make BlueCove better or understand how we are testing it look {{{bluecove-tester}here}}.
 

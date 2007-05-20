@@ -8,18 +8,90 @@
 
 BlueCove test application
 
-    Project used to test BlueCove, Contains MIDlet responder application and J2SE application. We are testing BlueCove before release on WinXP connecting to Nokia, Motorola and Sony Ericsson phones.
+    This Project used to test BlueCove. It contains MIDlet responder application and J2SE application. We are testing BlueCove before release on WinXP connecting to Nokia, Motorola and Sony Ericsson phones.
 
-    Server and Client application can be started directly from eclipse.
+    Server and Client application can be started directly from this page using Java Web Start.
 
-    Client discovers server and connects to it and then sends and receives different types of data. This includes int, long, bytes, byte array, Strings.
+    First Client discovers server. During ServiceSearch client verify the server Service attributes values.
+    Then client connects to server and sends and receives different types of data. This includes int, long, bytes, byte array, Strings.
+    This is communication test code {{{http://bluecove.googlecode.com/svn/bluecove-examples/bluecove-tester/src/main/java/net/sf/bluecove/CommunicationTester.java}CommunicationTester.java}}.
+    The same functions are called from server and from client. e.g. sendString() and readString(). In first test Client sendString over establesh connection and server readString. In second the direction is reversed.
 
-* Try this MIDlet on computer and on a cell phone with JSR-82
+    For tests you need two devices. Once device should run as server another as client. You can switch roles in the application.
+
+    There are no fancy GUI! Just communication log windows.
+
+    While client is runnng you will see the log like this:
+
+---
+Client started...21:52:02
+Starting Device inquiry
+deviceDiscovered 00123755ae71
+  Device inquiry took 11 sec
+Search Services on Nokia6265i
+*found server btspp://00123755ae71:25;authenticate=false;encrypt=false
+service Attr found
+Common Service Attr OK
+Found BlueCove SRV:Nokia6265i
+  Services Search took 01 sec
+Services search completed 02 sec
+connect:Nokia6265i btspp://00123755ae71:25;authenticate=false;encrypt=false
+connected:1
+read server status
+test 3 BYTE: OK
+...
+Test time 01:42:28
+*Success:966 Failure:0
+---
+
+    <<Failure:0>> is good and <<Failure:1>> may be bad.
+
+    To see the failure list after app was running for some time select "Print FailureLog" from menu.
+
+---
+Client failure 2
+21:59:24 Nokia6265i test 3 java.io.IOException: Failed to connect
+00:21:32 Nokia6265i test 3 BYTE junit.framework.AssertionFailedError: Server reply expected:<77> but was:<-1>
+Server failure 0
+---
+
+
+* Start BlueCove on Windows
+
+   You can start Java Web Start with MIDlet application and see how it communicate with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
+
+   Also AWT test application can be used in Java Web Start. <<<{{{awt-bctest.jnlp}\u00bbStart now}}>>>.
+
+   You can start two Java Web Start applications and see how they communicate if you have two different Bluetooth Stacks. e.g. Winsock (Microsoft) and WIDCOMM (Broadcom).
+   More information on {{{http://code.google.com/p/bluecove/wiki/stacks}BlueCove supported stacks here}}
+
+        * <<<{{{awt-bctest-winsock.jnlp}\u00bbStart with Microsoft Winsock}}>>>
+
+        * <<<{{{awt-bctest-widcomm.jnlp}\u00bbStart with Broadcom WIDCOMM}}>>>
+
+        * <<<{{{awt-bctest-bluesoleil.jnlp}\u00bbStart with IVT BlueSoleil}}>>>
+
+
+* This is the test MIDlet. It can run on a cell phone with JSR-82
 
    {{{bctest.jad}bctest.jad}}
 
    {{{bctest.jar}bctest.jar}}
 
-* Tests BlueCove on windows
+    You can upload this MIDlet to your cell phone and use it as responter for BlueCove application on PC.
 
-   You can start two Java Web Start applications and see how they communicate. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
+* Windows Mobile
+
+   We are using Motorola MPx220 and Dell Axim X30 to test BlueCove.  {{{http://code.google.com/p/bluecove/wiki/WindowsMobile} BlueCove supported devices}}
+
+   {{{http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html}Mysaifu JVM}} - An open-source (GPL v.2 license) Java VM is used during tests.
+
+   The same AWT {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application that you just run on Windows can be uploaded to your mobile and started there.
+
+   Start application like this:
+
+---
+"\Storage Card\Mysaifu JVM\jre\bin\jvm.exe" -jar "\bluecove\bluecove-tester.jar"
+---
+
+    We tried IBM's J9 VM  and NSICOM's CrEme JVM and BlueCove works there.

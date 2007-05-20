@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
@@ -56,6 +57,10 @@ public class TestResponderClient implements Runnable {
 	
 	public static int connectionCount = 0;
 	
+	public static int dryDiscovery;
+	
+	public static long lastSuccessfulDiscovery;
+	
 	public Thread thread;
 	
 	private boolean stoped = false;
@@ -69,6 +74,8 @@ public class TestResponderClient implements Runnable {
 	boolean runStressTest = false;
 	
 	BluetoothInquirer bluetoothInquirer;
+	
+	public static Hashtable recentDeviceNames = new Hashtable/*<BTAddress,Name>*/();
 	
 	public static synchronized void clear() {
 		countSuccess = 0;
@@ -156,7 +163,7 @@ public class TestResponderClient implements Runnable {
 			}
 	    }
 	    
-	    public boolean startDeviceInquiry() {
+	    public boolean runDeviceInquiry() {
 			Logger.debug("Starting Device inquiry");
 	    	devices = new Vector();
 	    	serverURLs = new Vector();
@@ -183,14 +190,13 @@ public class TestResponderClient implements Runnable {
 						return false;
 					}
 				}
-				if (!stoped) {
-					cancelInquiry();
-					Logger.debug("  Device inquiry took " + Logger.secSince(start));
-					RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
-					return startServicesSearch();
-				} else {
+				if (stoped) {
 					return true;
 				}
+				cancelInquiry();
+				Logger.debug("  Device inquiry took " + Logger.secSince(start));
+				RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
+				return startServicesSearch();
 			} finally {
 				cancelInquiry();
 		        inquiring = false;
@@ -218,7 +224,7 @@ public class TestResponderClient implements Runnable {
         			|| ((Configuration.discoverDevicesPhones && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)))) {
 	        	devices.addElement(remoteDevice);				
 			} else {
-				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " "+ cod);
+				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + cod);
 				return;
 			}
 //        	String name = null;
@@ -233,7 +239,7 @@ public class TestResponderClient implements Runnable {
 
 	    private boolean startServicesSearch() {
 	    	if (devices.size() == 0) {
-	    		return false;
+	    		return true;
 	    	}
 	        Logger.debug("Starting Services search " + Logger.timeNowToString());
 	        long inquiryStart = System.currentTimeMillis();
@@ -246,9 +252,12 @@ public class TestResponderClient implements Runnable {
 	        	long start = System.currentTimeMillis();
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
 	        	String name = "";
-	        	if (Configuration.discoveryGetDeviceFriendlyName) {
+	        	if (Configuration.discoveryGetDeviceFriendlyName || Configuration.isBlueCove) {
 					try {
 						name = remoteDevice.getFriendlyName(false);
+						if ((name != null) && (name.length() > 0)) {
+							recentDeviceNames.put(remoteDevice.getBluetoothAddress().toUpperCase(), name);
+						}
 					} catch (Throwable e) {
 						Logger.error("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 					}
@@ -499,6 +508,8 @@ public class TestResponderClient implements Runnable {
 		
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
 		if (bluecoveVersion != null) {
+			Configuration.isBlueCove = true;
+			
 			Logger.info("bluecove:" + bluecoveVersion);
 			Logger.info("stack:" + LocalDevice.getProperty("bluecove.stack"));
 			Logger.info("radio manufacturer:" + LocalDevice.getProperty("bluecove.radio.manufacturer"));
@@ -528,6 +539,9 @@ public class TestResponderClient implements Runnable {
 
 	 public static String niceDeviceName(String bluetoothAddress) {
 		 String w = getWhiteDeviceName(bluetoothAddress);
+		 if (w == null) {
+			 w = (String)recentDeviceNames.get(bluetoothAddress.toUpperCase());
+		 }
 		 return (w != null)?w:bluetoothAddress;
 	}
 	 
@@ -561,11 +575,11 @@ public class TestResponderClient implements Runnable {
 		Logger.debug("connect:" + deviceName + " " + serverURL);
 		for(int testType = Consts.TEST_START; (!stoped) && (runStressTest || testType <= Consts.TEST_LAST); testType ++) {
 			StreamConnectionTimeOut c = new StreamConnectionTimeOut();
-			TestStatus testStatus = new TestStatus(testType);
+			TestStatus testStatus = new TestStatus();
 			TestTimeOutMonitor monitor = null;
 			try {
 				if (!runStressTest) {
-					Logger.debug("test connect:" + testType);
+					Logger.debug("test " + testType + " connects");
 				} else {
 					testType = Consts.TEST_BYTE;	
 				}
@@ -608,18 +622,18 @@ public class TestResponderClient implements Runnable {
 
 				if (testStatus.isSuccess) {
 					countSuccess++;
-					Logger.debug("test ok:" + testType + " " + testStatus.getName());
+					Logger.debug("test " + testType + " " + testStatus.getName() + ": OK");
 				} else if (testStatus.streamClosed) {
 					Logger.debug("see server log");
 				} else {
 					c.os.flush();
 					Logger.debug("read server status");
 					int ok = c.is.read();
-					Assert.assertEquals("Test reply ok", Consts.SEND_TEST_REPLY_OK, ok);
+					Assert.assertEquals("Server reply", Consts.SEND_TEST_REPLY_OK, ok);
 					int conformTestType = c.is.read();
 					Assert.assertEquals("Test reply conform", testType, conformTestType);
 					countSuccess++;
-					Logger.debug("test ok:" + testType + " " + testStatus.getName());
+					Logger.debug("test " + testType + " " + testStatus.getName() + ": OK");
 				}
 				if (connectionCount % 5 == 0) {
 					Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
@@ -680,7 +694,7 @@ public class TestResponderClient implements Runnable {
 			
 			while (!stoped) {
 				if ((!bluetoothInquirer.hasServers()) || (Configuration.continuousDiscovery) || (!Configuration.testConnections) ) {
-					if (!bluetoothInquirer.startDeviceInquiry()) {
+					if (!bluetoothInquirer.runDeviceInquiry()) {
 						startTry ++;
 						try {
 							Thread.sleep(2000);
@@ -702,13 +716,22 @@ public class TestResponderClient implements Runnable {
 						}
 					}
 				}
-				if ((Configuration.testConnections) && (bluetoothInquirer.serverURLs != null)) {
-					for (Enumeration iter = bluetoothInquirer.serverURLs.elements(); iter.hasMoreElements();) {
-						if (stoped) {
-							break;
+				if ((Configuration.testConnections) && (bluetoothInquirer.hasServers())) {
+					dryDiscovery = 0;
+					lastSuccessfulDiscovery = System.currentTimeMillis();
+					if (!discoveryOnce) {
+						for (Enumeration iter = bluetoothInquirer.serverURLs.elements(); iter.hasMoreElements();) {
+							if (stoped) {
+								break;
+							}
+							String url = (String) iter.nextElement();
+							connectAndTest(url);
 						}
-						String url = (String) iter.nextElement();
-						connectAndTest(url);
+					}
+				} else {
+					dryDiscovery ++;
+					if ((dryDiscovery % 5 == 0) && (lastSuccessfulDiscovery != 0)) {
+						Logger.debug("No services for " + Logger.secSince(lastSuccessfulDiscovery));
 					}
 				}
 				Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);

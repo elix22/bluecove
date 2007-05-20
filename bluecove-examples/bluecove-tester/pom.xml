@@ -150,6 +150,26 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <jarPath>${project.build.directory}/${project.build.finalName}-app.${project.packaging}</jarPath>
+                            <signedjar>${project.build.directory}/site/bluecove-tester-app.jar</signedjar>
+                            <keystore>${user.home}/.m2/MicroEmulator.keystore</keystore>
+                            <keypass>${MicroEmulator-keystore-pwd}</keypass>
+                            <storepass>${MicroEmulator-keystore-pwd}</storepass>
+                            <alias>MicroEmulatorSignJars</alias>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -172,6 +192,16 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>maven-jetty-plugin</artifactId>
+                <version>6.1.1</version>
+                <configuration>
+                    <webAppSourceDirectory>${project.build.directory}/site</webAppSourceDirectory>
+                    <webXml>${basedir}/jetty-web.xml</webXml>
+                </configuration>
             </plugin>
 
         </plugins>

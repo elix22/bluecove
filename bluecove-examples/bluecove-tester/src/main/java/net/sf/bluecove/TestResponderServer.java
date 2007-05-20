@@ -143,6 +143,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		if (!Configuration.windowsCE) {
 			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
 		}
+		if (LocalDevice.getProperty("bluecove") != null) {
+			Configuration.isBlueCove = true;
+		}
 		Configuration.stackWIDCOMM = "WIDCOMM".equalsIgnoreCase(LocalDevice.getProperty("bluecove.stack"));
 	}
 	
@@ -186,6 +189,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			
 			while (!stoped) {
+//				if (countConnection % 5 == 0) {
+//					updateServiceRecord();
+//				}
 				Logger.info("Accepting connection");
 				StreamConnection conn = serverConnection.acceptAndOpen();
 				if (!stoped) {

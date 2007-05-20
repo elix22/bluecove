@@ -33,7 +33,7 @@ public class TestStatus {
 	boolean isSuccess = false;
 	
 	public TestStatus() {
-		setName("?");
+		setName("");
 	}
 	
 	public TestStatus(int testType) {
