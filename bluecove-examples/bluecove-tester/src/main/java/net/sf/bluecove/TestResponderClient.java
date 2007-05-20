@@ -243,6 +243,7 @@ public class TestResponderClient implements Runnable {
 	    	}
 	        Logger.debug("Starting Services search " + Logger.timeNowToString());
 	        long inquiryStart = System.currentTimeMillis();
+	        nextDevice:
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
 	        	if (stoped) {
 	        		break;
@@ -265,12 +266,18 @@ public class TestResponderClient implements Runnable {
 	        	servicesOnDeviceName = niceDeviceName(remoteDevice.getBluetoothAddress());
 				Logger.debug("Search Services on " + servicesOnDeviceName + " " + name);
 
+				int transID;
+				
 				synchronized (this) {
 			    	try {
 			    		servicesSearchTransID = discoveryAgent.searchServices(attrIDs, searchUuidSet, remoteDevice, this);
+			    		transID = servicesSearchTransID; 
+			    		if (transID <= 0) {
+			    			Logger.warn("servicesSearch TransID mast be positive, " + transID);
+			    		}
 			        } catch(BluetoothStateException e) {
 			        	Logger.error("Cannot start searchServices", e);
-			        	return false;
+			        	continue nextDevice;
 				    }
 			        try {
 						wait();
@@ -285,7 +292,7 @@ public class TestResponderClient implements Runnable {
 				if (!anyServicesFound) {
 					msg = "; no services";
 				}
-				Logger.debug("  Services Search took " + Logger.secSince(start) + msg);
+				Logger.debug("  Services Search " + transID + " took " + Logger.secSince(start) + msg);
 			}
 	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart));
 	        return true;

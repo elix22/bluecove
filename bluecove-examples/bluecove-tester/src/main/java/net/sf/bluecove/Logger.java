@@ -88,6 +88,16 @@ public class Logger {
         }
     }
     
+    public static String d000(int i) {
+    	if (i > 99) {
+            return String.valueOf(i);
+        } else if (i > 9) {
+            return "0" + String.valueOf(i);
+        } else {
+            return "00" + String.valueOf(i);
+        }
+    }
+    
     public static String timeToString(Calendar calendar) {
         StringBuffer sb;
         sb = new StringBuffer();
@@ -114,7 +124,8 @@ public class Logger {
 		if (start == 0) {
     		return "n/a";
     	}
-		long sec = since(start)/1000;
+		long msec = since(start);
+		long sec = msec/1000;
 		long min = sec / 60;
 		sec -= min * 60;
 		long h = min / 60;
@@ -131,6 +142,12 @@ public class Logger {
         sb.append(d00((int)sec));
         if ((h == 0) && (min == 0)) {
         	sb.append(" sec");
+        }
+        if ((h == 0) && (min == 0) && (sec <= 1)) {
+        	msec -= 1000 * sec;
+        	sb.append(" ");
+        	sb.append(d000((int)msec));
+        	sb.append(" msec");
         }
         return sb.toString();
 	}
