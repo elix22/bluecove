@@ -247,6 +247,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 	
 	public static void clear() {
+		countSuccess = 0;
 		allServerDuration.clear();
 		failure.clear();
 	}
