@@ -56,7 +56,7 @@ public class RemoteDeviceInfo {
 	
 	public TimeStatistic serviceDiscovered = new TimeStatistic();
 	
-	public byte[] variableData;
+	public long variableData;
 	
 	public long variableDataCheckLastTime;
 	
@@ -93,7 +93,7 @@ public class RemoteDeviceInfo {
 		devInfo.discoveredLastTime = now; 
 	}
 	
-	public static synchronized void deviceServiceFound(RemoteDevice remoteDevice, byte[] variableData) {
+	public static synchronized void deviceServiceFound(RemoteDevice remoteDevice, long variableData) {
 		RemoteDeviceInfo devInfo = getDevice(remoteDevice);
 		long now = System.currentTimeMillis();
 		if (devInfo.serviceDiscovered.count == 0) {
@@ -104,28 +104,30 @@ public class RemoteDeviceInfo {
 		}
 		devInfo.remoteDevice = remoteDevice;
 		devInfo.serviceDiscoveredLastTime = now;
-		if (variableData != null) {
+		if (variableData != 0) {
 			long frequencyMSec = now - devInfo.variableDataCheckLastTime;
-			if ((devInfo.variableData != null) && (frequencyMSec > 1000 * (20 + Configuration.serverMAXTimeSec))) {
+			if ((devInfo.variableData != 0) && (frequencyMSec > 1000 * 120)) {
 				devInfo.variableDataCheckLastTime = now;
 				boolean er = false; 
-				if (variableData[0] == devInfo.variableData[0]) {
-					Logger.warn("not updated [0]  " + variableData[0]);
-					//TODO TestResponderClient.failure.addFailure("not updated [0]  " + variableData[0] + " on " + devInfo.name);
+				if (variableData == devInfo.variableData) {
+					Logger.warn("not updated " + variableData);
+					TestResponderClient.failure.addFailure("not updated " + variableData + " on " + devInfo.name);
 					er = true;
 				}
-				if (variableData[1] == devInfo.variableData[1]) {
-					Logger.warn("not updated count 1  " + variableData[1]);
-//					TODO TestResponderClient.failure.addFailure("not updated [1]  " + variableData[1] + " on " + devInfo.name);
-					er = true;
-				}
-				
 				if (!er) {
 					devInfo.variableDataUpdated = true;
-					Logger.warn("Var info OK" + variableData[0] + " " + variableData[1]);
+					Logger.info("Var info updated, " + variableData);
 				}
+			} else if (devInfo.variableData != variableData) {
+				if (devInfo.variableData == 0) {
+					Logger.info("Var info set, " + variableData);
+				} else {
+					Logger.info("Var info updated, " + variableData);
+				}
+				devInfo.variableData = variableData;
+				devInfo.variableDataCheckLastTime = now;
+				devInfo.variableDataUpdated = true;
 			}
-			devInfo.variableData = variableData;
 		}
 	}
 	

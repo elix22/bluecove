@@ -323,10 +323,10 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			} else {
 				buf.append(" Down");
 			}
-			if (dev.variableData == null) {
+			if (dev.variableData == 0) {
 				buf.append(" No VarAttr");
 			} else {
-				buf.append(" srv:").append(dev.variableData[0]).append(" time:").append(dev.variableData[1]);
+				buf.append(" srv:").append(dev.variableData);
 				if (dev.variableDataUpdated) {
 					buf.append(" var.OK");
 				}

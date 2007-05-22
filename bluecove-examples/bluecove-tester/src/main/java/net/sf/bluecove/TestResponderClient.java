@@ -28,7 +28,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.DiscoveryListener;
@@ -40,7 +39,6 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
 import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
 
 
 /**
@@ -57,7 +55,9 @@ public class TestResponderClient implements Runnable {
 	
 	public static int connectionCount = 0;
 	
-	public static int dryDiscovery;
+	public static int discoveryDryCount = 0;
+	
+	public static int discoverySuccessCount = 0;
 	
 	public static long lastSuccessfulDiscovery;
 	
@@ -288,10 +288,7 @@ public class TestResponderClient implements Runnable {
 					}
 		        }	
 				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, Logger.since(start));
-				String msg = "";
-				if (!anyServicesFound) {
-					msg = "; no services";
-				}
+				String msg = (anyServicesFound)?"; service found":"; no services";
 				Logger.debug("  Services Search " + transID + " took " + Logger.secSince(start) + msg);
 			}
 	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart));
@@ -304,162 +301,27 @@ public class TestResponderClient implements Runnable {
         	}
 			for (int i = 0; i < servRecord.length; i++) {
 				anyServicesFound = true;
-				boolean hadError = false;
-				boolean isBlueCoveTestService = false;
-				byte variableData[] = null;
 				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 				Logger.info("*found server " + url);
-				try {
-					if (Configuration.testServiceAttributes && (!"0".equals(LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max")))) {
-						int[] attributeIDs = servRecord[i].getAttributeIDs();
-						// Logger.debug("attributes " + attributeIDs.length);
-
-						boolean foundName = false;
-						boolean foundInt = false;
-						boolean foundStr = false;
-						boolean foundUrl = false;
-						boolean foundLong = false;
-						boolean foundBytes = false;
-						
-						boolean foundIntOK = false;
-						boolean foundUrlOK = false;
-						boolean foundBytesOK = false;
-						
-						for (int j = 0; j < attributeIDs.length; j++) {
-							int id = attributeIDs[j];
-							try {
-								DataElement attrDataElement = servRecord[i].getAttributeValue(id);
-								Assert.assertNotNull("attrValue null", attrDataElement);
-								switch (id) {
-								case 0x0100:
-									foundName = true;
-									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
-										Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
-										isBlueCoveTestService = true;
-									}
-									break;
-								case Consts.TEST_SERVICE_ATTRIBUTE_INT_ID:
-									foundInt = true;
-									Assert.assertEquals("int type", Consts.TEST_SERVICE_ATTRIBUTE_INT_TYPE, attrDataElement.getDataType());
-									Assert.assertEquals("int", Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE, attrDataElement.getLong());
-									isBlueCoveTestService = true;
-									foundIntOK = true;
-									break;
-								case Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID:
-									foundLong = true;
-									Assert.assertEquals("long type", Consts.TEST_SERVICE_ATTRIBUTE_LONG_TYPE, attrDataElement.getDataType());
-									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
-										Assert.assertEquals("long", Consts.TEST_SERVICE_ATTRIBUTE_LONG_VALUE, attrDataElement.getLong());
-										isBlueCoveTestService = true;
-									}
-									break;
-								case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
-									foundStr = true;
-									Assert.assertEquals("str type", DataElement.STRING, attrDataElement.getDataType());
-									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
-										Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
-										isBlueCoveTestService = true;
-									}
-									break;
-								case Consts.TEST_SERVICE_ATTRIBUTE_URL_ID:
-									foundUrl = true;
-									int urlType = attrDataElement.getDataType();
-									// URL is String on Widcomm
-									Assert.assertTrue("url type", (DataElement.URL == urlType) || (DataElement.STRING == urlType));
-									if (DataElement.URL != urlType) {
-										Logger.warn("attr URL decoded as STRING");
-									}
-									Assert.assertEquals("url", Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE, attrDataElement.getValue());
-									isBlueCoveTestService = true;
-									foundUrlOK = true;
-									break;
-								case Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID:
-									foundBytes = true;
-									String byteArrayTypeName = BluetoothTypes.getDataElementType(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE);
-									Assert.assertEquals("byte[] " + byteArrayTypeName + " type", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, attrDataElement.getDataType());
-									byte[] byteAray;
-									try {
-										byteAray = (byte[])attrDataElement.getValue();
-									} catch (Throwable e) {
-										Logger.warn("attr  " + byteArrayTypeName + " " + id + " " + e.getMessage());
-										hadError = true;
-										break;
-									}
-									Assert.assertEquals("byteAray.len of " + byteArrayTypeName, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE.length, byteAray.length);
-									for(int k = 0; k < byteAray.length; k++) {
-										if (Configuration.testIgnoreNotWorkingServiceAttributes && Configuration.stackWIDCOMM && k >= 4) {
-											// INT_16 are truncated in discovery
-											break;
-										}
-										Assert.assertEquals("byte[" + k + "] of " + byteArrayTypeName ,  Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE[k], byteAray[k]);
-									}
-									isBlueCoveTestService = true;
-									foundBytesOK = true;
-									break;	
-								case Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID:
-									Assert.assertEquals("var byte[] type", DataElement.INT_16, attrDataElement.getDataType());
-									try {
-										variableData = (byte[])attrDataElement.getValue();
-									} catch (Throwable e) {
-										Logger.warn("attr " + id + " " + e.getMessage());
-										hadError = true;
-										break;
-									}
-								default:
-									if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
-										Logger.debug("attribute " + id + " " + BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
-									}
-								}
-
-							} catch (AssertionFailedError e) {
-								Logger.warn("attr " + id + " " + e.getMessage());
-								//countFailure++;
-								hadError = true;
-							}
-						}
-						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundName)) {
-							Logger.warn("srv name attr. not found");
-							failure.addFailure("srv name attr. not found on " + servicesOnDeviceName);
-						}
-						if (!foundInt) {
-							Logger.warn("srv INT attr. not found");
-							failure.addFailure("srv INT attr. not found on " + servicesOnDeviceName);
-						}
-						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundLong)) {
-							Logger.warn("srv long attr. not found");
-							failure.addFailure("srv long attr. not found on " + servicesOnDeviceName);
-						}
-						if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
-							Logger.warn("srv STR attr. not found");
-							failure.addFailure("srv STR attr. not found on " + servicesOnDeviceName);
-						}
-						if (!foundUrl) {
-							Logger.warn("srv URL attr. not found");
-							failure.addFailure("srv URL attr. not found on " + servicesOnDeviceName);
-						}
-						if (!foundBytes) {
-							Logger.warn("srv byte[] attr. not found");
-							failure.addFailure("srv byte[] attr. not found on " + servicesOnDeviceName);
-						}
-						if (variableData == null) {
-							Logger.warn("srv data byte[] attr. not found");
-							failure.addFailure("srv data byte[] attr. not found on " + servicesOnDeviceName);
-						}
-						if (foundName && foundUrl && foundInt && foundStr && foundLong && foundBytes && !hadError) {
-							Logger.info("all service Attr OK");
-							countSuccess++;
-						} else if ((Configuration.testIgnoreNotWorkingServiceAttributes) && foundUrl && foundInt && foundBytes && !hadError) {
-							Logger.info("service Attr found");
-							countSuccess++;
-						}
-						if (foundIntOK && foundUrlOK && foundBytesOK) {
-							Logger.info("Common Service Attr OK");
-							discoveryCount++;
-							Logger.info("Found BlueCove SRV:" + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
-						}
+				if (url == null) {
+					// Bogus service Record
+					continue;
+				}
+				
+				boolean isBlueCoveTestService;
+				
+				if (Configuration.searchOnlyBluecoveUuid) {
+					isBlueCoveTestService = ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName);
+				} else {
+					isBlueCoveTestService = ServiceRecordTester.hasServiceClassUUID(servRecord[i], CommunicationTester.uuid);
+					if (isBlueCoveTestService) {
+						ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName);
 					}
-				} catch (Throwable e) {
-					Logger.error("attrs", e);
+				}
+				
+				if (isBlueCoveTestService) {
+					discoveryCount++;
+					Logger.info("Found BlueCove SRV:" + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 				}
 				
 				if (Configuration.searchOnlyBluecoveUuid || isBlueCoveTestService) {
@@ -469,7 +331,6 @@ public class TestResponderClient implements Runnable {
 				}
 				if (isBlueCoveTestService) {
 					servicesFound = true;
-					RemoteDeviceInfo.deviceServiceFound(servRecord[i].getHostDevice(), variableData);
 				}
 			}
 		}
@@ -724,7 +585,8 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 				if ((Configuration.testConnections) && (bluetoothInquirer.hasServers())) {
-					dryDiscovery = 0;
+					discoveryDryCount = 0;
+					discoverySuccessCount ++;
 					lastSuccessfulDiscovery = System.currentTimeMillis();
 					if (!discoveryOnce) {
 						for (Enumeration iter = bluetoothInquirer.serverURLs.elements(); iter.hasMoreElements();) {
@@ -736,9 +598,9 @@ public class TestResponderClient implements Runnable {
 						}
 					}
 				} else {
-					dryDiscovery ++;
-					if ((dryDiscovery % 5 == 0) && (lastSuccessfulDiscovery != 0)) {
-						Logger.debug("No services for " + Logger.secSince(lastSuccessfulDiscovery));
+					discoveryDryCount ++;
+					if ((discoveryDryCount % 5 == 0) && (lastSuccessfulDiscovery != 0)) {
+						Logger.debug("No services " + discoveryDryCount + " times for " + Logger.secSince(lastSuccessfulDiscovery) + " " + discoverySuccessCount);
 					}
 				}
 				Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);

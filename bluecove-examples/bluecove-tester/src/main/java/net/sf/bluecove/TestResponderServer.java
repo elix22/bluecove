@@ -189,9 +189,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			
 			while (!stoped) {
-//				if (countConnection % 5 == 0) {
-//					updateServiceRecord();
-//				}
+				if (countConnection % 5 == 0) {
+					updateServiceRecord();
+				}
 				Logger.info("Accepting connection");
 				StreamConnection conn = serverConnection.acceptAndOpen();
 				if (!stoped) {
@@ -317,16 +317,14 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 	
 	private void updateVariableServiceRecord(ServiceRecord record) {
-		byte[] data = new byte[16];
-		
-		data[0] = (byte)(Switcher.serverStartCount & 0xF);
+		long data;
 		
 		Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        data[1] = (byte)calendar.get(Calendar.MINUTE);
+        data = 1 + calendar.get(Calendar.MINUTE);
         
 		record.setAttributeValue(Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID,
-		        new DataElement(DataElement.INT_16, data));
+		        new DataElement(DataElement.U_INT_4, data));
 	}
 	
     private void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {

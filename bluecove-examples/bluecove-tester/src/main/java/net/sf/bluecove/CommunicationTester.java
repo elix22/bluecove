@@ -183,7 +183,7 @@ public class CommunicationTester implements Consts {
 			}
 			
 			int got = is.read();
-			Assert.assertEquals("byte", 255 & i, got);
+			Assert.assertEquals("byte[" + i + "]", 255 & i, got);
 			available --;
 		}
 		os.write(streamAvailableByteCount);
