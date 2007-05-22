@@ -41,12 +41,12 @@ public class StreamConnectionTimeOut implements CanShutdown {
 	long lastActivityTime;
 	
 	StreamConnectionTimeOut() {
-		
+		active();
 	}
 	
 	StreamConnectionTimeOut(StreamConnection conn) {
+		this();
 		this.conn = conn;
-		active();
 	}
 	
 	public void active() {
