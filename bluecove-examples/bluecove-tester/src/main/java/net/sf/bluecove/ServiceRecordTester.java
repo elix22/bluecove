@@ -41,14 +41,18 @@ public class ServiceRecordTester {
 	public static boolean hasServiceClassUUID(ServiceRecord servRecord, UUID uuid) {
 		DataElement attrDataElement = servRecord.getAttributeValue(ServiceClassIDList);
 		if ((attrDataElement == null) || (attrDataElement.getDataType() != DataElement.DATSEQ) || attrDataElement.getSize() == 0) {
+			Logger.warn("Bogus ServiceClassIDList");
 			return false;
 		}
 		
 		Object value = attrDataElement.getValue();
-		if ((value == null) || (value instanceof Enumeration)) {
+		if ((value == null) || (!(value instanceof Enumeration))) {
+			Logger.warn("Bogus Value in DATSEQ");
+			if (value != null) {
+				Logger.error("DATSEQ class " + value.getClass().getName());				
+			}
 			return false;
 		}
-		//Logger.debug("DATSEQ class " + value.getClass().getName());
 		for (Enumeration e = (Enumeration)value; e.hasMoreElements();) {
 			Object element = e.nextElement();
 			if (!(element instanceof DataElement)) {
