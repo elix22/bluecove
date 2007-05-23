@@ -34,11 +34,19 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.bluetooth.LocalDevice;
 
+import net.sf.bluecove.Configuration;
 import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
+import net.sf.bluecove.Storage;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestResponderClient;
 import net.sf.bluecove.TestResponderServer;
@@ -50,7 +58,7 @@ import com.intel.bluetooth.BlueCoveImpl;
  * @author vlads
  *
  */
-public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.DebugLog.LoggerAppender {
+public class Main extends Frame implements LoggerAppender, Storage, com.intel.bluetooth.DebugLog.LoggerAppender {
 
 	private static final long serialVersionUID = 1L;
 
@@ -72,6 +80,8 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		app.setVisible(true);
 		Logger.debug("Stated app");
 		Logger.debug("OS:" + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
+		
+		Configuration.storage = app;
 		
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--stack")) {
@@ -140,6 +150,16 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 				updateTitle();
 			}
 		});
+		
+		String lastURL = retriveData("lastURL");
+		if (lastURL != null) {
+			addMenu(menuBluetooth, "Client Last service Start", new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Switcher.startClient(retriveData("lastURL"));
+					updateTitle();
+				}
+			});
+		}
 		
 		addMenu(menuBluetooth, "Quit", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -330,6 +350,56 @@ public class Main extends Frame implements LoggerAppender, com.intel.bluetooth.D
 		buf.append("\n");
 		synchronized (output) {
 			output.append(buf.toString());
+		}
+	}
+
+	public String retriveData(String name) {
+		Properties p = new Properties(); 
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		File f = new File(tmpDir, "bluecove-tester.properties");
+		if (f.exists()) {
+			FileInputStream in = null;
+			try {
+				in = new FileInputStream(f); 
+				p.load(in);
+			} catch (IOException ignore) {
+			} finally {
+				try {
+					in.close();
+				} catch (Throwable ignore) {
+				}
+			}
+		}
+		return p.getProperty(name);
+	}
+
+	public void storeData(String name, String value) {
+		Properties p = new Properties(); 
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		File f = new File(tmpDir, "bluecove-tester.properties");
+		if (f.exists()) {
+			FileInputStream in = null;
+			try {
+				in = new FileInputStream(f); 
+				p.load(in);
+			} catch (IOException ignore) {
+			} finally {
+				try {
+					in.close();
+				} catch (Throwable ignore) {
+				}
+			}
+		}
+		p.setProperty(name, value);
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(f);
+			p.save(out, "");
+		} catch (FileNotFoundException ignore) {
+		}
+		try {
+			out.close();
+		} catch (Throwable ignore) {
 		}
 	}
 

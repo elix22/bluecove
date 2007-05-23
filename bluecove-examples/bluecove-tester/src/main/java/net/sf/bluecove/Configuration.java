@@ -61,6 +61,13 @@ public class Configuration {
 	
 	public static boolean testServiceAttributes = true;
 
+	
+	public static final int TEST_START = 1;
+	
+	public static final int TEST_LAST = 17;
+	
+	public static final int STERSS_TEST_CASE = Consts.TEST_BYTE;
+	
 	/**
 	 * Apperantly Motorola Service Attribute STRING is not working.
 	 * INT_4 not working on some Nokia and breakes its discovery by Motorola.
@@ -73,6 +80,7 @@ public class Configuration {
 
 	public static int serverMAXTimeSec = 80;
 	
+	public static Storage storage;
 	/**
 	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */

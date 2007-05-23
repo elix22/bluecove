@@ -88,7 +88,7 @@ public class CommunicationTester implements Consts {
 		os.write(aKnowndPositiveByte);
 		os.write(aKnowndNegativeByte);
 		for(int i = 1; i < byteCount; i++) {
-			os.write(i);
+			os.write((byte)i);
 		}
 		for(int i = 0; i < byteAray.length; i++) {
 			os.write(byteAray[i]);
@@ -99,12 +99,12 @@ public class CommunicationTester implements Consts {
 		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte)is.read());
 		Assert.assertEquals("negativeByte", aKnowndNegativeByte, (byte)is.read());
 		for(int i = 1; i < byteCount; i++) {
-			int got = is.read();
-			Assert.assertEquals("t1, byte [" + i + "]", 255 & i, got);
+			byte got = (byte)is.read();
+			Assert.assertEquals("t1, byte [" + i + "]", (byte)i, got);
 		}
 		for(int i = 0; i < byteAray.length; i++) {
-			int got = is.read();
-			Assert.assertEquals("t2, byte [" + i + "]", byteAray[i], (byte)got);
+			byte got = (byte)is.read();
+			Assert.assertEquals("t2, byte [" + i + "]", byteAray[i], got);
 		}
 	}
 

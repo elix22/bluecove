@@ -227,6 +227,13 @@ public class Switcher implements Runnable {
 		}
 	}
 
+	public static void startClient(String url) {
+		startClient();
+		if (client != null) {
+			client.connectURL = url;
+		}
+	}
+	
 	public static void clientShutdown() {
 		if (client != null) {
 			client.shutdown();

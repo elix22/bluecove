@@ -76,10 +76,7 @@ public interface Consts {
 	
 	public static final int TEST_SERVER_TERMINATE = 99;
 	
-	
-	
-	public static final int TEST_START = 1;
-	
+
 	public static final int TEST_STRING = 1;
 	
 	public static final int TEST_STRING_BACK = 2;
@@ -118,5 +115,5 @@ public interface Consts {
 	
 	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 19;
 	
-	public static final int TEST_LAST = 17;
+	
 }

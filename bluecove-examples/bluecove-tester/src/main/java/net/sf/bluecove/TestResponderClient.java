@@ -77,6 +77,8 @@ public class TestResponderClient implements Runnable {
 	
 	public static Hashtable recentDeviceNames = new Hashtable/*<BTAddress,Name>*/();
 	
+	public String connectURL = null;
+	
 	public static synchronized void clear() {
 		countSuccess = 0;
 		failure.clear();
@@ -435,13 +437,10 @@ public class TestResponderClient implements Runnable {
 	}
 	
 	public void connectAndTest(String serverURL) {
-		String deviceName = getWhiteDeviceName(extractBluetoothAddress(serverURL));
-		if (deviceName == null) {
-			deviceName = extractBluetoothAddress(serverURL);
-		}
+		String deviceName = niceDeviceName(extractBluetoothAddress(serverURL));
 		long start = System.currentTimeMillis();
 		Logger.debug("connect:" + deviceName + " " + serverURL);
-		for(int testType = Consts.TEST_START; (!stoped) && (runStressTest || testType <= Consts.TEST_LAST); testType ++) {
+		for(int testType = Configuration.TEST_START; (!stoped) && (runStressTest || testType <= Configuration.TEST_LAST); testType ++) {
 			StreamConnectionTimeOut c = new StreamConnectionTimeOut();
 			TestStatus testStatus = new TestStatus();
 			TestTimeOutMonitor monitor = null;
@@ -449,7 +448,7 @@ public class TestResponderClient implements Runnable {
 				if (!runStressTest) {
 					Logger.debug("test " + testType + " connects");
 				} else {
-					testType = Consts.TEST_BYTE;	
+					testType = Configuration.STERSS_TEST_CASE;	
 				}
 				int connectionOpenTry = 0;
 				while ((c.conn == null) && (!stoped)) {
@@ -468,10 +467,10 @@ public class TestResponderClient implements Runnable {
 				}
 				c.os = c.conn.openOutputStream();
 				connectionCount ++;
+				c.active();
+				monitor = new TestTimeOutMonitor("test" + testType, c, 2);
 				if (!runStressTest) {
 					Logger.debug("test run:" + testType);
-					c.active();
-					monitor = new TestTimeOutMonitor("test" + testType, c, 2);
 				} else {
 					Logger.debug("connected:" + connectionCount);
 					if (connectionCount % 5 == 0) {
@@ -505,6 +504,9 @@ public class TestResponderClient implements Runnable {
 				}
 				if (connectionCount % 5 == 0) {
 					Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
+				}
+				if (Configuration.storage != null) {
+					Configuration.storage.storeData("lastURL", serverURL);
 				}
 			} catch (Throwable e) {
 				failure.addFailure(deviceName + " test " + testType  + " " + testStatus.getName()+ " " + e);
@@ -559,9 +561,13 @@ public class TestResponderClient implements Runnable {
 			bluetoothInquirer = new BluetoothInquirer();
 
 			int startTry = 0;
+			if (connectURL != null) {
+				bluetoothInquirer.serverURLs = new Vector();
+				bluetoothInquirer.serverURLs.addElement(connectURL);
+			}
 			
 			while (!stoped) {
-				if ((!bluetoothInquirer.hasServers()) || (Configuration.continuousDiscovery) || (!Configuration.testConnections) ) {
+				if ((!bluetoothInquirer.hasServers()) || (Configuration.continuousDiscovery && (connectURL == null)) || (!Configuration.testConnections) ) {
 					if (!bluetoothInquirer.runDeviceInquiry()) {
 						startTry ++;
 						try {
