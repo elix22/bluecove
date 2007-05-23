@@ -85,9 +85,14 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--stack")) {
+				// This is used in WebStart when system properties cant be defined.
 				i ++;
 				BlueCoveImpl.instance().setBluetoothStack(args[i]);
 				app.updateTitle();
+			} else if (args[i].equalsIgnoreCase("--runonce")) {
+				int rc = Switcher.runClient();
+				Logger.debug("Finished app " + rc);
+				System.exit(rc);
 			}
 		}
 	}

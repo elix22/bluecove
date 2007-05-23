@@ -40,7 +40,7 @@ public class Configuration {
 	/**
 	 * Limit connections to precompiled list of test devices.
 	 */
-	public static boolean discoverOnlyTestDevices = false;
+	public static boolean discoverOnlyTestDevices = true;
 	
 	/**
 	 * This may hung forever on some Nokia devices.
@@ -58,6 +58,9 @@ public class Configuration {
 	public static boolean continuousDiscovery = true;
 	
 	public static boolean testConnections = true;
+	
+	// This test concurrrent connections if you have Multiple servers running.
+	public static boolean testConnectionsMultipleThreads = true;
 	
 	public static boolean testServiceAttributes = true;
 

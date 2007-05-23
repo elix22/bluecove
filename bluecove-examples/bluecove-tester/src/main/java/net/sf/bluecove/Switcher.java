@@ -220,6 +220,26 @@ public class Switcher implements Runnable {
 		}
 	}
 	
+	public static int runClient() {
+		startClient();
+		if (client != null) {
+			client.connectOnce = true;
+			try {
+				client.thread.join();
+			} catch (InterruptedException e) {
+				return 2;
+			}
+			if (TestResponderClient.failure.countFailure > 0) {
+				return 2;
+			} else if (TestResponderClient.countSuccess == 0) {
+				return 3;	
+			}
+			return 1;
+		} else {
+			return 2;
+		}
+	}
+	
 	public static void startClientStress() {
 		startClient();
 		if (client != null) {

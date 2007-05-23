@@ -61,11 +61,15 @@ public class TestResponderClient implements Runnable {
 	
 	public static long lastSuccessfulDiscovery;
 	
+	public static int countConnectionThreads = 0;
+	
 	public Thread thread;
 	
 	private boolean stoped = false;
 	
 	boolean discoveryOnce = false;
+	
+	boolean connectOnce = false;
 	
 	boolean useDiscoveredDevices = false;
 	
@@ -553,6 +557,49 @@ public class TestResponderClient implements Runnable {
 		IOUtils.closeQuietly(is);
 		IOUtils.closeQuietly(conn);
 	}
+
+	
+	private class ClientConnectionTread extends Thread {
+		
+		String url;
+		
+		ClientConnectionTread(String url) {
+			super("ClientConnectionTread" + (++countConnectionThreads));
+			this.url = url;
+		}
+		
+		public void run() {
+			connectAndTest(url);
+		}
+	}
+	
+	private void connectAndTest(Enumeration urls) {
+		if (!Configuration.testConnectionsMultipleThreads) {
+			for (; urls.hasMoreElements();) {
+				if (stoped) {
+					break;
+				}
+				String url = (String) urls.nextElement();
+				connectAndTest(url);
+			}
+		} else {
+			Vector threads = new Vector();
+			for (; urls.hasMoreElements();) {
+				ClientConnectionTread t = new ClientConnectionTread((String) urls.nextElement());
+				t.setDaemon(true);
+				t.start();
+				threads.addElement(t);
+			}
+			for(Enumeration en = threads.elements(); en.hasMoreElements();) {
+				Thread t = (Thread)en.nextElement();
+				try {
+					t.join();
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
+		}
+	}
 	
 	public void run() {
 		Logger.debug("Client started..." + Logger.timeNowToString());
@@ -595,13 +642,7 @@ public class TestResponderClient implements Runnable {
 					discoverySuccessCount ++;
 					lastSuccessfulDiscovery = System.currentTimeMillis();
 					if (!discoveryOnce) {
-						for (Enumeration iter = bluetoothInquirer.serverURLs.elements(); iter.hasMoreElements();) {
-							if (stoped) {
-								break;
-							}
-							String url = (String) iter.nextElement();
-							connectAndTest(url);
-						}
+						connectAndTest(bluetoothInquirer.serverURLs.elements());
 					}
 				} else {
 					discoveryDryCount ++;
@@ -613,7 +654,7 @@ public class TestResponderClient implements Runnable {
 				if ((countSuccess + failure.countFailure > 0) && (!Configuration.continuous)) {
 					break;
 				}
-				if (stoped || discoveryOnce) {
+				if (stoped || discoveryOnce || connectOnce) {
 					break;
 				}
 				Switcher.yield(this);

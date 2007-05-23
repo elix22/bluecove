@@ -66,14 +66,14 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	private TestTimeOutMonitor monitor;
 	
-	private class ConnectionTread extends Thread {
+	private class ServerConnectionTread extends Thread {
 		
 		StreamConnectionTimeOut c = new StreamConnectionTimeOut();
 		
 		boolean isRunning = true;
 		
-		ConnectionTread(StreamConnection conn) {
-			super("ConnectionTread" + (++countConnection));
+		ServerConnectionTread(StreamConnection conn) {
+			super("ServerConnectionTread" + (++countConnection));
 			c.conn = conn;
 		}
 		
@@ -200,7 +200,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 						Logger.debug("Server up time " + Logger.secSince(connectorOpenTime));
 					}
 					lastActivityTime = System.currentTimeMillis();
-					ConnectionTread t = new ConnectionTread(conn);
+					ServerConnectionTread t = new ServerConnectionTread(conn);
 					t.start();
 					if (!Configuration.serverAcceptWhileConnected) {
 						while (t.isRunning) {

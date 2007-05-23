@@ -1,11 +1,10 @@
 @echo off
 rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
-
-java -Dbluecove.stack=widcomm -jar target\bluecove-tester-2.0.0-SNAPSHOT-app.jar
-if errorlevel 1 (
+call %~dp0scripts\version.cmd
+java -Dbluecove.stack=widcomm -jar target\bluecove-tester-%VERSION%-app.jar
+if errorlevel 2 (
     echo Error calling java
-    pause
 )
-
+pause java ends.
 ENDLOCAL
