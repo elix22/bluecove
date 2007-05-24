@@ -40,7 +40,7 @@ public class Configuration {
 	/**
 	 * Limit connections to precompiled list of test devices.
 	 */
-	public static boolean discoverOnlyTestDevices = true;
+	public static boolean discoverOnlyTestDevices = false;
 	
 	/**
 	 * This may hung forever on some Nokia devices.
