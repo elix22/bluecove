@@ -4,13 +4,17 @@
 = 2.0.0 to be Released 2007-07-xx =
 
     2007-05-18
-    * Initial *BlueSoleil* Stack RFCOMM Client implementation
+    * Initial *!BlueSoleil* Stack RFCOMM Client implementation
 
     2007-05-15
     * `InputStream.read()` return -1 on gracefully closed Connection
+
     * Interface `com.intel.bluetooth.BluetoothStack` to support Stacks other than Microsoft winsock
+
     * Initial *WIDCOMM* Stack RFCOMM Client implementation
+
     * `LocalDevice.getProperty()` additional properties: `bluecove, bluecove.stack, bluecove.radio.manufacturer, bluecove.radio.version`
+
     * System property "bluecove.stack" to force Stack, values `widcomm, bluesoleil or winsock`
 
 = 1.2.3 Released  2007-05-11 =
@@ -55,4 +59,9 @@
  * Windows CE support.
     Remco Poortinga has contributed updated support for Windows CE. That has
     been merged and now I merged some fixes by him.
+
+
+
+
+
 
