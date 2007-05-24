@@ -34,7 +34,7 @@ that can (possibly) be used to achieve OBEX functionality with !BlueCove.
 
 == Installation ==
 
-Installation of the binary (already compiled) version of BlueCove is as follows:
+Installation of the binary (already compiled) version of !BlueCove is as follows:
 
   # [http://code.google.com/p/bluecove/downloads/list Download BlueCove] binary release
   # Add `bluecove.jar` to your classpath
