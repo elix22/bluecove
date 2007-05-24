@@ -241,6 +241,46 @@ public class CommunicationTester implements Consts {
 		testStatus.isSuccess = true;
 	}
 
+	private static void sendClosedConnection(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+		os.write(aKnowndPositiveByte);
+		os.write(aKnowndNegativeByte);
+		os.flush();
+		// Let the server read the message
+		try {
+			Thread.sleep(700);
+		} catch (InterruptedException e) {
+			Assert.fail("Test Interrupted");
+		}
+		os.close();
+		is.close();
+		testStatus.streamClosed = true;
+		
+		try {
+			os.write(byteAray);
+			os.flush();
+			Assert.fail("Can write to closed OutputStream");
+		} catch (IOException ok) {
+			testStatus.isSuccess = true;
+		}
+	}
+
+	private static void readClosedConnection(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+		Assert.assertEquals("byte1", aKnowndPositiveByte, (byte)is.read());
+		Assert.assertEquals("byte2", aKnowndNegativeByte, (byte)is.read());
+		testStatus.streamClosed = true;
+		try {
+			is.read();
+		} catch (IOException helloAvetana) {
+		}
+		try {
+			os.write(byteAray);
+			os.flush();
+			Assert.fail("Can write to closed BT Connection");
+		} catch (IOException ok) {
+			testStatus.isSuccess = true;
+		}
+	}
+	
 	
 	static void sendByteArayLarge(OutputStream os) throws IOException {
 		byte[] byteArayLarge = new byte[byteArayLargeSize];
@@ -399,6 +439,22 @@ public class CommunicationTester implements Consts {
 			testStatus.setName("TEST_CONNECTION_INFO");
 			RemoteDevice device =	RemoteDevice.getRemoteDevice(conn);
 			Logger.debug("Connected to " + device.getBluetoothAddress());
+			break;
+		case TEST_CLOSED_CONNECTION:
+			testStatus.setName("CLOSED_CONNECTION");
+			if (server) {
+				CommunicationTester.readClosedConnection(is, os, testStatus);
+			} else {
+				CommunicationTester.sendClosedConnection(is, os, testStatus);
+			}
+			break;
+		case TEST_CLOSED_CONNECTION_BACK:
+			testStatus.setName("CLOSED_CONNECTION_BACK");
+			if (!server) {
+				CommunicationTester.readClosedConnection(is, os, testStatus);
+			} else {
+				CommunicationTester.sendClosedConnection(is, os, testStatus);
+			}
 			break;
 		case TEST_LARGE_BYTE_ARRAY:
 			testStatus.setName("LARGE_BYTE_ARRAY");

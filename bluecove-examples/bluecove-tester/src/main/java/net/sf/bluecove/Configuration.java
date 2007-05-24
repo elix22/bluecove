@@ -67,7 +67,7 @@ public class Configuration {
 	
 	public static final int TEST_START = 1;
 	
-	public static final int TEST_LAST = 17;
+	public static final int TEST_LAST = 19;
 	
 	public static final int STERSS_TEST_CASE = Consts.TEST_BYTE;
 	
@@ -88,6 +88,8 @@ public class Configuration {
 	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */
 	public static boolean canCloseServer = true;
+	
+	public static boolean isJ2ME = false;
 	
 	public static boolean isBlueCove = false;
 	

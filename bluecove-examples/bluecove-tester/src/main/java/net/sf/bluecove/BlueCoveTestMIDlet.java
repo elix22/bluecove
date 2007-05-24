@@ -40,6 +40,7 @@ public class BlueCoveTestMIDlet extends MIDlet {
     static final int ALERT_TIMEOUT = 10000;
 
 	protected void startApp() throws MIDletStateChangeException {
+		Configuration.isJ2ME = true;
 		instance = this;
 		display = Display.getDisplay(this);
 		if (tester == null) {

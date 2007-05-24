@@ -213,7 +213,9 @@ public class Switcher implements Runnable {
 				clientStartCount++;
 				(client.thread = new Thread(client)).start();
 			} else {
-				BlueCoveTestMIDlet.message("Warn", "Client isRunning");
+				if (Configuration.isJ2ME) {
+					BlueCoveTestMIDlet.message("Warn", "Client isRunning");
+				}
 			}
 		} catch (Throwable e) {
 			Logger.error("start error ", e);
@@ -271,7 +273,9 @@ public class Switcher implements Runnable {
 				(server.thread = new Thread(server)).start();
 			} else {
 				if (Configuration.canCloseServer) {
-					BlueCoveTestMIDlet.message("Warn", "Server isRunning");
+					if (Configuration.isJ2ME) {
+						BlueCoveTestMIDlet.message("Warn", "Server isRunning");
+					}
 				} else {
 					serverStartCount ++;
 					server.updateServiceRecord();

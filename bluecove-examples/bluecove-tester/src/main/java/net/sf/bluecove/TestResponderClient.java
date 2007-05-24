@@ -573,8 +573,8 @@ public class TestResponderClient implements Runnable {
 		}
 	}
 	
-	private void connectAndTest(Enumeration urls) {
-		if (!Configuration.testConnectionsMultipleThreads) {
+	private void connectAndTest(int numberOfURLs, Enumeration urls) {
+		if ((!Configuration.testConnectionsMultipleThreads) || (numberOfURLs == 1)) {
 			for (; urls.hasMoreElements();) {
 				if (stoped) {
 					break;
@@ -586,7 +586,6 @@ public class TestResponderClient implements Runnable {
 			Vector threads = new Vector();
 			for (; urls.hasMoreElements();) {
 				ClientConnectionTread t = new ClientConnectionTread((String) urls.nextElement());
-				t.setDaemon(true);
 				t.start();
 				threads.addElement(t);
 			}
@@ -642,7 +641,7 @@ public class TestResponderClient implements Runnable {
 					discoverySuccessCount ++;
 					lastSuccessfulDiscovery = System.currentTimeMillis();
 					if (!discoveryOnce) {
-						connectAndTest(bluetoothInquirer.serverURLs.elements());
+						connectAndTest(bluetoothInquirer.serverURLs.size(), bluetoothInquirer.serverURLs.elements());
 					}
 				} else {
 					discoveryDryCount ++;
