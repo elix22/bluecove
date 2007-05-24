@@ -5,7 +5,7 @@
 
 == About ==
 
-BlueCove is a LGPL licensed JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
+!BlueCove is a LGPL licensed JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
 the Microsoft Bluetooth stack. Originally developed by Intel Research and
 currently maintained by volunteers.
 
@@ -19,12 +19,12 @@ currently maintained by volunteers.
 == Limitations ==
 
 Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
-BlueCove also only supports RFCOMM connections. The operating system support is
+!BlueCove also only supports RFCOMM connections. The operating system support is
 currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
 stack is not available on other operating systems. If someone writes code to
 support another stack and/or operating system, it will be considered for
-inclusion.  BlueCove does also not support OBEX, but there are other projects
-that can (possibly) be used to achieve OBEX functionality with BlueCove.
+inclusion.  !BlueCove does also not support OBEX, but there are other projects
+that can (possibly) be used to achieve OBEX functionality with !BlueCove.
 
 == Not Implemented functionality ===
 
@@ -51,7 +51,7 @@ Native Library location
 
 IBM J9
 
-    To run BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
+    To run !BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
 
 == Compilation ==
 
