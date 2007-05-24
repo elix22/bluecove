@@ -24,7 +24,7 @@
 == WIDCOMM (Broadcom) ==
 
     Broadcom btwapi.dll required.
-    If you have WIDCOMM version older than 5 you need to [http://bluecove.sourceforge.net/download/btwapi.dll download] and install this dll to %systemroot%\system32
+    ~~If you have WIDCOMM version older than 5 you need to [http://bluecove.sourceforge.net/download/btwapi.dll download] and install this dll to %systemroot%\system32
 
 === JSR-82 Limitations ===
 
@@ -42,3 +42,4 @@
     * You need to run `DiscoveryAgent.searchServices()` with UUID of your service before you can make connection to it using `Connector.open("btspp://...");`
     * Client `Connector.open()` use GUID of the discovered service. Only one would be selected
     * In our test lab we can only make 180 connections in sequence. After this Windows needs to be rebooted (May be you can help fixing this)
+
