@@ -44,6 +44,17 @@ public class FailureLog {
 		logMessages = new Vector();
 	}
 
+	public void addFailure(String message, Throwable throwable) {
+		StringBuffer buf = new StringBuffer(message);
+		if (throwable != null) {
+			buf.append(' ');
+			String className = throwable.getClass().getName();
+			buf.append(className.substring(1 + className.lastIndexOf('.')));
+			buf.append(':');
+			buf.append(throwable.getMessage());
+		}
+	}
+	
 	public void addFailure(String message) {
 		countFailure ++;
 		logMessages.addElement(Logger.timeNowToString() + " " + message);

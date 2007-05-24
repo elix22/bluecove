@@ -112,7 +112,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				} catch (InterruptedException e) {
 				}
 			} catch (Throwable e) {
-				failure.addFailure("test " + testType  + " " + testStatus.getName()+ " " + e);
+				failure.addFailure("test " + testType  + " " + testStatus.getName(), e);
 				Logger.error("Test# " + testType  + " " + testStatus.getName() + " error", e);
 			} finally {
 				if (monitor != null) {

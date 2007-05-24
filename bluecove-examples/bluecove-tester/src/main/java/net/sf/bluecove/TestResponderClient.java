@@ -513,7 +513,7 @@ public class TestResponderClient implements Runnable {
 					Configuration.storage.storeData("lastURL", serverURL);
 				}
 			} catch (Throwable e) {
-				failure.addFailure(deviceName + " test " + testType  + " " + testStatus.getName()+ " " + e);
+				failure.addFailure(deviceName + " test " + testType  + " " + testStatus.getName(), e);
 				Logger.error(deviceName + " test " + testType + " " + testStatus.getName(), e);
 			} finally {
 				if (monitor != null) {
