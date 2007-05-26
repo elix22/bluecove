@@ -53,6 +53,7 @@ public class FailureLog {
 			buf.append(':');
 			buf.append(throwable.getMessage());
 		}
+		addFailure(buf.toString());
 	}
 	
 	public void addFailure(String message) {
