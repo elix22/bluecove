@@ -121,7 +121,9 @@ public class TestResponderClient implements Runnable {
 			} else {
 				searchUuidSet = new UUID[] { L2CAP };
 			}
-			if (Configuration.testIgnoreNotWorkingServiceAttributes) {
+			if (!Configuration.testServiceAttributes) {
+				attrIDs = null;
+			} else if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 				attrIDs = new int[] { 
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
 				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
