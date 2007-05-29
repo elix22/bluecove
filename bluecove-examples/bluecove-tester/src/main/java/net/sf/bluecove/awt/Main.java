@@ -46,6 +46,7 @@ import javax.bluetooth.LocalDevice;
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
+import net.sf.bluecove.RemoteDeviceInfo;
 import net.sf.bluecove.Storage;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestResponderClient;
@@ -204,6 +205,12 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 			}
 		});
 		
+		addMenu(menuLogs, "Clear Stats", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearStats();
+			}
+		});
+		
 		menuBar.add(menuLogs);
 		
 		setMenuBar(menuBar);
@@ -254,6 +261,15 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
 		TestResponderServer.failure.writeToLog();
 	}
+	
+	private void clearStats() {
+		TestResponderClient.clear();
+		TestResponderServer.clear();
+		Switcher.clear();
+		RemoteDeviceInfo.clear();
+		clear();
+	}
+	
 	
 	private MenuItem addMenu(Menu menu,String name, ActionListener l) {
 		MenuItem menuItem = new MenuItem(name);
