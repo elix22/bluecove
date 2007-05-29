@@ -156,14 +156,16 @@ public class TestResponderClient implements Runnable {
 	    
 	    private synchronized void cancelInquiry() {
 	    	try {
-    			discoveryAgent.cancelInquiry(this);
+	    		if (discoveryAgent != null) {
+	    			discoveryAgent.cancelInquiry(this);
+	    		}
 			} catch (Throwable e) {
 			}
 	    }
 	    
 	    private void cancelServiceSearch() {
 	    	try {
-				if (servicesSearchTransID != 0) {
+				if ((servicesSearchTransID != 0) && (discoveryAgent != null)) {
 					discoveryAgent.cancelServiceSearch(servicesSearchTransID);
 					servicesSearchTransID = 0;
 				}
@@ -287,6 +289,7 @@ public class TestResponderClient implements Runnable {
 				
 				synchronized (this) {
 			    	try {
+			    		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 			    		servicesSearchTransID = discoveryAgent.searchServices(attrIDs, searchUuidSet, remoteDevice, this);
 			    		transID = servicesSearchTransID; 
 			    		if (transID <= 0) {
