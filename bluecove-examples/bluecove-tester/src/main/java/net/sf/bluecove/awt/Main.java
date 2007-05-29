@@ -99,6 +99,12 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 	}
 	
 	public Main() {
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent w) {
+				quit();
+			}
+		});
+		
 		Logger.addAppender(this);
 		com.intel.bluetooth.DebugLog.addAppender(this);
 		
@@ -215,11 +221,6 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		
 		setMenuBar(menuBar);
 
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent w) {
-				quit();
-			}
-		});
 		
 		// Create a scrolled text area.
         output = new TextArea("");
@@ -337,6 +338,10 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		Logger.debug("quit");
 		Switcher.clientShutdown();
 		Switcher.serverShutdownOnExit();
+		
+		Logger.removeAppender(this);
+		com.intel.bluetooth.DebugLog.removeAppender(this);
+		
 		//this.dispose();
 		System.exit(0);
 	}
