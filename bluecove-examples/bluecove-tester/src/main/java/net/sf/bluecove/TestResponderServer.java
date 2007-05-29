@@ -355,6 +355,11 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			
 			id = "variable";
 			updateVariableServiceRecord(record);
+			
+			id = "info";
+			record.setAttributeValue(Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO,
+					new DataElement(DataElement.URL, ServiceRecordTester.getBTSystemInfo()));
+			
 			id = "update";
 			//LocalDevice.getLocalDevice().updateRecord(record);
 			

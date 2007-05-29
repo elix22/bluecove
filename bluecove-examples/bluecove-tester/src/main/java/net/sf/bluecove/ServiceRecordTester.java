@@ -22,6 +22,7 @@ package net.sf.bluecove;
 
 import java.util.Enumeration;
 
+import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DataElement;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.ServiceRecord;
@@ -182,6 +183,9 @@ public class ServiceRecordTester {
 								hadError = true;
 								break;
 							}
+						case Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO:
+							Logger.debug("Server info:" + attrDataElement.getValue());
+							break;
 						default:
 							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
 								Logger.debug("attribute " + id + " " + BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
@@ -241,5 +245,17 @@ public class ServiceRecordTester {
 		}
 		
 		return isBlueCoveTestService;
+	}
+	
+	public static String getBTSystemInfo() {
+		try {
+			LocalDevice localDevice = LocalDevice.getLocalDevice();
+			StringBuffer buf = new StringBuffer(); 
+			buf.append("address:").append(localDevice.getBluetoothAddress());
+			buf.append(" name:").append(localDevice.getFriendlyName());
+			return buf.toString();
+		} catch (BluetoothStateException e) {
+			return "error";
+		}	
 	}
 }

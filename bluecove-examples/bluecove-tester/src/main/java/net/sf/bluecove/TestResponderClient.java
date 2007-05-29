@@ -128,7 +128,8 @@ public class TestResponderClient implements Runnable {
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 
 				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID,
-				    	Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID
+				    	Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID,
+				    	Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO
 						};
 			} else {
 				attrIDs = new int[] { 
@@ -138,7 +139,8 @@ public class TestResponderClient implements Runnable {
 				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID,
-				    	Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID
+				    	Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID,
+				    	Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO
 						};
 			}
 		}

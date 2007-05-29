@@ -62,6 +62,8 @@ public interface Consts {
 	
 	public static final int VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID = 0x0A5;
 	
+	public static final int SERVICE_ATTRIBUTE_BYTES_SERVER_INFO = 0x0A6;
+	
 	public static final int clientReconnectSleep = 5100;
 	
 	public static final int serverSendCloseSleep = 1000;
