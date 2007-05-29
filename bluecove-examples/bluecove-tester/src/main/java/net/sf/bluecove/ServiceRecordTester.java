@@ -218,10 +218,10 @@ public class ServiceRecordTester {
 					Logger.warn("srv byte[] attr. not found");
 					TestResponderClient.failure.addFailure("srv byte[] attr. not found on " + servicesOnDeviceName);
 				}
-				if (variableData == 0) {
-					Logger.warn("srv var data attr. not found");
-					TestResponderClient.failure.addFailure("srv var data attr. not found on " + servicesOnDeviceName);
-				}
+//				if (variableData == 0) {
+//					Logger.warn("srv var data attr. not found");
+//					TestResponderClient.failure.addFailure("srv var data attr. not found on " + servicesOnDeviceName);
+//				}
 				if (foundName && foundUrl && foundInt && foundStr && foundLong && foundBytes && !hadError) {
 					Logger.info("all service Attr OK");
 					TestResponderClient.countSuccess++;

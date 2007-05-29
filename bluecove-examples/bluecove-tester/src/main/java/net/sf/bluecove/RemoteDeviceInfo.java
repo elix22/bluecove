@@ -104,31 +104,31 @@ public class RemoteDeviceInfo {
 		}
 		devInfo.remoteDevice = remoteDevice;
 		devInfo.serviceDiscoveredLastTime = now;
-		if (variableData != 0) {
-			long frequencyMSec = now - devInfo.variableDataCheckLastTime;
-			if ((devInfo.variableData != 0) && (frequencyMSec > 1000 * 120)) {
-				devInfo.variableDataCheckLastTime = now;
-				boolean er = false; 
-				if (variableData == devInfo.variableData) {
-					Logger.warn("not updated " + variableData);
-					TestResponderClient.failure.addFailure("not updated " + variableData + " on " + devInfo.name);
-					er = true;
-				}
-				if (!er) {
-					devInfo.variableDataUpdated = true;
-					Logger.info("Var info updated, " + variableData);
-				}
-			} else if (devInfo.variableData != variableData) {
-				if (devInfo.variableData == 0) {
-					Logger.info("Var info set, " + variableData);
-				} else {
-					Logger.info("Var info updated, " + variableData);
-				}
-				devInfo.variableData = variableData;
-				devInfo.variableDataCheckLastTime = now;
-				devInfo.variableDataUpdated = true;
-			}
-		}
+//		if (variableData != 0) {
+//			long frequencyMSec = now - devInfo.variableDataCheckLastTime;
+//			if ((devInfo.variableData != 0) && (frequencyMSec > 1000 * 120)) {
+//				devInfo.variableDataCheckLastTime = now;
+//				boolean er = false; 
+//				if (variableData == devInfo.variableData) {
+//					Logger.warn("not updated " + variableData);
+//					TestResponderClient.failure.addFailure("not updated " + variableData + " on " + devInfo.name);
+//					er = true;
+//				}
+//				if (!er) {
+//					devInfo.variableDataUpdated = true;
+//					Logger.info("Var info updated, " + variableData);
+//				}
+//			} else if (devInfo.variableData != variableData) {
+//				if (devInfo.variableData == 0) {
+//					Logger.info("Var info set, " + variableData);
+//				} else {
+//					Logger.info("Var info updated, " + variableData);
+//				}
+//				devInfo.variableData = variableData;
+//				devInfo.variableDataCheckLastTime = now;
+//				devInfo.variableDataUpdated = true;
+//			}
+//		}
 	}
 	
 	public static synchronized void searchServices(RemoteDevice remoteDevice, boolean found, long servicesSearch) {
