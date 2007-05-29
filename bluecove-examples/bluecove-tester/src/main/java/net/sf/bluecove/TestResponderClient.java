@@ -93,9 +93,9 @@ public class TestResponderClient implements Runnable {
 	    
 		boolean inquiring;
 
-		Vector devices;
+		Vector devices = new Vector();
 		
-		Vector serverURLs;
+		Vector serverURLs = new Vector();
 
 	    public int[] attrIDs;
 
@@ -172,44 +172,53 @@ public class TestResponderClient implements Runnable {
 	    }
 	    
 	    public boolean runDeviceInquiry() {
-			Logger.debug("Starting Device inquiry");
-	    	devices = new Vector();
-	    	serverURLs = new Vector();
-	    	long start = System.currentTimeMillis();
-	    	try {
-	    		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-	    		if (!useDiscoveredDevices) {
-	    			discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
-	    		} else {
-	    			copyDiscoveredDevices();
-	    			useDiscoveredDevices = false;
-	    			return startServicesSearch();
-	    		}
-	        } catch(BluetoothStateException e) {
-	        	Logger.error("Cannot start Device inquiry", e);
-		        return false;
-		    }
-	        inquiring = true;
-	        try {
-				synchronized (this) {
+			boolean needToFindDevice = Configuration.continuousDiscoveryDevices
+					|| ((devices.size() == 0) && (serverURLs.size() == 0));
+			try {
+				if (useDiscoveredDevices) {
+					copyDiscoveredDevices();
+					useDiscoveredDevices = false;
+				} else if (needToFindDevice) {
+					Logger.debug("Starting Device inquiry");
+					devices.removeAllElements();
+					long start = System.currentTimeMillis();
 					try {
-						wait();
-					} catch (InterruptedException e) {
+						discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+						discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
+					} catch (BluetoothStateException e) {
+						Logger.error("Cannot start Device inquiry", e);
 						return false;
 					}
+					inquiring = true;
+					synchronized (this) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							return false;
+						}
+					}
+					if (stoped) {
+						return true;
+					}
+					cancelInquiry();
+					Logger.debug("  Device inquiry took " + Logger.secSince(start));
+					RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
 				}
-				if (stoped) {
+
+				if (Configuration.continuousDiscoveryService || serverURLs.size() == 0) {
+					serverURLs.removeAllElements();
+					try {
+						return startServicesSearch();
+					} finally {
+						cancelServiceSearch();
+					}
+				} else {
 					return true;
 				}
-				cancelInquiry();
-				Logger.debug("  Device inquiry took " + Logger.secSince(start));
-				RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
-				return startServicesSearch();
 			} finally {
-				cancelInquiry();
-		        inquiring = false;
+				inquiring = false;
 			}
-	    }
+		}
 	    
 	    private void copyDiscoveredDevices() {
 	    	if (RemoteDeviceInfo.devices.size() == 0) {
@@ -465,6 +474,7 @@ public class TestResponderClient implements Runnable {
 						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {
 							throw e;
 						}
+						Thread.sleep(500);
 						Logger.debug("connect try:" + connectionOpenTry);
 					}
 				}
@@ -610,7 +620,6 @@ public class TestResponderClient implements Runnable {
 
 			int startTry = 0;
 			if (connectURL != null) {
-				bluetoothInquirer.serverURLs = new Vector();
 				bluetoothInquirer.serverURLs.addElement(connectURL);
 			}
 			
