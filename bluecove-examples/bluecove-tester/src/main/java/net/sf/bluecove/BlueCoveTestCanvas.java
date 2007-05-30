@@ -73,7 +73,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	
 	public BlueCoveTestCanvas() {
 		super();
-		super.setTitle("BlueCove");
+		super.setTitle("BlueCoveT");
 		
 		addCommand(exitCommand);
 		addCommand(startDiscoveryCommand);
