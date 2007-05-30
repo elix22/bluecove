@@ -15,7 +15,7 @@
 === Requirements ===
 
     * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
-    * A Bluetooth device supported by the Microsoft bluetooth stack
+    * A Bluetooth [http://support.microsoft.com/default.aspx?kbid=841803 device supported] by the Microsoft bluetooth stack
 
 === Limitations ===
 
@@ -23,14 +23,12 @@
 
 == WIDCOMM (Broadcom) ==
 
-    Broadcom btwapi.dll required.
-    ~~If you have WIDCOMM version older than 5 you need to [http://bluecove.sourceforge.net/download/btwapi.dll download] and install this dll to %systemroot%\system32
+    * Broadcom wbtapi.dll required. It is installed with WIDCOMM drivers.
 
 === JSR-82 Limitations ===
 
     * `ServiceRecord` attributes of `DataElement` types URL are discoved as STRING
     * `ServiceRecord` attributes of `DataElement` types INT_16 are truncated in discovery (May be you can help fixing this)
-    * `DiscoveryAgent.searchServices(.. UUID[] uuidSet, ..)` only ONE UUID is used during search, the last one in array.
 
 == BlueSoleil (IVT Corporation) ==
 
