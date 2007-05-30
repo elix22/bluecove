@@ -63,6 +63,12 @@ public class TestResponderClient implements Runnable {
 	
 	public static int countConnectionThreads = 0;
 	
+	private int connectedConnections = 0;
+	
+	private int connectedConnectionsExpect = 1;
+	
+	private int connectedConnectionsInfo = 1;
+	
 	public Thread thread;
 	
 	private boolean stoped = false;
@@ -467,6 +473,7 @@ public class TestResponderClient implements Runnable {
 			StreamConnectionTimeOut c = new StreamConnectionTimeOut();
 			TestStatus testStatus = new TestStatus();
 			TestTimeOutMonitor monitor = null;
+			boolean connectedConnectionsInc = false;
 			try {
 				if (!runStressTest) {
 					Logger.debug("test " + testType + " connects");
@@ -491,6 +498,12 @@ public class TestResponderClient implements Runnable {
 				}
 				c.os = c.conn.openOutputStream();
 				connectionCount ++;
+				connectedConnections ++;
+				connectedConnectionsInc = true;
+				if (connectedConnectionsInfo < connectedConnections) {
+					connectedConnectionsInfo = connectedConnections;
+					Logger.info("now connected:" + connectedConnectionsInfo);
+				}
 				c.active();
 				monitor = new TestTimeOutMonitor("test" + testType, c, 2);
 				if (!runStressTest) {
@@ -532,10 +545,24 @@ public class TestResponderClient implements Runnable {
 				if (Configuration.storage != null) {
 					Configuration.storage.storeData("lastURL", serverURL);
 				}
+				
+				// Dellay to see if many connections are made.
+				if (connectedConnectionsInfo < connectedConnectionsExpect) {
+					synchronized (TestResponderClient.this) {
+						try {
+							TestResponderClient.this.wait(5 * 1000);
+						} catch (InterruptedException e) {
+							break;
+						}
+					}
+				}
 			} catch (Throwable e) {
 				failure.addFailure(deviceName + " test " + testType  + " " + testStatus.getName(), e);
 				Logger.error(deviceName + " test " + testType + " " + testStatus.getName(), e);
 			} finally {
+				if (connectedConnectionsInc) {
+					connectedConnections --;
+				}
 				if (monitor != null) {
 					monitor.finish();
 				}
@@ -595,6 +622,8 @@ public class TestResponderClient implements Runnable {
 	
 	private void connectAndTest(int numberOfURLs, Enumeration urls) {
 		if ((!Configuration.testConnectionsMultipleThreads) || (numberOfURLs == 1)) {
+			connectedConnectionsExpect = 1;
+			connectedConnectionsInfo = 1;
 			for (; urls.hasMoreElements();) {
 				if (stoped) {
 					break;
@@ -603,6 +632,9 @@ public class TestResponderClient implements Runnable {
 				connectAndTest(url);
 			}
 		} else {
+			connectedConnectionsExpect = numberOfURLs;
+			connectedConnectionsInfo = 1;
+			Logger.debug("start " + numberOfURLs + " threads");
 			Vector threads = new Vector();
 			for (; urls.hasMoreElements();) {
 				ClientConnectionTread t = new ClientConnectionTread((String) urls.nextElement());
@@ -616,6 +648,12 @@ public class TestResponderClient implements Runnable {
 				} catch (InterruptedException e) {
 					break;
 				}
+			}
+			if (connectedConnectionsInfo < connectedConnectionsExpect) {
+				failure.addFailure("Fails to establish " + connectedConnectionsExpect + " connections same time");
+				Logger.error("Fails to establish " + connectedConnectionsExpect + " connections same time");
+			} else {
+				Logger.info("Established " + connectedConnectionsExpect + " connections same time");
 			}
 		}
 	}
