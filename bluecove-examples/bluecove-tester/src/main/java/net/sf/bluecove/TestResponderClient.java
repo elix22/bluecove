@@ -503,6 +503,9 @@ public class TestResponderClient implements Runnable {
 				if (connectedConnectionsInfo < connectedConnections) {
 					connectedConnectionsInfo = connectedConnections;
 					Logger.info("now connected:" + connectedConnectionsInfo);
+					synchronized (TestResponderClient.this) {
+						TestResponderClient.this.notifyAll();
+					}
 				}
 				c.active();
 				monitor = new TestTimeOutMonitor("test" + testType, c, 2);
