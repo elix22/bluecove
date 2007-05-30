@@ -650,8 +650,10 @@ public class TestResponderClient implements Runnable {
 				}
 			}
 			if (connectedConnectionsInfo < connectedConnectionsExpect) {
-				failure.addFailure("Fails to establish " + connectedConnectionsExpect + " connections same time");
-				Logger.error("Fails to establish " + connectedConnectionsExpect + " connections same time");
+				if (!stoped) {
+					failure.addFailure("Fails to establish " + connectedConnectionsExpect + " connections same time");
+					Logger.error("Fails to establish " + connectedConnectionsExpect + " connections same time");
+				}
 			} else {
 				Logger.info("Established " + connectedConnectionsExpect + " connections same time");
 			}
