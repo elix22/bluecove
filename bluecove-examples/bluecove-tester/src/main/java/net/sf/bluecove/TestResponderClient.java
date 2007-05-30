@@ -111,6 +111,8 @@ public class TestResponderClient implements Runnable {
 		
 		private String servicesOnDeviceName = null;
 		
+		private String servicesOnDeviceAddress = null;
+		
 		private boolean servicesFound = false;
 		
 		private boolean anyServicesFound = false;
@@ -284,7 +286,8 @@ public class TestResponderClient implements Runnable {
 						Logger.error("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 					}
 				}
-	        	servicesOnDeviceName = niceDeviceName(remoteDevice.getBluetoothAddress());
+	        	servicesOnDeviceAddress = remoteDevice.getBluetoothAddress();
+	        	servicesOnDeviceName = niceDeviceName(servicesOnDeviceAddress);
 				Logger.debug("Search Services on " + servicesOnDeviceName + " " + name);
 
 				int transID;
@@ -333,11 +336,11 @@ public class TestResponderClient implements Runnable {
 				boolean isBlueCoveTestService;
 				
 				if (Configuration.searchOnlyBluecoveUuid) {
-					isBlueCoveTestService = ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName);
+					isBlueCoveTestService = ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName, servicesOnDeviceAddress);
 				} else {
 					isBlueCoveTestService = ServiceRecordTester.hasServiceClassUUID(servRecord[i], CommunicationTester.uuid);
 					if (isBlueCoveTestService) {
-						ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName);
+						ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName, servicesOnDeviceAddress);
 					}
 				}
 				

@@ -69,7 +69,7 @@ public class ServiceRecordTester {
 		return false;
 	}
 	
-	public static boolean testServiceAttributes(ServiceRecord servRecord, String servicesOnDeviceName) {
+	public static boolean testServiceAttributes(ServiceRecord servRecord, String servicesOnDeviceName, String servicesOnDeviceAddress) {
 		
 		boolean isBlueCoveTestService = false;
 		
@@ -185,6 +185,7 @@ public class ServiceRecordTester {
 							}
 						case Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO:
 							Logger.debug("Server info:" + attrDataElement.getValue());
+							Assert.assertEquals("BTAddress", servicesOnDeviceAddress.toUpperCase(), getAddressFromBTSystemInfo(attrDataElement.getValue().toString()));
 							break;
 						default:
 							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
@@ -247,15 +248,33 @@ public class ServiceRecordTester {
 		return isBlueCoveTestService;
 	}
 	
+	private static final String ADDRESS = "address:";
+	
 	public static String getBTSystemInfo() {
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			StringBuffer buf = new StringBuffer(); 
-			buf.append("address:").append(localDevice.getBluetoothAddress());
-			buf.append(" name:").append(localDevice.getFriendlyName());
+			buf.append(ADDRESS).append(localDevice.getBluetoothAddress()).append(";");
+			buf.append(" name:").append(localDevice.getFriendlyName()).append(";");
 			return buf.toString();
 		} catch (BluetoothStateException e) {
 			return "error";
 		}	
+	}
+	
+	public static String getAddressFromBTSystemInfo(String sysInfoAttr) {
+		if ((sysInfoAttr == null) || (sysInfoAttr.length() < 6)) {
+			return null;
+		}
+		int startIndex = sysInfoAttr.indexOf(ADDRESS);
+		if (startIndex == -1) {
+			return null;
+		}
+		startIndex += ADDRESS.length();
+		int endIndex = sysInfoAttr.indexOf(';', startIndex);
+		if (endIndex == -1) {
+			return null;
+		}
+		return sysInfoAttr.substring(startIndex, endIndex).toUpperCase();
 	}
 }
