@@ -185,7 +185,13 @@ public class ServiceRecordTester {
 							}
 						case Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO:
 							Logger.debug("Server info:" + attrDataElement.getValue());
-							Assert.assertEquals("BTAddress", servicesOnDeviceAddress.toUpperCase(), getAddressFromBTSystemInfo(attrDataElement.getValue().toString()));
+							try {
+								Assert.assertEquals("BTAddress", servicesOnDeviceAddress.toUpperCase(), getAddressFromBTSystemInfo(attrDataElement.getValue().toString()));
+							} catch (AssertionFailedError e) {
+								Logger.error("Wrong SR on " + servicesOnDeviceName, e);
+								TestResponderClient.failure.addFailure("Wrong SR on " + servicesOnDeviceName, e);
+								return false;
+							}
 							break;
 						default:
 							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
