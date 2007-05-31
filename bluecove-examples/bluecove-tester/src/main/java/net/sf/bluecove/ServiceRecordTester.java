@@ -28,6 +28,8 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
+import net.sf.bluecove.util.BluetoothTypesInfo;
+
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
@@ -152,7 +154,7 @@ public class ServiceRecordTester {
 							break;
 						case Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID:
 							foundBytes = true;
-							String byteArrayTypeName = BluetoothTypes.getDataElementType(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE);
+							String byteArrayTypeName = BluetoothTypesInfo.toStringDataElementType(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE);
 							Assert.assertEquals("byte[] " + byteArrayTypeName + " type", Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, attrDataElement.getDataType());
 							byte[] byteAray;
 							try {
@@ -195,7 +197,7 @@ public class ServiceRecordTester {
 							break;
 						default:
 							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
-								Logger.debug("attribute " + id + " " + BluetoothTypes.getDataElementType(attrDataElement.getDataType()));
+								Logger.debug("attribute " + id + " " + BluetoothTypesInfo.toStringDataElementType(attrDataElement.getDataType()));
 							}
 						}
 

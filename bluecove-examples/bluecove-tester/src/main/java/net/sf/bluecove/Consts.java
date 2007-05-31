@@ -26,7 +26,7 @@ public interface Consts {
 
 	public static final boolean useShortUUID = false;
 	
-	public static final String RESPONDER_UUID = "B1011111111111111111111111110001";
+	public static final String RESPONDER_UUID = "B10C0FE1111111111111111111110001";
 	
 	//public static final boolean useShortUUID = true;
 	

@@ -165,8 +165,14 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			buf.append(':');
 			buf.append(throwable.getMessage());
 		}
-		
-		logMessages.addElement(buf.toString());
+		String m = buf.toString().replace('\t', ' ');
+		int cr = m.indexOf("\n");
+		while (cr != -1) {
+			logMessages.addElement(m.substring(0, cr));
+			m = m.substring(cr + 1);
+			cr = m.indexOf("\n");
+		}
+		logMessages.addElement(m);
 		
 		int logMax = 1000;
 		if (logMessages.size() >= logMax) {

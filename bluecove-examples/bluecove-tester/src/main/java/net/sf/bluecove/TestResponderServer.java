@@ -34,6 +34,8 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
+import net.sf.bluecove.util.BluetoothTypesInfo;
+
 import junit.framework.Assert;
 
 public class TestResponderServer implements CanShutdown, Runnable {
@@ -179,15 +181,18 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				if (record == null) {
 					Logger.warn("Bluetooth ServiceRecord is null");
 				} else {
+					String initial = BluetoothTypesInfo.toString(record);
 					buildServiceRecord(record);
 					try {
 						localDevice.updateRecord(record);
+						Logger.debug("ServiceRecord updated\n" + BluetoothTypesInfo.toString(record));
 					} catch (Throwable e) {
-						Logger.error("Service Record error", e);
+						Logger.debug("ServiceRecord\n" + initial);
+						Logger.error("Service Record update error", e);
 					}
 				}
 			}
-			
+			boolean showServiceRecordOnce = true;
 			while (!stoped) {
 				if ((countConnection % 5 == 0) && (Configuration.testServiceAttributes)) {
 					// Problems on SE
@@ -199,6 +204,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					Logger.info("Received connection");
 					if (countConnection % 5 == 0) {
 						Logger.debug("Server up time " + Logger.secSince(connectorOpenTime));
+					}
+					if (showServiceRecordOnce) {
+						Logger.debug("ServiceRecord\n" + BluetoothTypesInfo.toString(LocalDevice.getLocalDevice().getRecord(serverConnection)));
+						showServiceRecordOnce = false;
 					}
 					lastActivityTime = System.currentTimeMillis();
 					ServerConnectionTread t = new ServerConnectionTread(conn);

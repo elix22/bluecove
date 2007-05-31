@@ -38,6 +38,8 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
+import net.sf.bluecove.util.BluetoothTypesInfo;
+
 import junit.framework.Assert;
 
 
@@ -334,6 +336,9 @@ public class TestResponderClient implements Runnable {
 				anyServicesFound = true;
 				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 				Logger.info("*found server " + url);
+				if (discoveryOnce) {
+					Logger.debug("ServiceRecord\n" + BluetoothTypesInfo.toString(servRecord[i]));
+				}
 				if (url == null) {
 					// Bogus service Record
 					continue;
