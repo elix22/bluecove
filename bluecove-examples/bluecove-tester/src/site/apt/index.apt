@@ -71,6 +71,20 @@ Server failure 0
 
         * <<<{{{awt-bctest-bluesoleil.jnlp}\u00bbStart with IVT BlueSoleil}}>>>
 
+    If for some reason Java Web Start is not working for you. Try donwload this {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
+
+    Run it like this:
+
+---
+java -jar bluecove-tester.jar
+---
+
+    To test JSR-82 implemenation other then BlueCove e.g. avetana. Run test application like this:
+
+---
+java -cp avetanaBluetooth.jar;bluecove-tester.jar net.sf.bluecove.awt.Main
+---
+
 
 * This is the test MIDlet. It can run on a cell phone with JSR-82
 
