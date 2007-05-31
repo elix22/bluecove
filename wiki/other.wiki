@@ -1,0 +1,13 @@
+#summary Other implementation of Bluetooth in java
+#labels Phase-Design
+
+= The list below contains JSR-82 implementations in Java Standard Edition  =
+
+|| *Name* || *License* ||
+|| [http://sourceforge.net/projects/bluecove/ BlueCove] || LGPL ||
+|| [http://www.avetana-gmbh.de/avetana-gmbh/produkte/jsr82.eng.xml avetana JSR-82 implementation] || Commercial ||
+|| [http://sourceforge.net/projects/avetanabt/ AvetanaBluetooth] || Open Source ||
+|| [http://www.javabluetooth.org/ javabluetooth.org] || GPL ||
+|| [http://www.avelink.com/products/java_solutions/jsr-82.asp  aveLink ] || Commercial ||
+|| [http://www.javabluetoothstack.com/ ElectricBlue] || Commercial ||
+|| [https://bluesock.dev.java.net/ Bluesock] || Common Public License ||
