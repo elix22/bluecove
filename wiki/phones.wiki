@@ -1,0 +1,137 @@
+#summary Complete list of the JSR-82 compliant phones
+#labels Phase-Design
+
+= The list below contains JSR-82 compliant devices  =
+
+||	Vendor	||	Model	||
+||	Motorola	||	A1000	||
+||	Motorola	||	E1000	||
+||	Motorola	||	E1070	||
+||	Motorola	||	MOTOQ q9	||
+||	Motorola	||	MOTOMING A1200	||
+||	Motorola	||	FOMA M1000	||
+||	Motorola	||	L6i	||
+||	Motorola	||	SLVR L7	||
+||	Motorola	||	PEBL/V6	||
+||	Motorola	||	V360/V365	||
+||	Motorola	||	RAZR V3x	||
+||	Motorola	||	MOTORAZR V3i	||
+||	Motorola	||	MOTORAZR V3t	||
+||	Motorola	||	MOTOROKR E1	||
+||	Motorola	||	MOTOROKR E2	||
+||	Motorola	||	MOTOROKR E6	||
+||	Motorola	||	MOTORIZR Z3	||
+||	Motorola	||	MOTORIZR Z8	||
+||	Motorola	||	E770	||
+||	Motorola	||	V1100	||
+||	Motorola	||	V361	||
+||	Motorola	||	V8	||
+||	Motorola	||	C975	||
+||	Motorola	||	i580	||
+||	Motorola	||	i605	||
+||	Motorola	||	i516	||
+||	Motorola	||	i870	||
+||	Motorola	||	i880	||
+||	Motorola	||	i875	||
+||	Nokia	||	3230	||
+||	Nokia	||	6021	||
+||	Nokia	||	6230	||
+||	Nokia	||	6230i	||
+||	Nokia	||	6255	||
+||	Nokia	||	6260	||
+||	Nokia	||	6265	||
+||	Nokia	||	6265i	||
+||	Nokia	||	6270	||
+||	Nokia	||	6280	||
+||	Nokia	||	6600	||
+||	Nokia	||	6611	||
+||	Nokia	||	6620	||
+||	Nokia	||	6630	||
+||	Nokia	||	6670	||
+||	Nokia	||	6680	||
+||	Nokia	||	6681	||
+||	Nokia	||	6682DP2	||
+||	Nokia	||	7610	||
+||	Nokia	||	7700	||
+||	Nokia	||	7710	||
+||	Nokia	||	8800	||
+||	Nokia	||	8801	||
+||	Nokia	||	9300	||
+||	Nokia	||	9500	||
+||	Nokia	||	E70	||
+||	Nokia	||	N70	||
+||	Nokia	||	N71	||
+||	Nokia	||	N73	||
+||	Nokia	||	N75	||
+||	Nokia	||	N76	||
+||	Nokia	||	N80	||
+||	Nokia	||	N90	||
+||	Nokia	||	N91	||
+||	Nokia	||	N92	||
+||	Nokia	||	N93	||
+||	Nokia	||	N95	||
+||	Qtek	||	XDAII	||
+||	Panasonic	||	X701	||
+||	Samsung	||	SGH-D720	||
+||	Samsung	||	SGH-D730	||
+||	Samsung	||	SGH-D900	||
+||	Samsung	||	SGH-D908	||
+||	Samsung	||	SGH-E250	||
+||	Samsung	||	SGH-E258	||
+||	Samsung	||	SGH-E380	||
+||	Samsung	||	SGH-E388	||
+||	Samsung	||	SGH-E390	||
+||	Samsung	||	SGH-E500	||
+||	Samsung	||	SGH-E788	||
+||	Samsung	||	SGH-E780	||
+||	Samsung	||	SGH-E898	||
+||	Sendo	||	X	||
+||	Sendo	||	X2	||
+||	Siemens	||	S65	||
+||	Siemens	||	SK65	||
+||	Siemens	||	SL75	||
+||	Siemens	||	SX1	||
+||	Siemens	||	SXG75	||
+||	Sony-Ericsson	||	D750	||
+||	Sony-Ericsson	||	K320	||
+||	Sony-Ericsson	||	K510	||
+||	Sony-Ericsson	||	K600	||
+||	Sony-Ericsson	||	K608	||
+||	Sony-Ericsson	||	K750	||
+||	Sony-Ericsson	||	K790	||
+||	Sony-Ericsson	||	P900	||
+||	Sony-Ericsson	||	P908	||
+||	Sony-Ericsson	||	P910	||
+||	Sony-Ericsson	||	P910a	||
+||	Sony-Ericsson	||	P910c	||
+||	Sony-Ericsson	||	P910i	||
+||	Sony-Ericsson	||	P990	||
+||	Sony-Ericsson	||	V600	||
+||	Sony-Ericsson	||	W300	||
+||	Sony-Ericsson	||	W550	||
+||	Sony-Ericsson	||	W600	||
+||	Sony-Ericsson	||	W610	||
+||	Sony-Ericsson	||	W710	||
+||	Sony-Ericsson	||	W800	||
+||	Sony-Ericsson	||	W810	||
+||	Sony-Ericsson	||	W830	||
+||	Sony-Ericsson	||	W850	||
+||	Sony-Ericsson	||	W900	||
+||	Sony-Ericsson	||	W950	||
+||	Sony-Ericsson	||	V600i	||
+||	Sony-Ericsson	||	Z520	||
+||	Sony-Ericsson	||	Z710	||
+||	Sony-Ericsson	||	X710	||
+||	BenQ	||	P30	||
+||	BenQ	||	P31	||
+||	HTC	||	Himalaya	||
+||	Lenovo	||	P930	||
+||	LG	||	PM 235	||
+||	LG	||	LG 550	||
+
+    N.B. Many Java enabled phones have Bluetooth hardware built in, but do not support the JSR-82 (Bluetooth API).
+
+    Other web resources listening the Java support of different devices:
+    * [http://developers.sun.com/techtopics/mobility/device/device Sun's J2ME Phone List]
+    * [http://www.j2mepolish.org/devices/devices-btapi.html j2mepolish Bluetooth (JSR-82) Supported Devices]
+    * [http://www.forum.nokia.com/ Specs for Nokia Phones]
