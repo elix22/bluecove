@@ -182,12 +182,18 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					Logger.warn("Bluetooth ServiceRecord is null");
 				} else {
 					String initial = BluetoothTypesInfo.toString(record);
+					boolean printAllVersion = true;
+					if (printAllVersion) {
+						Logger.debug("ServiceRecord\n" + initial);
+					}
 					buildServiceRecord(record);
 					try {
 						localDevice.updateRecord(record);
 						Logger.debug("ServiceRecord updated\n" + BluetoothTypesInfo.toString(record));
 					} catch (Throwable e) {
-						Logger.debug("ServiceRecord\n" + initial);
+						if (!printAllVersion) {
+							Logger.debug("ServiceRecord\n" + initial);
+						}
 						Logger.error("Service Record update error", e);
 					}
 				}

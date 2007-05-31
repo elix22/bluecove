@@ -166,12 +166,17 @@ public class TestResponderClient implements Runnable {
 	    	}
 	    }
 	    
-	    private synchronized void cancelInquiry() {
+	    private void cancelInquiry() {
 	    	try {
 	    		if (discoveryAgent != null) {
-	    			discoveryAgent.cancelInquiry(this);
+	    			if (discoveryAgent.cancelInquiry(this)) {
+	    				Logger.debug("Device inquiry was canceled");
+	    			} else {
+	    				Logger.debug("Device inquiry was not canceled");
+	    			}
 	    		}
 			} catch (Throwable e) {
+				Logger.error("Cannot cancel Device inquiry", e);
 			}
 	    }
 	    
@@ -739,10 +744,10 @@ public class TestResponderClient implements Runnable {
 	public void shutdown() {
 		Logger.info("shutdownClient");
 		stoped = true;
-		thread.interrupt();
 		if (bluetoothInquirer != null) {
 			bluetoothInquirer.shutdown();
 		}
+		thread.interrupt();
 	}
 	
 	public static void main(String[] args) {
