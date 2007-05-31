@@ -86,13 +86,15 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar net.sf.bluecove.awt.Main
 ---
 
 
-* This is the test MIDlet. It can run on a cell phone with JSR-82
+* This is the test MIDlet. It can run on a {{{http://code.google.com/p/bluecove/wiki/phones} cell phone with JSR-82}}
 
-   {{{bctest.jad}bctest.jad}}
+    * {{{bctest.jar}bctest.jar}}
 
-   {{{bctest.jar}bctest.jar}}
+    * {{{bctest.jad}bctest.jad}}
 
     You can upload this MIDlet to your cell phone and use it as responter for BlueCove application on PC.
+
+    See {{{http://code.google.com/p/bluecove/wiki/phones}complete list of the JSR-82 compliant phones}}
 
 * Windows Mobile
 
