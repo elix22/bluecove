@@ -184,17 +184,17 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		
 		Menu menuLogs = new Menu("Logs");
 		
-		debugOn = addMenu(menuLogs, "Debug ON", new ActionListener() {
+		debugOn = addMenu(menuLogs, "BlueCove Debug ON", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				boolean dbg = !com.intel.bluetooth.DebugLog.isDebugEnabled();
 				com.intel.bluetooth.DebugLog.setDebugEnabled(dbg);
 				com.intel.bluetooth.BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(dbg);
 				if (dbg) {
-					com.intel.bluetooth.DebugLog.debug("Debug enabled");
-					debugOn.setLabel("Debug OFF");
+					com.intel.bluetooth.DebugLog.debug("BlueCove Debug enabled");
+					debugOn.setLabel("BlueCove Debug OFF");
 				} else {
 					com.intel.bluetooth.DebugLog.debug("Debug disabled");
-					debugOn.setLabel("Debug ON");
+					debugOn.setLabel("BlueCove Debug ON");
 				}
 			}
 		});
@@ -420,6 +420,7 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(f);
+			// we run on Java 1.1
 			p.save(out, "");
 		} catch (FileNotFoundException ignore) {
 		}
