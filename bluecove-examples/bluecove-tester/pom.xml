@@ -188,6 +188,9 @@
                                 <!--replace value="${artifactId}.jar" token="${project.build.finalName}-me.jar" dir="${project.build.directory}/site">
                                     <include name="${artifactId}.jad"></include>
                                 </replace-->
+                                <copy overwrite="true"
+                                    file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${project.build.directory}/site/bluecove-tester.jar"/>
                             </tasks>
                         </configuration>
                     </execution>

@@ -141,7 +141,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
-		Logger.info("class:" + localDevice.getDeviceClass());
+		Logger.info("class:" + BluetoothTypesInfo.toString(localDevice.getDeviceClass()));
 		
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
 		if (!Configuration.windowsCE) {

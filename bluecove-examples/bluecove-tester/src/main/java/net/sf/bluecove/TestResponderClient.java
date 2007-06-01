@@ -101,6 +101,8 @@ public class TestResponderClient implements Runnable {
     
 	public class BluetoothInquirer implements DiscoveryListener {
 	    
+		boolean inquiringDevice;
+		
 		boolean inquiring;
 
 		Vector devices = new Vector();
@@ -128,6 +130,8 @@ public class TestResponderClient implements Runnable {
 		private boolean anyServicesFound = false;
 		
 		public BluetoothInquirer() {
+			inquiringDevice = false;
+			inquiring = false;
 			if (Configuration.searchOnlyBluecoveUuid) {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
 			} else {
@@ -173,7 +177,7 @@ public class TestResponderClient implements Runnable {
 	    		if (discoveryAgent != null) {
 	    			if (discoveryAgent.cancelInquiry(this)) {
 	    				Logger.debug("Device inquiry was canceled");
-	    			} else {
+	    			} else if (inquiringDevice) {
 	    				Logger.debug("Device inquiry was not canceled");
 	    			}
 	    		}
@@ -206,6 +210,7 @@ public class TestResponderClient implements Runnable {
 					try {
 						discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 						discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
+						inquiringDevice = true;
 					} catch (BluetoothStateException e) {
 						Logger.error("Cannot start Device inquiry", e);
 						return false;
@@ -218,6 +223,7 @@ public class TestResponderClient implements Runnable {
 							return false;
 						}
 					}
+					inquiringDevice = false;
 					if (stoped) {
 						return true;
 					}
@@ -238,6 +244,7 @@ public class TestResponderClient implements Runnable {
 				}
 			} finally {
 				inquiring = false;
+				inquiringDevice = false;
 			}
 		}
 	    
@@ -263,7 +270,7 @@ public class TestResponderClient implements Runnable {
 					|| ((Configuration.discoverDevicesPhones && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE))))) {
 				devices.addElement(remoteDevice);
 			} else {
-				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + cod);
+				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + BluetoothTypesInfo.toString(cod));
 				return;
 			}
         	String name = "";
@@ -275,7 +282,7 @@ public class TestResponderClient implements Runnable {
 				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 			}
         	RemoteDeviceInfo.deviceFound(remoteDevice);
-			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + name);
+			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + name + " " + BluetoothTypesInfo.toString(cod));
         }
 
 	    private boolean startServicesSearch() {
@@ -410,7 +417,7 @@ public class TestResponderClient implements Runnable {
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
-		Logger.info("class:" + localDevice.getDeviceClass());
+		Logger.info("class:" + BluetoothTypesInfo.toString(localDevice.getDeviceClass()));
 
 		printProperty("bluetooth.api.version");
 		printProperty("bluetooth.sd.trans.max");
