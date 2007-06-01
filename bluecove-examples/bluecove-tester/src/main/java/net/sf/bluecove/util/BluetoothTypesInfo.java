@@ -153,7 +153,7 @@ public abstract class BluetoothTypesInfo {
 		for (int i = 0; i < ids.length; i++) {
 			sorted.addElement(new Integer(ids[i]));
 		}
-		ConnectionUtils.sort(sorted);
+		CollectionUtils.sort(sorted);
 		StringBuffer buf = new StringBuffer();
 		for (Enumeration en = sorted.elements(); en.hasMoreElements();) {
 			int id = ((Integer)en.nextElement()).intValue();

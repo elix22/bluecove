@@ -39,6 +39,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.IOUtils;
 
 import junit.framework.Assert;
 

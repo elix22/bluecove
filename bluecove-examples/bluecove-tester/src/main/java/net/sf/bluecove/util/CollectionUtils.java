@@ -23,7 +23,7 @@ package net.sf.bluecove.util;
 
 import java.util.Vector;
 
-public class ConnectionUtils {
+public class CollectionUtils {
 	
 	public static interface IsComparable {
 		 

@@ -59,7 +59,7 @@ import com.intel.bluetooth.BlueCoveImpl;
  * @author vlads
  *
  */
-public class Main extends Frame implements LoggerAppender, Storage, com.intel.bluetooth.DebugLog.LoggerAppender {
+public class Main extends Frame implements LoggerAppender, Storage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -70,6 +70,8 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 	int lastKeyCode;
 	
 	MenuItem debugOn;
+	
+	Object blueCoveLoggerAppender;
 
 	public static void main(String[] args) {
 		//System.setProperty("bluecove.debug", "true");
@@ -106,7 +108,7 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		});
 		
 		Logger.addAppender(this);
-		com.intel.bluetooth.DebugLog.addAppender(this);
+		BlueCoveSpecific.addAppender(this);
 		
 		Logger.debug("Stating app");
 		
@@ -186,14 +188,10 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		
 		debugOn = addMenu(menuLogs, "BlueCove Debug ON", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				boolean dbg = !com.intel.bluetooth.DebugLog.isDebugEnabled();
-				com.intel.bluetooth.DebugLog.setDebugEnabled(dbg);
-				com.intel.bluetooth.BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(dbg);
+				boolean dbg = BlueCoveSpecific.changeDebug();
 				if (dbg) {
-					com.intel.bluetooth.DebugLog.debug("BlueCove Debug enabled");
 					debugOn.setLabel("BlueCove Debug OFF");
 				} else {
-					com.intel.bluetooth.DebugLog.debug("Debug disabled");
 					debugOn.setLabel("BlueCove Debug ON");
 				}
 			}
@@ -340,7 +338,7 @@ public class Main extends Frame implements LoggerAppender, Storage, com.intel.bl
 		Switcher.serverShutdownOnExit();
 		
 		Logger.removeAppender(this);
-		com.intel.bluetooth.DebugLog.removeAppender(this);
+		BlueCoveSpecific.removeAppender();
 		
 		//this.dispose();
 		System.exit(0);

@@ -18,7 +18,7 @@
  *
  *  @version $Id$
  */ 
-package net.sf.bluecove;
+package net.sf.bluecove.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -1,7 +1,7 @@
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
- * 
+ *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -17,52 +17,37 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
-package net.sf.bluecove;
+ */
+package net.sf.bluecove.awt;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.microedition.io.StreamConnection;
-
-import net.sf.bluecove.util.IOUtils;
+import net.sf.bluecove.Logger.LoggerAppender;
 
 /**
+ * Enables indirect connection to BlueCove if one present
+ * 
  * @author vlads
- *
  */
-public class StreamConnectionTimeOut implements CanShutdown {
+public class BlueCoveSpecific {
 
-	StreamConnection conn = null;
-	
-	InputStream is = null;
-	
-	OutputStream os = null;
-	
-	
-	long lastActivityTime;
-	
-	StreamConnectionTimeOut() {
-		active();
+	public static void addAppender(LoggerAppender appender) {
+		try {
+			new BlueCoveLoggerAppender(appender);
+		} catch (Throwable ignore) {
+		}
 	}
 	
-	StreamConnectionTimeOut(StreamConnection conn) {
-		this();
-		this.conn = conn;
+	public static boolean changeDebug() {
+		try {
+			return changeDebug();
+		} catch (Throwable ignore) {
+			return false;
+		}
 	}
 	
-	public void active() {
-		lastActivityTime = System.currentTimeMillis();
+	public static void removeAppender() {
+		try {
+			BlueCoveLoggerAppender.removeAppender();
+		} catch (Throwable ignore) {
+		}
 	}
-	
-	public long lastActivityTime() {
-		return lastActivityTime;
-	}
-
-	public void shutdown() {
-		IOUtils.closeQuietly(os);
-		IOUtils.closeQuietly(is);
-		IOUtils.closeQuietly(conn);
-	}
-
 }
