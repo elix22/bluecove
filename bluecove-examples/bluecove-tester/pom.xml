@@ -79,6 +79,7 @@
             <plugin>
                 <groupId>com.pyx4me</groupId>
                 <artifactId>j2me-maven-plugin</artifactId>
+                <version>2.0.2-SNAPSHOT</version>
                 <executions>
                    <execution>
                         <goals>
@@ -94,6 +95,7 @@
                     <jarfile>${mainjarname}</jarfile>
                     <jadfile>${mainjarname}</jadfile>
                     <!--proguardInclude>${basedir}/proguard.conf</proguardInclude-->
+                    <inFilter>!net/sf/bluecove/awt/**</inFilter>
                     <jadAttributes>
                         <!--FlipInsensitive>true</FlipInsensitive-->
                         <MIDlet-Permissions>javax.microedition.io.Connector.bluetooth.client,javax.microedition.io.Connector.bluetooth.server</MIDlet-Permissions>

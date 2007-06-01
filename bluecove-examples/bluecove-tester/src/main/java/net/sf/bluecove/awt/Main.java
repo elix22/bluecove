@@ -44,7 +44,6 @@ import java.util.Properties;
 import javax.bluetooth.LocalDevice;
 
 import net.sf.bluecove.Configuration;
-import net.sf.bluecove.JavaSECommon;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.RemoteDeviceInfo;
 import net.sf.bluecove.Storage;

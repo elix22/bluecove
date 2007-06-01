@@ -18,16 +18,27 @@
  *
  *  @version $Id$
  */ 
-package net.sf.bluecove;
+package net.sf.bluecove.awt;
 
-import net.sf.bluecove.Logger.LoggerAppender;
+import net.sf.bluecove.Configuration;
+import net.sf.bluecove.Logger;
 
-public class LoggerJavaSEAppender implements LoggerAppender {
+public class JavaSECommon {
 
-	public void appendLog(int level, String message, Throwable throwable) {
-		if (throwable!= null) {
-			throwable.printStackTrace(System.out);
+	private static boolean initialized = false;
+	
+	public static void initOnce() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
+		Logger.addAppender(new LoggerJavaSEAppender());
+
+		//System.getProperties().put("bluecove.debug", "true");
+		//System.getProperties().put("bluecove.native.path", "../../bluecove/target/obj");
+		
+		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
+			Configuration.serverAcceptWhileConnected = true;
 		}
 	}
-
 }
