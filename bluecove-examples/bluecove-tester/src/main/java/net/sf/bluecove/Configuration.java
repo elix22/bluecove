@@ -114,40 +114,46 @@ public class Configuration {
 
     static {
 		testDeviceNames = new Hashtable();
-		// This is the list of my test devices with names for My convenience
-		testDeviceNames.put("00E003506231", "Nokia D1");
-		testDeviceNames.put("00E0035046C1", "Nokia D2");
-		testDeviceNames.put("0015A8DDF300", "Moto M1 v360");
-		testDeviceNames.put("0050F2E8D4A6", "Desk MS");
-		testDeviceNames.put("000D3AA5E36C", "Lapt MS");
-		testDeviceNames.put("0020E027CE32", "Lapt WC");
-		testDeviceNames.put("000B0D4AECDE", "Desk WC");
+		
+		boolean testOnlyOneDevice = false;
+		if (testOnlyOneDevice) {
+			discoverOnlyTestDevices = true;
+			testDeviceNames.put("0020E027CE32", "Lapt WC");
+		} else {
 
-        testDeviceNames.put("0017841C5A8F", "Moto L7");
-        testDeviceNames.put("00123755AE71", "N 6265i (t)");
-        testDeviceNames.put("0013706C93D3", "N 6682 (r)");
-        testDeviceNames.put("0017005354DB", "M i870 (t)");
-        testDeviceNames.put("001700F07CF2", "M i605 (t)");
+			// This is the list of my test devices with names for My convenience
+			testDeviceNames.put("00E003506231", "Nokia D1");
+			testDeviceNames.put("00E0035046C1", "Nokia D2");
+			testDeviceNames.put("0015A8DDF300", "Moto M1 v360");
+			testDeviceNames.put("0050F2E8D4A6", "Desk MS");
+			testDeviceNames.put("000D3AA5E36C", "Lapt MS");
+			testDeviceNames.put("0020E027CE32", "Lapt WC");
+			testDeviceNames.put("000B0D4AECDE", "Desk WC");
 
-        testDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
+			testDeviceNames.put("0017841C5A8F", "Moto L7");
+			testDeviceNames.put("00123755AE71", "N 6265i (t)");
+			testDeviceNames.put("0013706C93D3", "N 6682 (r)");
+			testDeviceNames.put("0017005354DB", "M i870 (t)");
+			testDeviceNames.put("001700F07CF2", "M i605 (t)");
 
-        testDeviceNames.put("001ADBBFCA67", "Mi880(t-b)");
-        testDeviceNames.put("0019639C4007", "SE K790(r)");
-        testDeviceNames.put("001ADBBFCEED", "Mi880(t-m)");
+			testDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
 
-        testDeviceNames.put("00149ABD52E7", "M V551 A");
-        testDeviceNames.put("00149ABD538D", "M V551 N");
-        testDeviceNames.put("0007E05387E5", "Palm");
-        testDeviceNames.put("0010C65C08A3", "AximX30");
-        testDeviceNames.put("00022B001234", "MPx220");
+			testDeviceNames.put("001ADBBFCA67", "Mi880(t-b)");
+			testDeviceNames.put("0019639C4007", "SE K790(r)");
+			testDeviceNames.put("001ADBBFCEED", "Mi880(t-m)");
 
-        if (deviceClassFilter) {
-        testDeviceNames.put("000B0D1796FC", "GPS");
-        testDeviceNames.put("000D3AA4F7F9", "My Keyboard");
-        testDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
-        }
-        testDeviceNames.put("0020E03AC5B2", "bob1");
-        testDeviceNames.put("000D88C03ACA", "bob2");
+			testDeviceNames.put("00149ABD52E7", "M V551 A");
+			testDeviceNames.put("00149ABD538D", "M V551 N");
+			testDeviceNames.put("0007E05387E5", "Palm");
+			testDeviceNames.put("0010C65C08A3", "AximX30");
+			testDeviceNames.put("00022B001234", "MPx220");
+
+			if (deviceClassFilter) {
+				testDeviceNames.put("000B0D1796FC", "GPS");
+				testDeviceNames.put("000D3AA4F7F9", "My Keyboard");
+				testDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
+			}
+		}
 
         String sysName = System.getProperty("os.name");
         if (sysName != null) {

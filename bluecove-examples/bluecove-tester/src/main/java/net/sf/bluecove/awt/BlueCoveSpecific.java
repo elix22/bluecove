@@ -23,7 +23,7 @@ package net.sf.bluecove.awt;
 import net.sf.bluecove.Logger.LoggerAppender;
 
 /**
- * Enables indirect connection to BlueCove if one present
+ * Enables indirect connection to BlueCove internals if one present
  * 
  * @author vlads
  */
@@ -38,7 +38,7 @@ public class BlueCoveSpecific {
 	
 	public static boolean changeDebug() {
 		try {
-			return changeDebug();
+			return BlueCoveLoggerAppender.changeDebug();
 		} catch (Throwable ignore) {
 			return false;
 		}

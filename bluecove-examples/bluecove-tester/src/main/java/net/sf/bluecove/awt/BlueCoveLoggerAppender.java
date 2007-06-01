@@ -20,6 +20,8 @@
  */
 package net.sf.bluecove.awt;
 
+import com.intel.bluetooth.DebugLog;
+
 import net.sf.bluecove.Logger.LoggerAppender;
 
 class BlueCoveLoggerAppender implements com.intel.bluetooth.DebugLog.LoggerAppender {
@@ -30,7 +32,7 @@ class BlueCoveLoggerAppender implements com.intel.bluetooth.DebugLog.LoggerAppen
 	
 	public BlueCoveLoggerAppender(LoggerAppender appender) {
 		this.appender = appender;
-		com.intel.bluetooth.DebugLog.addAppender(this);
+		DebugLog.addAppender(this);
 		blueCoveLoggerAppender = this;
 	}
 	
@@ -39,17 +41,17 @@ class BlueCoveLoggerAppender implements com.intel.bluetooth.DebugLog.LoggerAppen
 	}
 	
 	public static void removeAppender() {
-		com.intel.bluetooth.DebugLog.removeAppender((BlueCoveLoggerAppender)blueCoveLoggerAppender);
+		DebugLog.removeAppender((BlueCoveLoggerAppender)blueCoveLoggerAppender);
 	}
 	
 	public static boolean changeDebug() {
 		boolean dbg = !com.intel.bluetooth.DebugLog.isDebugEnabled();
-		com.intel.bluetooth.DebugLog.setDebugEnabled(dbg);
-		com.intel.bluetooth.BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(dbg);
+		if (!dbg) {
+			DebugLog.debug("BlueCove Disable debug");
+		}
+		DebugLog.setDebugEnabled(dbg);
 		if (dbg) {
-			com.intel.bluetooth.DebugLog.debug("BlueCove Debug enabled");
-		} else {
-			com.intel.bluetooth.DebugLog.debug("Debug disabled");
+			DebugLog.debug("BlueCove Debug enabled");
 		}
 		return dbg;
 	}

@@ -160,7 +160,7 @@ public abstract class BluetoothTypesInfo {
 			int id = ((Integer)en.nextElement()).intValue();
 			buf.append(toHexString(id));
 			buf.append(" ");
-			buf.append(toStringServiceSttributeID(id));
+			buf.append(toStringServiceAttributeID(id));
 			buf.append(":  ");
 
 			DataElement d = sr.getAttributeValue(id);
@@ -170,7 +170,7 @@ public abstract class BluetoothTypesInfo {
 		return buf.toString();
 	}
 
-	public static String toStringServiceSttributeID(int id) {
+	public static String toStringServiceAttributeID(int id) {
 		switch (id) {
 		case 0x0000:
 			return "ServiceRecordHandle";

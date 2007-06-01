@@ -338,10 +338,14 @@ public class TestResponderClient implements Runnable {
 					}
 		        }	
 				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, Logger.since(start));
-				String msg = (anyServicesFound)?"; service found":"; no services";
-				Logger.debug("  Services Search " + transID + " took " + Logger.secSince(start) + msg);
+				String msg = (anyServicesFound)?"; service(s) found":"; no services";
+				Logger.debug(" Services Search " + transID + " took " + Logger.secSince(start) + msg);
 			}
-	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart));
+	        String msg = "";
+	        if (serverURLs.size() > 0) {
+	        	msg = "; BC Srv(s) " + serverURLs.size(); 
+	        }
+	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart) + msg);
 	        return true;
 	    }
 
@@ -354,7 +358,7 @@ public class TestResponderClient implements Runnable {
 				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 				Logger.info("*found server " + url);
 				if (discoveryOnce) {
-					Logger.debug("ServiceRecord\n" + BluetoothTypesInfo.toString(servRecord[i]));
+					Logger.debug("ServiceRecord "  + (i+1) + "/" + servRecord.length + "\n" + BluetoothTypesInfo.toString(servRecord[i]));
 				}
 				if (url == null) {
 					// Bogus service Record
