@@ -71,19 +71,27 @@ Server failure 0
 
         * <<<{{{awt-bctest-bluesoleil.jnlp}\u00bbStart with IVT BlueSoleil}}>>>
 
-    If for some reason Java Web Start is not working for you. Try donwload this {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
+    If for some reason Java Web Start is not working for you. Try download this {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
 
     Run it like this:
 
 ---
-java -jar bluecove-tester.jar
+java -jar bluecove-tester-app.jar
 ---
 
     To test JSR-82 implemenation other then BlueCove e.g. avetana. Run test application like this:
 
 ---
-java -cp avetanaBluetooth.jar;bluecove-tester.jar net.sf.bluecove.awt.Main
+java -cp avetanaBluetooth.jar;bluecove-tester-app.jar net.sf.bluecove.awt.Main
 ---
+
+    You can download the {{{bluecove-tester.jar}bluecove-tester.jar}} application jar and run it without bluecove JSR-82 in calsspath.
+
+---
+java -cp ElectricBlue.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.awt.Main
+---
+
+    bluecove-tester-app.jar is the same application as bluecove-tester.jar only junit and bluecove classes are included.
 
 
 * This is the test MIDlet. It can run on a {{{http://code.google.com/p/bluecove/wiki/phones} cell phone with JSR-82}}
@@ -107,7 +115,7 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar net.sf.bluecove.awt.Main
    Start application like this:
 
 ---
-"\Storage Card\Mysaifu JVM\jre\bin\jvm.exe" -jar "\bluecove\bluecove-tester.jar"
+"\Storage Card\Mysaifu JVM\jre\bin\jvm.exe" -jar "\bluecove\bluecove-tester-app.jar"
 ---
 
     We tried IBM's J9 VM  and NSICOM's CrEme JVM and BlueCove works there.
