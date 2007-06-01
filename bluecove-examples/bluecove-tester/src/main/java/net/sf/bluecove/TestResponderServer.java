@@ -36,6 +36,7 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.IOUtils;
+import net.sf.bluecove.util.StringUtils;
 
 import junit.framework.Assert;
 
@@ -146,7 +147,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		if (!Configuration.windowsCE) {
 			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
 		}
-		if (LocalDevice.getProperty("bluecove") != null) {
+		if (StringUtils.isStringSet(LocalDevice.getProperty("bluecove"))) {
 			Configuration.isBlueCove = true;
 		}
 		Configuration.stackWIDCOMM = "WIDCOMM".equalsIgnoreCase(LocalDevice.getProperty("bluecove.stack"));

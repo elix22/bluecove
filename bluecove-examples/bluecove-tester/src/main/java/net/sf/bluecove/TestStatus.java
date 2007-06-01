@@ -32,6 +32,8 @@ public class TestStatus {
 	
 	boolean isSuccess = false;
 	
+	String pairBTAddress;
+	
 	public TestStatus() {
 		setName("");
 	}

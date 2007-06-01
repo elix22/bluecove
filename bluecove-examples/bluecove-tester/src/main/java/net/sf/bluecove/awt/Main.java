@@ -52,6 +52,7 @@ import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestResponderClient;
 import net.sf.bluecove.TestResponderServer;
 import net.sf.bluecove.Logger.LoggerAppender;
+import net.sf.bluecove.util.StringUtils;
 
 import com.intel.bluetooth.BlueCoveImpl;
 
@@ -246,10 +247,15 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	}
 	
 	private void updateTitle() {
-		String title ="BlueCove tester";
+		String title = "BlueCove tester";
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
-		if (bluecoveVersion != null) {
-			title += " on " + LocalDevice.getProperty("bluecove.stack");
+		if (StringUtils.isStringSet(bluecoveVersion)) {
+			String stack = LocalDevice.getProperty("bluecove.stack");
+			if (StringUtils.isStringSet(stack)) {
+				title += " on [" + stack + "]";
+			} else {
+				title += bluecoveVersion; 
+			}
 		}
 		this.setTitle(title);
 	}

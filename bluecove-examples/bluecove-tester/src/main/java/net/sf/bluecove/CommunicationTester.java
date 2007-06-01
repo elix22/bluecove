@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 import javax.microedition.io.StreamConnection;
@@ -48,7 +49,7 @@ public class CommunicationTester implements Consts {
 	
 	private static final byte[] byteAray = new byte[] {1 , 7, -40, 80, 90, -1, 126, 100, 87, -10, 127, 31, -127, 0, -77};  
 	
-	private static final int streamAvailableByteCount = 147;
+	private static final byte streamAvailableByteCount = 126;
 	
 	private static final int byteArayLargeSize = 0x2010; // More then 8K
 	
@@ -87,17 +88,29 @@ public class CommunicationTester implements Consts {
 	static void sendByte(OutputStream os) throws IOException {
 		os.write(aKnowndPositiveByte);
 		os.write(aKnowndNegativeByte);
+		
+		// Test int conversions
+		int bp = aKnowndPositiveByte;
+		os.write(bp);
+		int bn = aKnowndNegativeByte;
+		os.write(bn);
+		
 		for(int i = 1; i < byteCount; i++) {
 			os.write((byte)i);
 		}
 		for(int i = 0; i < byteAray.length; i++) {
 			os.write(byteAray[i]);
 		}
+		// The byte to be written is the eight low-order bits of the argument b.
+		os.write(0xABC);
+		os.write(aKnowndPositiveByte);
 	}
 	
 	static void readByte(InputStream is) throws IOException {
 		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte)is.read());
 		Assert.assertEquals("negativeByte", aKnowndNegativeByte, (byte)is.read());
+		Assert.assertEquals("positiveByte written(int)", aKnowndPositiveByte, (byte)is.read());
+		Assert.assertEquals("negativeByte written(int)", aKnowndNegativeByte, (byte)is.read());
 		for(int i = 1; i < byteCount; i++) {
 			byte got = (byte)is.read();
 			Assert.assertEquals("t1, byte [" + i + "]", (byte)i, got);
@@ -106,6 +119,9 @@ public class CommunicationTester implements Consts {
 			byte got = (byte)is.read();
 			Assert.assertEquals("t2, byte [" + i + "]", byteAray[i], got);
 		}
+		int abc = is.read();
+		Assert.assertEquals("written(0xABC)", 0xBC, abc);
+		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte)is.read());
 	}
 
 	static void sendByteAray(OutputStream os) throws IOException {
@@ -129,6 +145,11 @@ public class CommunicationTester implements Consts {
 		dos.writeBoolean(true);
 		dos.writeBoolean(false);
 		dos.writeChar('O');
+		dos.writeShort(541);
+		dos.writeFloat((float)3.14159); 
+		dos.writeDouble(Math.E); 
+		dos.writeByte(aKnowndPositiveByte);
+		dos.writeByte(aKnowndNegativeByte);
 		if (dataOutputStreamFlush) {
 			dos.flush();
 		}
@@ -143,6 +164,11 @@ public class CommunicationTester implements Consts {
 		Assert.assertEquals("ReadBoolean", true, dis.readBoolean());
 		Assert.assertEquals("ReadBoolean2", false, dis.readBoolean());
 		Assert.assertEquals("ReadChar", 'O', dis.readChar());
+		Assert.assertEquals("readShort", 541, dis.readShort());
+		Assert.assertEquals("readFloat", (float)3.14159, dis.readFloat(), (float)0.0000001);
+		Assert.assertEquals("readDouble", Math.E, dis.readDouble(), 0.0000000000000001);
+		Assert.assertEquals("positiveByte", aKnowndPositiveByte, dis.readByte());
+		Assert.assertEquals("negativeByte", aKnowndNegativeByte, dis.readByte());
 	}
 	
 	private static void sendStreamAvailable(InputStream is, OutputStream os) throws IOException {
@@ -154,8 +180,8 @@ public class CommunicationTester implements Consts {
 		}
 		// Long test need conformation
 		os.flush();
-		int got = is.read();
-		Assert.assertEquals("byte", 255 & streamAvailableByteCount, got);
+		byte got = (byte)is.read();
+		Assert.assertEquals("byte", streamAvailableByteCount, got);
 	}
 
 	private static void readStreamAvailable(InputStream is, OutputStream os) throws IOException {
@@ -182,8 +208,8 @@ public class CommunicationTester implements Consts {
 				}
 			}
 			
-			int got = is.read();
-			Assert.assertEquals("byte[" + i + "]", 255 & i, got);
+			byte got = (byte)is.read();
+			Assert.assertEquals("byte[" + i + "]", i, got);
 			available --;
 		}
 		os.write(streamAvailableByteCount);
@@ -281,6 +307,24 @@ public class CommunicationTester implements Consts {
 		}
 	}
 	
+	private static void serverRemoteDevice(StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+		RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
+		Logger.debug("is connected to BTAddress " + device.getBluetoothAddress());
+		DataInputStream dis = new DataInputStream(is);
+		String gotBluetoothAddress = dis.readUTF();
+		Assert.assertEquals("PairBTAddress", gotBluetoothAddress.toUpperCase(), device.getBluetoothAddress().toUpperCase());
+	}
+	
+	private static void clientRemoteDevice(StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+		RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
+		Logger.debug("is connected toBTAddress " + device.getBluetoothAddress());
+		DataOutputStream dos = new DataOutputStream(os);
+		dos.writeUTF(LocalDevice.getLocalDevice().getBluetoothAddress());
+		if (dataOutputStreamFlush) {
+			dos.flush();
+		}
+		Assert.assertEquals("PairBTAddress", testStatus.pairBTAddress.toUpperCase(), device.getBluetoothAddress().toUpperCase());
+	}
 	
 	static void sendByteArayLarge(OutputStream os) throws IOException {
 		byte[] byteArayLarge = new byte[byteArayLargeSize];
@@ -437,8 +481,11 @@ public class CommunicationTester implements Consts {
 			break;
 		case TEST_CONNECTION_INFO:
 			testStatus.setName("TEST_CONNECTION_INFO");
-			RemoteDevice device =	RemoteDevice.getRemoteDevice(conn);
-			Logger.debug("Connected to " + device.getBluetoothAddress());
+			if (server) {
+				CommunicationTester.serverRemoteDevice(conn, is, os, testStatus);
+			} else {
+				CommunicationTester.clientRemoteDevice(conn, is, os, testStatus);
+			}
 			break;
 		case TEST_CLOSED_CONNECTION:
 			testStatus.setName("CLOSED_CONNECTION");

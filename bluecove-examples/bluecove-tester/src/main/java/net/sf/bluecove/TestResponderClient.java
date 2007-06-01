@@ -40,6 +40,7 @@ import javax.microedition.io.StreamConnection;
 
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.IOUtils;
+import net.sf.bluecove.util.StringUtils;
 
 import junit.framework.Assert;
 
@@ -257,21 +258,24 @@ public class TestResponderClient implements Runnable {
         	if (Configuration.discoverOnlyTestDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
         		return;
         	}
-        	if ((Configuration.discoverDevicesComputers && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER)) 
-        			|| ((Configuration.discoverDevicesPhones && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE)))) {
-	        	devices.addElement(remoteDevice);				
+        	if ((!Configuration.deviceClassFilter)
+				 || ((Configuration.discoverDevicesComputers && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER)) 
+					|| ((Configuration.discoverDevicesPhones && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE))))) {
+				devices.addElement(remoteDevice);
 			} else {
 				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + cod);
 				return;
 			}
-//        	String name = null;
-//        	try {
-//        		name = remoteDevice.getFriendlyName(false);
-//			} catch (IOException e) {
-//				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
-//			}
+        	String name = "";
+        	try {
+        		if (Configuration.discoveryGetDeviceFriendlyName || Configuration.isBlueCove) {
+        			name = " [" + remoteDevice.getFriendlyName(false) + "]";
+        		}
+			} catch (IOException e) {
+				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
+			}
         	RemoteDeviceInfo.deviceFound(remoteDevice);
-			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()));
+			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + name);
         }
 
 	    private boolean startServicesSearch() {
@@ -417,7 +421,7 @@ public class TestResponderClient implements Runnable {
 		printProperty("bluetooth.connected.inquiry");
 		
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
-		if (bluecoveVersion != null) {
+		if (StringUtils.isStringSet(bluecoveVersion)) {
 			Configuration.isBlueCove = true;
 			
 			Logger.info("bluecove:" + bluecoveVersion);
@@ -477,17 +481,19 @@ public class TestResponderClient implements Runnable {
 	}
 	
 	public void connectAndTest(String serverURL) {
-		String deviceName = niceDeviceName(extractBluetoothAddress(serverURL));
+		String deviceAddress = extractBluetoothAddress(serverURL);
+		String deviceName = niceDeviceName(deviceAddress);
 		long start = System.currentTimeMillis();
 		Logger.debug("connect:" + deviceName + " " + serverURL);
 		for(int testType = Configuration.TEST_START; (!stoped) && (runStressTest || testType <= Configuration.TEST_LAST); testType ++) {
 			StreamConnectionTimeOut c = new StreamConnectionTimeOut();
 			TestStatus testStatus = new TestStatus();
+			testStatus.pairBTAddress = deviceAddress;
 			TestTimeOutMonitor monitor = null;
 			boolean connectedConnectionsInc = false;
 			try {
 				if (!runStressTest) {
-					Logger.debug("test " + testType + " connects");
+					Logger.debug("test #" + testType + " connects");
 				} else {
 					testType = Configuration.STERSS_TEST_CASE;	
 				}
@@ -521,7 +527,7 @@ public class TestResponderClient implements Runnable {
 				c.active();
 				monitor = new TestTimeOutMonitor("test" + testType, c, 2);
 				if (!runStressTest) {
-					Logger.debug("test run:" + testType);
+					Logger.debug("run test #" + testType);
 				} else {
 					Logger.debug("connected:" + connectionCount);
 					if (connectionCount % 5 == 0) {
@@ -540,7 +546,7 @@ public class TestResponderClient implements Runnable {
 
 				if (testStatus.isSuccess) {
 					countSuccess++;
-					Logger.debug("test " + testType + " " + testStatus.getName() + ": OK");
+					Logger.debug("test #" + testType + " " + testStatus.getName() + ": OK");
 				} else if (testStatus.streamClosed) {
 					Logger.debug("see server log");
 				} else {
@@ -551,7 +557,7 @@ public class TestResponderClient implements Runnable {
 					int conformTestType = c.is.read();
 					Assert.assertEquals("Test reply conform", testType, conformTestType);
 					countSuccess++;
-					Logger.debug("test " + testType + " " + testStatus.getName() + ": OK");
+					Logger.debug("test #" + testType + " " + testStatus.getName() + ": OK");
 				}
 				if (connectionCount % 5 == 0) {
 					Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
@@ -571,8 +577,8 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 			} catch (Throwable e) {
-				failure.addFailure(deviceName + " test " + testType  + " " + testStatus.getName(), e);
-				Logger.error(deviceName + " test " + testType + " " + testStatus.getName(), e);
+				failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName(), e);
+				Logger.error(deviceName + " test #" + testType + " " + testStatus.getName(), e);
 			} finally {
 				if (connectedConnectionsInc) {
 					connectedConnections --;

@@ -33,6 +33,8 @@ import java.util.Hashtable;
  */
 public class Configuration {
 
+	public static boolean deviceClassFilter = true;
+	
 	public static boolean discoverDevicesComputers = true;
 
 	public static boolean discoverDevicesPhones = true;
@@ -139,9 +141,11 @@ public class Configuration {
         testDeviceNames.put("0010C65C08A3", "AximX30");
         testDeviceNames.put("00022B001234", "MPx220");
 
+        if (deviceClassFilter) {
         testDeviceNames.put("000B0D1796FC", "GPS");
         testDeviceNames.put("000D3AA4F7F9", "My Keyboard");
         testDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
+        }
         testDeviceNames.put("0020E03AC5B2", "bob1");
         testDeviceNames.put("000D88C03ACA", "bob2");
 
