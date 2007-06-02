@@ -198,7 +198,7 @@ public class TestResponderClient implements Runnable {
 	    }
 	    
 	    public boolean runDeviceInquiry() {
-			boolean needToFindDevice = Configuration.continuousDiscoveryDevices
+			boolean needToFindDevice = Configuration.clientContinuousDiscoveryDevices
 					|| ((devices.size() == 0) && (serverURLs.size() == 0));
 			try {
 				if (useDiscoveredDevices) {
@@ -233,7 +233,7 @@ public class TestResponderClient implements Runnable {
 					RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
 				}
 
-				if (Configuration.continuousDiscoveryService || serverURLs.size() == 0) {
+				if (Configuration.clientContinuousDiscoveryService || serverURLs.size() == 0) {
 					serverURLs.removeAllElements();
 					try {
 						return startServicesSearch();
@@ -653,7 +653,7 @@ public class TestResponderClient implements Runnable {
 	}
 	
 	private void connectAndTest(int numberOfURLs, Enumeration urls) {
-		if ((!Configuration.testConnectionsMultipleThreads) || (numberOfURLs == 1)) {
+		if ((!Configuration.clientTestConnectionsMultipleThreads) || (numberOfURLs == 1)) {
 			connectedConnectionsExpect = 1;
 			connectedConnectionsInfo = 1;
 			for (; urls.hasMoreElements();) {
@@ -704,7 +704,7 @@ public class TestResponderClient implements Runnable {
 			}
 			
 			while (!stoped) {
-				if ((!bluetoothInquirer.hasServers()) || (Configuration.continuousDiscovery && (connectURL == null)) || (!Configuration.testConnections) ) {
+				if ((!bluetoothInquirer.hasServers()) || (Configuration.clientContinuousDiscovery && (connectURL == null)) || (!Configuration.clientTestConnections) ) {
 					if (!bluetoothInquirer.runDeviceInquiry()) {
 						startTry ++;
 						try {
@@ -727,7 +727,7 @@ public class TestResponderClient implements Runnable {
 						}
 					}
 				}
-				if ((Configuration.testConnections) && (bluetoothInquirer.hasServers())) {
+				if ((Configuration.clientTestConnections) && (bluetoothInquirer.hasServers())) {
 					discoveryDryCount = 0;
 					discoverySuccessCount ++;
 					lastSuccessfulDiscovery = System.currentTimeMillis();

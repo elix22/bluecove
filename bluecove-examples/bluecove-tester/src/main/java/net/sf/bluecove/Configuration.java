@@ -62,16 +62,16 @@ public class Configuration {
 
 	public static boolean continuous = true;
 
-	public static boolean continuousDiscovery = true;
+	public static boolean clientContinuousDiscovery = true;
 	
-	public static boolean continuousDiscoveryDevices = true;
+	public static boolean clientContinuousDiscoveryDevices = true;
 
-	public static boolean continuousDiscoveryService = true;
+	public static boolean clientContinuousDiscoveryService = true;
 	
-	public static boolean testConnections = true;
+	public static boolean clientTestConnections = true;
 
 	// This test concurrrent connections if you have Multiple servers running.
-	public static boolean testConnectionsMultipleThreads = true;
+	public static boolean clientTestConnectionsMultipleThreads = true;
 
 	public static boolean testServiceAttributes = true;
 
