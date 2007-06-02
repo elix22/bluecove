@@ -24,6 +24,8 @@ import java.util.Hashtable;
 
 import javax.bluetooth.RemoteDevice;
 
+import net.sf.bluecove.util.TimeStatistic;
+
 /**
  * @author vlads
  *

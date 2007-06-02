@@ -46,11 +46,11 @@ import javax.bluetooth.LocalDevice;
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.RemoteDeviceInfo;
-import net.sf.bluecove.Storage;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestResponderClient;
 import net.sf.bluecove.TestResponderServer;
 import net.sf.bluecove.Logger.LoggerAppender;
+import net.sf.bluecove.util.Storage;
 import net.sf.bluecove.util.StringUtils;
 
 import com.intel.bluetooth.BlueCoveImpl;
@@ -165,15 +165,12 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		});
 		
-		String lastURL = retriveData("lastURL");
-		if (lastURL != null) {
-			addMenu(menuBluetooth, "Client Last service Start", new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					Switcher.startClient(retriveData("lastURL"));
-					updateTitle();
-				}
-			});
-		}
+		addMenu(menuBluetooth, "Client Last service Start", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Switcher.startClientLastURl();
+				updateTitle();
+			}
+		});
 		
 		addMenu(menuBluetooth, "Quit", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -264,6 +261,9 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		TestResponderClient.failure.writeToLog();
 		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
 		TestResponderServer.failure.writeToLog();
+		
+		Logger.debug("avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
+		Logger.debug("avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
 	}
 	
 	private void clearStats() {

@@ -249,10 +249,19 @@ public class Switcher implements Runnable {
 		}
 	}
 
-	public static void startClient(String url) {
-		startClient();
-		if (client != null) {
-			client.connectURL = url;
+	public static void startClientLastURl() {
+		if (Configuration.storage == null) {
+			Logger.warn("no storage");
+			return;
+		}
+		String lastURL = Configuration.storage.retriveData("lastURL");
+		if (lastURL != null) {
+			startClient();
+			if (client != null) {
+				client.connectURL = lastURL;
+			}
+		} else {
+			Logger.warn("no recent Connections");
 		}
 	}
 	

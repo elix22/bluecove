@@ -22,6 +22,8 @@ package net.sf.bluecove;
 
 import java.util.Hashtable;
 
+import net.sf.bluecove.util.Storage;
+
 /**
  * 
  * This define different cleint and server work parterns to identify problem in native code.

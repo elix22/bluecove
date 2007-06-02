@@ -17,17 +17,50 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */
-package net.sf.bluecove;
+ */ 
+package net.sf.bluecove.util;
 
 /**
  * @author vlads
  *
  */
-public interface Storage {
+public class TimeStatistic {
 
-	void storeData(String name, String value);
+	public long count;
 	
-	String retriveData(String name);
-			
+	public long durationMax;
+	
+	public long durationTotal;
+
+	public void clear() {
+		count = 0;
+		durationMax = 0;
+		durationTotal = 0;
+	}
+	
+	public void add(long duration) {
+		count ++;
+		durationTotal += duration;
+		if (duration > durationMax) {
+			durationMax = duration;
+		}
+	}
+	
+	public long avgSec() {
+		if (count == 0) {
+			return 0;
+		}
+		return (durationTotal/(1000 * count));
+	}
+
+	public long avg() {
+		if (count == 0) {
+			return 0;
+		}
+		return (durationTotal/(count));
+	}
+	
+	public long durationMaxSec() {
+		return durationMax/1000;
+	}
 }

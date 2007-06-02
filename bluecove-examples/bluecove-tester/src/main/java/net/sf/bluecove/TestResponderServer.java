@@ -22,6 +22,9 @@ package net.sf.bluecove;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DataElement;
@@ -36,8 +39,10 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.bluecove.awt.JavaSECommon;
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.CountStatistic;
 import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.StringUtils;
+import net.sf.bluecove.util.TimeStatistic;
 
 import junit.framework.Assert;
 
@@ -52,6 +57,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public static int countConnection = 0;
 	
 	public static int countRunningConnections = 0;
+	
+	public static int concurrentConnectionsMax = 0;
 	
 	public Thread thread;
 	
@@ -69,9 +76,19 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	private StreamConnectionNotifier serverConnection;
 	
-	private TestTimeOutMonitor monitor;
+	private TestTimeOutMonitor monitorServer;
+	
+	private Vector concurrentConnectionThreads = new Vector();
+	
+	public static CountStatistic concurrentStatistic = new CountStatistic();
+	
+	public static TimeStatistic connectionDuration = new TimeStatistic(); 
 	
 	private class ServerConnectionTread extends Thread {
+		
+		long connectionStartTime;
+		
+		int concurrentCount = 0;
 		
 		StreamConnectionTimeOut c = new StreamConnectionTimeOut();
 		
@@ -80,15 +97,47 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		ServerConnectionTread(StreamConnection conn) {
 			super("ServerConnectionTread" + (++countConnection));
 			c.conn = conn;
+			connectionStartTime = System.currentTimeMillis();
+			synchronized (concurrentConnectionThreads) {
+				concurrentConnectionThreads.addElement(this);
+			}
+		}
+		
+		private void concurrentNotify() {
+			synchronized (concurrentConnectionThreads) {
+				int concurNow = concurrentConnectionThreads.size();
+				setConcurrentCount(concurNow);
+				if (concurNow > 1) {
+					// Update all other working Threads
+					for (Enumeration iter = concurrentConnectionThreads.elements(); iter.hasMoreElements();) {
+						ServerConnectionTread t = (ServerConnectionTread) iter.nextElement();
+						t.setConcurrentCount(concurNow);
+					}
+				}
+			}
+		}
+		
+		private void setConcurrentCount(int concurNow) {
+			if (concurrentCount < concurNow) {
+				concurrentCount = concurNow;
+			}
 		}
 		
 		public void run() {
 			int testType = 0;
-			countRunningConnections ++;
 			TestStatus testStatus = new TestStatus();
-			TestTimeOutMonitor monitor = null;
+			TestTimeOutMonitor monitorConnection = null;
 			try {
 				c.is = c.conn.openInputStream();
+				
+				countRunningConnections ++;
+				concurrentNotify();
+				if (concurrentConnectionsMax < countRunningConnections) {
+					concurrentConnectionsMax = countRunningConnections;
+					Logger.info("now connected:" + countRunningConnections);
+				}
+				
+				
 				testType = c.is.read();
 
 				if (testType == Consts.TEST_SERVER_TERMINATE) {
@@ -98,7 +147,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 				testStatus.setName(testType);
 				Logger.debug("run test# " + testType);
-				monitor = new TestTimeOutMonitor("test" + testType, c, 2);
+				monitorConnection = new TestTimeOutMonitor("test" + testType, c, 2);
 				c.os = c.conn.openOutputStream();
 				c.active();
 				CommunicationTester.runTest(testType, true, c.conn, c.is, c.os, testStatus);
@@ -109,7 +158,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					c.os.write(testType);
 					c.os.flush();
 				}
-				monitor.finish();
+				monitorConnection.finish();
 				countSuccess++;
 				Logger.debug("Test# " + testType + " " + testStatus.getName() + " ok");
 				try {
@@ -120,14 +169,20 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				failure.addFailure("test " + testType  + " " + testStatus.getName(), e);
 				Logger.error("Test# " + testType  + " " + testStatus.getName() + " error", e);
 			} finally {
-				if (monitor != null) {
-					monitor.finish();
+				if (monitorConnection != null) {
+					monitorConnection.finish();
 				}
+				synchronized (concurrentConnectionThreads) {
+					concurrentConnectionThreads.removeElement(this);
+				}
+				countRunningConnections --;
+				concurrentStatistic.add(concurrentCount);
+				connectionDuration.add(Logger.since(connectionStartTime));
+				
 				IOUtils.closeQuietly(c.is);
 				IOUtils.closeQuietly(c.os);
 				IOUtils.closeQuietly(c.conn);
 				isRunning = false;
-				countRunningConnections --;
 				synchronized (this) {
 					notifyAll();
 				}
@@ -159,7 +214,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		isRunning = true;
 		if (!Configuration.continuous) {
 			lastActivityTime = System.currentTimeMillis();
-			monitor = new TestTimeOutMonitor("ServerUp", this, Consts.serverTimeOutMin);
+			monitorServer = new TestTimeOutMonitor("ServerUp", this, Consts.serverTimeOutMin);
 		}
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
@@ -213,6 +268,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					Logger.info("Received connection");
 					if (countConnection % 5 == 0) {
 						Logger.debug("Server up time " + Logger.secSince(connectorOpenTime));
+						Logger.debug("max concurrent con " + concurrentConnectionsMax);
 					}
 					if (showServiceRecordOnce) {
 						Logger.debug("ServiceRecord\n" + BluetoothTypesInfo.toString(LocalDevice.getLocalDevice().getRecord(serverConnection)));
@@ -247,8 +303,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			Logger.info("Server finished! " + Logger.timeNowToString());
 			isRunning = false;
 		}
-		if (monitor != null) {
-			monitor.finish();
+		if (monitorServer != null) {
+			monitorServer.finish();
 		}
 	}
 	
@@ -267,8 +323,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static void clear() {
 		countSuccess = 0;
+		countConnection = 0;
+		concurrentConnectionsMax = 0;
 		allServerDuration.clear();
 		failure.clear();
+		concurrentStatistic.clear();
+		connectionDuration.clear(); 
 	}
 	
 	private void closeServer() {

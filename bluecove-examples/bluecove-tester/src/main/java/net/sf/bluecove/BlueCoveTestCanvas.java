@@ -31,6 +31,7 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
 import net.sf.bluecove.Logger.LoggerAppender;
+import net.sf.bluecove.util.StorageRMS;
 
 public class BlueCoveTestCanvas extends Canvas implements CommandListener, LoggerAppender {
 
@@ -48,6 +49,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command clearCommand = new Command("#-Clear", Command.ITEM, 8);
 	static final Command printFailureLogCommand = new Command("4-Print FailureLog", Command.ITEM, 8);
 	static final Command startClientStressCommand = new Command("Client Stress Start", Command.ITEM, 9);
+	static final Command startClientLastServiceCommand = new Command("Client Last service Start", Command.ITEM, 10);
 	
 	private boolean showLogDebug = true;
 	
@@ -88,8 +90,10 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		addCommand(printFailureLogCommand);
 		addCommand(clearCommand);
 		addCommand(startClientStressCommand);
+		addCommand(startClientLastServiceCommand);
 		setCommandListener(this);
 		Logger.addAppender(this);
+		Configuration.storage = new StorageRMS();
 	}
 	
 	public int writeln(Graphics g, String s) {
@@ -414,6 +418,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			Switcher.startClient();
 		} else if (c == startClientStressCommand) {
 			Switcher.startClientStress();	
+		} else if (c == startClientLastServiceCommand) {
+			Switcher.startClientLastURl();
 		} else if (c == stopClientCommand) {
 			Switcher.clientShutdown();
 		} else if (c == stopServerCommand) {
