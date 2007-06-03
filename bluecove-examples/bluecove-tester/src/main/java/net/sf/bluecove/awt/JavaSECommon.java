@@ -39,6 +39,7 @@ public class JavaSECommon {
 		
 		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
 			Configuration.serverAcceptWhileConnected = true;
+			Configuration.testIgnoreNotWorkingServiceAttributes = false;
 		}
 	}
 }
