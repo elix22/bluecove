@@ -206,15 +206,17 @@ public class Switcher implements Runnable {
 			if (client == null) {
 				client = new TestResponderClient();
 			}
-			client.discoveryOnce = false;
-			client.useDiscoveredDevices = false;
-			Configuration.searchOnlyBluecoveUuid = true;
 			if (!client.isRunning) {
+				client.discoveryOnce = false;
+				client.useDiscoveredDevices = false;
+				Configuration.searchOnlyBluecoveUuid = true;
 				clientStartCount++;
 				(client.thread = new Thread(client)).start();
 			} else {
 				if (Configuration.isJ2ME) {
-					BlueCoveTestMIDlet.message("Warn", "Client isRunning");
+					BlueCoveTestMIDlet.message("Warn", "Client is already Running");
+				} else {
+					Logger.warn("Client is already Running");
 				}
 			}
 		} catch (Throwable e) {
@@ -243,6 +245,10 @@ public class Switcher implements Runnable {
 	}
 	
 	public static void startClientStress() {
+		if ((client != null) && client.isRunning) {
+			Logger.warn("Client is already Running");
+			return;
+		}
 		startClient();
 		if (client != null) {
 			client.runStressTest = true;
@@ -252,6 +258,10 @@ public class Switcher implements Runnable {
 	public static void startClientLastURl() {
 		if (Configuration.storage == null) {
 			Logger.warn("no storage");
+			return;
+		}
+		if ((client != null) && client.isRunning) {
+			Logger.warn("Client is already Running");
 			return;
 		}
 		String lastURL = Configuration.storage.retriveData("lastURL");
@@ -283,7 +293,9 @@ public class Switcher implements Runnable {
 			} else {
 				if (Configuration.canCloseServer) {
 					if (Configuration.isJ2ME) {
-						BlueCoveTestMIDlet.message("Warn", "Server isRunning");
+						BlueCoveTestMIDlet.message("Warn", "Server is already running");
+					} else {
+						Logger.warn("Server is already running");
 					}
 				} else {
 					serverStartCount ++;
