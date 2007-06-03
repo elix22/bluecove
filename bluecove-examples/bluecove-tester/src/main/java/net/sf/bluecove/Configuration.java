@@ -66,7 +66,7 @@ public class Configuration {
 	
 	public static boolean clientContinuousDiscoveryDevices = true;
 
-	public static boolean clientContinuousDiscoveryService = true;
+	public static boolean clientContinuousServicesSearch = true;
 	
 	public static boolean clientTestConnections = true;
 
@@ -76,11 +76,11 @@ public class Configuration {
 	public static boolean testServiceAttributes = true;
 
 
-	public static final int TEST_START = 1;
+	public static int TEST_CASE_FIRST = 1;
 
-	public static final int TEST_LAST = 19;
+	public static int TEST_CASE_LAST = 19;
 
-	public static final int STERSS_TEST_CASE = Consts.TEST_BYTE;
+	public static int STERSS_TEST_CASE = Consts.TEST_BYTE;
 
 	/**
 	 * Apperantly Motorola Service Attribute STRING is not working.

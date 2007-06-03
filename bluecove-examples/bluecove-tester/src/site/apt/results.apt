@@ -35,6 +35,6 @@ BlueCove test Results
 *-------------+-------------+-------------+-
 | BlueCove-MS | BlueCove-WC | Passed      |  1010 Connections made b4 MS Stack hangs
 *-------------+-------------+-------------+-
-| BlueCove-MS | Nokia 6265i | Passed      |  630 Connections made b4 MS Stack hangs
+| BlueCove-MS | Nokia 6265i | Passed      |  2020 Connections made b4 MS Stack hangs
 *-------------+-------------+-------------+-
 

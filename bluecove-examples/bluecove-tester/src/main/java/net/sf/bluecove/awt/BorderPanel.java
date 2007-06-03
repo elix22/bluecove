@@ -18,51 +18,30 @@
  *
  *  @version $Id$
  */ 
-package net.sf.bluecove;
+package net.sf.bluecove.awt;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.microedition.io.StreamConnection;
-
-import net.sf.bluecove.util.IOUtils;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.Panel;
 
 /**
  * @author vlads
  *
  */
-public class StreamConnectionTimeOut implements CanShutdown {
+public class BorderPanel extends Panel {
 
-	StreamConnection conn = null;
-	
-	InputStream is = null;
-	
-	OutputStream os = null;
-	
-	
-	long lastActivityTime;
-	
-	StreamConnectionTimeOut() {
-		active();
-	}
-	
-	StreamConnectionTimeOut(StreamConnection conn) {
-		this();
-		this.conn = conn;
-	}
-	
-	public void active() {
-		lastActivityTime = System.currentTimeMillis();
-	}
-	
-	public long lastActivityTime() {
-		return lastActivityTime;
-	}
+	private static final long serialVersionUID = 1L;
 
-	public void shutdown() {
-		IOUtils.closeQuietly(os);
-		IOUtils.closeQuietly(is);
-		IOUtils.closeQuietly(conn);
+	private static final Insets insets =  new Insets(10,10,10,10);
+	
+	public BorderPanel() {
+		super();
 	}
+	
+	public BorderPanel(LayoutManager layout) {
+		super(layout);
+	}
+	
+	public Insets getInsets() {return insets;}
 
 }

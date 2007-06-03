@@ -90,7 +90,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		
 		int concurrentCount = 0;
 		
-		StreamConnectionTimeOut c = new StreamConnectionTimeOut();
+		StreamConnectionHolder c = new StreamConnectionHolder();
 		
 		boolean isRunning = true;
 		

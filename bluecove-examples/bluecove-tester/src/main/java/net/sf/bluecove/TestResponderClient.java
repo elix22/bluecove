@@ -233,7 +233,7 @@ public class TestResponderClient implements Runnable {
 					RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
 				}
 
-				if (Configuration.clientContinuousDiscoveryService || serverURLs.size() == 0) {
+				if (Configuration.clientContinuousServicesSearch || serverURLs.size() == 0) {
 					serverURLs.removeAllElements();
 					try {
 						return startServicesSearch();
@@ -497,8 +497,8 @@ public class TestResponderClient implements Runnable {
 		String deviceName = niceDeviceName(deviceAddress);
 		long start = System.currentTimeMillis();
 		Logger.debug("connect:" + deviceName + " " + serverURL);
-		for(int testType = Configuration.TEST_START; (!stoped) && (runStressTest || testType <= Configuration.TEST_LAST); testType ++) {
-			StreamConnectionTimeOut c = new StreamConnectionTimeOut();
+		for(int testType = Configuration.TEST_CASE_FIRST; (!stoped) && (runStressTest || testType <= Configuration.TEST_CASE_LAST); testType ++) {
+			StreamConnectionHolder c = new StreamConnectionHolder();
 			TestStatus testStatus = new TestStatus();
 			testStatus.pairBTAddress = deviceAddress;
 			TestTimeOutMonitor monitor = null;

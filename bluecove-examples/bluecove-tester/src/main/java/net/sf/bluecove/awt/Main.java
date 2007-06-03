@@ -25,6 +25,7 @@ import java.awt.Frame;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+import java.awt.Rectangle;
 import java.awt.ScrollPane;
 import java.awt.TextArea;
 import java.awt.Toolkit;
@@ -71,8 +72,8 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	
 	MenuItem debugOn;
 	
-	Object blueCoveLoggerAppender;
-
+	private Properties properties;
+	
 	public static void main(String[] args) {
 		//System.setProperty("bluecove.debug", "true");
 		//System.getProperties().put("bluecove.debug", "true");
@@ -214,6 +215,23 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		
 		menuBar.add(menuLogs);
 		
+		
+		Menu menuMore = new Menu("More");
+		
+		addMenu(menuMore, "ConfigurationDialog", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				(new ConfigurationDialog(Main.this)).setVisible(true); 
+			}
+		});
+		
+		addMenu(menuMore, "Client Connection", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				(new ClientConnectionDialog(Main.this)).setVisible(true); 
+			}
+		});
+		
+		menuBar.add(menuMore);
+		
 		setMenuBar(menuBar);
 
 		
@@ -239,7 +257,14 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		if (screenSize.width > 600) {
 			screenSize.setSize(240, 320);
 		}
-		setSize(screenSize);
+		
+		Properties p = getProperties();
+		Rectangle b = this.getBounds();
+		b.x = Integer.valueOf(p.getProperty("main.x", "0")).intValue();
+		b.y = Integer.valueOf(p.getProperty("main.y", "0")).intValue();
+		b.height = Integer.valueOf(p.getProperty("main.height", String.valueOf(screenSize.height))).intValue();
+		b.width = Integer.valueOf(p.getProperty("main.width", String.valueOf(screenSize.width))).intValue();
+		this.setBounds(b);
 	}
 	
 	private void updateTitle() {
@@ -342,6 +367,15 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		Switcher.clientShutdown();
 		Switcher.serverShutdownOnExit();
 		
+		Properties p = getProperties();
+		
+		Rectangle b = this.getBounds();
+		p.setProperty("main.x", String.valueOf(b.x));
+		p.setProperty("main.y", String.valueOf(b.y));
+		p.setProperty("main.height", String.valueOf(b.height));
+		p.setProperty("main.width", String.valueOf(b.width));
+		storeData(null, null);
+		
 		Logger.removeAppender(this);
 		BlueCoveSpecific.removeAppender();
 		
@@ -382,14 +416,21 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		}
 	}
 
-	public String retriveData(String name) {
-		Properties p = new Properties(); 
+	private File getPropertyFile() {
 		String tmpDir = System.getProperty("java.io.tmpdir");
-		File f = new File(tmpDir, "bluecove-tester.properties");
+		return new File(tmpDir, "bluecove-tester.properties");
+	}
+	
+	private Properties getProperties() {
+		if (properties != null) {
+			return properties;
+		}
+		Properties p = new Properties();
+		File f = getPropertyFile();
 		if (f.exists()) {
 			FileInputStream in = null;
 			try {
-				in = new FileInputStream(f); 
+				in = new FileInputStream(f);
 				p.load(in);
 			} catch (IOException ignore) {
 			} finally {
@@ -399,27 +440,20 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				}
 			}
 		}
-		return p.getProperty(name);
+		properties = p;
+		return properties;
+	}
+	
+	public String retriveData(String name) {
+		return getProperties().getProperty(name);
 	}
 
 	public void storeData(String name, String value) {
-		Properties p = new Properties(); 
-		String tmpDir = System.getProperty("java.io.tmpdir");
-		File f = new File(tmpDir, "bluecove-tester.properties");
-		if (f.exists()) {
-			FileInputStream in = null;
-			try {
-				in = new FileInputStream(f); 
-				p.load(in);
-			} catch (IOException ignore) {
-			} finally {
-				try {
-					in.close();
-				} catch (Throwable ignore) {
-				}
-			}
+		Properties p = getProperties(); 
+		File f = getPropertyFile();
+		if (name != null) {
+			p.setProperty(name, value);
 		}
-		p.setProperty(name, value);
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(f);
