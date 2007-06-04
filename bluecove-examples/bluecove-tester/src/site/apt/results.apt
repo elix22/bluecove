@@ -17,28 +17,51 @@ BlueCove test Results
 
         * BlueCove-WC2 - BlueCove with WIDCOMM (Broadcom Bluetooth stack) v4.0.1.2900, {{{http://www.trust.com/14693}TRUST Bluetooth 2.0 EDR USB Adapter BT-2210Tp}}
 
+        * MPx220 - BlueCove with Microsoft Bluetooth stack, Windows Mobile 2003 Phone Edition, Motorola MPx220
+
         * BlueCove-BS - BlueCove with BlueSoleil stack 1.6 on ES-388 Bluetooth USB Adapter
 
         * avetana-WC - avetanaBluetooth 1.3.16e on WIDCOMM (Broadcom Bluetooth stack) v5.0.1.2800, Integrated Cambridge Silicon Radio on HP ZT3380US
 
-        * avetana-WC - avetanaBluetooth 1.3.16e on Microsoft Bluetooth stack, Microsoft Wireless Transceiver for Bluetooth 2.0
+        * avetana-MS - avetanaBluetooth 1.3.16e on Microsoft Bluetooth stack, Microsoft Wireless Transceiver for Bluetooth 2.0
 
 
-    We tested Device siscovery, Service search and RFCOMM connections (emulation of serial ports over the L2CAP protocol)
+    We tested Device discovery, Service search and RFCOMM connections (emulation of serial ports over the L2CAP protocol)
 
-*-------------+-------------+-------------+----------------------------------------------+
-| <<Server>>  | <<Client>>  | <<Results>> | Problems/Comments
-*-------------+-------------+-------------+-
-| Nokia 6265i | BlueCove-MS | Passed      |  1800 Connections made b4 MS Stack hangs
-*-------------+-------------+-------------+-
-| Nokia 6265i | BlueCove-WC | Passed      |  6777 Connections made and running
-*-------------+-------------+-------------+-
-| BlueCove-MS | BlueCove-WC | Passed      |  1010 Connections made b4 MS Stack hangs
-*-------------+-------------+-------------+-
-| BlueCove-MS | Nokia 6265i | Passed      |  2020 Connections made b4 MS Stack hangs
-*-------------+-------------+-------------+-
-| BlueCove-WC | Nokia 6265i | Passed*     |  Not all service attributes implemented
-*-------------+-------------+-------------+-
-| BlueCove-WC | BlueCove-MS | Passed*     |  Not all service attributes implemented
-*-------------+-------------+-------------+-
+    Matrix of tests performed with BlueCove-tester application:
 
+*-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| <<Server>>\\<<Client>>| Nokia 6265i | BlueCove-MS | BlueCove-WC |  MPx220     |  SE-K790    |  Nokia 6230 |
+*-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| Nokia 6265i           |             |  Ok         |  Ok         |             |             |             |
+*-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| BlueCove-MS           | Ok          |             |  Ok         |  Ok         | Ok          | Ok          |
+*-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| BlueCove-WC           | Ok          |  Ok         |             |             | Ok          | Ok          |
+*-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| MPx220                |             |  Ok         |  Ok         |             |             |             |
+*-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| SE-K790               |             |  Ok         |  Ok {{#se}} |             |             |             |
+*-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
+
+
+    Long running tests. Application was left running for a long time
+
+*-------------+-------------+----------------------------------------------+
+| <<Server>>  | <<Client>>  | Problems/Comments
+*-------------+-------------+-
+| Nokia 6265i | BlueCove-MS |  1800 Connections made before MS Stack hangs, {{#ms}}
+*-------------+-------------+-
+| Nokia 6265i | BlueCove-WC |  more than 6000 Connections made and running
+*-------------+-------------+-
+| BlueCove-MS | BlueCove-WC |  1010 Connections made before MS Stack hangs, {{#ms}}
+*-------------+-------------+-
+| BlueCove-MS | Nokia 6265i |  2020 Connections made before MS Stack hangs, {{#ms}}
+*-------------+-------------+-
+| BlueCove-WC | Nokia 6265i |  more than 2000 Connections made and running
+*-------------+-------------+-
+
+
+  * <<{ms}>> On Microsoft stack Server or Client 600-2000 connections made before MS Stack hangs, Apply to avetana-MS as well.  Don't know solution yet.
+
+  * <<{se}>> JSR-82 on Sony Ericsson K790 appears to be not stable. After some time connections may fail
