@@ -174,7 +174,7 @@ public class Switcher implements Runnable {
 			}
 			client.discoveryOnce = true;
 			client.useDiscoveredDevices = false;
-			Configuration.searchOnlyBluecoveUuid = false;
+			Configuration.searchOnlyBluecoveUuid = Configuration.discoverySearchOnlyBluecoveUuid;
 			if (!client.isRunning) {
 				clientStartCount++;
 				(client.thread = new Thread(client)).start();
@@ -191,7 +191,7 @@ public class Switcher implements Runnable {
 			}
 			client.discoveryOnce = true;
 			client.useDiscoveredDevices = true;
-			Configuration.searchOnlyBluecoveUuid = false;
+			Configuration.searchOnlyBluecoveUuid = Configuration.discoverySearchOnlyBluecoveUuid;
 			if (!client.isRunning) {
 				clientStartCount++;
 				(client.thread = new Thread(client)).start();

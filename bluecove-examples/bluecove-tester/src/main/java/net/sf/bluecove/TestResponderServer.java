@@ -414,6 +414,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
     private void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
         String id = "";
     	try {
+			if (Configuration.testAllServiceAttributes) {
+				id = "all";
+				ServiceRecordTester.addAllTestServiceAttributes(record);
+				return;
+			}
+
     		id = "pub";
 			buildServiceRecordPub(record);
 			id = "int";

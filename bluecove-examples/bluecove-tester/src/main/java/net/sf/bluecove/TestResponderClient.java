@@ -140,6 +140,12 @@ public class TestResponderClient implements Runnable {
 			}
 			if (!Configuration.testServiceAttributes) {
 				attrIDs = null;
+			} else if (Configuration.testAllServiceAttributes) {
+				int allSize = ServiceRecordTester.allTestServiceAttributesSize();
+				attrIDs = new int[allSize];
+				for(int i = 0; i < allSize; i++) {
+					attrIDs[i] = Consts.SERVICE_ATTRIBUTE_ALL_START + i; 
+				}
 			} else if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 				attrIDs = new int[] { 
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, 

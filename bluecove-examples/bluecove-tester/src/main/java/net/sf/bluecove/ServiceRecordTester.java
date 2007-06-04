@@ -21,6 +21,7 @@
 package net.sf.bluecove;
 
 import java.util.Enumeration;
+import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DataElement;
@@ -29,6 +30,7 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.CollectionUtils;
 
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
@@ -40,6 +42,12 @@ import junit.framework.AssertionFailedError;
 public class ServiceRecordTester {
 
 	public static final int ServiceClassIDList = 0x0001;
+	
+	private static Vector allTestServiceAttributes = new Vector();
+	
+	static {
+		buildAllTestServiceAttributes();
+	}
 	
 	public static boolean hasServiceClassUUID(ServiceRecord servRecord, UUID uuid) {
 		DataElement attrDataElement = servRecord.getAttributeValue(ServiceClassIDList);
@@ -71,6 +79,68 @@ public class ServiceRecordTester {
 		return false;
 	}
 	
+	public static boolean equals(DataElement de1, DataElement de2) {
+		if ((de1 == null) || (de2 == null)) {
+			return false;
+		}
+		try {
+			if (de1.getDataType() != de2.getDataType()) {
+				return false;
+			}
+			switch (de1.getDataType()) {
+			case DataElement.U_INT_1:
+			case DataElement.U_INT_2:
+			case DataElement.U_INT_4:
+			case DataElement.INT_1:
+			case DataElement.INT_2:
+			case DataElement.INT_4:
+			case DataElement.INT_8:
+				return (de1.getLong() == de2.getLong());
+			case DataElement.URL:
+			case DataElement.STRING:
+			case DataElement.UUID:
+				return de1.getValue().equals(de2.getValue());
+			case DataElement.INT_16:
+			case DataElement.U_INT_8:
+			case DataElement.U_INT_16:
+				byte[] byteAray1 = (byte[]) de1.getValue();
+				byte[] byteAray2 = (byte[]) de2.getValue();
+				if (byteAray1.length != byteAray2.length) {
+					return false;
+				}
+				for (int k = 0; k < byteAray1.length; k++) {
+					if (byteAray1[k] != byteAray2[k]) {
+						return false;
+					}
+				}
+				return true;
+			case DataElement.NULL:
+				return true;
+			case DataElement.BOOL:
+				return (de1.getBoolean() == de2.getBoolean());
+			case DataElement.DATSEQ:
+			case DataElement.DATALT:
+				Enumeration en1 = (Enumeration) de1.getValue();
+				Enumeration en2 = (Enumeration) de1.getValue();
+				for (; en1.hasMoreElements() && en2.hasMoreElements();) {
+					DataElement d1 = (DataElement) en1.nextElement();
+					DataElement d2 = (DataElement) en2.nextElement();
+					if (!equals(d1, d2)) {
+						return false;
+					}
+				}
+				if (en1.hasMoreElements() || en2.hasMoreElements()) {
+					return false;
+				}
+			default:
+				return false;
+			}
+		} catch (Throwable e) {
+			Logger.error("DataElement equals", e);
+			return false;
+		}
+	}
+	
 	public static boolean testServiceAttributes(ServiceRecord servRecord, String servicesOnDeviceName, String servicesOnDeviceAddress) {
 		
 		boolean isBlueCoveTestService = false;
@@ -82,6 +152,15 @@ public class ServiceRecordTester {
 		if (!Configuration.testServiceAttributes || ("0".equals(LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max")))) {
 			return hasServiceClassUUID(servRecord, CommunicationTester.uuid);
 		}
+		if (Configuration.testAllServiceAttributes) {
+			isBlueCoveTestService = hasServiceClassUUID(servRecord, CommunicationTester.uuid);
+			if (isBlueCoveTestService) {
+				compareAllServiceAttributes(servRecord, servicesOnDeviceName);
+			}
+			return isBlueCoveTestService;
+		}
+		
+		
 		try {
 				int[] attributeIDs = servRecord.getAttributeIDs();
 				// Logger.debug("attributes " + attributeIDs.length);
@@ -254,6 +333,121 @@ public class ServiceRecordTester {
 		}
 		
 		return isBlueCoveTestService;
+	}
+	
+	private static void buildAllTestServiceAttributes() {
+		try {
+			//allTestServiceAttributes.addElement(new DataElement(DataElement.NULL));
+			// Just some arbitrary number the same on client and server.
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_1, 0));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_1, 0xBC));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_2, 0));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_2, 0xABCD));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_4, 0));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_4, 0xABCDEF40l));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_1, 0));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_1, 0x4C));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_1, -0x1E));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_2, 0));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_2, 0x5BCD));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_2, -0x7EFD));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_4, 0));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_4, 0x1BCDEF35l));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_4, -0x2BC7EF35l));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_8, 0));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_8, 0x3eC6EF355892EA8Cl));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_8, -0x7F893012AB39FB72l));
+
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_8, new byte[] {1, -2, 3, 4, -5, 6, 7, -8}));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.INT_16, new byte[] {11,-22,33,44,-5,6,77,88,9,-10,11,12,-13,14,15,16}));
+			allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_16, new byte[] {21,-32,43,54,-65,76,87,98,11,-110,111,112,-113,114,115,16}));
+
+			//allTestServiceAttributes.addElement(new DataElement(DataElement.UUID, new UUID("E10C0FE1121111A11111161911110003", false)));
+			
+			allTestServiceAttributes.addElement(new DataElement(DataElement.STRING, "BlueCove-2007"));
+			
+			// This breaks Service Search on MS stack
+			//allTestServiceAttributes.addElement(new DataElement(true));
+			//allTestServiceAttributes.addElement(new DataElement(false));
+		} catch (Throwable e) {
+			Logger.error("attrs create", e);
+		}
+	}
+	
+	public static void addAllTestServiceAttributes(ServiceRecord servRecord) {
+		for (int i = 0; i < allTestServiceAttributes.size(); i++) {
+			DataElement de = (DataElement)allTestServiceAttributes.elementAt(i);
+			servRecord.setAttributeValue(Consts.SERVICE_ATTRIBUTE_ALL_START + i, de);
+		}
+	}
+	
+	public static int allTestServiceAttributesSize() {
+		return allTestServiceAttributes.size();	
+	}
+	
+	public static void compareAllServiceAttributes(ServiceRecord servRecord, String servicesOnDeviceName) {
+		int[] ids = servRecord.getAttributeIDs();
+		if (ids == null) {
+			String errorText = "attributes are NULL";
+			Logger.error(errorText);
+			TestResponderClient.failure.addFailure(errorText + " on " + servicesOnDeviceName);
+			return;
+		}
+		if (ids.length == 0) {
+			String errorText = "not attributes";
+			Logger.error(errorText);
+			TestResponderClient.failure.addFailure(errorText + " on " + servicesOnDeviceName);
+			return;
+		}
+		int countError = 0;
+		int countSuccess = 0;
+		int countFound = 0;
+		boolean[] found = new boolean[allTestServiceAttributes.size()];
+		Vector sorted = new Vector();
+		for (int i = 0; i < ids.length; i++) {
+			sorted.addElement(new Integer(ids[i]));
+		}
+		CollectionUtils.sort(sorted);
+		for (Enumeration en = sorted.elements(); en.hasMoreElements();) {
+			int id = ((Integer)en.nextElement()).intValue();
+			int index = id - Consts.SERVICE_ATTRIBUTE_ALL_START; 
+			if ((index < 0) || (index > allTestServiceAttributes.size())) {
+				continue;
+			}
+			found[index] = true;
+			countFound ++;
+			DataElement deGot = servRecord.getAttributeValue(id);
+			DataElement deExpect = (DataElement)allTestServiceAttributes.elementAt(index);
+			if (equals(deGot, deExpect)) {
+				Logger.debug("ServAttr OK " + BluetoothTypesInfo.toString(deGot));
+				countSuccess += 1;
+			} else {
+				countError += 1;
+				Logger.error("ServAttr expected " + BluetoothTypesInfo.toString(deExpect));
+				Logger.error("ServAttr received " + BluetoothTypesInfo.toString(deGot));
+			}
+		}
+		
+		if (countSuccess != allTestServiceAttributes.size()) {
+			if (countFound != allTestServiceAttributes.size()) {
+				String errorText = "missing attributes, found " + countFound + " expect " + allTestServiceAttributes.size();
+				Logger.error(errorText);
+				TestResponderClient.failure.addFailure(errorText + " on " + servicesOnDeviceName);
+			}
+			
+			if (countSuccess != 0) {
+				for (int i = 0; i < allTestServiceAttributes.size(); i++) {
+					if (found[i]) {
+						continue;
+					}
+					DataElement de = (DataElement)allTestServiceAttributes.elementAt(i);
+					Logger.error("ServAttr missing " + BluetoothTypesInfo.toString(de));
+				}
+			}
+		} else {
+			Logger.info("All Service Attr found - OK");
+			TestResponderClient.countSuccess++;
+		}
 	}
 	
 	private static final String ADDRESS = "address:";

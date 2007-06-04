@@ -58,11 +58,13 @@ public interface Consts {
 	
 	public static final int TEST_SERVICE_ATTRIBUTE_BYTES_TYPE = DataElement.INT_16;
 	
-	public static final byte[] TEST_SERVICE_ATTRIBUTE_BYTES_VALUE = new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+	public static final byte[] TEST_SERVICE_ATTRIBUTE_BYTES_VALUE = new byte[]{1,-2,3,4,-5,6,7,8,9,-10,11,12,-13,14,15,16};
 	
 	public static final int VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID = 0x0A5;
 	
 	public static final int SERVICE_ATTRIBUTE_BYTES_SERVER_INFO = 0x0A6;
+	
+	public static final int SERVICE_ATTRIBUTE_ALL_START = 0x0B0;
 	
 	public static final int clientReconnectSleep = 5100;
 	

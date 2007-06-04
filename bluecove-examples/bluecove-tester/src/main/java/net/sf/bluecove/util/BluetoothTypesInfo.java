@@ -259,6 +259,8 @@ public abstract class BluetoothTypesInfo {
 		case DataElement.U_INT_1: return "U_INT_1";
 		case DataElement.U_INT_2: return "U_INT_2";
 		case DataElement.U_INT_4: return "U_INT_4";
+		case DataElement.U_INT_8: return "U_INT_8";
+		case DataElement.U_INT_16: return "U_INT_16";
 		case DataElement.INT_1: return "INT_1";
 		case DataElement.INT_2: return "INT_2";
 		case DataElement.INT_4: return "INT_4";
@@ -274,8 +276,24 @@ public abstract class BluetoothTypesInfo {
 		}
 	}
 	
+	public static String toHexStringSigned(long l) {
+		if (l >= 0) {
+			return toHexString(l);
+		} else {
+			return "-" + toHexString(-l);
+		}
+	}
+	
 	public static String toHexString(long l) {
-		return "0x" + Integer.toHexString((int)l);
+		if (l > 0xffffffffl) {
+			String lo = Integer.toHexString((int)l);
+			while (lo.length() < 8) {
+				lo = "0" + lo;
+			}
+			return "0x" + Integer.toHexString((int)(l >> 32)) + lo;
+		} else {
+			return "0x" + Integer.toHexString((int)l);
+		}
 	}
 	
 	public static String toHexString(int i) {
@@ -313,11 +331,13 @@ public abstract class BluetoothTypesInfo {
 		case DataElement.U_INT_1:
 		case DataElement.U_INT_2:
 		case DataElement.U_INT_4:
+			buf.append(" ").append(toHexString(d.getLong()));
+			break;
 		case DataElement.INT_1:
 		case DataElement.INT_2:
 		case DataElement.INT_4:
 		case DataElement.INT_8:
-			buf.append(" ").append(toHexString(d.getLong()));
+			buf.append(" ").append(toHexStringSigned(d.getLong()));
 			break;
 		case DataElement.BOOL:
 			buf.append(" ").append(d.getBoolean());

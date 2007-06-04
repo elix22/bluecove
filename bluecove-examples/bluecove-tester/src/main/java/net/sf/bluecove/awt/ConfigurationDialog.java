@@ -76,6 +76,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("TEST_CASE_LAST");
 		addConfig("STERSS_TEST_CASE");
 		addConfig("testIgnoreNotWorkingServiceAttributes");
+		addConfig("testAllServiceAttributes");
 
 		panelItems.setLayout(new GridLayout(configItems.size(), 2));
 		

@@ -43,6 +43,8 @@ public class Configuration {
 
 	public static boolean searchOnlyBluecoveUuid = true;
 
+	public static boolean discoverySearchOnlyBluecoveUuid = true;
+	
 
 	/**
 	 * Limit connections to precompiled list of test devices.
@@ -73,14 +75,15 @@ public class Configuration {
 	// This test concurrrent connections if you have Multiple servers running.
 	public static boolean clientTestConnectionsMultipleThreads = true;
 
-	public static boolean testServiceAttributes = true;
-
-
 	public static int TEST_CASE_FIRST = 1;
 
 	public static int TEST_CASE_LAST = 19;
 
 	public static int STERSS_TEST_CASE = Consts.TEST_BYTE;
+
+	public static boolean testServiceAttributes = true;
+	
+	public static boolean testAllServiceAttributes = true;
 
 	/**
 	 * Apperantly Motorola Service Attribute STRING is not working.
@@ -117,10 +120,13 @@ public class Configuration {
     static {
 		testDeviceNames = new Hashtable();
 		
-		boolean testOnlyOneDevice = false;
+		boolean testOnlyOneDevice = true;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
-			testDeviceNames.put("0020E027CE32", "Lapt WC");
+			//testDeviceNames.put("0020E027CE32", "Lapt WC");
+			testDeviceNames.put("0050F2E8D4A6", "Desk MS");
+			testDeviceNames.put("000B0D4AECDE", "Desk WC");
+			testDeviceNames.put("0019639C4007", "SE K790(r)");
 		} else {
 
 			// This is the list of my test devices with names for My convenience
