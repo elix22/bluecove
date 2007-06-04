@@ -45,7 +45,7 @@ BlueCove test Results
 *-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+
 
 
-    Long running tests. Application was left running for a long time
+    Long running tests. Application was left running for a long time (over night)
 
 *-------------+-------------+----------------------------------------------+
 | <<Server>>  | <<Client>>  | Problems/Comments
@@ -59,6 +59,8 @@ BlueCove test Results
 | BlueCove-MS | Nokia 6265i |  2020 Connections made before MS Stack hangs, {{#ms}}
 *-------------+-------------+-
 | BlueCove-WC | Nokia 6265i |  more than 2000 Connections made and running
+*-------------+-------------+-
+| BlueCove-WC | SE-K790     |  more than 3000 Connections made and running
 *-------------+-------------+-
 
 
