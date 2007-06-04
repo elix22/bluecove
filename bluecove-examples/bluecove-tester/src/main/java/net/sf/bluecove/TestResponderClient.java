@@ -589,7 +589,9 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 			} catch (Throwable e) {
-				failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName(), e);
+				if (!stoped) {
+					failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName(), e);
+				}
 				Logger.error(deviceName + " test #" + testType + " " + testStatus.getName(), e);
 			} finally {
 				if (connectedConnectionsInc) {
@@ -603,10 +605,12 @@ public class TestResponderClient implements Runnable {
 				IOUtils.closeQuietly(c.conn);
 			}
 			// Let the server restart
-			try {
-				Thread.sleep(Consts.clientReconnectSleep);
-			} catch (InterruptedException e) {
-				break;
+			if (!stoped) {
+				try {
+					Thread.sleep(Consts.clientReconnectSleep);
+				} catch (InterruptedException e) {
+					break;
+				}
 			}
 		} 
 		if (!Configuration.continuous) {

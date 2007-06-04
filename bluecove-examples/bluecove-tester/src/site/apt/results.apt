@@ -37,4 +37,8 @@ BlueCove test Results
 *-------------+-------------+-------------+-
 | BlueCove-MS | Nokia 6265i | Passed      |  2020 Connections made b4 MS Stack hangs
 *-------------+-------------+-------------+-
+| BlueCove-WC | Nokia 6265i | Passed*     |  Not all service attributes implemented
+*-------------+-------------+-------------+-
+| BlueCove-WC | BlueCove-MS | Passed*     |  Not all service attributes implemented
+*-------------+-------------+-------------+-
 

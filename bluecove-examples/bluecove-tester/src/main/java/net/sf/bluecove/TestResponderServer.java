@@ -161,12 +161,16 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				monitorConnection.finish();
 				countSuccess++;
 				Logger.debug("Test# " + testType + " " + testStatus.getName() + " ok");
-				try {
-					Thread.sleep(Consts.serverSendCloseSleep);
-				} catch (InterruptedException e) {
+				if (!stoped) {
+					try {
+						Thread.sleep(Consts.serverSendCloseSleep);
+					} catch (InterruptedException e) {
+					}
 				}
 			} catch (Throwable e) {
-				failure.addFailure("test " + testType  + " " + testStatus.getName(), e);
+				if (!stoped) {
+					failure.addFailure("test " + testType  + " " + testStatus.getName(), e);
+				}
 				Logger.error("Test# " + testType  + " " + testStatus.getName() + " error", e);
 			} finally {
 				if (monitorConnection != null) {
