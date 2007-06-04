@@ -160,7 +160,9 @@ public class Switcher implements Runnable {
 	public void shutdown() {
 		Logger.info("shutdownSwitcher");
 		stoped = true;
-		thread.interrupt();
+		if (Configuration.cldcStub != null) {
+			Configuration.cldcStub.interruptThread(thread);
+		}
 		synchronized (this) {
 			notifyAll();
 		}

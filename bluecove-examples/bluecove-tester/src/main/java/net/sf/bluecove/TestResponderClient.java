@@ -447,7 +447,7 @@ public class TestResponderClient implements Runnable {
 			Logger.info("radio manufacturer:" + LocalDevice.getProperty("bluecove.radio.manufacturer"));
 			Logger.info("radio version:" + LocalDevice.getProperty("bluecove.radio.version"));
 			
-			Configuration.stackWIDCOMM = "WIDCOMM".equalsIgnoreCase(LocalDevice.getProperty("bluecove.stack"));
+			Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice.getProperty("bluecove.stack"));
 		}
 		
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
@@ -653,7 +653,9 @@ public class TestResponderClient implements Runnable {
 		String url;
 		
 		ClientConnectionTread(String url) {
-			super("ClientConnectionTread" + (++countConnectionThreads));
+			//CLDC_1_0 super("ClientConnectionTread" + (++countConnectionThreads));
+			++countConnectionThreads;
+			
 			this.url = url;
 		}
 		
@@ -776,7 +778,9 @@ public class TestResponderClient implements Runnable {
 		if (bluetoothInquirer != null) {
 			bluetoothInquirer.shutdown();
 		}
-		thread.interrupt();
+		if (Configuration.cldcStub != null) {
+			Configuration.cldcStub.interruptThread(thread);
+		}
 	}
 	
 	public static void main(String[] args) {

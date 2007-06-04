@@ -22,6 +22,7 @@ package net.sf.bluecove;
 
 import java.util.Hashtable;
 
+import net.sf.bluecove.util.CLDCStub;
 import net.sf.bluecove.util.Storage;
 
 /**
@@ -43,7 +44,7 @@ public class Configuration {
 
 	public static boolean searchOnlyBluecoveUuid = true;
 
-	public static boolean discoverySearchOnlyBluecoveUuid = true;
+	public static boolean discoverySearchOnlyBluecoveUuid = false;
 	
 
 	/**
@@ -98,6 +99,9 @@ public class Configuration {
 	public static int serverMAXTimeSec = 80;
 
 	public static Storage storage;
+	
+	public static CLDCStub cldcStub;
+	
 	/**
 	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */
@@ -117,10 +121,12 @@ public class Configuration {
 
 	public static boolean stackWIDCOMM = false;
 
+	public static boolean CLDC_1_0 = false;
+	
     static {
 		testDeviceNames = new Hashtable();
 		
-		boolean testOnlyOneDevice = true;
+		boolean testOnlyOneDevice = false;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
 			//testDeviceNames.put("0020E027CE32", "Lapt WC");

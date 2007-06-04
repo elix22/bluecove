@@ -27,6 +27,8 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
+import net.sf.bluecove.util.StringUtils;
+
 
 public class BlueCoveTestMIDlet extends MIDlet {
 
@@ -41,6 +43,9 @@ public class BlueCoveTestMIDlet extends MIDlet {
 
 	protected void startApp() throws MIDletStateChangeException {
 		Configuration.isJ2ME = true;
+		
+		Configuration.CLDC_1_0 = StringUtils.equalsIgnoreCase(System.getProperty("microedition.configuration"), "CLDC-1.0");
+		
 		instance = this;
 		display = Display.getDisplay(this);
 		if (tester == null) {

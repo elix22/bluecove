@@ -30,4 +30,15 @@ public class StringUtils {
         return ((str != null) && (str.length() > 0));
 	}
 	
+	/**
+	 * Only Since CLDC-1.1
+	 * @param anotherString
+	 * @return
+	 */
+	public static boolean equalsIgnoreCase(String s1, String s2) {
+		if ((s1 == null) || (s2 == null)) {
+			return false;
+		}
+		return (s1.length() == s2.length()) && (s1.toUpperCase().equals(s2.toUpperCase()));
+	}
 }

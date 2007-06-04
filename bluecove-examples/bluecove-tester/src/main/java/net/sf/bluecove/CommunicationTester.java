@@ -146,8 +146,8 @@ public class CommunicationTester implements Consts {
 		dos.writeBoolean(false);
 		dos.writeChar('O');
 		dos.writeShort(541);
-		dos.writeFloat((float)3.14159); 
-		dos.writeDouble(Math.E); 
+//		CLDC_1_0 dos.writeFloat((float)3.14159); 
+//		CLDC_1_0 dos.writeDouble(Math.E); 
 		dos.writeByte(aKnowndPositiveByte);
 		dos.writeByte(aKnowndNegativeByte);
 		if (dataOutputStreamFlush) {
@@ -165,8 +165,8 @@ public class CommunicationTester implements Consts {
 		Assert.assertEquals("ReadBoolean2", false, dis.readBoolean());
 		Assert.assertEquals("ReadChar", 'O', dis.readChar());
 		Assert.assertEquals("readShort", 541, dis.readShort());
-		Assert.assertEquals("readFloat", (float)3.14159, dis.readFloat(), (float)0.0000001);
-		Assert.assertEquals("readDouble", Math.E, dis.readDouble(), 0.0000000000000001);
+//		CLDC_1_0 Assert.assertEquals("readFloat", (float)3.14159, dis.readFloat(), (float)0.0000001);
+//		CLDC_1_0 Assert.assertEquals("readDouble", Math.E, dis.readDouble(), 0.0000000000000001);
 		Assert.assertEquals("positiveByte", aKnowndPositiveByte, dis.readByte());
 		Assert.assertEquals("negativeByte", aKnowndNegativeByte, dis.readByte());
 	}

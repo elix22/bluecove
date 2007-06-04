@@ -88,6 +88,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <j2meConfiguration>CLDC-1.0</j2meConfiguration>
                     <wtkHome>${env.WTK_HOME}</wtkHome>
                     <proguard>true</proguard>
                     <obfuscate>false</obfuscate>

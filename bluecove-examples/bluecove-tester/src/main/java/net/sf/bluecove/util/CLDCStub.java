@@ -17,36 +17,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
-package net.sf.bluecove.awt;
+ */
+package net.sf.bluecove.util;
 
-import net.sf.bluecove.Configuration;
-import net.sf.bluecove.Logger;
-import net.sf.bluecove.util.CLDCStub;
-
-public class JavaSECommon implements CLDCStub {
-
-	private static boolean initialized = false;
+/**
+ * @author vlads
+ */
+public interface CLDCStub {
 	
-	public static void initOnce() {
-		if (initialized) {
-			return;
-		}
-		initialized = true;
-		Logger.addAppender(new LoggerJavaSEAppender());
-
-		//System.getProperties().put("bluecove.debug", "true");
-		//System.getProperties().put("bluecove.native.path", "../../bluecove/target/obj");
-		
-		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
-			Configuration.serverAcceptWhileConnected = true;
-			Configuration.testIgnoreNotWorkingServiceAttributes = false;
-		}
-		
-		Configuration.cldcStub = new JavaSECommon();
-	}
+	public void interruptThread(Thread t);
 	
-	public void interruptThread(Thread t) {
-		t.interrupt();
-	}
 }

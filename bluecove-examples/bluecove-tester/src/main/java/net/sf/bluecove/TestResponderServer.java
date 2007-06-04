@@ -95,7 +95,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		boolean isRunning = true;
 		
 		ServerConnectionTread(StreamConnection conn) {
-			super("ServerConnectionTread" + (++countConnection));
+			//CLDC_1_0 super("ServerConnectionTread" + (++countConnection));
+			++countConnection;
+			
 			c.conn = conn;
 			connectionStartTime = System.currentTimeMillis();
 			synchronized (concurrentConnectionThreads) {
@@ -210,7 +212,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		if (StringUtils.isStringSet(LocalDevice.getProperty("bluecove"))) {
 			Configuration.isBlueCove = true;
 		}
-		Configuration.stackWIDCOMM = "WIDCOMM".equalsIgnoreCase(LocalDevice.getProperty("bluecove.stack"));
+		Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice.getProperty("bluecove.stack"));
 	}
 	
 	public void run() {
@@ -381,7 +383,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public void shutdown() {
 		Logger.info("shutdownServer");
 		stoped = true;
-		thread.interrupt();
+		if (Configuration.cldcStub != null) {
+			Configuration.cldcStub.interruptThread(thread);
+		}
 		closeServer();
 	}
 	

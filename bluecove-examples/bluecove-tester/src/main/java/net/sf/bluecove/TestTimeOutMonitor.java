@@ -35,7 +35,8 @@ public class TestTimeOutMonitor extends Thread {
     int gracePeriod = 0;
     
     TestTimeOutMonitor(String name, CanShutdown testThread, int gracePeriod) {
-        super(name + "Monitor");
+        //CLDC_1_0 super(name + "Monitor");
+    	
         this.name = name;
         this.testThread = testThread;
         this.gracePeriod = gracePeriod;
