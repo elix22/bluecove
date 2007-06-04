@@ -65,7 +65,6 @@ public class ConfigurationDialog extends OkCancelDialog {
 		super(owner, "Configuration", true);
 
 		panelItems = new BorderPanel();
-		panelItems.setLayout(new GridLayout(8, 2));
 		this.add(panelItems, BorderLayout.NORTH);
 		
 		addConfig("deviceClassFilter");
@@ -77,6 +76,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("TEST_CASE_LAST");
 		addConfig("STERSS_TEST_CASE");
 		addConfig("testIgnoreNotWorkingServiceAttributes");
+
+		panelItems.setLayout(new GridLayout(configItems.size(), 2));
 		
 		updateGUI();
 		
