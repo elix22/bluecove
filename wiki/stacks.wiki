@@ -8,6 +8,8 @@
 
    WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0. Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.
 
+   To determine which Bluetooth stack is installed on your Windows [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
+
    [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile]
 
 == WIDCOMM (Broadcom) ==
