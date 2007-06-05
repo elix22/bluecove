@@ -32,6 +32,7 @@ import javax.microedition.lcdui.Graphics;
 
 import net.sf.bluecove.Logger.LoggerAppender;
 import net.sf.bluecove.util.StorageRMS;
+import net.sf.bluecove.util.TimeUtils;
 
 public class BlueCoveTestCanvas extends Canvas implements CommandListener, LoggerAppender {
 
@@ -319,8 +320,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			StringBuffer buf = new StringBuffer();
 			buf.append(TestResponderClient.niceDeviceName(dev.remoteDevice.getBluetoothAddress()));
 			buf.append(" dc:").append(dev.serviceDiscovered.count);
-			buf.append(" first:").append(Logger.timeToString(dev.serviceDiscoveredFirstTime));
-			buf.append(" last:").append(Logger.timeToString(dev.serviceDiscoveredLastTime));
+			buf.append(" first:").append(TimeUtils.timeToString(dev.serviceDiscoveredFirstTime));
+			buf.append(" last:").append(TimeUtils.timeToString(dev.serviceDiscoveredLastTime));
 			Logger.info(buf.toString());
 			buf = new StringBuffer();
 			buf.append(" avg ddf:").append(dev.avgDiscoveryFrequencySec());
@@ -369,8 +370,15 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	
 	private void printFailureLog() {
 		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
+		Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
+		Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
+		Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avg());
+		
 		TestResponderClient.failure.writeToLog();
 		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
+		Logger.debug("Server avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
+		Logger.debug("Server avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
+		
 		TestResponderServer.failure.writeToLog();
 		setLogEndLine();
 	}

@@ -123,6 +123,8 @@ public class Configuration {
 
 	public static boolean CLDC_1_0 = false;
 	
+	public static boolean logTimeStamp = false;
+	
     static {
 		testDeviceNames = new Hashtable();
 		

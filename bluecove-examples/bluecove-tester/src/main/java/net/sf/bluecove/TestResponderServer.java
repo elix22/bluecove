@@ -43,6 +43,7 @@ import net.sf.bluecove.util.CountStatistic;
 import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.StringUtils;
 import net.sf.bluecove.util.TimeStatistic;
+import net.sf.bluecove.util.TimeUtils;
 
 import junit.framework.Assert;
 
@@ -183,7 +184,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 				countRunningConnections --;
 				concurrentStatistic.add(concurrentCount);
-				connectionDuration.add(Logger.since(connectionStartTime));
+				connectionDuration.add(TimeUtils.since(connectionStartTime));
 				
 				IOUtils.closeQuietly(c.is);
 				IOUtils.closeQuietly(c.os);
@@ -239,7 +240,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							+ ";authorize=false");
 
 			connectorOpenTime = System.currentTimeMillis();
-			Logger.info("ResponderServer started " + Logger.timeNowToString());
+			Logger.info("ResponderServer started " + TimeUtils.timeNowToString());
 			if (Configuration.testServiceAttributes) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 				if (record == null) {
@@ -273,7 +274,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				if (!stoped) {
 					Logger.info("Received connection");
 					if (countConnection % 5 == 0) {
-						Logger.debug("Server up time " + Logger.secSince(connectorOpenTime));
+						Logger.debug("Server up time " + TimeUtils.secSince(connectorOpenTime));
 						Logger.debug("max concurrent con " + concurrentConnectionsMax);
 					}
 					if (showServiceRecordOnce) {
@@ -306,7 +307,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.error("Server start error", e);
 			}
 		} finally {
-			Logger.info("Server finished! " + Logger.timeNowToString());
+			Logger.info("Server finished! " + TimeUtils.timeNowToString());
 			isRunning = false;
 		}
 		if (monitorServer != null) {
@@ -370,7 +371,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	public static void setNotDiscoverable() {
 		try {
-			allServerDuration.add(Logger.since(discoverableStartTime));
+			allServerDuration.add(TimeUtils.since(discoverableStartTime));
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			localDevice.setDiscoverable(DiscoveryAgent.NOT_DISCOVERABLE);
 			Logger.debug("Set Not Discoverable");

@@ -40,8 +40,11 @@ import javax.microedition.io.StreamConnection;
 
 import net.sf.bluecove.awt.JavaSECommon;
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.CountStatistic;
 import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.StringUtils;
+import net.sf.bluecove.util.TimeStatistic;
+import net.sf.bluecove.util.TimeUtils;
 
 import junit.framework.Assert;
 
@@ -72,7 +75,17 @@ public class TestResponderClient implements Runnable {
 	
 	private int connectedConnectionsExpect = 1;
 	
+	private int connectionLogPrefixLength = 0;
+	
 	private int connectedConnectionsInfo = 1;
+	
+	private Vector concurrentConnectionThreads = new Vector();
+	
+	public static CountStatistic concurrentStatistic = new CountStatistic();
+	
+	public static TimeStatistic connectionDuration = new TimeStatistic(); 
+	
+	public static CountStatistic connectionRetyStatistic = new CountStatistic();
 	
 	public Thread thread;
 	
@@ -98,6 +111,8 @@ public class TestResponderClient implements Runnable {
 		countSuccess = 0;
 		failure.clear();
 		discoveryCount = 0;
+		concurrentStatistic.clear();
+		connectionDuration.clear(); 
 	}
     
 	public class BluetoothInquirer implements DiscoveryListener {
@@ -235,8 +250,8 @@ public class TestResponderClient implements Runnable {
 						return true;
 					}
 					cancelInquiry();
-					Logger.debug("  Device inquiry took " + Logger.secSince(start));
-					RemoteDeviceInfo.discoveryInquiryFinished(Logger.since(start));
+					Logger.debug("  Device inquiry took " + TimeUtils.secSince(start));
+					RemoteDeviceInfo.discoveryInquiryFinished(TimeUtils.since(start));
 				}
 
 				if (Configuration.clientContinuousServicesSearch || serverURLs.size() == 0) {
@@ -296,7 +311,7 @@ public class TestResponderClient implements Runnable {
 	    	if (devices.size() == 0) {
 	    		return true;
 	    	}
-	        Logger.debug("Starting Services search " + Logger.timeNowToString());
+	        Logger.debug("Starting Services search " + TimeUtils.timeNowToString());
 	        long inquiryStart = System.currentTimeMillis();
 	        nextDevice:
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
@@ -344,15 +359,15 @@ public class TestResponderClient implements Runnable {
 			    		cancelServiceSearch();
 					}
 		        }	
-				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, Logger.since(start));
+				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, TimeUtils.since(start));
 				String msg = (anyServicesFound)?"; service(s) found":"; no services";
-				Logger.debug(" Services Search " + transID + " took " + Logger.secSince(start) + msg);
+				Logger.debug(" Services Search " + transID + " took " + TimeUtils.secSince(start) + msg);
 			}
 	        String msg = "";
 	        if (serverURLs.size() > 0) {
 	        	msg = "; BC Srv(s) " + serverURLs.size(); 
 	        }
-	        Logger.debug("Services search completed " + Logger.secSince(inquiryStart) + msg);
+	        Logger.debug("Services search completed " + TimeUtils.secSince(inquiryStart) + msg);
 	        return true;
 	    }
 
@@ -503,15 +518,20 @@ public class TestResponderClient implements Runnable {
 		String deviceName = niceDeviceName(deviceAddress);
 		long start = System.currentTimeMillis();
 		Logger.debug("connect:" + deviceName + " " + serverURL);
+		String logPrefix = "";
+		if (connectedConnectionsExpect > 1) {
+			logPrefix = "[" + StringUtils.padRight(deviceName, connectionLogPrefixLength, ' ') + "] "; 
+		}
 		for(int testType = Configuration.TEST_CASE_FIRST; (!stoped) && (runStressTest || testType <= Configuration.TEST_CASE_LAST); testType ++) {
 			StreamConnectionHolder c = new StreamConnectionHolder();
 			TestStatus testStatus = new TestStatus();
 			testStatus.pairBTAddress = deviceAddress;
 			TestTimeOutMonitor monitor = null;
 			boolean connectedConnectionsInc = false;
+			long connectionStartTime = 0;
 			try {
 				if (!runStressTest) {
-					Logger.debug("test #" + testType + " connects");
+					Logger.debug(logPrefix + "test #" + testType + " connects");
 				} else {
 					testType = Configuration.STERSS_TEST_CASE;	
 				}
@@ -525,31 +545,33 @@ public class TestResponderClient implements Runnable {
 							throw e;
 						}
 						Thread.sleep(500);
-						Logger.debug("connect try:" + connectionOpenTry);
+						Logger.debug(logPrefix + "connect retry:" + connectionOpenTry);
 					}
 				}
 				if (stoped) {
 					return;
 				}
 				c.os = c.conn.openOutputStream();
+				connectionStartTime = System.currentTimeMillis();
+				connectionRetyStatistic.add(connectionOpenTry);
 				connectionCount ++;
 				connectedConnections ++;
 				connectedConnectionsInc = true;
 				if (connectedConnectionsInfo < connectedConnections) {
 					connectedConnectionsInfo = connectedConnections;
-					Logger.info("now connected:" + connectedConnectionsInfo);
+					Logger.info(logPrefix + "now connected:" + connectedConnectionsInfo);
 					synchronized (TestResponderClient.this) {
 						TestResponderClient.this.notifyAll();
 					}
 				}
 				c.active();
-				monitor = new TestTimeOutMonitor("test" + testType, c, 2);
+				monitor = new TestTimeOutMonitor(logPrefix + "test" + testType, c, 2);
 				if (!runStressTest) {
-					Logger.debug("run test #" + testType);
+					Logger.debug(logPrefix + "run test #" + testType);
 				} else {
-					Logger.debug("connected:" + connectionCount);
+					Logger.debug(logPrefix + "connected:" + connectionCount);
 					if (connectionCount % 5 == 0) {
-						Logger.debug("Test time " + Logger.secSince(start));
+						Logger.debug("Test time " + TimeUtils.secSince(start));
 					}
 				}
 				
@@ -564,18 +586,18 @@ public class TestResponderClient implements Runnable {
 
 				if (testStatus.isSuccess) {
 					countSuccess++;
-					Logger.debug("test #" + testType + " " + testStatus.getName() + ": OK");
+					Logger.debug(logPrefix + "test #" + testType + " " + testStatus.getName() + ": OK");
 				} else if (testStatus.streamClosed) {
-					Logger.debug("see server log");
+					Logger.debug(logPrefix + "see server log");
 				} else {
 					c.os.flush();
-					Logger.debug("read server status");
+					Logger.debug(logPrefix + "read server status");
 					int ok = c.is.read();
 					Assert.assertEquals("Server reply", Consts.SEND_TEST_REPLY_OK, ok);
 					int conformTestType = c.is.read();
 					Assert.assertEquals("Test reply conform", testType, conformTestType);
 					countSuccess++;
-					Logger.debug("test #" + testType + " " + testStatus.getName() + ": OK");
+					Logger.debug(logPrefix + "test #" + testType + " " + testStatus.getName() + ": OK");
 				}
 				if (connectionCount % 5 == 0) {
 					Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
@@ -600,6 +622,9 @@ public class TestResponderClient implements Runnable {
 				}
 				Logger.error(deviceName + " test #" + testType + " " + testStatus.getName(), e);
 			} finally {
+				if (connectionStartTime != 0) {
+					connectionDuration.add(TimeUtils.since(connectionStartTime));
+				}
 				if (connectedConnectionsInc) {
 					connectedConnections --;
 				}
@@ -664,24 +689,35 @@ public class TestResponderClient implements Runnable {
 		}
 	}
 	
-	private void connectAndTest(int numberOfURLs, Enumeration urls) {
+	private void connectAndTest(Vector urls) {
+		int numberOfURLs = urls.size();
 		if ((!Configuration.clientTestConnectionsMultipleThreads) || (numberOfURLs == 1)) {
 			connectedConnectionsExpect = 1;
 			connectedConnectionsInfo = 1;
-			for (; urls.hasMoreElements();) {
+			for (Enumeration en = urls.elements(); en.hasMoreElements();) {
 				if (stoped) {
 					break;
 				}
-				String url = (String) urls.nextElement();
+				String url = (String) en.nextElement();
 				connectAndTest(url);
 			}
 		} else {
 			connectedConnectionsExpect = numberOfURLs;
 			connectedConnectionsInfo = 1;
+			
+			connectionLogPrefixLength = 0;
+			for (Enumeration en = urls.elements(); en.hasMoreElements();) {
+				String deviceAddress = extractBluetoothAddress((String) en.nextElement());
+				String deviceName = niceDeviceName(deviceAddress);
+				if (deviceName.length() > connectionLogPrefixLength) {
+					connectionLogPrefixLength = deviceName.length(); 
+				}
+			}
+			
 			Logger.debug("start " + numberOfURLs + " threads");
 			Vector threads = new Vector();
-			for (; urls.hasMoreElements();) {
-				ClientConnectionTread t = new ClientConnectionTread((String) urls.nextElement());
+			for (Enumeration en = urls.elements(); en.hasMoreElements();) {
+				ClientConnectionTread t = new ClientConnectionTread((String) en.nextElement());
 				t.start();
 				threads.addElement(t);
 			}
@@ -705,7 +741,7 @@ public class TestResponderClient implements Runnable {
 	}
 	
 	public void run() {
-		Logger.debug("Client started..." + Logger.timeNowToString());
+		Logger.debug("Client started..." + TimeUtils.timeNowToString());
 		isRunning = true;
 		try {
 			bluetoothInquirer = new BluetoothInquirer();
@@ -744,12 +780,12 @@ public class TestResponderClient implements Runnable {
 					discoverySuccessCount ++;
 					lastSuccessfulDiscovery = System.currentTimeMillis();
 					if (!discoveryOnce) {
-						connectAndTest(bluetoothInquirer.serverURLs.size(), bluetoothInquirer.serverURLs.elements());
+						connectAndTest(bluetoothInquirer.serverURLs);
 					}
 				} else {
 					discoveryDryCount ++;
 					if ((discoveryDryCount % 5 == 0) && (lastSuccessfulDiscovery != 0)) {
-						Logger.debug("No services " + discoveryDryCount + " times for " + Logger.secSince(lastSuccessfulDiscovery) + " " + discoverySuccessCount);
+						Logger.debug("No services " + discoveryDryCount + " times for " + TimeUtils.secSince(lastSuccessfulDiscovery) + " " + discoverySuccessCount);
 					}
 				}
 				Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
@@ -767,7 +803,7 @@ public class TestResponderClient implements Runnable {
 			}
 		} finally {
 			isRunning = false;
-			Logger.info("Client finished! " + Logger.timeNowToString());
+			Logger.info("Client finished! " + TimeUtils.timeNowToString());
 			Switcher.yield(this);
 		}
 	}

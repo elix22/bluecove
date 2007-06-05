@@ -33,6 +33,7 @@ public class JavaSECommon implements CLDCStub {
 			return;
 		}
 		initialized = true;
+		Configuration.logTimeStamp = true;
 		Logger.addAppender(new LoggerJavaSEAppender());
 
 		//System.getProperties().put("bluecove.debug", "true");

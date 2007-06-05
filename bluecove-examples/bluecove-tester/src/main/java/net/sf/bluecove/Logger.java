@@ -20,10 +20,9 @@
  */ 
 package net.sf.bluecove;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
+
 
 public class Logger {
 
@@ -80,86 +79,7 @@ public class Logger {
 		loggerAppenders.removeElement(newAppender);
 	}
 	
-    public static String d00(int i) {
-        if (i > 9) {
-            return String.valueOf(i);
-        } else {
-            return "0" + String.valueOf(i);
-        }
-    }
-    
-    public static String d000(int i) {
-    	if (i > 99) {
-            return String.valueOf(i);
-        } else if (i > 9) {
-            return "0" + String.valueOf(i);
-        } else {
-            return "00" + String.valueOf(i);
-        }
-    }
-    
-    public static String timeToString(Calendar calendar) {
-        StringBuffer sb;
-        sb = new StringBuffer();
-        sb.append(d00(calendar.get(Calendar.HOUR_OF_DAY))).append(":");
-        sb.append(d00(calendar.get(Calendar.MINUTE))).append(":");
-        sb.append(d00(calendar.get(Calendar.SECOND)));
-        return sb.toString();
-    }
-    
-    public static synchronized String timeToString(long timeStamp) {
-    	if (timeStamp == 0) {
-    		return "n/a";
-    	}
-    	Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date(timeStamp));
-        return timeToString(calendar);
-    }
-    
-    public static String timeNowToString() {
-    	return timeToString(System.currentTimeMillis());
-    }
-    
-	public static String secSince(long start) {
-		if (start == 0) {
-    		return "n/a";
-    	}
-		long msec = since(start);
-		long sec = msec/1000;
-		long min = sec / 60;
-		sec -= min * 60;
-		long h = min / 60;
-		min -= h * 60;
-		
-		StringBuffer sb;
-        sb = new StringBuffer();
-        if (h != 0) {
-        	sb.append(d00((int)h)).append(":");
-        }
-        if ((h != 0) || (min != 0)) {
-        	sb.append(d00((int)min)).append(":");
-        }
-        sb.append(d00((int)sec));
-        if ((h == 0) && (min == 0)) {
-        	sb.append(" sec");
-        }
-        if ((h == 0) && (min == 0) && (sec <= 1)) {
-        	msec -= 1000 * sec;
-        	sb.append(" ");
-        	sb.append(d000((int)msec));
-        	sb.append(" msec");
-        }
-        return sb.toString();
-	}
-	
-	public static long since(long start) {
-		if (start == 0) {
-			return 0;
-		}
-		return (System.currentTimeMillis() - start);
-	}
-	
-	private static void callAppenders(int level, String message, Throwable throwable) {
+    private static void callAppenders(int level, String message, Throwable throwable) {
 		for (Enumeration iter = loggerAppenders.elements(); iter.hasMoreElements();) {
 			LoggerAppender a = (LoggerAppender) iter.nextElement();
 			a.appendLog(level, message, throwable);

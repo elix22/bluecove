@@ -23,6 +23,8 @@ package net.sf.bluecove;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import net.sf.bluecove.util.TimeUtils;
+
 /**
  * @author vlads
  *
@@ -58,7 +60,7 @@ public class FailureLog {
 	
 	public void addFailure(String message) {
 		countFailure ++;
-		logMessages.addElement(Logger.timeNowToString() + " " + message);
+		logMessages.addElement(TimeUtils.timeNowToString() + " " + message);
 	}
 	
 	public void writeToLog() {

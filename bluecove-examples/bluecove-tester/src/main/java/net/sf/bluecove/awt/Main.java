@@ -21,6 +21,7 @@
 package net.sf.bluecove.awt;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Menu;
 import java.awt.MenuBar;
@@ -53,6 +54,7 @@ import net.sf.bluecove.TestResponderServer;
 import net.sf.bluecove.Logger.LoggerAppender;
 import net.sf.bluecove.util.Storage;
 import net.sf.bluecove.util.StringUtils;
+import net.sf.bluecove.util.TimeUtils;
 
 import com.intel.bluetooth.BlueCoveImpl;
 
@@ -218,7 +220,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		
 		Menu menuMore = new Menu("More");
 		
-		addMenu(menuMore, "ConfigurationDialog", new ActionListener() {
+		addMenu(menuMore, "Configuration", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				(new ConfigurationDialog(Main.this)).setVisible(true); 
 			}
@@ -238,7 +240,11 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		// Create a scrolled text area.
         output = new TextArea("");
         output.setEditable(false);
+        Font logFont = new Font("Monospaced", Font.PLAIN, 12);
+        output.setFont(logFont);
         this.add(output);
+        
+        
 		
         output.addKeyListener(new KeyListener() {
 
@@ -283,12 +289,17 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	
 	private void printFailureLog() {
 		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
-		TestResponderClient.failure.writeToLog();
-		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
-		TestResponderServer.failure.writeToLog();
+		Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
+		Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
+		Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avg());
 		
-		Logger.debug("avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
-		Logger.debug("avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
+		TestResponderClient.failure.writeToLog();
+		
+		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
+		Logger.debug("Server avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
+		Logger.debug("Server avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
+
+		TestResponderServer.failure.writeToLog();
 	}
 	
 	private void clearStats() {
@@ -388,6 +399,12 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			return;
 		}
 		StringBuffer buf = new StringBuffer();
+		
+		if (Configuration.logTimeStamp) {
+			String time = TimeUtils.timeNowToString();
+			buf.append(time).append(" ");
+		}
+		
 		switch (level) {
 		case Logger.ERROR:
 			//errorCount ++;

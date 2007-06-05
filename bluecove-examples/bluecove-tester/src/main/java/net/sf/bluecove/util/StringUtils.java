@@ -20,6 +20,7 @@
  */
 package net.sf.bluecove.util;
 
+
 /**
  * @author vlads
  *
@@ -40,5 +41,37 @@ public class StringUtils {
 			return false;
 		}
 		return (s1.length() == s2.length()) && (s1.toUpperCase().equals(s2.toUpperCase()));
+	}
+	
+    public static String d00(int i) {
+        if (i > 9) {
+            return String.valueOf(i);
+        } else {
+            return "0" + String.valueOf(i);
+        }
+    }
+    
+    public static String d000(int i) {
+    	if (i > 99) {
+            return String.valueOf(i);
+        } else if (i > 9) {
+            return "0" + String.valueOf(i);
+        } else {
+            return "00" + String.valueOf(i);
+        }
+    }
+
+
+	public static String padRight(String str, int length, char c) {
+		int l = str.length();
+		if (l >= length) {
+			return str;
+		}
+		StringBuffer sb = new StringBuffer();
+		sb.append(str);
+		for (int i = l; i < length; i ++) {
+			sb.append(c);
+		}
+		return sb.toString();
 	}
 }
