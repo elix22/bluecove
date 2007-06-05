@@ -40,9 +40,13 @@
 
 == BlueSoleil (IVT Corporation) ==
 
-    * SDK provided by IVT is very limited
+=== Requirements ===
+
+    * BlueSoleil version 1.6.0 or above
 
 === JSR-82 Limitations ===
+
+    SDK provided by IVT is very limited. We just implemenated what we can on top of it.  Also Server is not implemented yet.
 
     * Service attributes are not supported, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
