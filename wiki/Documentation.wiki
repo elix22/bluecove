@@ -9,6 +9,8 @@
 the Microsoft Bluetooth stack. Originally developed by Intel Research and
 currently maintained by volunteers.
 
+ [http://bluecove.wiki.sourceforge.net/ BlueCove public contirbutions Wiki]
+
 == Requirements ==
 
   * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
