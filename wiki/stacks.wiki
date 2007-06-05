@@ -14,7 +14,12 @@
 
 == WIDCOMM (Broadcom) ==
 
-    * Most stable stack from one supported by !BlueCove
+    This stack is most stable stack from one supported by !BlueCove
+
+=== Requirements ===
+
+    * BTW Stack software version 1.4.2.10 SP5 or above on Windows32
+    * For AMD64 systems you need to build dll yourself
     * Broadcom wbtapi.dll required. It is installed with WIDCOMM drivers.
 
 === JSR-82 Limitations ===
@@ -42,7 +47,7 @@
 
 === Requirements ===
 
-    * BlueSoleil version 1.6.0 or above
+    * !BlueSoleil version 1.6.0 or above
 
 === JSR-82 Limitations ===
 
