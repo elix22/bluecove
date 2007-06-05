@@ -6,32 +6,39 @@
    If automatic Bluetooth Stack detection is not enough Java System property "bluecove.stack" can be used to force desired Stack Initialization. Values "widcomm", "bluesoleil" or "winsock".
    By defaut winsock is selected if avalable.
 
-   WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0. Your help is required to test and fix functionality.
+   WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0. Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.
 
    [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile]
+
+== WIDCOMM (Broadcom) ==
+
+    * Most stable stack from one supported by !BlueCove
+    * Broadcom wbtapi.dll required. It is installed with WIDCOMM drivers.
+
+=== JSR-82 Limitations ===
+
+    * RFCOMM Server can accept only one connection at a time
+    * `ServiceRecord` attributes of `DataElement` types URL are discoved as STRING
+    * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8, INT_16 and UINT_16 are not properly discovery (Bug submited to Support@broadcom)
+
 
 == Winsock (Microsoft) ==
 
 === Requirements ===
 
     * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
-    * A Bluetooth [http://support.microsoft.com/default.aspx?kbid=841803 device supported] by the Microsoft bluetooth stack
+    * A Bluetooth [http://support.microsoft.com/default.aspx?kbid=841803 device supported] by the Microsoft bluetooth stack.
+    * [http://bluecove.wiki.sourceforge.net/ms-usb-dongles List of Bluetooth USB dongles working with Microsoft Bluetooth stack] [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile Devices]
 
 === Limitations ===
 
     * Microsoft Bluetooth stack only supporting RFCOMM connections
-    * `DiscoveryAgent.searchServices()` can't query for BOOL DataElements
-
-== WIDCOMM (Broadcom) ==
-
-    * Broadcom wbtapi.dll required. It is installed with WIDCOMM drivers.
-
-=== JSR-82 Limitations ===
-
-    * `ServiceRecord` attributes of `DataElement` types URL are discoved as STRING
-    * `ServiceRecord` attributes of `DataElement` types INT_16 are truncated in discovery (May be you can help fixing this)
+    * `DiscoveryAgent.searchServices()` can't query for BOOL !DataElements
+    * `DiscoveryAgent.searchServices()` can't query for UUID !DataElements other than one in !ProtocolDescriptorList and !ServiceClassIDList
 
 == BlueSoleil (IVT Corporation) ==
+
+    * SDK provided by IVT is very limited
 
 === JSR-82 Limitations ===
 
