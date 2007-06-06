@@ -21,7 +21,7 @@
   <resources>
     <j2se version="1.1+"/>
     <jar href="bluecove-1.2.3-signed.jar"/>
-    <jar href="bluecove-tester-app.jar"/>
+    <jar href="bluecove-tester-app.jar" main="true"/>
   </resources>
 
   <application-desc main-class="net.sf.bluecove.awt.Main">
