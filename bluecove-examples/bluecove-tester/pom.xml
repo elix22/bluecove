@@ -163,6 +163,10 @@
                         <configuration>
                             <jarPath>${project.build.directory}/${project.build.finalName}-app.${project.packaging}</jarPath>
                             <signedjar>${project.build.directory}/site/bluecove-tester-app.jar</signedjar>
+                            <!--
+                            <jarPath>src\site\resources\bluecove-1.2.3.jar</jarPath>
+                            <signedjar>src\site\resources\bluecove-1.2.3-signed.jar</signedjar>
+                            -->
                             <keystore>${user.home}/.m2/MicroEmulator.keystore</keystore>
                             <keypass>${MicroEmulator-keystore-pwd}</keypass>
                             <storepass>${MicroEmulator-keystore-pwd}</storepass>

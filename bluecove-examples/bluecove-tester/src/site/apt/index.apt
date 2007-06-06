@@ -71,6 +71,8 @@ Server failure 0
 
         * <<<{{{awt-bctest-bluesoleil.jnlp}\u00bbStart with IVT BlueSoleil}}>>>
 
+        * Web Start with {{{#previous} previous releases of BlueCove}}
+
     If for some reason Java Web Start is not working for you. Try download this {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
 
     Run it like this:
@@ -125,3 +127,8 @@ java -cp ElectricBlue.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.aw
 ---
 
     We tried IBM's J9 VM  and NSICOM's CrEme JVM and BlueCove works there.
+
+* Web Start with {previous} releases of BlueCove
+
+        * <<<{{{awt-bctest-1.2.3.jnlp}\u00bbStart with Microsoft Winsock v 1.2.3}}>>>
+

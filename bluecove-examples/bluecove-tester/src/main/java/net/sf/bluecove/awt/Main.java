@@ -278,11 +278,12 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		String title = "BlueCove tester";
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
 		if (StringUtils.isStringSet(bluecoveVersion)) {
+			title += " " + bluecoveVersion;
 			String stack = LocalDevice.getProperty("bluecove.stack");
 			if (StringUtils.isStringSet(stack)) {
 				title += " on [" + stack + "]";
 			} else {
-				title += bluecoveVersion; 
+				title += " on [winsock]"; 
 			}
 		}
 		this.setTitle(title);
