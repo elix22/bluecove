@@ -84,7 +84,7 @@ public class Configuration {
 
 	public static boolean testServiceAttributes = true;
 	
-	public static boolean testAllServiceAttributes = true;
+	public static boolean testAllServiceAttributes = false;
 
 	/**
 	 * Apperantly Motorola Service Attribute STRING is not working.

@@ -40,6 +40,8 @@ public interface Consts {
 	
 	public static final int TEST_SERVICE_ATTRIBUTE_INT_VALUE = 77;
 	
+	public static final int TEST_SERVICE_ATTRIBUTE_INT_VALUE_TEST_ALL = 88;
+	
 	public static final int TEST_SERVICE_ATTRIBUTE_STR_ID = 0x0A1;
     
 	public static final String TEST_SERVICE_ATTRIBUTE_STR_VALUE = "SomeData";

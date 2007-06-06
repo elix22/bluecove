@@ -107,6 +107,8 @@ public class TestResponderClient implements Runnable {
 	
 	public String connectURL = null;
 	
+	private static int sdAttrRetrievableMax = 255;
+	
 	public static synchronized void clear() {
 		countSuccess = 0;
 		failure.clear();
@@ -157,9 +159,10 @@ public class TestResponderClient implements Runnable {
 				attrIDs = null;
 			} else if (Configuration.testAllServiceAttributes) {
 				int allSize = ServiceRecordTester.allTestServiceAttributesSize();
-				attrIDs = new int[allSize];
+				attrIDs = new int[allSize + 1];
+				attrIDs[0] = Consts.TEST_SERVICE_ATTRIBUTE_INT_ID;
 				for(int i = 0; i < allSize; i++) {
-					attrIDs[i] = Consts.SERVICE_ATTRIBUTE_ALL_START + i; 
+					attrIDs[1 + i] = Consts.SERVICE_ATTRIBUTE_ALL_START + i; 
 				}
 			} else if (Configuration.testIgnoreNotWorkingServiceAttributes) {
 				attrIDs = new int[] { 
@@ -342,7 +345,19 @@ public class TestResponderClient implements Runnable {
 				synchronized (this) {
 			    	try {
 			    		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-			    		servicesSearchTransID = discoveryAgent.searchServices(attrIDs, searchUuidSet, remoteDevice, this);
+			    		
+			    		int[] shortAttrSet;
+			    		if ((sdAttrRetrievableMax != 0) && (attrIDs != null) && (sdAttrRetrievableMax < attrIDs.length)) {
+			    			shortAttrSet = new int[sdAttrRetrievableMax];
+			    			for (int i = 0; i < sdAttrRetrievableMax; i ++) {
+			    				shortAttrSet[i] = attrIDs[i];
+			    			}
+			    			Logger.debug("search attr first " + shortAttrSet.length + " of " + attrIDs.length);
+			    		} else {
+			    			shortAttrSet = attrIDs;
+			    		}
+			    		
+			    		servicesSearchTransID = discoveryAgent.searchServices(shortAttrSet, searchUuidSet, remoteDevice, this);
 			    		transID = servicesSearchTransID; 
 			    		if (transID <= 0) {
 			    			Logger.warn("servicesSearch TransID mast be positive, " + transID);
@@ -394,6 +409,19 @@ public class TestResponderClient implements Runnable {
 				} else {
 					isBlueCoveTestService = ServiceRecordTester.hasServiceClassUUID(servRecord[i], CommunicationTester.uuid);
 					if (isBlueCoveTestService) {
+						
+						// Retive other service attributes
+						if ((sdAttrRetrievableMax != 0) && (attrIDs != null) && (sdAttrRetrievableMax < attrIDs.length)) {
+							//int[] shortAttrSet;
+			    			for (int ai = sdAttrRetrievableMax; ai < attrIDs.length; ai ++) {
+			    				try {
+									servRecord[i].populateRecord(new int[]{attrIDs[ai]});
+								} catch (IOException e) {
+									Logger.error("populateRecord", e);
+								}
+			    			}
+			    		}
+						
 						ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName, servicesOnDeviceAddress);
 					}
 				}
@@ -463,6 +491,14 @@ public class TestResponderClient implements Runnable {
 			Logger.info("radio version:" + LocalDevice.getProperty("bluecove.radio.version"));
 			
 			Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice.getProperty("bluecove.stack"));
+		}
+		
+		String v = LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max");
+		if (v != null) {
+			sdAttrRetrievableMax = Integer.valueOf(v).intValue();
+			if ((sdAttrRetrievableMax > 7) && (Configuration.isJ2ME)) {
+				sdAttrRetrievableMax = 7;
+			}
 		}
 		
 		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());

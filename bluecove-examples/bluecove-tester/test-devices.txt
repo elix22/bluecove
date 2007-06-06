@@ -1,0 +1,43 @@
+Vlad Skarzhevskyy
+1) Professional XP SP2 - Laptop HP ZT3380US, Integrated Cambridge Silicon Radio
+      Microsoft Bluetooth stack for USB
+      Broadcom Bluetooth stack v5.0.1.2800 for integrated Radio
+2) Professional XP SP2  - desktop
+      Microsoft Bluetooth stack for USB
+      Broadcom Bluetooth stack v4.0.1.2900 for USN
+2) Linux FC-6
+      BlueZ
+
+WIN-CE
+1)  Motorola MPx220, Windows Mobile 2003 Phone Edition
+      Microsoft Bluetooth stack
+2)  Dell AXIM X30, Windows Mobile 2003 SE (WinCE 4.21)
+      Broadcom Bluetooth stack BT-PPC 1.5.0.4300
+
+BT radios
+    2 x Microsoft Wireless Transceiver for Bluetooth 2.0
+    TRUST Bluetooth 2.0 EDR USB Adapter BT-2210Tp
+    ES-388 Bluetooth USB Adapter  (fake item, Device has illegal Bluetooth addr 11:11:11:11:11:11)
+    D-Link DBT-120 USB Bluetooth Adapter
+
+JSR-082 Phones:
+    2 x Nokia 6230,
+    Motorola V360, Sony Ericsson K790
+    Nokia 6265i, Motorola i605,  Motorola i870
+
+
+----------------------------------------------------------------------------------------------------------
+Hakan Lager
+
+1) Professional XP 5.0.1.2600 SP2 Missing: MSVCr80, BTFUNC, MSJAVA WBAPI
+2) Professional XP 5.0.1.2600  SP2 Missing: MSVCR80, BTFUNC, MSJAVA, WBAPI
+3) Home XP         5.0.1.2600 SP2 Missing: BTFUNC, EFSADU, MSJAVA, WBTAPI
+4) Professional XP 5.0.1.2600 SP2 Missing: BTFUNC, MSJAVA, WBTAPI
+
+JSR-082 Phones:
+     SE Z800, SE W800i,  Nokia N95
+
+BT radios
+1) Belkin dongle F8T003 v2
+2) Trust dongle BT-1300TP
+3) Embedded BT radio in Fujutsi Amilo named "Hp" (Computer #3 in the list)

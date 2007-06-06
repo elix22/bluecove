@@ -152,7 +152,16 @@ public class ServiceRecordTester {
 		if (!Configuration.testServiceAttributes || ("0".equals(LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max")))) {
 			return hasServiceClassUUID(servRecord, CommunicationTester.uuid);
 		}
-		if (Configuration.testAllServiceAttributes) {
+		
+		boolean canTestLong = false;
+		DataElement flagDataElement = servRecord.getAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID);
+		if (flagDataElement != null) {
+			if (flagDataElement.getLong() == Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE_TEST_ALL) {
+				canTestLong = true;
+			}
+		}
+		
+		if (canTestLong && Configuration.testAllServiceAttributes) {
 			isBlueCoveTestService = hasServiceClassUUID(servRecord, CommunicationTester.uuid);
 			if (isBlueCoveTestService) {
 				compareAllServiceAttributes(servRecord, servicesOnDeviceName);
