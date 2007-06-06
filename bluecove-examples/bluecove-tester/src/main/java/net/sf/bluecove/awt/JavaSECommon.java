@@ -41,7 +41,7 @@ public class JavaSECommon implements CLDCStub {
 		
 		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
 			Configuration.serverAcceptWhileConnected = true;
-			Configuration.testIgnoreNotWorkingServiceAttributes = false;
+			//Configuration.testIgnoreNotWorkingServiceAttributes = false;
 		}
 		
 		Configuration.cldcStub = new JavaSECommon();
