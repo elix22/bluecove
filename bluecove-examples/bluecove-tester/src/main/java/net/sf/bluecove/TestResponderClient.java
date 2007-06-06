@@ -643,7 +643,7 @@ public class TestResponderClient implements Runnable {
 				}
 				
 				// Dellay to see if many connections are made.
-				if (connectedConnectionsInfo < connectedConnectionsExpect) {
+				if ((connectedConnectionsExpect > 1) && (connectedConnectionsInfo < connectedConnectionsExpect)) {
 					synchronized (TestResponderClient.this) {
 						try {
 							TestResponderClient.this.wait(5 * 1000);
@@ -674,7 +674,7 @@ public class TestResponderClient implements Runnable {
 			// Let the server restart
 			if (!stoped) {
 				try {
-					Thread.sleep(Consts.clientReconnectSleep);
+					Thread.sleep(Configuration.clientSleepBetweenConnections);
 				} catch (InterruptedException e) {
 					break;
 				}

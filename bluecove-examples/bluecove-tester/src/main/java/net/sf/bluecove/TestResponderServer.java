@@ -166,7 +166,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.debug("Test# " + testType + " " + testStatus.getName() + " ok");
 				if (!stoped) {
 					try {
-						Thread.sleep(Consts.serverSendCloseSleep);
+						Thread.sleep(Configuration.serverSleepB4ClosingConnection);
 					} catch (InterruptedException e) {
 					}
 				}

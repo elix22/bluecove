@@ -85,6 +85,12 @@ java -jar bluecove-tester-app.jar
 java -cp avetanaBluetooth.jar;bluecove-tester-app.jar net.sf.bluecove.awt.Main
 ---
 
+on Linux
+
+---
+java -cp avetanaBluetooth.jar:bluecove-tester-app.jar net.sf.bluecove.awt.Main
+---
+
     You can download the {{{bluecove-tester.jar}bluecove-tester.jar}} application jar and run it without bluecove JSR-82 in calsspath.
 
 ---

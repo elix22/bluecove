@@ -153,11 +153,11 @@ public class ServiceRecordTester {
 			return hasServiceClassUUID(servRecord, CommunicationTester.uuid);
 		}
 		
-		boolean canTestLong = false;
+		boolean canTestLong = true;
 		DataElement flagDataElement = servRecord.getAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID);
 		if (flagDataElement != null) {
-			if (flagDataElement.getLong() == Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE_TEST_ALL) {
-				canTestLong = true;
+			if (flagDataElement.getLong() == Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE) {
+				canTestLong = false;
 			}
 		}
 		
@@ -384,6 +384,11 @@ public class ServiceRecordTester {
 	}
 	
 	public static void addAllTestServiceAttributes(ServiceRecord servRecord) {
+		
+		servRecord.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID,
+		        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_INT_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE_TEST_ALL));
+
+		
 		for (int i = 0; i < allTestServiceAttributes.size(); i++) {
 			DataElement de = (DataElement)allTestServiceAttributes.elementAt(i);
 			servRecord.setAttributeValue(Consts.SERVICE_ATTRIBUTE_ALL_START + i, de);

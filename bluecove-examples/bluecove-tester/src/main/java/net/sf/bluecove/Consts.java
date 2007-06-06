@@ -68,10 +68,6 @@ public interface Consts {
 	
 	public static final int SERVICE_ATTRIBUTE_ALL_START = 0x0B0;
 	
-	public static final int clientReconnectSleep = 5100;
-	
-	public static final int serverSendCloseSleep = 1000;
-	
 	public static final int serverTimeOutMin = 2;
 	
     public static final int DEVICE_COMPUTER = 0x0100;

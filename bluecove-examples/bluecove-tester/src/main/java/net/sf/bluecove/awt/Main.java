@@ -86,6 +86,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		app.setVisible(true);
 		Logger.debug("Stated app");
 		Logger.debug("OS:" + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
+		Logger.debug("Java:" + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
 		
 		Configuration.storage = app;
 		

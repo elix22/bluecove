@@ -96,6 +96,10 @@ public class Configuration {
 
 	public static boolean testServerForceDiscoverable = true;
 
+	public static int clientSleepBetweenConnections = 5100;
+	
+	public static int serverSleepB4ClosingConnection = 1000;
+	
 	public static int serverMAXTimeSec = 80;
 
 	public static Storage storage;
