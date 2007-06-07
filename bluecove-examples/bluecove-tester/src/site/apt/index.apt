@@ -15,13 +15,13 @@ BlueCove test application
     First Client discovers server. During ServiceSearch client verify the server Service attributes values.
     Then client connects to server and sends and receives different types of data. This includes int, long, bytes, byte array, Strings.
     This is communication test code {{{http://bluecove.googlecode.com/svn/bluecove-examples/bluecove-tester/src/main/java/net/sf/bluecove/CommunicationTester.java}CommunicationTester.java}}.
-    The same functions are called from server and from client. e.g. sendString() and readString(). In first test Client sendString over establesh connection and server readString. In second the direction is reversed.
+    The same functions are called from server and from client. E.g. sendString() and readString(). In first test Client sendString over established connection and server readString. In second the direction is reversed.
 
     For tests you need two devices. Once device should run as server another as client. You can switch roles in the application.
 
-    There are no fancy GUI! Just communication log windows.
+    There is no fancy GUI! Just communication log windows.
 
-    While client is runnng you will see the log like this:
+    While client is running you will see the log like this:
 
 ---
 Client started...21:52:02
@@ -58,7 +58,7 @@ Server failure 0
 
 * Start BlueCove on Windows
 
-   You can start Java Web Start with MIDlet application and see how it communicate with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
+   You can start Java Web Start with MIDlet application and see how it communicates with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
 
    Also AWT test application can be used in Java Web Start. <<<{{{awt-bctest.jnlp}\u00bbStart now}}>>>.
 
@@ -73,7 +73,7 @@ Server failure 0
 
         * Web Start with {{{#previous} previous releases of BlueCove}}
 
-    If for some reason Java Web Start is not working for you. Try download this {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
+    If for some reason Java Web Start is not working for you. Try downloading this {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
 
     Run it like this:
 
@@ -93,13 +93,13 @@ on Linux
 java -cp avetanaBluetooth.jar:bluecove-tester-app.jar net.sf.bluecove.awt.Main
 ---
 
-    You can download the {{{bluecove-tester.jar}bluecove-tester.jar}} application jar and run it without bluecove JSR-82 in calsspath.
+    You can download the {{{bluecove-tester.jar}bluecove-tester.jar}} application jar and run it without BlueCove JSR-82 in calsspath.
 
 ---
 java -cp ElectricBlue.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.awt.Main
 ---
 
-    bluecove-tester-app.jar is the same application as bluecove-tester.jar only junit and bluecove classes are included.
+    bluecove-tester-app.jar is the same application as bluecove-tester.jar only JUnit and BlueCove classes are included.
 
 
 * This is the test MIDlet. It can run on a {{{http://code.google.com/p/bluecove/wiki/phones} cell phone with JSR-82}}
@@ -108,7 +108,7 @@ java -cp ElectricBlue.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.aw
 
     * {{{bctest.jad}bctest.jad}}
 
-    You can upload this MIDlet to your cell phone and use it as responter for BlueCove application on PC.
+    You can upload this MIDlet to your cell phone and use it as responder for BlueCove application on PC.
 
     See {{{http://code.google.com/p/bluecove/wiki/phones}complete list of the JSR-82 compliant phones}}
 
