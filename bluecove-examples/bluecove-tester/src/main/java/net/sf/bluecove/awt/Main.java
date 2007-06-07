@@ -290,18 +290,24 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	}
 	
 	private void printFailureLog() {
-		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
-		Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
-		Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
-		Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avg());
-		
-		TestResponderClient.failure.writeToLog();
-		
-		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
-		Logger.debug("Server avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
-		Logger.debug("Server avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
+		if (TestResponderClient.countSuccess + TestResponderClient.failure.countFailure != 0) {
+			Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:"
+					+ TestResponderClient.failure.countFailure);
+			Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
+			Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
+			Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avg());
 
-		TestResponderServer.failure.writeToLog();
+			TestResponderClient.failure.writeToLog();
+		}
+		
+		if (TestResponderServer.countSuccess + TestResponderServer.failure.countFailure != 0) {
+			Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:"
+					+ TestResponderServer.failure.countFailure);
+			Logger.debug("Server avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
+			Logger.debug("Server avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
+
+			TestResponderServer.failure.writeToLog();
+		}
 	}
 	
 	private void clearStats() {
