@@ -469,10 +469,20 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 	public void storeData(String name, String value) {
 		Properties p = getProperties(); 
-		File f = getPropertyFile();
 		if (name != null) {
-			p.setProperty(name, value);
+			if (value == null) {
+				if (p.remove(name) == null) {
+					// Not updated
+					return;
+				}
+			} else {
+				if (value.equals(p.setProperty(name, value))) {
+					// Not updated
+					return;
+				}
+			}
 		}
+		File f = getPropertyFile();
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(f);
