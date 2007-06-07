@@ -6,7 +6,11 @@
    If automatic Bluetooth Stack detection is not enough Java System property "bluecove.stack" can be used to force desired Stack Initialization. Values "widcomm", "bluesoleil" or "winsock".
    By default winsock is selected if available.
 
-   WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0. Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.
+   WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0.
+
+   The version 2.0.0 is avable as SNAPSHOT and is alpha testing NOW!
+
+   Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.
 
    To determine which Bluetooth stack is installed on your Windows [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
 
