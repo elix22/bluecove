@@ -8,9 +8,7 @@
 
    WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0.
 
-   The version 2.0.0 is avable as SNAPSHOT and is alpha testing NOW!
-
-   Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.
+   *The version 2.0.0 is avable as SNAPSHOT and is alpha testing NOW! Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.*
 
    To determine which Bluetooth stack is installed on your Windows [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
 
