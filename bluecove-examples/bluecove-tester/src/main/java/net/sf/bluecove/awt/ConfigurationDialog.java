@@ -68,6 +68,9 @@ public class ConfigurationDialog extends OkCancelDialog {
 		this.add(panelItems, BorderLayout.NORTH);
 		
 		addConfig("deviceClassFilter");
+		addConfig("discoverDevicesComputers");
+		addConfig("discoverDevicesPhones");
+		
 		addConfig("clientContinuousDiscovery");
 		addConfig("clientContinuousDiscoveryDevices");
 		addConfig("clientContinuousServicesSearch");
