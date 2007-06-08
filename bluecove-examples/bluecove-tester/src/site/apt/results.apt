@@ -60,21 +60,23 @@ BlueCove test Results
 
     Long running tests. Application was left running for a long time (over night)
 
-*-------------+-------------+----------------------------------------------+
-| <<Server>>  | <<Client>>  | Problems/Comments
-*-------------+-------------+-
-| Nokia 6265i | BlueCove-MS |  1800 Connections made before MS Stack hangs, {{#ms}}
-*-------------+-------------+-
-| Nokia 6265i | BlueCove-WC |  more than 6000 Connections made and running
-*-------------+-------------+-
-| BlueCove-MS | BlueCove-WC |  1010 Connections made before MS Stack hangs, {{#ms}}
-*-------------+-------------+-
-| BlueCove-MS | Nokia 6265i |  2020 Connections made before MS Stack hangs, {{#ms}}
-*-------------+-------------+-
-| BlueCove-WC | Nokia 6265i |  more than 2000 Connections made and running
-*-------------+-------------+-
-| BlueCove-WC | SE-K790     |  more than 3000 Connections made and running
-*-------------+-------------+-
+*-------------+--------------------+----------------------------------------------+
+| <<Server>>  | <<Client>>         | Problems/Comments
+*-------------+--------------------+-
+| Nokia 6265i | BlueCove-MS        |  1800 Connections made before MS Stack hangs, {{#ms}}
+*-------------+--------------------+-
+| Nokia 6265i | BlueCove-WC        |  more than 6000 Connections made and running
+*-------------+--------------------+-
+| BlueCove-MS | BlueCove-WC        |  1010 Connections made before MS Stack hangs, {{#ms}}
+*-------------+--------------------+-
+| BlueCove-MS | Nokia 6265i        |  2020 Connections made before MS Stack hangs, {{#ms}}
+*-------------+--------------------+-
+| BlueCove-WC | Nokia 6265i        |  more than 2000 Connections made and running
+*-------------+--------------------+-
+| BlueCove-WC | SE-K790            |  more than 3000 Connections made and running
+*-------------+--------------------+-
+| Nokia 6265i | BlueCove-MS v1.2.3 |  2750 Connections made
+*-------------+--------------------+-
 
 
   * <<{ms}>> On Microsoft stack Server or Client 600-2000 connections made before MS Stack hangs, Apply to avetana-MS as well.  Don't know solution yet.

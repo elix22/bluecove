@@ -156,6 +156,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>sign-tester-app</id>
                         <phase>package</phase>
                         <goals>
                             <goal>sign</goal>
@@ -173,6 +174,38 @@
                             <alias>MicroEmulatorSignJars</alias>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>sign-tester</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <jarPath>${project.build.directory}/${project.build.finalName}.${project.packaging}</jarPath>
+                            <signedjar>${project.build.directory}/site/bluecove-tester-signed.jar</signedjar>
+                            <keystore>${user.home}/.m2/MicroEmulator.keystore</keystore>
+                            <keypass>${MicroEmulator-keystore-pwd}</keypass>
+                            <storepass>${MicroEmulator-keystore-pwd}</storepass>
+                            <alias>MicroEmulatorSignJars</alias>
+                        </configuration>
+                    </execution>
+                    <!--
+                    <execution>
+                        <id>sign-tester-app-3p</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <jarPath>src\site\resources\junit-3.8.1.jar</jarPath>
+                            <signedjar>src\site\resources\junit-3.8.1-signed.jar</signedjar>
+                            <keystore>${user.home}/.m2/MicroEmulator.keystore</keystore>
+                            <keypass>${MicroEmulator-keystore-pwd}</keypass>
+                            <storepass>${MicroEmulator-keystore-pwd}</storepass>
+                            <alias>MicroEmulatorSignJars</alias>
+                        </configuration>
+                    </execution>
+                    -->
                 </executions>
             </plugin>
 

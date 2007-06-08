@@ -3,7 +3,7 @@ rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
 call %~dp0scripts\version.cmd
 
-set JVM_ARGS=-Dbluecove.stack=widcomm
+rem set JVM_ARGS=-Dbluecove.stack=widcomm
 
 set TITLE=bluecove-tester
 set ERRORS=0
