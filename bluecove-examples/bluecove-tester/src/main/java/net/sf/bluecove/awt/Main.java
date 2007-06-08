@@ -190,7 +190,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			public void actionPerformed(ActionEvent e) {
 				quit();
 			}
-		});
+		}, KeyEvent.VK_X);
 
 		
 		menuBar.add(menuBluetooth);
@@ -212,7 +212,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			public void actionPerformed(ActionEvent e) {
 				clear();
 			}
-		});
+		}, KeyEvent.VK_Z);
 		
 		addMenu(menuLogs, "Print FailureLog", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
