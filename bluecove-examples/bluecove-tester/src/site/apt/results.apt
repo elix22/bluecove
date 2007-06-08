@@ -59,6 +59,7 @@ BlueCove test Results
 
 
     Long running tests. Application was left running for a long time (over night)
+    Discovery then connection.
 
 *-------------+--------------------+----------------------------------------------+
 | <<Server>>  | <<Client>>         | Problems/Comments
@@ -75,7 +76,15 @@ BlueCove test Results
 *-------------+--------------------+-
 | BlueCove-WC | SE-K790            |  more than 3000 Connections made and running
 *-------------+--------------------+-
-| Nokia 6265i | BlueCove-MS v1.2.3 |  7681 Connections made and running
+
+  Just connection tests
+
+*-------------+--------------------+----------------------------------------------+
+| <<Server>>  | <<Client>>         | Problems/Comments
+*-------------+--------------------+-
+| Nokia 6265i | BlueCove-MS        |  7400 Connections made and running, NO Discovery
+*-------------+--------------------+-
+| Nokia 6265i | BlueCove-MS v1.2.3 |  7681 Connections made and running, NO Discovery
 *-------------+--------------------+-
 
 
