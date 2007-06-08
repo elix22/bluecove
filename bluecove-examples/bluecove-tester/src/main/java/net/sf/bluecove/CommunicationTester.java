@@ -181,7 +181,7 @@ public class CommunicationTester implements Consts {
 		// Long test need conformation
 		os.flush();
 		byte got = (byte)is.read();
-		Assert.assertEquals("byte", streamAvailableByteCount, got);
+		Assert.assertEquals("conformation byte", streamAvailableByteCount, got);
 	}
 
 	private static void readStreamAvailable(InputStream is, OutputStream os) throws IOException {
