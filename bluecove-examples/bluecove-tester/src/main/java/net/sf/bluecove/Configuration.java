@@ -102,6 +102,10 @@ public class Configuration {
 	
 	public static int serverMAXTimeSec = 80;
 
+	public static int clientSleepOnConnectionRetry = 500;
+	
+	public static int clientSleepOnDeviceInquiryError = 10000;
+	
 	public static Storage storage;
 	
 	public static CLDCStub cldcStub;

@@ -122,6 +122,8 @@ public class TestResponderClient implements Runnable {
 		boolean inquiringDevice;
 		
 		boolean inquiring;
+		
+		boolean deviceDiscoveryError;
 
 		Vector devices = new Vector();
 		
@@ -230,6 +232,7 @@ public class TestResponderClient implements Runnable {
 					useDiscoveredDevices = false;
 				} else if (needToFindDevice) {
 					Logger.debug("Starting Device inquiry");
+					deviceDiscoveryError = false;
 					devices.removeAllElements();
 					long start = System.currentTimeMillis();
 					try {
@@ -255,6 +258,9 @@ public class TestResponderClient implements Runnable {
 					cancelInquiry();
 					Logger.debug("  Device inquiry took " + TimeUtils.secSince(start));
 					RemoteDeviceInfo.discoveryInquiryFinished(TimeUtils.since(start));
+					if (deviceDiscoveryError && (devices.size() == 0)) {
+						return false;
+					}
 				}
 
 				if (Configuration.clientContinuousServicesSearch || serverURLs.size() == 0) {
@@ -458,8 +464,15 @@ public class TestResponderClient implements Runnable {
 		}
 
         public synchronized void inquiryCompleted(int discType) {
-        	if (discType == INQUIRY_ERROR) {
-        		Logger.error("inquiry ended abnormally"); 
+        	switch (discType) {
+        	case INQUIRY_ERROR:
+        		Logger.error("device inquiry ended abnormally");
+        		deviceDiscoveryError = true;
+        		break;
+        	case INQUIRY_TERMINATED:
+        		Logger.info("Device discovery has been canceled by the application");
+        		break;
+        	case INQUIRY_COMPLETED:
         	}
         	notifyAll();
         }
@@ -580,7 +593,7 @@ public class TestResponderClient implements Runnable {
 						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {
 							throw e;
 						}
-						Thread.sleep(500);
+						Thread.sleep(Configuration.clientSleepOnConnectionRetry);
 						Logger.debug(logPrefix + "connect retry:" + connectionOpenTry);
 					}
 				}
@@ -792,7 +805,7 @@ public class TestResponderClient implements Runnable {
 					if (!bluetoothInquirer.runDeviceInquiry()) {
 						startTry ++;
 						try {
-							Thread.sleep(2000);
+							Thread.sleep(Configuration.clientSleepOnDeviceInquiryError);
 						} catch (Exception e) {
 							break;
 						}
