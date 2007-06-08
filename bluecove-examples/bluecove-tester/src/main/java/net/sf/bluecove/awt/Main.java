@@ -26,6 +26,7 @@ import java.awt.Frame;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+import java.awt.MenuShortcut;
 import java.awt.Rectangle;
 import java.awt.ScrollPane;
 import java.awt.TextArea;
@@ -42,6 +43,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.bluetooth.LocalDevice;
 
@@ -121,46 +124,46 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		MenuBar menuBar = new MenuBar();
 		Menu menuBluetooth = new Menu("Bluetooth");
 		
-		addMenu(menuBluetooth, "Server Start", new ActionListener() {
+		final MenuItem serverStart = addMenu(menuBluetooth, "Server Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startServer();
 				updateTitle();
 			}
-		});
+		}, KeyEvent.VK_5);
 
-		addMenu(menuBluetooth, "Server Stop", new ActionListener() {
+		final MenuItem serverStop = addMenu(menuBluetooth, "Server Stop", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.serverShutdown();
 			}
-		});
+		}, KeyEvent.VK_6);
 
 		
-		addMenu(menuBluetooth, "Client Start", new ActionListener() {
+		final MenuItem clientStart = addMenu(menuBluetooth, "Client Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startClient();
 				updateTitle();
 			}
-		});
+		}, KeyEvent.VK_2);
 
-		addMenu(menuBluetooth, "Client Stop", new ActionListener() {
+		final MenuItem clientStop = addMenu(menuBluetooth, "Client Stop", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.clientShutdown();
 			}
-		});
+		}, KeyEvent.VK_3);
 
 		addMenu(menuBluetooth, "Discovery", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startDiscovery();
 				updateTitle();
 			}
-		});
+		}, KeyEvent.VK_MULTIPLY);
 
 		addMenu(menuBluetooth, "Services Search", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startServicesSearch();
 				updateTitle();
 			}
-		});
+		}, KeyEvent.VK_7);
 
 		addMenu(menuBluetooth, "Client Stress Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -175,6 +178,13 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				updateTitle();
 			}
 		});
+		
+		final MenuItem stop = addMenu(menuBluetooth, "Stop all work", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Switcher.clientShutdown();
+				Switcher.serverShutdown();
+			}
+		}, KeyEvent.VK_S);
 		
 		addMenu(menuBluetooth, "Quit", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -208,7 +218,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			public void actionPerformed(ActionEvent e) {
 				printFailureLog();
 			}
-		});
+		}, KeyEvent.VK_4);
 		
 		addMenu(menuLogs, "Clear Stats", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -245,7 +255,18 @@ public class Main extends Frame implements LoggerAppender, Storage {
         output.setFont(logFont);
         this.add(output);
         
-        
+        Timer statusUpdate = new Timer();
+        statusUpdate.schedule(new TimerTask() {
+        	public void run() {
+        		serverStop.setEnabled(Switcher.isRunningServer());
+        		serverStart.setEnabled(!Switcher.isRunningServer());
+        		
+        		clientStop.setEnabled(Switcher.isRunningClient());
+        		clientStart.setEnabled(!Switcher.isRunningClient());
+        		stop.setEnabled(Switcher.isRunningClient() || Switcher.isRunningServer());
+        	}
+        }, 1000, 700);
+		
 		
         output.addKeyListener(new KeyListener() {
 
@@ -320,9 +341,16 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	
 	
 	private MenuItem addMenu(Menu menu,String name, ActionListener l) {
+		return addMenu(menu, name,l, 0);
+	}
+	
+	private MenuItem addMenu(Menu menu,String name, ActionListener l, int key) {
 		MenuItem menuItem = new MenuItem(name);
 		menuItem.addActionListener(l);
 		menu.add(menuItem);
+		if (key != 0) {
+			menuItem.setShortcut(new MenuShortcut(key, false)); 
+		}
 		return menuItem;
 	}
 
@@ -339,6 +367,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			//setLogEndLine();
 			break;
 		case '*':
+		case KeyEvent.VK_MULTIPLY:
 		case 119:
 			Switcher.startDiscovery();
 			break;
@@ -370,6 +399,8 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 			clear();
 			break;
+		default:
+			//Logger.debug("keyCode " + keyCode);
 		}
 		lastKeyCode = keyCode; 
 	}
