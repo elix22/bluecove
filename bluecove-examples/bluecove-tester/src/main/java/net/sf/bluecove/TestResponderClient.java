@@ -118,11 +118,13 @@ public class TestResponderClient implements Runnable {
 	}
     
 	public class BluetoothInquirer implements DiscoveryListener {
-	    
-		boolean inquiringDevice;
-		
+
 		boolean inquiring;
 		
+		boolean inquiringDevice;
+		
+		boolean searchingServices;
+	
 		boolean deviceDiscoveryError;
 
 		Vector devices = new Vector();
@@ -235,20 +237,27 @@ public class TestResponderClient implements Runnable {
 					deviceDiscoveryError = false;
 					devices.removeAllElements();
 					long start = System.currentTimeMillis();
+					inquiring = true;
+					inquiringDevice = true;
 					try {
 						discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-						discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
-						inquiringDevice = true;
+						boolean started = discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
+						if (!started) {
+							Logger.error("Inquiry was not started because the accessCode is not supported");
+							return false;
+						}
 					} catch (BluetoothStateException e) {
 						Logger.error("Cannot start Device inquiry", e);
 						return false;
 					}
-					inquiring = true;
-					synchronized (this) {
-						try {
-							wait();
-						} catch (InterruptedException e) {
-							return false;
+					// By this time inquiryCompleted maybe already been called, because we are too fast
+					if (inquiringDevice) {
+						synchronized (this) {
+							try {
+								wait();
+							} catch (InterruptedException e) {
+								return false;
+							}
 						}
 					}
 					inquiringDevice = false;
@@ -324,15 +333,15 @@ public class TestResponderClient implements Runnable {
 	        long inquiryStart = System.currentTimeMillis();
 	        nextDevice:
 	        for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
-	        	if (stoped) {
-	        		break;
-	        	}
-	        	servicesFound = false;
-	        	anyServicesFound = false;
-	        	long start = System.currentTimeMillis();
+				if (stoped) {
+					break;
+				}
+				servicesFound = false;
+				anyServicesFound = false;
+				long start = System.currentTimeMillis();
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
-	        	String name = "";
-	        	if (Configuration.discoveryGetDeviceFriendlyName || Configuration.isBlueCove) {
+				String name = "";
+				if (Configuration.discoveryGetDeviceFriendlyName || Configuration.isBlueCove) {
 					try {
 						name = remoteDevice.getFriendlyName(false);
 						if ((name != null) && (name.length() > 0)) {
@@ -342,46 +351,49 @@ public class TestResponderClient implements Runnable {
 						Logger.error("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 					}
 				}
-	        	servicesOnDeviceAddress = remoteDevice.getBluetoothAddress();
-	        	servicesOnDeviceName = niceDeviceName(servicesOnDeviceAddress);
+				servicesOnDeviceAddress = remoteDevice.getBluetoothAddress();
+				servicesOnDeviceName = niceDeviceName(servicesOnDeviceAddress);
 				Logger.debug("Search Services on " + servicesOnDeviceName + " " + name);
 
 				int transID;
-				
-				synchronized (this) {
-			    	try {
-			    		discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-			    		
-			    		int[] shortAttrSet;
-			    		if ((sdAttrRetrievableMax != 0) && (attrIDs != null) && (sdAttrRetrievableMax < attrIDs.length)) {
-			    			shortAttrSet = new int[sdAttrRetrievableMax];
-			    			for (int i = 0; i < sdAttrRetrievableMax; i ++) {
-			    				shortAttrSet[i] = attrIDs[i];
-			    			}
-			    			Logger.debug("search attr first " + shortAttrSet.length + " of " + attrIDs.length);
-			    		} else {
-			    			shortAttrSet = attrIDs;
-			    		}
-			    		
-			    		servicesSearchTransID = discoveryAgent.searchServices(shortAttrSet, searchUuidSet, remoteDevice, this);
-			    		transID = servicesSearchTransID; 
-			    		if (transID <= 0) {
-			    			Logger.warn("servicesSearch TransID mast be positive, " + transID);
-			    		}
-			        } catch(BluetoothStateException e) {
-			        	Logger.error("Cannot start searchServices", e);
-			        	continue nextDevice;
-				    }
-			        try {
-						wait();
-					} catch (InterruptedException e) {
-						break;
-					} finally {
-			    		cancelServiceSearch();
+
+				try {
+					discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+
+					int[] shortAttrSet;
+					if ((sdAttrRetrievableMax != 0) && (attrIDs != null) && (sdAttrRetrievableMax < attrIDs.length)) {
+						shortAttrSet = new int[sdAttrRetrievableMax];
+						for (int i = 0; i < sdAttrRetrievableMax; i++) {
+							shortAttrSet[i] = attrIDs[i];
+						}
+						Logger.debug("search attr first " + shortAttrSet.length + " of " + attrIDs.length);
+					} else {
+						shortAttrSet = attrIDs;
 					}
-		        }	
+					searchingServices = true;
+					servicesSearchTransID = discoveryAgent.searchServices(shortAttrSet, searchUuidSet, remoteDevice, this);
+					transID = servicesSearchTransID;
+					if (transID <= 0) {
+						Logger.warn("servicesSearch TransID mast be positive, " + transID);
+					}
+				} catch (BluetoothStateException e) {
+					Logger.error("Cannot start searchServices", e);
+					continue nextDevice;
+				}
+				// By this time serviceSearchCompleted maybe already been called, because we are too fast
+				if (searchingServices) {
+					synchronized (this) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							break;
+						}
+					}
+				}
+				cancelServiceSearch();
+
 				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, TimeUtils.since(start));
-				String msg = (anyServicesFound)?"; service(s) found":"; no services";
+				String msg = (anyServicesFound) ? "; service(s) found" : "; no services";
 				Logger.debug(" Services Search " + transID + " took " + TimeUtils.secSince(start) + msg);
 			}
 	        String msg = "";
@@ -460,6 +472,7 @@ public class TestResponderClient implements Runnable {
 				Logger.info("SERVICE_SEARCH_DEVICE_NOT_REACHABLE");
 				break;
 			}
+			searchingServices = false;
 			notifyAll();
 		}
 
@@ -474,6 +487,7 @@ public class TestResponderClient implements Runnable {
         		break;
         	case INQUIRY_COMPLETED:
         	}
+        	inquiringDevice = false;
         	notifyAll();
         }
 	    
@@ -593,6 +607,7 @@ public class TestResponderClient implements Runnable {
 						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {
 							throw e;
 						}
+						Logger.debug("Connector error", e);
 						Thread.sleep(Configuration.clientSleepOnConnectionRetry);
 						Logger.debug(logPrefix + "connect retry:" + connectionOpenTry);
 					}
@@ -699,26 +714,26 @@ public class TestResponderClient implements Runnable {
 	}
 	
 	public void sendStopServerCmd(String serverURL) {
-		StreamConnection conn = null;
-		InputStream is = null;
-		OutputStream os = null;
-		try {
-			Logger.debug("stopServer");
-			conn = (StreamConnection) Connector.open(serverURL);
-			os = conn.openOutputStream();
-			
-			os.write(Consts.TEST_SERVER_TERMINATE);
-			os.flush();
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e) {
-			}
-		} catch (Throwable e) {
-			Logger.error("stopServer error", e);
-		}
-		IOUtils.closeQuietly(os);
-		IOUtils.closeQuietly(is);
-		IOUtils.closeQuietly(conn);
+//		StreamConnection conn = null;
+//		InputStream is = null;
+//		OutputStream os = null;
+//		try {
+//			Logger.debug("Send stopServer command");
+//			conn = (StreamConnection) Connector.open(serverURL);
+//			os = conn.openOutputStream();
+//			
+//			os.write(Consts.TEST_SERVER_TERMINATE);
+//			os.flush();
+//			try {
+//				Thread.sleep(1000);
+//			} catch (Exception e) {
+//			}
+//		} catch (Throwable e) {
+//			Logger.error("stopServer error", e);
+//		}
+//		IOUtils.closeQuietly(os);
+//		IOUtils.closeQuietly(is);
+//		IOUtils.closeQuietly(conn);
 	}
 
 	
