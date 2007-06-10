@@ -61,7 +61,18 @@ public class StringUtils {
         }
     }
 
-
+    public static String d0000(int i) {
+    	if (i > 999) {
+    		return String.valueOf(i);
+    	} else if (i > 99) {
+            return "00" + String.valueOf(i);
+        } else if (i > 9) {
+            return "00" + String.valueOf(i);
+        } else {
+            return "000" + String.valueOf(i);
+        }
+    }
+    
 	public static String padRight(String str, int length, char c) {
 		int l = str.length();
 		if (l >= length) {

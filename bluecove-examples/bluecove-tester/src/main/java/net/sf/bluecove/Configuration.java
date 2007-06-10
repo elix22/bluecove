@@ -22,6 +22,8 @@ package net.sf.bluecove;
 
 import java.util.Hashtable;
 
+import javax.bluetooth.UUID;
+
 import net.sf.bluecove.util.CLDCStub;
 import net.sf.bluecove.util.Storage;
 
@@ -57,13 +59,17 @@ public class Configuration {
 	 */
 	public static boolean discoveryGetDeviceFriendlyName = false;
 
+	public static UUID discoveryUUID = new UUID(0x0100); // L2CAP
+	
 	public static Hashtable testDeviceNames = null;
 
 	public static boolean serverAcceptWhileConnected = false;
 
 	public static boolean serverAcceptWhileConnectedOnJavaSE = true;
 
-	public static boolean continuous = true;
+	public static boolean serverContinuous = true;
+	
+	public static boolean clientContinuous = true;
 
 	public static boolean clientContinuousDiscovery = true;
 	
@@ -78,7 +84,7 @@ public class Configuration {
 
 	public static int TEST_CASE_FIRST = 1;
 
-	public static int TEST_CASE_LAST = 19;
+	public static int TEST_CASE_LAST = Consts.TEST_LAST_WORKING;
 
 	public static int STERSS_TEST_CASE = Consts.TEST_BYTE;
 
@@ -139,10 +145,12 @@ public class Configuration {
 		boolean testOnlyOneDevice = false;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
+			testDeviceNames.put("000D3AA5E36C", "Lapt MS");
 			//testDeviceNames.put("0020E027CE32", "Lapt WC");
-			testDeviceNames.put("0050F2E8D4A6", "Desk MS");
-			testDeviceNames.put("000B0D4AECDE", "Desk WC");
-			testDeviceNames.put("0019639C4007", "SE K790(r)");
+			//testDeviceNames.put("0050F2E8D4A6", "Desk MS");
+			//testDeviceNames.put("000B0D4AECDE", "Desk WC");
+			//testDeviceNames.put("0019639C4007", "SE K790(r)");
+			testDeviceNames.put("00123755AE71", "N 6265i (t)");
 		} else {
 
 			// This is the list of my test devices with names for My convenience

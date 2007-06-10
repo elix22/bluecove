@@ -74,6 +74,8 @@ public interface Consts {
 
     public static final int DEVICE_PHONE = 0x0200;
     
+    public static final byte SEND_TEST_START = 7;
+    
 	public static final int SEND_TEST_REPLY_OK = 77;
 	
 	public static final int TEST_SERVER_TERMINATE = 99;
@@ -116,10 +118,20 @@ public interface Consts {
 	public static final int TEST_CLOSED_CONNECTION = 18;
 	
 	public static final int TEST_CLOSED_CONNECTION_BACK = 19;
+
+	public static final int TEST_BYTES_256 = 20;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY = 20;
+	public static final int TEST_BYTES_256_BACK = 21;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 21;
+	public static final int TEST_CAN_CLOSE_READ = 22;
+	
+	public static final int TEST_CAN_CLOSE_READ_BACK = 23;
+	
+	public static final int TEST_LARGE_BYTE_ARRAY = 24;
+	
+	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 25;
+	
+	public static final int TEST_LAST_WORKING = TEST_BYTES_256_BACK;
 	
 	
 }

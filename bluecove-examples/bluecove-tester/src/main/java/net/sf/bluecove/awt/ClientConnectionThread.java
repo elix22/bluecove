@@ -105,11 +105,11 @@ public class ClientConnectionThread extends Thread {
 	}
 
 
-	public void send(final String text) {
+	public void send(final byte data[]) {
 		Thread t = new Thread("ClientConnectionSendThread" + (++connectionCount)) {
 			public void run() {
 				try {
-					c.os.write(text.getBytes());
+					c.os.write(data);
 					Logger.debug("data sent");
 				} catch (IOException e) {
 					Logger.error("Communication error", e);

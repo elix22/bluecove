@@ -372,7 +372,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
 		Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
 		Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
-		Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avg());
+		Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avgPrc());
 		
 		TestResponderClient.failure.writeToLog();
 		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);

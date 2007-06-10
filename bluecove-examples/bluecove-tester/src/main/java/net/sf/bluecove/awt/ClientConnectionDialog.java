@@ -149,7 +149,9 @@ public class ClientConnectionDialog extends Dialog {
 		gridbag.setConstraints(btnSend, c);
 		
 		choiceDataSendType = new Choice();
+		choiceDataSendType.add("as String.getBytes()+CR");
 		choiceDataSendType.add("as String.getBytes()");
+		choiceDataSendType.add("as parseByte(text)");
 		//choiceDataType.add("as byte list");
 		panelItems.add(choiceDataSendType);
 		c.gridwidth = 1;
@@ -239,7 +241,17 @@ public class ClientConnectionDialog extends Dialog {
 	
 	protected void send() {
 		if (thread != null) {
-			thread.send(tfData.getText());
+			String text = tfData.getText();
+			int type = choiceDataSendType.getSelectedIndex();
+			byte data[];
+			switch (type) {
+				case 0: data = (text + "\n").getBytes(); break;
+				case 1: data = text.getBytes(); break;
+				case 2: data = new byte[]{Byte.parseByte(text)}; break;
+				default:
+					data = new byte[]{0};
+			}
+			thread.send(data);
 		}
 	}
 	

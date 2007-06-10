@@ -35,6 +35,8 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Vector;
 
+import javax.bluetooth.UUID;
+
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
 
@@ -70,11 +72,13 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("deviceClassFilter");
 		addConfig("discoverDevicesComputers");
 		addConfig("discoverDevicesPhones");
+		addConfig("discoveryUUID");
 		
+		addConfig("clientContinuous");
 		addConfig("clientContinuousDiscovery");
 		addConfig("clientContinuousDiscoveryDevices");
 		addConfig("clientContinuousServicesSearch");
-		addConfig("continuous");
+
 		addConfig("TEST_CASE_FIRST");
 		addConfig("TEST_CASE_LAST");
 		addConfig("STERSS_TEST_CASE");
@@ -109,6 +113,9 @@ public class ConfigurationDialog extends OkCancelDialog {
 				if (type.equals(boolean.class)) {
 					Checkbox c = (Checkbox) cc.guiComponent;
 					c.setState(cc.configField.getBoolean(Configuration.class));
+				} else if (type.equals(UUID.class)) {
+					TextField tf = (TextField) cc.guiComponent;
+					tf.setText(cc.configField.get(Configuration.class).toString());
 				} else if (type.equals(String.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					tf.setText(cc.configField.get(Configuration.class).toString());
@@ -136,6 +143,10 @@ public class ConfigurationDialog extends OkCancelDialog {
 				} else if (type.equals(int.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					cc.configField.setInt(Configuration.class, Integer.valueOf(tf.getText()).intValue());
+				} else if (type.equals(UUID.class)) {
+					TextField tf = (TextField) cc.guiComponent;
+					UUID uuid = new UUID(tf.getText(), false);
+					cc.configField.set(Configuration.class, uuid); 
 				}
 			} catch (Throwable e) {
 				Logger.error("internal error for " + cc.name, e);
@@ -160,10 +171,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		if (type.equals(boolean.class)) {
 			Checkbox c = new Checkbox();
 			cc.guiComponent = c;
-		} else if (type.equals(String.class)) {
-			TextField tf = new TextField(); 
-			cc.guiComponent = tf; 
-		} else if (type.equals(int.class)) {
+		} else if ((type.equals(String.class)) || (type.equals(UUID.class)) || (type.equals(int.class))) {
 			TextField tf = new TextField(); 
 			cc.guiComponent = tf; 
 		} else {

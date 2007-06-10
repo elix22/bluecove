@@ -124,6 +124,39 @@ public class CommunicationTester implements Consts {
 		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte)is.read());
 	}
 
+	static void sendBytes256(OutputStream os) throws IOException {
+		// Write all 256 bytes
+		int cnt = 0;
+		for(int i = -128; i <= 127; i++) {
+			try {
+				os.write((byte)i);
+				cnt ++;
+			} catch (IOException e) {
+				Logger.debug("Sent only " + cnt + " bytes");
+				throw e;
+			}
+		}
+		// Send one more byte to see is 0xFF is not EOF
+		os.write(aKnowndPositiveByte);
+	}
+	
+	static void readBytes256(InputStream is) throws IOException {
+		//Read all 256 bytes
+		int cnt = 0;
+		for(int i = -128; i <= 127; i++) {
+			byte got;
+			try {
+				got = (byte)is.read();
+				cnt ++;
+			} catch (IOException e) {
+				Logger.debug("Received only " + cnt + " bytes");
+				throw e;
+			}
+			Assert.assertEquals("all bytes", (byte)i, got);
+		}
+		Assert.assertEquals("conformation that 0xFF is not EOF", aKnowndPositiveByte, (byte)is.read());
+	}
+	
 	static void sendByteAray(OutputStream os) throws IOException {
 		os.write(byteAray);
 	}
@@ -191,7 +224,12 @@ public class CommunicationTester implements Consts {
 			int tryCount = 0;
 			while(!hasData) {
 				// This blocks on Nokia(Srv) on second call connected to Widcomm(Client)
-				available = is.available();
+				try {
+					available = is.available();
+				} catch (IOException e) {
+					Logger.debug("(m1) Received only " + i + " bytes");
+					throw e;
+				}		
 				if (available > 0) {
 					hasData = true;
 				} else if (available < 0) {
@@ -208,7 +246,13 @@ public class CommunicationTester implements Consts {
 				}
 			}
 			
-			byte got = (byte)is.read();
+			byte got;
+			try {
+				got = (byte)is.read();
+			} catch (IOException e) {
+				Logger.debug("(m2) Received only " + i + " bytes");
+				throw e;
+			}
 			Assert.assertEquals("byte[" + i + "]", i, got);
 			available --;
 		}
@@ -295,8 +339,12 @@ public class CommunicationTester implements Consts {
 		Assert.assertEquals("byte2", aKnowndNegativeByte, (byte)is.read());
 		testStatus.streamClosed = true;
 		try {
-			is.read();
-		} catch (IOException helloAvetana) {
+			Assert.assertEquals("EOF expected", -1, is.read());
+		} catch (IOException e) {
+			if (Configuration.isBlueCove) {
+				Logger.error("EOF IOException not expected", e);
+				Assert.fail("EOF IOException not expected [" + e.toString() + "]");	
+			}
 		}
 		try {
 			os.write(byteAray);
@@ -503,6 +551,22 @@ public class CommunicationTester implements Consts {
 				CommunicationTester.sendClosedConnection(is, os, testStatus);
 			}
 			break;
+		case TEST_BYTES_256:
+			testStatus.setName("BYTES256");
+			if (server) {
+				CommunicationTester.readBytes256(is);
+			} else {
+				CommunicationTester.sendBytes256(os);
+			}
+			break;
+		case TEST_BYTES_256_BACK:
+			testStatus.setName("BYTES256_BACK");
+			if (!server) {
+				CommunicationTester.readBytes256(is);
+			} else {
+				CommunicationTester.sendBytes256(os);
+			}
+			break;			
 		case TEST_LARGE_BYTE_ARRAY:
 			testStatus.setName("LARGE_BYTE_ARRAY");
 			if (server) {

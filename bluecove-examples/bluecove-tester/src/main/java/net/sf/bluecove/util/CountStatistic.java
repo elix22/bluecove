@@ -46,11 +46,23 @@ public class CountStatistic {
 		}
 	}
 	
-	public float avg() {
+	public String avg() {
 		if (count == 0) {
-			return 0;
+			return "0";
 		}
-		return ((float)total/(float)count);
+		// No Float: ((float)total/(float)count)
+		long m = total/count;
+		long r = (1000 * total%count)/count;
+		return String.valueOf(m) + "." + StringUtils.d0000((int)r);
+	}
+	
+	public String avgPrc() {
+		if (count == 0) {
+			return "0";
+		}
+		long m = (100 * total)/count;
+		long r = (100000 * total%count)/count;
+		return String.valueOf(m) + "." + StringUtils.d0000((int)r) + "%";
 	}
 
 	public long max() {

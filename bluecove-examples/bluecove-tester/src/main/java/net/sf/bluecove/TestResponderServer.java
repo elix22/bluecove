@@ -20,6 +20,9 @@
  */ 
 package net.sf.bluecove;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
@@ -126,6 +129,35 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 		}
 		
+		private void runEcho(InputStream is) {
+			int receivedCount = 0;
+			StringBuffer buf = new StringBuffer();
+			try {
+				c.os = c.conn.openOutputStream();
+				OutputStream os = c.os;
+				int i;
+				while ((i = is.read()) != -1) {
+					receivedCount ++;
+					c.os.write(i);
+					char c = (char)i;
+					if ((c == '\n') || (buf.length() > 40)) {
+						Logger.debug("|" + buf.toString());
+						os.flush();
+						buf = new StringBuffer();
+					} else {
+						buf.append(c);
+					}
+				}
+			} catch (Throwable e) {
+				Logger.debug("echo error", e);
+			} finally {
+				if (buf.length() != 0) {
+					Logger.debug("|" + buf.toString());
+				}
+				Logger.debug("echo received " + receivedCount);
+			}
+		}
+		
 		public void run() {
 			int testType = 0;
 			TestStatus testStatus = new TestStatus();
@@ -140,7 +172,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					Logger.info("now connected:" + countRunningConnections);
 				}
 				
-				
+				int isTest = c.is.read();
+				if (isTest != Consts.SEND_TEST_START) {
+					Logger.debug("not a test client connected, will echo");
+					runEcho(c.is);
+					return;
+				}
 				testType = c.is.read();
 
 				if (testType == Consts.TEST_SERVER_TERMINATE) {
@@ -219,7 +256,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public void run() {
 		stoped = false;
 		isRunning = true;
-		if (!Configuration.continuous) {
+		if (!Configuration.serverContinuous) {
 			lastActivityTime = System.currentTimeMillis();
 			monitorServer = new TestTimeOutMonitor("ServerUp", this, Consts.serverTimeOutMin);
 		}

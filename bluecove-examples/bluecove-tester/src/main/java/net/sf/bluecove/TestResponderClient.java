@@ -157,7 +157,7 @@ public class TestResponderClient implements Runnable {
 			if (Configuration.searchOnlyBluecoveUuid) {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
 			} else {
-				searchUuidSet = new UUID[] { L2CAP };
+				searchUuidSet = new UUID[] { Configuration.discoveryUUID };
 			}
 			if (!Configuration.testServiceAttributes) {
 				attrIDs = null;
@@ -638,7 +638,7 @@ public class TestResponderClient implements Runnable {
 						Logger.debug("Test time " + TimeUtils.secSince(start));
 					}
 				}
-				
+				c.os.write(Consts.SEND_TEST_START);
 				c.os.write(testType);
 				c.os.flush();
 				
@@ -708,7 +708,7 @@ public class TestResponderClient implements Runnable {
 				}
 			}
 		} 
-		if (!Configuration.continuous) {
+		if (!Configuration.clientContinuous) {
 			sendStopServerCmd(serverURL);
 		}
 	}
@@ -853,7 +853,7 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 				Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
-				if ((countSuccess + failure.countFailure > 0) && (!Configuration.continuous)) {
+				if ((countSuccess + failure.countFailure > 0) && (!Configuration.clientContinuous)) {
 					break;
 				}
 				if (stoped || discoveryOnce || connectOnce) {
@@ -866,6 +866,7 @@ public class TestResponderClient implements Runnable {
 				Logger.error("cleint error ", e);
 			}
 		} finally {
+			connectURL = null;
 			isRunning = false;
 			Logger.info("Client finished! " + TimeUtils.timeNowToString());
 			Switcher.yield(this);
