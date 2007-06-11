@@ -51,6 +51,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command printFailureLogCommand = new Command("4-Print FailureLog", Command.ITEM, 8);
 	static final Command startClientStressCommand = new Command("Client Stress Start", Command.ITEM, 9);
 	static final Command startClientLastServiceCommand = new Command("Client Last service Start", Command.ITEM, 10);
+	static final Command startClientLastDeviceCommand = new Command("Client Last device Start", Command.ITEM, 11);
 	
 	private boolean showLogDebug = true;
 	
@@ -92,6 +93,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		addCommand(clearCommand);
 		addCommand(startClientStressCommand);
 		addCommand(startClientLastServiceCommand);
+		addCommand(startClientLastDeviceCommand);
 		setCommandListener(this);
 		Logger.addAppender(this);
 		Configuration.storage = new StorageRMS();
@@ -428,6 +430,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			Switcher.startClientStress();	
 		} else if (c == startClientLastServiceCommand) {
 			Switcher.startClientLastURl();
+		} else if (c == startClientLastDeviceCommand) {
+			Switcher.startClientLastDevice();
 		} else if (c == stopClientCommand) {
 			Switcher.clientShutdown();
 		} else if (c == stopServerCommand) {

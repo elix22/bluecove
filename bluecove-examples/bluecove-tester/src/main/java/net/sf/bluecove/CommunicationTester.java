@@ -279,8 +279,10 @@ public class CommunicationTester implements Consts {
 
 	private static void readEOF(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
 		Assert.assertEquals("byte", aKnowndPositiveByte, is.read());
+		long startWait = System.currentTimeMillis();
 		Assert.assertEquals("EOF expected", -1, is.read());
 		testStatus.streamClosed = true;
+		Assert.assertFalse("Took too long to close", TimeUtils.since(startWait) > 3 * 1000);
 		testStatus.isSuccess = true;
 	}
 

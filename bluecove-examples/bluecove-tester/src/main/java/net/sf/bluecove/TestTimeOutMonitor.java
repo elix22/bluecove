@@ -26,31 +26,33 @@ package net.sf.bluecove;
  */
 public class TestTimeOutMonitor extends Thread {
     
-    boolean testFinished = false;
+    private boolean testFinished = false;
     
-    CanShutdown testThread;
+    private boolean shutdownCalled = false;
     
-    String name;
+    private CanShutdown testThread;
     
-    int gracePeriod = 0;
+    private String name;
     
-    TestTimeOutMonitor(String name, CanShutdown testThread, int gracePeriod) {
+    int gracePeriodMinutes = 0;
+    
+    TestTimeOutMonitor(String name, CanShutdown testThread, int gracePeriodMinutes) {
         //CLDC_1_0 super(name + "Monitor");
     	
         this.name = name;
         this.testThread = testThread;
-        this.gracePeriod = gracePeriod;
-        if (this.gracePeriod != 0)  {
+        this.gracePeriodMinutes = gracePeriodMinutes;
+        if (this.gracePeriodMinutes != 0)  {
         	super.start();
         }
     }
     
     public void run() {
-    	if (gracePeriod == 0) {
+    	if (gracePeriodMinutes == 0) {
     		return;
     	}
         
-        while ((!testFinished) && (System.currentTimeMillis() < (testThread.lastActivityTime() + this.gracePeriod  * 60 * 1000))) {
+        while ((!testFinished) && (System.currentTimeMillis() < (testThread.lastActivityTime() + this.gracePeriodMinutes  * 60 * 1000))) {
         	try {
         		sleep(20 * 1000);    
             } catch (InterruptedException e) {
@@ -59,12 +61,18 @@ public class TestTimeOutMonitor extends Thread {
         }
 
         if (!testFinished) {
+        	shutdownCalled = true;
         	Logger.info("shutdown " + name + " by TimeOut");
         	testThread.shutdown();
         }
     }
     
+    
     public void finish() {
         testFinished = true;
     }
+
+	public boolean isShutdownCalled() {
+		return shutdownCalled;
+	}
 }

@@ -178,6 +178,13 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				updateTitle();
 			}
 		});
+
+		addMenu(menuBluetooth, "Client Last device Start", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Switcher.startClientLastDevice();
+				updateTitle();
+			}
+		});
 		
 		final MenuItem stop = addMenu(menuBluetooth, "Stop all work", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

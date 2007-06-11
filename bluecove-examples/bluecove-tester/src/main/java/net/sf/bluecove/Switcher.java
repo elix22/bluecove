@@ -203,7 +203,7 @@ public class Switcher implements Runnable {
 		}
 	}
 	
-	public static void startClient() {
+	public static void createClient() {
 		try {
 			if (client == null) {
 				client = new TestResponderClient();
@@ -226,10 +226,18 @@ public class Switcher implements Runnable {
 		}
 	}
 	
+	public static void startClient() {
+		createClient();
+		if (client != null) {
+			client.configured();
+		}
+	}
+	
 	public static int runClient() {
-		startClient();
+		createClient();
 		if (client != null) {
 			client.connectOnce = true;
+			client.configured();
 			try {
 				client.thread.join();
 			} catch (InterruptedException e) {
@@ -251,9 +259,10 @@ public class Switcher implements Runnable {
 			Logger.warn("Client is already Running");
 			return;
 		}
-		startClient();
+		createClient();
 		if (client != null) {
 			client.runStressTest = true;
+			client.configured();
 		}
 	}
 
@@ -268,13 +277,35 @@ public class Switcher implements Runnable {
 		}
 		String lastURL = Configuration.storage.retriveData("lastURL");
 		if (lastURL != null) {
-			startClient();
+			createClient();
 			if (client != null) {
 				client.connectURL = lastURL;
+				client.configured();
 			}
 		} else {
 			Logger.warn("no recent Connections");
 		}
+	}
+	
+	public static void startClientLastDevice() {
+		if (Configuration.storage == null) {
+			Logger.warn("no storage");
+			return;
+		}
+		if ((client != null) && client.isRunning) {
+			Logger.warn("Client is already Running");
+			return;
+		}
+		String lastURL = Configuration.storage.retriveData("lastURL");
+		if (lastURL != null) {
+			createClient();
+			if (client != null) {
+				client.connectDevice = TestResponderClient.extractBluetoothAddress(lastURL);
+				client.configured();
+			}
+		} else {
+			Logger.warn("no recent Connections");
+		}		
 	}
 	
 	public static void clientShutdown() {

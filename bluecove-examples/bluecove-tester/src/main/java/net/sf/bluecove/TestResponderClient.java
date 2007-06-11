@@ -101,8 +101,12 @@ public class TestResponderClient implements Runnable {
 	BluetoothInquirer bluetoothInquirer;
 	
 	public static Hashtable recentDeviceNames = new Hashtable/*<BTAddress,Name>*/();
+
+	public String connectDevice = null;
 	
 	public String connectURL = null;
+	
+	private boolean configured = false;
 	
 	private static int sdAttrRetrievableMax = 255;
 	
@@ -645,7 +649,9 @@ public class TestResponderClient implements Runnable {
 				CommunicationTester.runTest(testType, false, c.conn, c.is, c.os, testStatus);
 				c.active();
 
-				if (testStatus.isSuccess) {
+				if (monitor.isShutdownCalled()) {
+					failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName() + " termintade by  by TimeOut");
+				} else if (testStatus.isSuccess) {
 					countSuccess++;
 					Logger.debug(logPrefix + "test #" + testType + " " + testStatus.getName() + ": OK");
 				} else if (testStatus.streamClosed) {
@@ -807,7 +813,23 @@ public class TestResponderClient implements Runnable {
 		}
 	}
 
+	public void configured() {
+		synchronized (this) {
+			configured = true;
+			this.notifyAll();
+		}
+	}
+	
 	public void run() {
+		synchronized (this) {
+			while (!configured) {
+				try {
+					this.wait();
+				} catch (InterruptedException e) {
+					return;
+				}
+			}
+		}
 		Logger.debug("Client started..." + TimeUtils.timeNowToString());
 		isRunning = true;
 		try {
@@ -815,14 +837,10 @@ public class TestResponderClient implements Runnable {
 
 			int startTry = 0;
 			if (connectURL != null) {
-				final boolean testRemoteDeviceIheritance = false;
-				if (!testRemoteDeviceIheritance) {
-					bluetoothInquirer.serverURLs.addElement(connectURL);
-				} else {
-					Configuration.clientContinuousDiscoveryDevices = false;
-					bluetoothInquirer.devices.addElement(new RemoteDeviceIheritance(extractBluetoothAddress(connectURL)));
-					connectURL = null;
-				}
+				bluetoothInquirer.serverURLs.addElement(connectURL);
+			} else if (connectDevice != null) {
+				Configuration.clientContinuousDiscoveryDevices = false;
+				bluetoothInquirer.devices.addElement(new RemoteDeviceIheritance(connectDevice));
 			}
 			
 			while (!stoped) {
