@@ -79,14 +79,17 @@ BlueCove test Results
 
   Just connection tests
 
-*-------------+--------------------+----------------------------------------------+
-| <<Server>>  | <<Client>>         | Problems/Comments
-*-------------+--------------------+-
-| Nokia 6265i | BlueCove-MS        |  7400 Connections made and running, NO Discovery
-*-------------+--------------------+-
-| Nokia 6265i | BlueCove-MS v1.2.3 |  7681 Connections made and running, NO Discovery
-*-------------+--------------------+-
-
+*--------------------+--------------------+----------------------------------------------+
+| <<Server>>         | <<Client>>         | Problems/Comments
+*--------------------+--------------------+-
+| Nokia 6265i        | BlueCove-MS        |  7400 Connections made and running, NO Discovery
+*--------------------+--------------------+-
+| Nokia 6265i        | BlueCove-MS v1.2.3 |  7681 Connections made and running, NO Discovery
+*--------------------+--------------------+-
+| BlueCove-MS        | Nokia 6265i        |  4500 Connections made and running, NO Discovery
+*--------------------+--------------------+-
+| BlueCove-MS v1.2.3 | Nokia 6265i        |  3114 Connections made and running, NO Discovery
+*--------------------+--------------------+-
 
   * <<{ms}>> On Microsoft stack Server or Client 600-2000 connections made before MS Stack hangs, Apply to avetana-MS as well.  Don't know solution yet.
 

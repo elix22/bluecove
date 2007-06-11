@@ -31,6 +31,9 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 import javax.microedition.io.StreamConnection;
 
+import net.sf.bluecove.util.TimeUtils;
+import net.sf.bluecove.util.ValueHolder;
+
 import junit.framework.Assert;
 
 public class CommunicationTester implements Consts {
@@ -374,6 +377,108 @@ public class CommunicationTester implements Consts {
 		Assert.assertEquals("PairBTAddress", testStatus.pairBTAddress.toUpperCase(), device.getBluetoothAddress().toUpperCase());
 	}
 	
+	static void sendByte4clientToClose(OutputStream os, InputStream is, TestStatus testStatus) throws IOException {
+		os.write(aKnowndPositiveByte);
+		os.flush();
+		
+		TimeUtils.sleep(1 * 1000);
+
+		// Do not send any reply to client.
+		testStatus.streamClosed = true;
+		
+		long startWait = System.currentTimeMillis();
+		// wait for client to close connection, This has been tested in TEST_EOF_READ
+		int eof = 0;
+		try {
+			eof = is.read();
+			Assert.assertEquals("EOF expected", -1, eof);
+		} catch (IOException e) {
+			Logger.debug("OK conn.closed");
+		}
+		Assert.assertFalse("Took too long to close", TimeUtils.since(startWait) > 3 * 1000);
+		testStatus.isSuccess = true;
+	}
+
+	static void reciveByteAndCloseStream(boolean testArray, final StreamConnection conn, final InputStream is, final OutputStream os, TestStatus testStatus) throws IOException {
+		Assert.assertEquals("byte", aKnowndPositiveByte, (byte)is.read());
+		final ValueHolder whenClose = new ValueHolder();
+		final ValueHolder alreadyClose = new ValueHolder(false);
+		final ValueHolder whoClose = new ValueHolder();
+		Thread t = new Thread() {
+			public void run() {
+				TimeUtils.sleep(500);
+				//Logger.debug("try to closed");
+				whenClose.valueLong = System.currentTimeMillis();
+				whoClose.valueInt = 1;
+				try {
+					// No effect on Nokia
+					conn.close();
+				} catch (IOException e) {
+					Logger.debug("error in conn close", e);
+				}
+				//Logger.debug("conn.closed");
+				whenClose.valueLong = System.currentTimeMillis();
+				TimeUtils.sleep(100);
+				if (!alreadyClose.valueBoolean) {
+					TimeUtils.sleep(600);
+					whenClose.valueLong = System.currentTimeMillis();
+					whoClose.valueInt = 2;
+					try {
+						is.close();
+					} catch (IOException e) {
+						Logger.debug("error in is close", e);
+					}
+					//Logger.debug("is.closed");
+					whenClose.valueLong = System.currentTimeMillis();
+					TimeUtils.sleep(100);
+					if (!alreadyClose.valueBoolean) {
+						TimeUtils.sleep(600);
+						whenClose.valueLong = System.currentTimeMillis();
+						whoClose.valueInt = 3;
+						try {
+							os.close();
+						} catch (IOException e) {
+							Logger.debug("error in os close", e);
+						}
+						//Logger.debug("os.closed");
+						whenClose.valueLong = System.currentTimeMillis();
+					}
+				}
+			}
+		};
+		t.start();
+		testStatus.streamClosed = true;
+		// This will stuck since server is not sending any more data. conn.close() should force read() to throw exception or return -1.
+		int eof = 0;
+		try {
+			// This is function under test
+			if (testArray) {
+				byte[] buf = new byte[2]; 
+				eof = is.read(buf, 0, buf.length);
+			} else {
+				eof = is.read();
+			}
+			Assert.assertEquals("EOF expected", -1, eof);
+			Logger.debug("OK read on conn.closed GOT EOF");
+		} catch (IOException e) {
+			Logger.debug("OK read on conn.closed throws Exception");
+		}
+		alreadyClose.valueBoolean = true;
+		long returenedDelay = System.currentTimeMillis() - whenClose.valueLong;
+		if ((returenedDelay < 2*1000) || (returenedDelay > -2*1000)) {
+			testStatus.isSuccess = true;
+		} else {
+			Assert.fail("Took too long " + (returenedDelay) + " to return");
+		}
+		switch (whoClose.valueInt) {
+		case 1: Logger.debug("Closed by StreamConnection.close()"); break;
+		case 2: Logger.debug("Closed by InputStream.close()"); break;
+		case 3: Logger.debug("Closed by OutputStream.close()"); break;
+		default:
+			Assert.fail("Closed by unknown source");
+		}
+	}
+	
 	static void sendByteArayLarge(OutputStream os) throws IOException {
 		byte[] byteArayLarge = new byte[byteArayLargeSize];
 		for(int i = 0; i < byteArayLargeSize; i++) {
@@ -567,6 +672,38 @@ public class CommunicationTester implements Consts {
 				CommunicationTester.sendBytes256(os);
 			}
 			break;			
+		case TEST_CAN_CLOSE_READ_ON_CLIENT:
+			testStatus.setName("CAN_CLOSE_READ_ON_CLIENT");
+			if (server) {
+				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
+			} else {
+				CommunicationTester.reciveByteAndCloseStream(false, conn, is, os, testStatus);
+			}
+			break;
+		case TEST_CAN_CLOSE_READ_ON_SERVER:
+			testStatus.setName("CAN_CLOSE_READ_ON_SERVER");
+			if (!server) {
+				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
+			} else {
+				CommunicationTester.reciveByteAndCloseStream(false, conn, is, os, testStatus);
+			}
+			break;
+		case TEST_CAN_CLOSE_READ_ARRAY_ON_CLIENT:
+			testStatus.setName("CAN_CLOSE_READ_ARRAY_ON_CLIENT");
+			if (server) {
+				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
+			} else {
+				CommunicationTester.reciveByteAndCloseStream(true, conn, is, os, testStatus);
+			}
+			break;
+		case TEST_CAN_CLOSE_READ_ARRAY_ON_SERVER:
+			testStatus.setName("CAN_CLOSE_READ_ARRAY_ON_SERVER");
+			if (!server) {
+				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
+			} else {
+				CommunicationTester.reciveByteAndCloseStream(true, conn, is, os, testStatus);
+			}
+			break;
 		case TEST_LARGE_BYTE_ARRAY:
 			testStatus.setName("LARGE_BYTE_ARRAY");
 			if (server) {

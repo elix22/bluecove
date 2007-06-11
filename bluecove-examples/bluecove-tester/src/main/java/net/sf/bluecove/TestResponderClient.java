@@ -21,8 +21,6 @@
 package net.sf.bluecove;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -38,6 +36,7 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
+import junit.framework.Assert;
 import net.sf.bluecove.awt.JavaSECommon;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.CountStatistic;
@@ -45,8 +44,6 @@ import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.StringUtils;
 import net.sf.bluecove.util.TimeStatistic;
 import net.sf.bluecove.util.TimeUtils;
-
-import junit.framework.Assert;
 
 
 /**
@@ -251,7 +248,7 @@ public class TestResponderClient implements Runnable {
 						return false;
 					}
 					// By this time inquiryCompleted maybe already been called, because we are too fast
-					if (inquiringDevice) {
+					while (inquiringDevice) {
 						synchronized (this) {
 							try {
 								wait();
@@ -381,7 +378,7 @@ public class TestResponderClient implements Runnable {
 					continue nextDevice;
 				}
 				// By this time serviceSearchCompleted maybe already been called, because we are too fast
-				if (searchingServices) {
+				while (searchingServices) {
 					synchronized (this) {
 						try {
 							wait();
@@ -803,7 +800,13 @@ public class TestResponderClient implements Runnable {
 			}
 		}
 	}
-	
+
+	public static class RemoteDeviceIheritance extends RemoteDevice {
+		public RemoteDeviceIheritance(String address) {
+			super(address);
+		}
+	}
+
 	public void run() {
 		Logger.debug("Client started..." + TimeUtils.timeNowToString());
 		isRunning = true;
@@ -812,7 +815,14 @@ public class TestResponderClient implements Runnable {
 
 			int startTry = 0;
 			if (connectURL != null) {
-				bluetoothInquirer.serverURLs.addElement(connectURL);
+				final boolean testRemoteDeviceIheritance = false;
+				if (!testRemoteDeviceIheritance) {
+					bluetoothInquirer.serverURLs.addElement(connectURL);
+				} else {
+					Configuration.clientContinuousDiscoveryDevices = false;
+					bluetoothInquirer.devices.addElement(new RemoteDeviceIheritance(extractBluetoothAddress(connectURL)));
+					connectURL = null;
+				}
 			}
 			
 			while (!stoped) {

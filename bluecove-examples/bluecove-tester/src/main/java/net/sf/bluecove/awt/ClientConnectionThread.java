@@ -76,6 +76,7 @@ public class ClientConnectionThread extends Thread {
 			while (!stoped) {
 				int data = c.is.read();
 				if (data == -1) {
+					Logger.debug("EOF recived");
 					break;
 				}
 				receivedCount ++;

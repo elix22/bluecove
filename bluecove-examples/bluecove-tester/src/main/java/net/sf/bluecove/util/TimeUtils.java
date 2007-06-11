@@ -90,4 +90,12 @@ public abstract class TimeUtils {
 	    return timeToString(calendar);
 	}
 
+	public static boolean sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+			return true;
+		} catch (InterruptedException e) {
+			return false;
+		}
+	}
 }

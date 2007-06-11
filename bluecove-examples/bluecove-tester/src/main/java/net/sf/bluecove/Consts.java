@@ -123,15 +123,19 @@ public interface Consts {
 	
 	public static final int TEST_BYTES_256_BACK = 21;
 	
-	public static final int TEST_CAN_CLOSE_READ = 22;
+	public static final int TEST_CAN_CLOSE_READ_ON_CLIENT = 22;
 	
-	public static final int TEST_CAN_CLOSE_READ_BACK = 23;
+	public static final int TEST_CAN_CLOSE_READ_ON_SERVER = 23;
+
+	public static final int TEST_CAN_CLOSE_READ_ARRAY_ON_CLIENT = 24;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY = 24;
+	public static final int TEST_CAN_CLOSE_READ_ARRAY_ON_SERVER = 25;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 25;
+	public static final int TEST_LARGE_BYTE_ARRAY = 26;
 	
-	public static final int TEST_LAST_WORKING = TEST_BYTES_256_BACK;
+	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 27;
+	
+	public static final int TEST_LAST_WORKING = TEST_CAN_CLOSE_READ_ARRAY_ON_SERVER;
 	
 	
 }

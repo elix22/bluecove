@@ -129,9 +129,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 		}
 		
-		private void runEcho(InputStream is) {
-			int receivedCount = 0;
+		private void runEcho(InputStream is, char firstChar) {
+			int receivedCount = 1;
 			StringBuffer buf = new StringBuffer();
+			buf.append(firstChar);
 			try {
 				c.os = c.conn.openOutputStream();
 				OutputStream os = c.os;
@@ -173,9 +174,13 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 				
 				int isTest = c.is.read();
+				if (isTest == -1) {
+					Logger.debug("EOF recived");
+					return;
+				}
 				if (isTest != Consts.SEND_TEST_START) {
 					Logger.debug("not a test client connected, will echo");
-					runEcho(c.is);
+					runEcho(c.is, (char)isTest);
 					return;
 				}
 				testType = c.is.read();

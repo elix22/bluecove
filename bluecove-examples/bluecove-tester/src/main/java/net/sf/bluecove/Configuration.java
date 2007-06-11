@@ -102,7 +102,7 @@ public class Configuration {
 
 	public static boolean testServerForceDiscoverable = true;
 
-	public static int clientSleepBetweenConnections = 5100;
+	public static int clientSleepBetweenConnections = 4100;
 	
 	public static int serverSleepB4ClosingConnection = 1000;
 	
