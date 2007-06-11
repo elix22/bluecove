@@ -21,6 +21,7 @@
 package net.sf.bluecove.awt;
 
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Menu;
@@ -45,6 +46,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import javax.bluetooth.LocalDevice;
 
@@ -71,6 +73,8 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 	TextArea output = null;
 
+	private Vector logLinesQueue = new Vector();
+	
 	ScrollPane scrollPane;
 	
 	int lastKeyCode;
@@ -444,7 +448,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		if (output == null) {
 			return;
 		}
-		StringBuffer buf = new StringBuffer();
+		final StringBuffer buf = new StringBuffer();
 		
 		if (Configuration.logTimeStamp) {
 			String time = TimeUtils.timeNowToString();
@@ -474,8 +478,36 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		}
 		buf.append("\n");
-		synchronized (output) {
-			output.append(buf.toString());
+		boolean createUpdater = false;
+		synchronized (logLinesQueue) {
+			if (logLinesQueue.isEmpty()) {
+				createUpdater = true; 
+			}
+			logLinesQueue.addElement(buf.toString());
+		}
+		if (createUpdater) {
+			EventQueue.invokeLater(new AwtLogUpdater());
+		}
+	}
+	
+	private class AwtLogUpdater implements Runnable {
+
+		private String getNextLine() {
+			synchronized (logLinesQueue) {
+				if (logLinesQueue.isEmpty()) {
+					return null;
+				}
+				String line = (String)logLinesQueue.firstElement();
+				logLinesQueue.removeElementAt(0);
+				return line;
+			}
+		}
+		
+		public void run() {
+			String line;
+			while ((line = getNextLine()) != null) {
+				output.append(line);
+			}
 		}
 	}
 
