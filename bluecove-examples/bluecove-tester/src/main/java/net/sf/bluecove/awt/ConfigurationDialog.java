@@ -83,6 +83,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("TEST_CASE_LAST");
 		addConfig("STERSS_TEST_CASE");
 		addConfig("clientSleepBetweenConnections");
+		addConfig("clientTestTimeOutSec");
 		addConfig("serverSleepB4ClosingConnection");
 		addConfig("testServiceAttributes");
 		addConfig("testIgnoreNotWorkingServiceAttributes");

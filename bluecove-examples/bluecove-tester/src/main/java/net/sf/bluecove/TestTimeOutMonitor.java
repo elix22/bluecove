@@ -34,27 +34,27 @@ public class TestTimeOutMonitor extends Thread {
     
     private String name;
     
-    int gracePeriodMinutes = 0;
+    int gracePeriodSeconds = 0;
     
-    TestTimeOutMonitor(String name, CanShutdown testThread, int gracePeriodMinutes) {
+    TestTimeOutMonitor(String name, CanShutdown testThread, int gracePeriodSeconds) {
         //CLDC_1_0 super(name + "Monitor");
     	
         this.name = name;
         this.testThread = testThread;
-        this.gracePeriodMinutes = gracePeriodMinutes;
-        if (this.gracePeriodMinutes != 0)  {
+        this.gracePeriodSeconds = gracePeriodSeconds;
+        if (this.gracePeriodSeconds != 0)  {
         	super.start();
         }
     }
     
     public void run() {
-    	if (gracePeriodMinutes == 0) {
+    	if (gracePeriodSeconds == 0) {
     		return;
     	}
         
-        while ((!testFinished) && (System.currentTimeMillis() < (testThread.lastActivityTime() + this.gracePeriodMinutes  * 60 * 1000))) {
+        while ((!testFinished) && (System.currentTimeMillis() < (testThread.lastActivityTime() + this.gracePeriodSeconds  * 1000))) {
         	try {
-        		sleep(20 * 1000);    
+        		sleep(10 * 1000);    
             } catch (InterruptedException e) {
                 return;
             }

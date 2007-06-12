@@ -192,7 +192,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 				testStatus.setName(testType);
 				Logger.debug("run test# " + testType);
-				monitorConnection = new TestTimeOutMonitor("test" + testType, c, 2);
+				monitorConnection = new TestTimeOutMonitor("test" + testType, c, Configuration.serverTestTimeOutSec);
 				c.os = c.conn.openOutputStream();
 				c.active();
 				CommunicationTester.runTest(testType, true, c.conn, c.is, c.os, testStatus);
@@ -263,7 +263,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		isRunning = true;
 		if (!Configuration.serverContinuous) {
 			lastActivityTime = System.currentTimeMillis();
-			monitorServer = new TestTimeOutMonitor("ServerUp", this, Consts.serverTimeOutMin);
+			monitorServer = new TestTimeOutMonitor("ServerUp", this, Consts.serverUpTimeOutSec);
 		}
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();

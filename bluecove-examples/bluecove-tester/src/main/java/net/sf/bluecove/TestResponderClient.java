@@ -630,7 +630,7 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 				c.active();
-				monitor = new TestTimeOutMonitor(logPrefix + "test #" + testType, c, 2);
+				monitor = new TestTimeOutMonitor(logPrefix + "test #" + testType, c, Configuration.clientTestTimeOutSec);
 				if (!runStressTest) {
 					Logger.debug(logPrefix + "run test #" + testType);
 				} else {
