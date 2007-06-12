@@ -608,7 +608,7 @@ public class TestResponderClient implements Runnable {
 						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {
 							throw e;
 						}
-						Logger.debug("Connector error", e);
+						Logger.debug(logPrefix + "Connector error", e);
 						Thread.sleep(Configuration.clientSleepOnConnectionRetry);
 						Logger.debug(logPrefix + "connect retry:" + connectionOpenTry);
 					}
