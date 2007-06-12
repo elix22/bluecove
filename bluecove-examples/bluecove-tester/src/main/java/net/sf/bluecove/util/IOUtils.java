@@ -26,6 +26,9 @@ import java.io.Writer;
 
 import javax.microedition.io.Connection;
 
+import net.sf.bluecove.Configuration;
+import net.sf.bluecove.Logger;
+
 /**
  * General IO stream manipulation utilities.
  * Some functions are based on org.apache.commons.io
@@ -53,8 +56,10 @@ public class IOUtils {
             if (input != null) {
                 input.close();
             }
-        } catch (Throwable ignore) {
-            // ignore
+        } catch (Throwable e) {
+            if (Configuration.isBlueCove) {
+            	Logger.error("InputStream.close()", e);
+            }
         }
     }
     
@@ -71,8 +76,10 @@ public class IOUtils {
             if (output != null) {
                 output.close();
             }
-        } catch (Throwable ignore) {
-            // ignore
+        } catch (Throwable e) {
+        	if (Configuration.isBlueCove) {
+            	Logger.error("OutputStream.close()", e);
+            }
         }
     }
     
@@ -99,8 +106,10 @@ public class IOUtils {
             if (com != null) {
             	com.close();
             }
-        } catch (Throwable ioe) {
-            // ignore
+        } catch (Throwable e) {
+        	if (Configuration.isBlueCove) {
+            	Logger.error("Connection.close()", e);
+            }
         }
     }
     

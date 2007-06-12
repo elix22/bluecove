@@ -130,7 +130,7 @@ public class CommunicationTester implements Consts {
 	static void sendBytes256(OutputStream os) throws IOException {
 		// Write all 256 bytes
 		int cnt = 0;
-		for(int i = -128; i <= 127; i++) {
+		for(int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
 			try {
 				os.write((byte)i);
 				cnt ++;
@@ -146,7 +146,7 @@ public class CommunicationTester implements Consts {
 	static void readBytes256(InputStream is) throws IOException {
 		//Read all 256 bytes
 		int cnt = 0;
-		for(int i = -128; i <= 127; i++) {
+		for(int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
 			byte got;
 			try {
 				got = (byte)is.read();
@@ -155,7 +155,7 @@ public class CommunicationTester implements Consts {
 				Logger.debug("Received only " + cnt + " bytes");
 				throw e;
 			}
-			Assert.assertEquals("all bytes", (byte)i, got);
+			Assert.assertEquals("all bytes [" + i + "]", (byte)i, got);
 		}
 		Assert.assertEquals("conformation that 0xFF is not EOF", aKnowndPositiveByte, (byte)is.read());
 	}
@@ -282,7 +282,7 @@ public class CommunicationTester implements Consts {
 		long startWait = System.currentTimeMillis();
 		Assert.assertEquals("EOF expected", -1, is.read());
 		testStatus.streamClosed = true;
-		Assert.assertFalse("Took too long to close", TimeUtils.since(startWait) > 3 * 1000);
+		Assert.assertFalse("Took too long to close", TimeUtils.since(startWait) > 7 * 1000);
 		testStatus.isSuccess = true;
 	}
 
@@ -397,7 +397,7 @@ public class CommunicationTester implements Consts {
 		} catch (IOException e) {
 			Logger.debug("OK conn.closed");
 		}
-		Assert.assertFalse("Took too long to close", TimeUtils.since(startWait) > 3 * 1000);
+		Assert.assertFalse("Took too long to close", TimeUtils.since(startWait) > 7 * 1000);
 		testStatus.isSuccess = true;
 	}
 
