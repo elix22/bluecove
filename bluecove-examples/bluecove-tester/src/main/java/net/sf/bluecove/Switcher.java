@@ -169,41 +169,7 @@ public class Switcher implements Runnable {
 		instance = null;
 	}
 
-	public static void startDiscovery() {
-		try {
-			if (client == null) {
-				client = new TestResponderClient();
-			}
-			client.discoveryOnce = true;
-			client.useDiscoveredDevices = false;
-			Configuration.searchOnlyBluecoveUuid = Configuration.discoverySearchOnlyBluecoveUuid;
-			if (!client.isRunning) {
-				clientStartCount++;
-				(client.thread = new Thread(client)).start();
-			}
-		} catch (Throwable e) {
-			Logger.error("start error ", e);
-		}
-	}
-
-	public static void startServicesSearch() {
-		try {
-			if (client == null) {
-				client = new TestResponderClient();
-			}
-			client.discoveryOnce = true;
-			client.useDiscoveredDevices = true;
-			Configuration.searchOnlyBluecoveUuid = Configuration.discoverySearchOnlyBluecoveUuid;
-			if (!client.isRunning) {
-				clientStartCount++;
-				(client.thread = new Thread(client)).start();
-			}
-		} catch (Throwable e) {
-			Logger.error("start error ", e);
-		}
-	}
-	
-	public static void createClient() {
+	public static TestResponderClient createClient() {
 		try {
 			if (client == null) {
 				client = new TestResponderClient();
@@ -214,15 +180,38 @@ public class Switcher implements Runnable {
 				Configuration.searchOnlyBluecoveUuid = true;
 				clientStartCount++;
 				(client.thread = new Thread(client)).start();
+				return client; 
 			} else {
 				if (Configuration.isJ2ME) {
 					BlueCoveTestMIDlet.message("Warn", "Client is already Running");
 				} else {
 					Logger.warn("Client is already Running");
 				}
+				return null;
 			}
 		} catch (Throwable e) {
 			Logger.error("start error ", e);
+			return null;
+		}
+	}
+
+	public static void startDiscovery() {
+		TestResponderClient client = createClient();
+		if (client != null) {
+			client.discoveryOnce = true;
+			client.useDiscoveredDevices = false;
+			Configuration.searchOnlyBluecoveUuid = Configuration.discoverySearchOnlyBluecoveUuid;
+			client.configured();
+		}
+	}
+
+	public static void startServicesSearch() {
+		TestResponderClient client = createClient();
+		if (client != null) {
+			client.discoveryOnce = true;
+			client.useDiscoveredDevices = true;
+			Configuration.searchOnlyBluecoveUuid = Configuration.discoverySearchOnlyBluecoveUuid;
+			client.configured();
 		}
 	}
 	
