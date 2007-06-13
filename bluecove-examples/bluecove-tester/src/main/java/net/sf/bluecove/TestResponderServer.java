@@ -195,7 +195,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				monitorConnection = new TestTimeOutMonitor("test" + testType, c, Configuration.serverTestTimeOutSec);
 				c.os = c.conn.openOutputStream();
 				c.active();
-				CommunicationTester.runTest(testType, true, c.conn, c.is, c.os, testStatus);
+				CommunicationTester.runTest(testType, true, c, testStatus);
 				if (!testStatus.streamClosed) {
 					Logger.debug("reply OK");
 					c.active();

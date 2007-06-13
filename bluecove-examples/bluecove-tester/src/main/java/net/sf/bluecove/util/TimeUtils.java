@@ -68,6 +68,11 @@ public abstract class TimeUtils {
 		return (System.currentTimeMillis() - start);
 	}
 
+	public static String bps(int size, long start) {
+		long duration = TimeUtils.since(start);
+		return "" + ((1000 * 8 * size)/(duration)) + " bit/s";
+	}
+	
 	public static String timeNowToString() {
 		return timeToString(System.currentTimeMillis());
 	}

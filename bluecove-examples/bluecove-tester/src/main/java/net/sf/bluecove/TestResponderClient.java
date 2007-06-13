@@ -646,7 +646,7 @@ public class TestResponderClient implements Runnable {
 				c.is = c.conn.openInputStream();
 				c.active();
 
-				CommunicationTester.runTest(testType, false, c.conn, c.is, c.os, testStatus);
+				CommunicationTester.runTest(testType, false, c, testStatus);
 				c.active();
 
 				if (monitor.isShutdownCalled()) {

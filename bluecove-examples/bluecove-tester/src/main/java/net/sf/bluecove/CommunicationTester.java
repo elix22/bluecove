@@ -31,6 +31,7 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 import javax.microedition.io.StreamConnection;
 
+import net.sf.bluecove.tests.TwoThreadsPerConnection;
 import net.sf.bluecove.util.TimeUtils;
 import net.sf.bluecove.util.ValueHolder;
 
@@ -481,15 +482,21 @@ public class CommunicationTester implements Consts {
 		}
 	}
 	
-	static void sendByteArayLarge(OutputStream os) throws IOException {
+	static void sendByteArayLarge(InputStream is, OutputStream os) throws IOException {
+		long start = System.currentTimeMillis();
 		byte[] byteArayLarge = new byte[byteArayLargeSize];
 		for(int i = 0; i < byteArayLargeSize; i++) {
 			byteArayLarge[i] = (byte)(i & 0xF);
 		}
 		os.write(byteArayLarge);
+		os.flush();
+		int ok = is.read();
+		Assert.assertEquals("conformation expected", 1, ok);
+		Logger.debug("send speed " + TimeUtils.bps(byteArayLargeSize, start));
 	}
 
-	static void readByteArayLarge(InputStream is) throws IOException {
+	static void readByteArayLarge(InputStream is, OutputStream os) throws IOException {
+		long start = System.currentTimeMillis();
 		byte[] byteArayGot = new byte[byteArayLargeSize];
 		int got = 0;
 		while (got < byteArayLargeSize) {
@@ -504,9 +511,14 @@ public class CommunicationTester implements Consts {
 		for(int i = 0; i < byteArayLargeSize; i++) {
 			Assert.assertEquals("byte", (i & 0xF), byteArayGot[i]);
 		}
+		os.write(1);
+		os.flush();
+		Logger.debug("read speed " + TimeUtils.bps(byteArayLargeSize, start));
 	}
 	
-	public static void runTest(int testType, boolean server, StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+	public static void runTest(int testType, boolean server, StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+		InputStream is = c.is; 
+		OutputStream os = c.os;
 		switch (testType) {
 		case TEST_STRING:
 			testStatus.setName("STRING");
@@ -637,9 +649,9 @@ public class CommunicationTester implements Consts {
 		case TEST_CONNECTION_INFO:
 			testStatus.setName("TEST_CONNECTION_INFO");
 			if (server) {
-				CommunicationTester.serverRemoteDevice(conn, is, os, testStatus);
+				CommunicationTester.serverRemoteDevice(c.conn, is, os, testStatus);
 			} else {
-				CommunicationTester.clientRemoteDevice(conn, is, os, testStatus);
+				CommunicationTester.clientRemoteDevice(c.conn, is, os, testStatus);
 			}
 			break;
 		case TEST_CLOSED_CONNECTION:
@@ -679,7 +691,7 @@ public class CommunicationTester implements Consts {
 			if (server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(false, conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(false, c.conn, is, os, testStatus);
 			}
 			break;
 		case TEST_CAN_CLOSE_READ_ON_SERVER:
@@ -687,7 +699,7 @@ public class CommunicationTester implements Consts {
 			if (!server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(false, conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(false, c.conn, is, os, testStatus);
 			}
 			break;
 		case TEST_CAN_CLOSE_READ_ARRAY_ON_CLIENT:
@@ -695,7 +707,7 @@ public class CommunicationTester implements Consts {
 			if (server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(true, conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(true, c.conn, is, os, testStatus);
 			}
 			break;
 		case TEST_CAN_CLOSE_READ_ARRAY_ON_SERVER:
@@ -703,23 +715,31 @@ public class CommunicationTester implements Consts {
 			if (!server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(true, conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(true, c.conn, is, os, testStatus);
 			}
+			break;
+		case TEST_TWO_THREADS_BYTES:
+			testStatus.setName("TWO_THREADS_BYTES");
+			TwoThreadsPerConnection.start(c, 1);
+			break;
+		case TEST_TWO_THREADS_ARRAYS:
+			testStatus.setName("TWO_THREADS_ARRAYS");
+			TwoThreadsPerConnection.start(c, 64);
 			break;
 		case TEST_LARGE_BYTE_ARRAY:
 			testStatus.setName("LARGE_BYTE_ARRAY");
 			if (server) {
-				CommunicationTester.readByteArayLarge(is);
+				CommunicationTester.readByteArayLarge(is, os);
 			} else {
-				CommunicationTester.sendByteArayLarge(os);
+				CommunicationTester.sendByteArayLarge(is, os);
 			}
 			break;
 		case TEST_LARGE_BYTE_ARRAY_BACK:
 			testStatus.setName("LARGE_BYTE_ARRAY_BACK");
 			if (!server) {
-				CommunicationTester.readByteArayLarge(is);
+				CommunicationTester.readByteArayLarge(is, os);
 			} else {
-				CommunicationTester.sendByteArayLarge(os);
+				CommunicationTester.sendByteArayLarge(is, os);
 			}
 			break;			
 		case TEST_SERVER_TERMINATE:
