@@ -73,6 +73,10 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	
 	private int logVisibleLines = 0;
 	
+	private int logMessagesSownSize = 0;
+	
+	private boolean movingCursor = false;
+	
 	private boolean logLastEvenVisible = true;
 	
 	public BlueCoveTestCanvas() {
@@ -138,13 +142,26 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		int lineHeight = g.getFont().getHeight() + 1;
 		logVisibleLines = (height - lastY ) / lineHeight;
 		lineOffsetX = logScrollX;
+		
+		if (!movingCursor && logLastEvenVisible) {
+			if (((logLine + logVisibleLines) < logMessages.size())) {
+				setLogEndLine();
+			}
+		}
+		movingCursor = false;
+		logMessagesSownSize = logMessages.size();
 		int logIndex = logLine;
-		while (((lastY) < height) && (logIndex < logMessages.size())) {
-			String message = (String)logMessages.elementAt(logIndex);
-			lastY = writeln(g, message);
-			logIndex ++;
+		while (((lastY) < height) && (logIndex < logMessagesSownSize)) {
+			try {
+				String message = (String)logMessages.elementAt(logIndex);
+				lastY = writeln(g, message);
+				logIndex ++;
+			} catch (ArrayIndexOutOfBoundsException e) {
+				logLastEvenVisible  = true;
+				return;
+			}
 		} 
-		logLastEvenVisible = (logIndex == logMessages.size());
+		logLastEvenVisible = (logIndex == logMessagesSownSize);
 	}
 	
 	public void appendLog(int level, String message, Throwable throwable) {
@@ -192,9 +209,6 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		}
 		
 		if (logLastEvenVisible) {
-			if (((logLine + logVisibleLines) < logMessages.size())) {
-				setLogEndLine();
-			}
 			//BlueCoveTestMIDlet.display.flashBacklight(0);
 			repaint();
 		}
@@ -252,6 +266,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			case UP:
 				if (logLine > 0) {
 					logLine--;
+					movingCursor =true;
 				}
 				break;
 			case DOWN:
