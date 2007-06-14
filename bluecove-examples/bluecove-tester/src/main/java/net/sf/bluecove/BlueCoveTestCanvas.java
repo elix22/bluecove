@@ -127,9 +127,9 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		
 		StringBuffer msg = new StringBuffer();
 		msg.append("(");
-		msg.append("srv:").append((Switcher.isRunningServer())?"on":"off").append(" ").append(Switcher.serverStartCount);
-		msg.append(" cli:").append((Switcher.isRunningClient())?"on":"off").append(" ").append(Switcher.clientStartCount);
-		msg.append(" X:").append((Switcher.isRunning())?"on":"off");
+		msg.append("srv:").append((Switcher.isRunningServer())?"ON":"off").append(" ").append(Switcher.serverStartCount);
+		msg.append(" cli:").append((Switcher.isRunningClient())?"ON":"off").append(" ").append(Switcher.clientStartCount);
+		msg.append(" X:").append((Switcher.isRunning())?"ON":"off");
 		msg.append(" dc:").append(TestResponderClient.discoveryCount);
 		msg.append(" er:").append(errorCount);
 		msg.append(")");

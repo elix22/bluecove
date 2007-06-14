@@ -529,9 +529,9 @@ public class TestResponderClient implements Runnable {
 			}
 		}
 		
-		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
+		Assert.assertNotNull("BT Address is null", localDevice.getBluetoothAddress());
 		if (!Configuration.windowsCE) {
-			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
+			Assert.assertNotNull("BT Name is null", localDevice.getFriendlyName());
 		}
 		
 	}
