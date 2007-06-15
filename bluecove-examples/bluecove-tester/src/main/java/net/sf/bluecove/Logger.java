@@ -40,34 +40,50 @@ public class Logger {
 		public void appendLog(int level, String message, Throwable throwable);
 	}
 
-	
+	/**
+	 * We want to ingore Error when writing to console on Windows.
+	 *  e.g.  java.lang.NullPointerException
+ 	 *  at java.io.PrintStream.write(Unknown Source)
+	 */
 	public static void debug(String message) {
-		System.out.println(message);
+		try {
+			System.out.println(message);
+		} catch (Throwable ignore) {}
 		callAppenders(DEBUG, message, null);
 	}
 	
 	public static void debug(String message, Throwable t) {
-		System.out.println(message);
+		try {
+			System.out.println(message);
+		} catch (Throwable ignore) {}
 		callAppenders(DEBUG, message, t);
 	}
 	
 	public static void info(String message) {
-		System.out.println(message);
+		try {
+			System.out.println(message);
+		} catch (Throwable ignore) {}
 		callAppenders(INFO, message, null);
 	}
 
 	public static void warn(String message) {
-		System.out.println(message);
+		try {
+			System.out.println(message);
+		} catch (Throwable ignore) {}
 		callAppenders(WARN, message, null);
 	}
 	
 	public static void error(String message, Throwable t) {
-		System.out.println("error " + message + " " + t);
+		try {
+			System.out.println("error " + message + " " + t);
+		} catch (Throwable ignore) {}
 		callAppenders(ERROR, message, t);
 	}
 
 	public static void error(String message) {
-		System.out.println("error " + message);
+		try {
+			System.out.println("error " + message);
+		} catch (Throwable ignore) {}
 		callAppenders(ERROR, message, null);
 	}
 	
