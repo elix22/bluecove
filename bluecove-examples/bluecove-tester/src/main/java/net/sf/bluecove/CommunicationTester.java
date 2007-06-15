@@ -28,18 +28,14 @@ import java.io.OutputStream;
 
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
-import javax.bluetooth.UUID;
 import javax.microedition.io.StreamConnection;
 
+import junit.framework.Assert;
 import net.sf.bluecove.tests.TwoThreadsPerConnection;
 import net.sf.bluecove.util.TimeUtils;
 import net.sf.bluecove.util.ValueHolder;
 
-import junit.framework.Assert;
-
 public class CommunicationTester implements Consts {
-
-	public static final UUID uuid = new UUID(Consts.RESPONDER_UUID, Consts.useShortUUID); 
 
 	public static boolean dataOutputStreamFlush = true;
 	

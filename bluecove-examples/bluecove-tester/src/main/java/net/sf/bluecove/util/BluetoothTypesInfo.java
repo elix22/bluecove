@@ -117,7 +117,8 @@ public abstract class BluetoothTypesInfo {
 			addName(0x1301, "ESDP_UPNP_IP_LAP");
 			addName(0x1302, "ESDP_UPNP_L2CAP");
 			
-			addName("B10C0BE1111111111111111111110001", "BlueCoveT");
+			addName(0xBC01, "BlueCoveT short");
+			addName("B10C0BE1111111111111111111110001", "BlueCoveT long");
 			
 		}
 

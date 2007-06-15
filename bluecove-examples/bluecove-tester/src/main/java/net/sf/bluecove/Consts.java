@@ -21,17 +21,18 @@
 package net.sf.bluecove;
 
 import javax.bluetooth.DataElement;
+import javax.bluetooth.UUID;
 
 public interface Consts {
 
-	public static final boolean useShortUUID = false;
+	public static final String RESPONDER_LONG_UUID = "B10C0BE1111111111111111111110001";
 	
-	public static final String RESPONDER_UUID = "B10C0BE1111111111111111111110001";
-	
-	//public static final boolean useShortUUID = true;
-	
-	//public static final String RESPONDER_UUID = "1212";
+	public static final String RESPONDER_SHORT_UUID = "BC01";
 
+	public static final UUID uuidLong = new UUID(Consts.RESPONDER_LONG_UUID, false); 
+	
+	public static final UUID uuidShort = new UUID(Consts.RESPONDER_SHORT_UUID, true);
+	
 	public static final String RESPONDER_SERVERNAME = "bluecovesrv";
 
 	public static final int TEST_SERVICE_ATTRIBUTE_INT_ID = 0x0A0;

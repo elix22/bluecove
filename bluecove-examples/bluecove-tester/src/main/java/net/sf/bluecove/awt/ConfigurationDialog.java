@@ -74,6 +74,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("discoverDevicesPhones");
 		addConfig("discoveryUUID");
 		
+		addConfig("useShortUUID");
 		addConfig("clientContinuous");
 		addConfig("clientContinuousDiscovery");
 		addConfig("clientContinuousDiscoveryDevices");

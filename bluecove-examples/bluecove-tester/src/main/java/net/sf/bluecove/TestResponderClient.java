@@ -156,7 +156,7 @@ public class TestResponderClient implements Runnable {
 			inquiringDevice = false;
 			inquiring = false;
 			if (Configuration.searchOnlyBluecoveUuid) {
-				searchUuidSet = new UUID[] { L2CAP, RFCOMM, CommunicationTester.uuid };
+				searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID() };
 			} else {
 				searchUuidSet = new UUID[] { Configuration.discoveryUUID };
 			}
@@ -426,7 +426,7 @@ public class TestResponderClient implements Runnable {
 				if (Configuration.searchOnlyBluecoveUuid) {
 					isBlueCoveTestService = ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName, servicesOnDeviceAddress);
 				} else {
-					isBlueCoveTestService = ServiceRecordTester.hasServiceClassUUID(servRecord[i], CommunicationTester.uuid);
+					isBlueCoveTestService = ServiceRecordTester.hasServiceClassUUID(servRecord[i], Configuration.blueCoveUUID());
 					if (isBlueCoveTestService) {
 						
 						// Retive other service attributes

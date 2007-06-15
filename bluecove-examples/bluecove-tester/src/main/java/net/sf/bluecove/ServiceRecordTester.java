@@ -71,7 +71,8 @@ public class ServiceRecordTester {
 				continue;
 			}
 			DataElement dataElement = (DataElement) element;
-			if ((dataElement.getDataType() == DataElement.UUID) && (CommunicationTester.uuid.equals(dataElement.getValue()))) {
+			if ((dataElement.getDataType() == DataElement.UUID) && 
+					(Consts.uuidLong.equals(dataElement.getValue())) || (Consts.uuidShort.equals(dataElement.getValue()))) {
 				return true;
 			}
 		}
@@ -150,7 +151,7 @@ public class ServiceRecordTester {
 		long variableData = 0;
 		
 		if (!Configuration.testServiceAttributes || ("0".equals(LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max")))) {
-			return hasServiceClassUUID(servRecord, CommunicationTester.uuid);
+			return hasServiceClassUUID(servRecord, Configuration.blueCoveUUID());
 		}
 		
 		boolean canTestLong = true;
@@ -162,7 +163,7 @@ public class ServiceRecordTester {
 		}
 		
 		if (canTestLong && Configuration.testAllServiceAttributes) {
-			isBlueCoveTestService = hasServiceClassUUID(servRecord, CommunicationTester.uuid);
+			isBlueCoveTestService = hasServiceClassUUID(servRecord, Configuration.blueCoveUUID());
 			if (isBlueCoveTestService) {
 				compareAllServiceAttributes(servRecord, servicesOnDeviceName);
 			}
@@ -192,7 +193,7 @@ public class ServiceRecordTester {
 						Assert.assertNotNull("attrValue null", attrDataElement);
 						switch (id) {
 						case 0x0001:
-							if (!hasServiceClassUUID(servRecord, CommunicationTester.uuid)) {
+							if (!hasServiceClassUUID(servRecord, Configuration.blueCoveUUID())) {
 								TestResponderClient.failure.addFailure("ServiceClassUUID not found on " + servicesOnDeviceName);
 							} else {
 								isBlueCoveTestService = true;

@@ -275,7 +275,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			
 			serverConnection = (StreamConnectionNotifier) Connector
 					.open("btspp://localhost:"
-							+ CommunicationTester.uuid
+							+ Configuration.blueCoveUUID()
 							+ ";name="
 							+ Consts.RESPONDER_SERVERNAME
 							//;authenticate=false;encrypt=false
