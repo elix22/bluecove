@@ -20,7 +20,7 @@
 
         <menu name="Tests">
             <item name="Results" href="results.html" />
-            <item name="Run Web Start MIDlet" href="demo.jnlp" />
+            <item name="Run Web Start MIDlet" href="../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp" />
             <item name="Run Web Start AWT" href="awt-bctest.jnlp" />
         </menu>
 
