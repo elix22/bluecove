@@ -85,7 +85,7 @@
     </pluginRepositories>
 
     <properties>
-        <me2Version>2.0.1</me2Version>
+        <me2Version>2.0.2-SNAPSHOT</me2Version>
     </properties>
 
     <modules>
