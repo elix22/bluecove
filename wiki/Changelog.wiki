@@ -4,11 +4,11 @@
 = 2.0.0 to be Released 2007-07-xx =
 
     2007-06-15 version 2.0.0-b1
-    * BlueSoleil Stack working Server implementation
-    * BlueSoleil Stack client using overlapped I/O
-    * intelbth.dll build by VC2005 Configuration "Win32 Release" for Microsoft and BlueSoleil Bluetooth Stack
+    * !BlueSoleil Stack working Server implementation
+    * !BlueSoleil Stack client using overlapped I/O
+    * intelbth.dll build by VC2005 Configuration "Win32 Release" for Microsoft and !BlueSoleil Bluetooth Stack
     * bluecove.dll build by VC6 Configuration "Win32 Release"  for WIDCOMM Bluetooth Stacks
-    * FIFO ReceiveBuffer for WIDCOMM Stack
+    * FIFO !ReceiveBuffer for WIDCOMM Stack
 
     2007-06-03
 
