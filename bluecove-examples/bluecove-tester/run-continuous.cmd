@@ -8,9 +8,10 @@ rem set JVM_ARGS=-Dbluecove.stack=widcomm
 set TITLE=bluecove-tester
 set ERRORS=0
 set SUCCESS=0
+echo Starting > run-continuous.cmd.log
 :startagain
 title %TITLE%  SUCCESS=%SUCCESS% ERRORS=%ERRORS%
-java %JVM_ARGS% -jar target\bluecove-tester-%VERSION%-app.jar --runonce
+java %JVM_ARGS% -jar target\bluecove-tester-%VERSION%-app.jar --runonce  >>  run-continuous.cmd.log
 if errorlevel 2 (
     echo Error calling java
     set /A ERRORS+=1

@@ -2,7 +2,9 @@
 rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
 call %~dp0scripts\version.cmd
-java -Dbluecove.stack=widcomm -jar target\bluecove-tester-%VERSION%-app.jar
+SET STACK=widcomm
+title %STACK%-tester
+java -Dbluecove.stack=%STACK% -jar bluecove-tester-%VERSION%-app.jar >  run-%STACK%.cmd.log
 if errorlevel 2 (
     echo Error calling java
 )
