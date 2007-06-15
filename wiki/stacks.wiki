@@ -52,7 +52,7 @@
 
 === JSR-82 Limitations ===
 
-    SDK provided by IVT is very limited. We just implemented what we can on top of it.  Also Server is not implemented yet.
+    SDK provided by IVT is very limited. We just implemented what we can on top of it.
 
     * Service attributes are not supported, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
