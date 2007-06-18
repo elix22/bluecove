@@ -52,16 +52,16 @@ public class CountStatistic {
 		}
 		// No Float: ((float)total/(float)count)
 		long m = total/count;
-		long r = (1000 * total%count)/count;
+		long r = (10000 * (total%count))/count;
 		return String.valueOf(m) + "." + StringUtils.d0000((int)r);
 	}
 	
 	public String avgPrc() {
 		if (count == 0) {
-			return "0";
+			return "0%";
 		}
 		long m = (100 * total)/count;
-		long r = (100000 * total%count)/count;
+		long r = (10000 * ((100 * total)%count)/count);
 		return String.valueOf(m) + "." + StringUtils.d0000((int)r) + "%";
 	}
 
