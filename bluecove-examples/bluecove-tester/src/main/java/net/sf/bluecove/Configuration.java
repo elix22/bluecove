@@ -120,6 +120,8 @@ public class Configuration {
 	
 	public static Storage storage;
 	
+	private static String lastServerURL = null;
+	
 	public static CLDCStub cldcStub;
 	
 	/**
@@ -218,4 +220,18 @@ public class Configuration {
     		return Consts.uuidLong;
     	}
     }
+
+	public static String getLastServerURL() {
+		if (lastServerURL == null) {
+			lastServerURL = Configuration.storage.retriveData("lastURL");
+		}
+		return lastServerURL;
+	}
+
+	public static void setLastServerURL(String lastServerURL) {
+		Configuration.lastServerURL = lastServerURL;
+		if (Configuration.storage != null) {
+			Configuration.storage.storeData("lastURL", lastServerURL);
+		}
+	}
 }

@@ -1,7 +1,7 @@
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
- * 
+ *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove;
 
 import java.util.Random;
@@ -34,28 +34,28 @@ public class Switcher implements Runnable {
 	public static TestResponderServer server;
 
 	public static int clientStartCount = 0;
-	
+
 	public static int serverStartCount = 0;
-	
+
 	private boolean stoped = false;
-	
+
 	public Thread thread;
-	
+
 	boolean isRunning = false;
-	
+
 	private static Switcher instance;
-	
+
 	Random random = new Random();
-	
+
 	public Switcher() {
 		instance = this;
 	}
-	
+
 	public static synchronized void clear() {
 		clientStartCount = 0;
 		serverStartCount = 0;
 	}
-	
+
 	public static void yield(TestResponderClient client) {
 		if (instance != null) {
 			clientShutdown();
@@ -72,7 +72,7 @@ public class Switcher implements Runnable {
 					Thread.sleep(2000);
 				} catch (Exception e) {
 					break;
-				}	
+				}
 			}
 			serverShutdown();
 		}
@@ -81,11 +81,11 @@ public class Switcher implements Runnable {
 	public static boolean isRunning() {
 		return (instance != null) && instance.isRunning;
 	}
-	
+
 	public static boolean isRunningClient() {
 		return (client != null) && client.isRunning;
 	}
-	
+
 	public static boolean isRunningServer() {
 		return (server != null) && TestResponderServer.discoverable && server.isRunning;
 	}
@@ -148,7 +148,7 @@ public class Switcher implements Runnable {
 			Logger.info("Switcher finished!");
 		}
 	}
-	
+
 	public int randomTTL(int min, int max) {
 		int d = random.nextInt() % (max - min);
 		if (d < 0) {
@@ -156,7 +156,7 @@ public class Switcher implements Runnable {
 		}
 		return min + d;
 	}
-	
+
 	public void shutdown() {
 		Logger.info("shutdownSwitcher");
 		stoped = true;
@@ -180,7 +180,7 @@ public class Switcher implements Runnable {
 				Configuration.searchOnlyBluecoveUuid = true;
 				clientStartCount++;
 				(client.thread = new Thread(client)).start();
-				return client; 
+				return client;
 			} else {
 				if (Configuration.isJ2ME) {
 					BlueCoveTestMIDlet.message("Warn", "Client is already Running");
@@ -214,14 +214,14 @@ public class Switcher implements Runnable {
 			client.configured();
 		}
 	}
-	
+
 	public static void startClient() {
 		createClient();
 		if (client != null) {
 			client.configured();
 		}
 	}
-	
+
 	public static int runClient() {
 		createClient();
 		if (client != null) {
@@ -235,14 +235,14 @@ public class Switcher implements Runnable {
 			if (TestResponderClient.failure.countFailure > 0) {
 				return 2;
 			} else if (TestResponderClient.countSuccess == 0) {
-				return 3;	
+				return 3;
 			}
 			return 1;
 		} else {
 			return 2;
 		}
 	}
-	
+
 	public static void startClientStress() {
 		if ((client != null) && client.isRunning) {
 			Logger.warn("Client is already Running");
@@ -264,7 +264,7 @@ public class Switcher implements Runnable {
 			Logger.warn("Client is already Running");
 			return;
 		}
-		String lastURL = Configuration.storage.retriveData("lastURL");
+		String lastURL = Configuration.getLastServerURL();
 		if (lastURL != null) {
 			createClient();
 			if (client != null) {
@@ -275,7 +275,7 @@ public class Switcher implements Runnable {
 			Logger.warn("no recent Connections");
 		}
 	}
-	
+
 	public static void startClientLastDevice() {
 		if (Configuration.storage == null) {
 			Logger.warn("no storage");
@@ -285,7 +285,7 @@ public class Switcher implements Runnable {
 			Logger.warn("Client is already Running");
 			return;
 		}
-		String lastURL = Configuration.storage.retriveData("lastURL");
+		String lastURL = Configuration.getLastServerURL();
 		if (lastURL != null) {
 			createClient();
 			if (client != null) {
@@ -294,9 +294,9 @@ public class Switcher implements Runnable {
 			}
 		} else {
 			Logger.warn("no recent Connections");
-		}		
+		}
 	}
-	
+
 	public static void clientShutdown() {
 		if (client != null) {
 			client.shutdown();
@@ -332,16 +332,16 @@ public class Switcher implements Runnable {
 
 	public static void serverShutdown() {
 		if (Configuration.canCloseServer) {
-			serverShutdownForce();	
+			serverShutdownForce();
 		} else {
 			TestResponderServer.setNotDiscoverable();
 		}
 	}
-	
+
 	public static void serverShutdownOnExit() {
 		serverShutdownForce();
 	}
-	
+
 	public static void serverShutdownForce() {
 		if (server != null) {
 			server.shutdown();
