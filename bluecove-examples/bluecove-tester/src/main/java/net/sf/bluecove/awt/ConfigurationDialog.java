@@ -79,6 +79,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("clientContinuousDiscovery");
 		addConfig("clientContinuousDiscoveryDevices");
 		addConfig("clientContinuousServicesSearch");
+		addConfig("clientTestConnections");
 
 		addConfig("TEST_CASE_FIRST");
 		addConfig("TEST_CASE_LAST");
