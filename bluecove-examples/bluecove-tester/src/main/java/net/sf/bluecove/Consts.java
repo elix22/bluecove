@@ -136,6 +136,8 @@ public interface Consts {
 	
 	public static final int TEST_TWO_THREADS_ARRAYS = 27;
 	
+	// Next tests may fail on Some phones e.g. SE-K790 But should not fail on BlueCove!
+	
 	public static final int TEST_LARGE_BYTE_ARRAY = 28;
 	
 	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 29;
