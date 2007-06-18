@@ -82,6 +82,8 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	MenuItem debugOn;
 	
 	private Properties properties;
+
+	private long propertiesFileLoadedLastModified = 0;
 	
 	public static void main(String[] args) {
 		//System.setProperty("bluecove.debug", "true");
@@ -517,11 +519,17 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	}
 	
 	private Properties getProperties() {
-		if (properties != null) {
+		File f = getPropertyFile();
+		long lastModified = 0;
+		
+		if (f.exists()) {
+			lastModified = f.lastModified();
+		}
+		
+		if ((properties != null) && (propertiesFileLoadedLastModified == lastModified)) {
 			return properties;
 		}
 		Properties p = new Properties();
-		File f = getPropertyFile();
 		if (f.exists()) {
 			FileInputStream in = null;
 			try {
@@ -535,6 +543,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				}
 			}
 		}
+		propertiesFileLoadedLastModified = lastModified; 
 		properties = p;
 		return properties;
 	}
@@ -570,6 +579,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			out.close();
 		} catch (Throwable ignore) {
 		}
+		propertiesFileLoadedLastModified = f.lastModified();
 	}
 
 }
