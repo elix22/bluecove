@@ -242,7 +242,7 @@ public class TestResponderClient implements Runnable {
 						discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 						boolean started = discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
 						if (!started) {
-							Logger.error("Inquiry was not started because the accessCode is not supported");
+							Logger.error("Inquiry was not started (may be because the accessCode is not supported)");
 							return false;
 						}
 					} catch (BluetoothStateException e) {
