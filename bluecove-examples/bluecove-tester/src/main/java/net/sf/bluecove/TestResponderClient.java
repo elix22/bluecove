@@ -68,15 +68,13 @@ public class TestResponderClient implements Runnable {
 	
 	public static int countConnectionThreads = 0;
 	
-	private int connectedConnections = 0;
-	
 	private int connectedConnectionsExpect = 1;
 	
 	private int connectionLogPrefixLength = 0;
 	
 	private int connectedConnectionsInfo = 1;
 	
-	private Vector concurrentConnectionThreads = new Vector();
+	private Vector concurrentConnections = new Vector();
 	
 	public static CountStatistic concurrentStatistic = new CountStatistic();
 	
@@ -591,7 +589,6 @@ public class TestResponderClient implements Runnable {
 			TestStatus testStatus = new TestStatus();
 			testStatus.pairBTAddress = deviceAddress;
 			TestTimeOutMonitor monitor = null;
-			boolean connectedConnectionsInc = false;
 			long connectionStartTime = 0;
 			try {
 				if (!runStressTest) {
@@ -620,10 +617,12 @@ public class TestResponderClient implements Runnable {
 				connectionStartTime = System.currentTimeMillis();
 				connectionRetyStatistic.add(connectionOpenTry);
 				connectionCount ++;
-				connectedConnections ++;
-				connectedConnectionsInc = true;
-				if (connectedConnectionsInfo < connectedConnections) {
-					connectedConnectionsInfo = connectedConnections;
+				
+				c.registerConcurrent(concurrentConnections);
+				c.concurrentNotify();
+				
+				if (connectedConnectionsInfo < c.concurrentCount) {
+					connectedConnectionsInfo = c.concurrentCount;
 					Logger.info(logPrefix + "now connected:" + connectedConnectionsInfo);
 					synchronized (TestResponderClient.this) {
 						TestResponderClient.this.notifyAll();
@@ -677,11 +676,12 @@ public class TestResponderClient implements Runnable {
 				if ((connectedConnectionsExpect > 1) && (connectedConnectionsInfo < connectedConnectionsExpect)) {
 					synchronized (TestResponderClient.this) {
 						try {
-							TestResponderClient.this.wait(5 * 1000);
+							TestResponderClient.this.wait(3 * 1000);
 						} catch (InterruptedException e) {
 							break;
 						}
 					}
+					Logger.debug(logPrefix + "concurrentCount " + c.concurrentCount);
 				}
 			} catch (Throwable e) {
 				if (!stoped) {
@@ -692,11 +692,12 @@ public class TestResponderClient implements Runnable {
 				if (connectionStartTime != 0) {
 					connectionDuration.add(TimeUtils.since(connectionStartTime));
 				}
-				if (connectedConnectionsInc) {
-					connectedConnections --;
-				}
 				if (monitor != null) {
 					monitor.finish();
+				}
+				c.disconnected();
+				if (c.concurrentCount != 0) {
+					concurrentStatistic.add(c.concurrentCount);
 				}
 				IOUtils.closeQuietly(c.os);
 				IOUtils.closeQuietly(c.is);

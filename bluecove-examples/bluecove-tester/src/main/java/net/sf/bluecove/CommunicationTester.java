@@ -260,17 +260,18 @@ public class CommunicationTester implements Consts {
 		os.flush();
 	}
 	
-	private static void sendEOF(InputStream is, OutputStream os, TestStatus testStatus) throws IOException  {
-		os.write(aKnowndPositiveByte);
-		os.flush();
+	private static void sendEOF(StreamConnectionHolder c, TestStatus testStatus) throws IOException  {
+		c.os.write(aKnowndPositiveByte);
+		c.os.flush();
 		// Let the server read the message
 		try {
 			Thread.sleep(700);
 		} catch (InterruptedException e) {
 			Assert.fail("Test Interrupted");
 		}
-		os.close();
-		is.close();
+		c.disconnected();
+		c.os.close();
+		c.is.close();
 		testStatus.streamClosed = true;
 	}
 
@@ -283,18 +284,19 @@ public class CommunicationTester implements Consts {
 		testStatus.isSuccess = true;
 	}
 
-	private static void sendArayEOF(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
-		os.write(aKnowndPositiveByte);
-		os.write(aKnowndNegativeByte);
-		os.flush();
+	private static void sendArayEOF(StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+		c.os.write(aKnowndPositiveByte);
+		c.os.write(aKnowndNegativeByte);
+		c.os.flush();
 		// Let the server read the message
 		try {
 			Thread.sleep(700);
 		} catch (InterruptedException e) {
 			Assert.fail("Test Interrupted");
 		}
-		os.close();
-		is.close();
+		c.disconnected();
+		c.os.close();
+		c.is.close();
 		testStatus.streamClosed = true;
 	}
 
@@ -313,44 +315,46 @@ public class CommunicationTester implements Consts {
 		testStatus.isSuccess = true;
 	}
 
-	private static void sendClosedConnection(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
-		os.write(aKnowndPositiveByte);
-		os.write(aKnowndNegativeByte);
-		os.flush();
+	private static void sendClosedConnection(StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+		c.os.write(aKnowndPositiveByte);
+		c.os.write(aKnowndNegativeByte);
+		c.os.flush();
 		// Let the server read the message
 		try {
 			Thread.sleep(700);
 		} catch (InterruptedException e) {
 			Assert.fail("Test Interrupted");
 		}
-		os.close();
-		is.close();
+		c.disconnected();
+		c.os.close();
+		c.is.close();
 		testStatus.streamClosed = true;
 		
 		try {
-			os.write(byteAray);
-			os.flush();
+			c.os.write(byteAray);
+			c.os.flush();
 			Assert.fail("Can write to closed OutputStream");
 		} catch (IOException ok) {
 			testStatus.isSuccess = true;
 		}
 	}
 
-	private static void readClosedConnection(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
-		Assert.assertEquals("byte1", aKnowndPositiveByte, (byte)is.read());
-		Assert.assertEquals("byte2", aKnowndNegativeByte, (byte)is.read());
+	private static void readClosedConnection(StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+		Assert.assertEquals("byte1", aKnowndPositiveByte, (byte)c.is.read());
+		Assert.assertEquals("byte2", aKnowndNegativeByte, (byte)c.is.read());
 		testStatus.streamClosed = true;
 		try {
-			Assert.assertEquals("EOF expected", -1, is.read());
+			Assert.assertEquals("EOF expected", -1, c.is.read());
 		} catch (IOException e) {
 			if (Configuration.isBlueCove) {
 				Logger.error("EOF IOException not expected", e);
 				Assert.fail("EOF IOException not expected [" + e.toString() + "]");	
 			}
 		}
+		c.disconnected();
 		try {
-			os.write(byteAray);
-			os.flush();
+			c.os.write(byteAray);
+			c.os.flush();
 			Assert.fail("Can write to closed BT Connection");
 		} catch (IOException ok) {
 			testStatus.isSuccess = true;
@@ -398,20 +402,21 @@ public class CommunicationTester implements Consts {
 		testStatus.isSuccess = true;
 	}
 
-	static void reciveByteAndCloseStream(boolean testArray, final StreamConnection conn, final InputStream is, final OutputStream os, TestStatus testStatus) throws IOException {
-		Assert.assertEquals("byte", aKnowndPositiveByte, (byte)is.read());
+	static void reciveByteAndCloseStream(boolean testArray, final StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+		Assert.assertEquals("byte", aKnowndPositiveByte, (byte)c.is.read());
 		final ValueHolder whenClose = new ValueHolder();
 		final ValueHolder alreadyClose = new ValueHolder(false);
 		final ValueHolder whoClose = new ValueHolder();
 		Thread t = new Thread() {
 			public void run() {
 				TimeUtils.sleep(500);
+				c.disconnected();
 				//Logger.debug("try to closed");
 				whenClose.valueLong = System.currentTimeMillis();
 				whoClose.valueInt = 1;
 				try {
 					// No effect on Nokia
-					conn.close();
+					c.conn.close();
 				} catch (IOException e) {
 					Logger.debug("error in conn close", e);
 				}
@@ -423,7 +428,7 @@ public class CommunicationTester implements Consts {
 					whenClose.valueLong = System.currentTimeMillis();
 					whoClose.valueInt = 2;
 					try {
-						is.close();
+						c.is.close();
 					} catch (IOException e) {
 						Logger.debug("error in is close", e);
 					}
@@ -435,7 +440,7 @@ public class CommunicationTester implements Consts {
 						whenClose.valueLong = System.currentTimeMillis();
 						whoClose.valueInt = 3;
 						try {
-							os.close();
+							c.os.close();
 						} catch (IOException e) {
 							Logger.debug("error in os close", e);
 						}
@@ -453,9 +458,9 @@ public class CommunicationTester implements Consts {
 			// This is function under test
 			if (testArray) {
 				byte[] buf = new byte[2]; 
-				eof = is.read(buf, 0, buf.length);
+				eof = c.is.read(buf, 0, buf.length);
 			} else {
-				eof = is.read();
+				eof = c.is.read();
 			}
 			Assert.assertEquals("EOF expected", -1, eof);
 			Logger.debug("OK read on conn.closed GOT EOF");
@@ -615,7 +620,7 @@ public class CommunicationTester implements Consts {
 			if (server) {
 				CommunicationTester.readEOF(is, os, testStatus);
 			} else {
-				CommunicationTester.sendEOF(is, os, testStatus);
+				CommunicationTester.sendEOF(c, testStatus);
 			}
 			break;
 		case TEST_EOF_READ_BACK:
@@ -623,7 +628,7 @@ public class CommunicationTester implements Consts {
 			if (!server) {
 				CommunicationTester.readEOF(is, os, testStatus);
 			} else {
-				CommunicationTester.sendEOF(is, os, testStatus);
+				CommunicationTester.sendEOF(c, testStatus);
 			}
 			break;
 		case TEST_EOF_READ_ARRAY:
@@ -631,7 +636,7 @@ public class CommunicationTester implements Consts {
 			if (server) {
 				CommunicationTester.readArayEOF(is, os, testStatus);
 			} else {
-				CommunicationTester.sendArayEOF(is, os, testStatus);
+				CommunicationTester.sendArayEOF(c, testStatus);
 			}
 			break;
 		case TEST_EOF_READ_ARRAY_BACK:
@@ -639,7 +644,7 @@ public class CommunicationTester implements Consts {
 			if (!server) {
 				CommunicationTester.readArayEOF(is, os, testStatus);
 			} else {
-				CommunicationTester.sendArayEOF(is, os, testStatus);
+				CommunicationTester.sendArayEOF(c, testStatus);
 			}
 			break;
 		case TEST_CONNECTION_INFO:
@@ -653,17 +658,17 @@ public class CommunicationTester implements Consts {
 		case TEST_CLOSED_CONNECTION:
 			testStatus.setName("CLOSED_CONNECTION");
 			if (server) {
-				CommunicationTester.readClosedConnection(is, os, testStatus);
+				CommunicationTester.readClosedConnection(c, testStatus);
 			} else {
-				CommunicationTester.sendClosedConnection(is, os, testStatus);
+				CommunicationTester.sendClosedConnection(c, testStatus);
 			}
 			break;
 		case TEST_CLOSED_CONNECTION_BACK:
 			testStatus.setName("CLOSED_CONNECTION_BACK");
 			if (!server) {
-				CommunicationTester.readClosedConnection(is, os, testStatus);
+				CommunicationTester.readClosedConnection(c, testStatus);
 			} else {
-				CommunicationTester.sendClosedConnection(is, os, testStatus);
+				CommunicationTester.sendClosedConnection(c, testStatus);
 			}
 			break;
 		case TEST_BYTES_256:
@@ -687,7 +692,7 @@ public class CommunicationTester implements Consts {
 			if (server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(false, c.conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(false, c, testStatus);
 			}
 			break;
 		case TEST_CAN_CLOSE_READ_ON_SERVER:
@@ -695,7 +700,7 @@ public class CommunicationTester implements Consts {
 			if (!server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(false, c.conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(false, c, testStatus);
 			}
 			break;
 		case TEST_CAN_CLOSE_READ_ARRAY_ON_CLIENT:
@@ -703,7 +708,7 @@ public class CommunicationTester implements Consts {
 			if (server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(true, c.conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(true, c, testStatus);
 			}
 			break;
 		case TEST_CAN_CLOSE_READ_ARRAY_ON_SERVER:
@@ -711,7 +716,7 @@ public class CommunicationTester implements Consts {
 			if (!server) {
 				CommunicationTester.sendByte4clientToClose(os, is, testStatus);
 			} else {
-				CommunicationTester.reciveByteAndCloseStream(true, c.conn, is, os, testStatus);
+				CommunicationTester.reciveByteAndCloseStream(true, c, testStatus);
 			}
 			break;
 		case TEST_TWO_THREADS_BYTES:

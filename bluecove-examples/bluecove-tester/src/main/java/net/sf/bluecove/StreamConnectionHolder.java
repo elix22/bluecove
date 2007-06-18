@@ -22,6 +22,8 @@ package net.sf.bluecove;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import javax.microedition.io.StreamConnection;
 
@@ -39,8 +41,11 @@ public class StreamConnectionHolder implements CanShutdown {
 	
 	public OutputStream os = null;
 	
-	
 	long lastActivityTime;
+	
+	int concurrentCount = 0;
+	
+	private Vector concurrentConnections;
 	
 	public StreamConnectionHolder() {
 		active();
@@ -63,6 +68,41 @@ public class StreamConnectionHolder implements CanShutdown {
 		IOUtils.closeQuietly(os);
 		IOUtils.closeQuietly(is);
 		IOUtils.closeQuietly(conn);
+	}
+	
+	public void registerConcurrent(Vector concurrentConnections) {
+		this.concurrentConnections = concurrentConnections;
+		synchronized (concurrentConnections) {
+			concurrentConnections.addElement(this);
+		}
+	}
+	
+	public void concurrentNotify() {
+		synchronized (concurrentConnections) {
+			int concurNow = concurrentConnections.size();
+			setConcurrentCount(concurNow);
+			if (concurNow > 1) {
+				// Update all other working Threads
+				for (Enumeration iter = concurrentConnections.elements(); iter.hasMoreElements();) {
+					StreamConnectionHolder t = (StreamConnectionHolder) iter.nextElement();
+					t.setConcurrentCount(concurNow);
+				}
+			}
+		}
+	}
+	
+	public void disconnected() {
+		if (concurrentConnections != null) {
+			synchronized (concurrentConnections) {
+				concurrentConnections.removeElement(this);
+			}
+		}
+	}
+	
+	private void setConcurrentCount(int concurNow) {
+		if (concurrentCount < concurNow) {
+			concurrentCount = concurNow;
+		}
 	}
 
 }
