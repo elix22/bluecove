@@ -6,7 +6,7 @@
    If automatic Bluetooth Stack detection is not enough Java System property "bluecove.stack" can be used to force desired Stack Initialization. Values "widcomm", "bluesoleil" or "winsock".
    By default winsock is selected if available.
 
-   WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0. *The version 2.0.0 is avable as SNAPSHOT and is in alpha testing NOW! Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.*
+   WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0. *The version 2.0.0 is available as SNAPSHOT and is in betta testing NOW! Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.*
 
    To determine which Bluetooth stack is installed on your Windows [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
 
@@ -59,6 +59,7 @@
     * `DiscoveryAgent.searchServices(.. UUID[] uuidSet, ..)`  only ONE UUID is used during search, the last one in array.
     * You need to run `DiscoveryAgent.searchServices()` with UUID of your service before you can make connection to it using `Connector.open("btspp://...");`
     * Client `Connector.open()` use GUID of the discovered service. Only one would be selected
+    * Server can't close incoming connection. It will wait until connection is closed remotely.
     * In our test lab we can only make 180 connections in sequence. After this Windows needs to be rebooted (May be you can help fixing this)
 
 
