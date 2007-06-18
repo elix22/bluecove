@@ -683,7 +683,11 @@ public class TestResponderClient implements Runnable {
 				}
 			} catch (Throwable e) {
 				if (!stoped) {
-					failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName(), e);
+					if ((monitor != null) && (monitor.isShutdownCalled())) {
+						failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName() + " termintade by  by TimeOut");						
+					} else {
+						failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName(), e);
+					}
 				}
 				Logger.error(deviceName + " test #" + testType + " " + testStatus.getName(), e);
 			} finally {
