@@ -71,8 +71,10 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 	private static final long serialVersionUID = 1L;
 
-	TextArea output = null;
+	private TextArea output = null;
 
+	private int outputLines = 0;
+		
 	private Vector logLinesQueue = new Vector();
 	
 	ScrollPane scrollPane;
@@ -423,6 +425,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			return;
 		}
 		output.setText("");
+		outputLines = 0;
 	}
 	
 	private void quit() {
@@ -509,6 +512,10 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			String line;
 			while ((line = getNextLine()) != null) {
 				output.append(line);
+				outputLines ++;
+				if (outputLines > 5000) {
+					clear();
+				}
 			}
 		}
 	}
