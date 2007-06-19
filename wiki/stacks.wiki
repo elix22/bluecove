@@ -4,7 +4,7 @@
 = BlueCove supported stacks =
 
    If automatic Bluetooth Stack detection is not enough Java System property "bluecove.stack" can be used to force desired Stack Initialization. Values "widcomm", "bluesoleil" or "winsock".
-   By default winsock is selected if available.
+   By default winsock is selected if available. Use `LocalDevice.getProperty("bluecove.stack")` to find out what stack is used.
 
    WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0. *The version 2.0.0 is available as SNAPSHOT and is in betta testing NOW! Your help is required to [http://bluecove.sourceforge.net/bluecove-tester/ test] and fix functionality.*
 
@@ -42,7 +42,7 @@
 
     * Microsoft Bluetooth stack only supporting RFCOMM connections
     * `DiscoveryAgent.searchServices()` can't query for BOOL !DataElements
-    * `DiscoveryAgent.searchServices()` can't query for UUID !DataElements other than one in !ProtocolDescriptorList and !ServiceClassIDList
+    * `DiscoveryAgent.searchServices()` can't query for UUID !DataElements other than one in !ProtocolDescriptorList and ServiceClassIDList
 
 == BlueSoleil (IVT Corporation) ==
 
@@ -54,13 +54,13 @@
 
     SDK provided by IVT is very limited. We just implemented what we can on top of it.
 
-    * Service attributes are not supported, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
+    * Service attributes are not supported in Service search of when creating Server, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
     * `DiscoveryAgent.searchServices(.. UUID[] uuidSet, ..)`  only ONE UUID is used during search, the last one in array.
     * You need to run `DiscoveryAgent.searchServices()` with UUID of your service before you can make connection to it using `Connector.open("btspp://...");`
     * Client `Connector.open()` use GUID of the discovered service. Only one would be selected
-    * Server can't close incoming connection. It will wait until connection is closed remotely.
-    * In our test lab we can only make 180 connections in sequence. After this Windows needs to be rebooted (May be you can help fixing this)
+    * Server can't close incoming connection. It will wait until connection is closed remotely. (Our implementation should be changed to restart Service(Server) each time connection is closed to fix this)
+    * In our test lab we can only make from 180 to 250 max connections in sequence. After this BlueSoleil.exe needs to restart or Windows needs to be rebooted (May be you can help fixing this, I wrote to BlueSoleil support; no reply)
 
 
 
