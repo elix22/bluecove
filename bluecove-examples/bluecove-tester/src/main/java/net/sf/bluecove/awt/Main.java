@@ -330,6 +330,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:"
 					+ TestResponderClient.failure.countFailure);
 			Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
+			Logger.debug("Client max conn concurrent " + TestResponderClient.concurrentStatistic.max());
 			Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
 			Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avgPrc());
 
