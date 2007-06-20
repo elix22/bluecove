@@ -40,7 +40,11 @@ import net.sf.bluecove.util.TimeUtils;
  */
 public class TwoThreadsPerConnection {
 
+	private static final int DATA_SIZE = 8 * 1024;
+	
 	private int arraySize;
+	
+	private boolean synchronize;
 	
 	private int iterations;
 	
@@ -58,10 +62,13 @@ public class TwoThreadsPerConnection {
 		
 		boolean isRunning;
 		
+		boolean sendFinishedSuccessfully = false;
+		
 		public void run() {
 			try {
 				isRunning = true;
 				sendingData(os);
+				sendFinishedSuccessfully = true;
 			} catch (IOException e) {
 				Logger.error("Sending", e);
 			} finally {
@@ -113,7 +120,9 @@ public class TwoThreadsPerConnection {
 				Logger.debug("sent " + sentCount + " bytes in " + TimeUtils.secSince(start));
 				reported = System.currentTimeMillis();
 			}
-			equalizeWrite();
+			if (synchronize) {
+				equalizeWrite();
+			}
 		}
 		if (!stoped) {
 			Logger.debug("speed " + TimeUtils.bps(sentCount, start));
@@ -153,14 +162,15 @@ public class TwoThreadsPerConnection {
 		}
 	}
 	
-	public static void start(StreamConnectionHolder c, int arraySize) throws IOException {
+	public static void start(StreamConnectionHolder c, int arraySize, boolean synchronize) throws IOException {
 		TwoThreadsPerConnection worker = new TwoThreadsPerConnection();
+		worker.synchronize = synchronize;
 		worker.arraySize = arraySize;
 		if (arraySize == 1) {
-			worker.bytesTotal = 8 * 1024;
+			worker.bytesTotal = DATA_SIZE;
 			worker.iterations = worker.bytesTotal;
 		} else {
-			worker.iterations = (8 * 1024) / arraySize;
+			worker.iterations = DATA_SIZE / arraySize;
 			worker.bytesTotal = worker.iterations * arraySize;
 		}
 		
@@ -178,6 +188,7 @@ public class TwoThreadsPerConnection {
 			worker.stoped = true;
 		}
 		Assert.assertEquals("sentCount", worker.bytesTotal, worker.sentCount);
+		Assert.assertTrue("sendFinishedSuccessfully", sender.sendFinishedSuccessfully);
 		
 	}
 }

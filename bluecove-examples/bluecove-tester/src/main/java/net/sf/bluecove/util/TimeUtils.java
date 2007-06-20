@@ -70,6 +70,9 @@ public abstract class TimeUtils {
 
 	public static String bps(int size, long start) {
 		long duration = TimeUtils.since(start);
+		if (duration == 0) {
+			return "n/a";
+		}
 		return "" + ((1000 * 8 * size)/(duration)) + " bit/s";
 	}
 	

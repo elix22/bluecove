@@ -716,13 +716,21 @@ public class CommunicationTester implements Consts {
 				CommunicationTester.reciveByteAndCloseStream(true, c, testStatus);
 			}
 			break;
+		case TEST_TWO_THREADS_SYNC_BYTES:
+			testStatus.setName("TWO_THREADS_SYNC_BYTES");
+			TwoThreadsPerConnection.start(c, 1, true);
+			break;
+		case TEST_TWO_THREADS_SYNC_ARRAYS:
+			testStatus.setName("TWO_THREADS_SYNC_ARRAYS");
+			TwoThreadsPerConnection.start(c, 64, true);
+			break;
 		case TEST_TWO_THREADS_BYTES:
 			testStatus.setName("TWO_THREADS_BYTES");
-			TwoThreadsPerConnection.start(c, 1);
+			TwoThreadsPerConnection.start(c, 1, false);
 			break;
 		case TEST_TWO_THREADS_ARRAYS:
 			testStatus.setName("TWO_THREADS_ARRAYS");
-			TwoThreadsPerConnection.start(c, 64);
+			TwoThreadsPerConnection.start(c, 64, false);
 			break;
 		case TEST_LARGE_BYTE_ARRAY:
 			testStatus.setName("LARGE_BYTE_ARRAY");

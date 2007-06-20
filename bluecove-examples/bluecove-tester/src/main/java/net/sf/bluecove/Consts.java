@@ -132,17 +132,21 @@ public interface Consts {
 	
 	public static final int TEST_CAN_CLOSE_READ_ARRAY_ON_SERVER = 25;
 	
-	public static final int TEST_TWO_THREADS_BYTES = 26;
+	public static final int TEST_TWO_THREADS_SYNC_BYTES = 26;
 	
-	public static final int TEST_TWO_THREADS_ARRAYS = 27;
+	public static final int TEST_TWO_THREADS_SYNC_ARRAYS = 27;
+
+	public static final int TEST_TWO_THREADS_BYTES = 28;
+	
+	public static final int TEST_TWO_THREADS_ARRAYS = 29;
+
+	public static final int TEST_LAST_WORKING = TEST_TWO_THREADS_ARRAYS;
 	
 	// Next tests may fail on Some phones e.g. SE-K790 But should not fail on BlueCove!
 	
-	public static final int TEST_LARGE_BYTE_ARRAY = 28;
+	public static final int TEST_LARGE_BYTE_ARRAY = 30;
 	
-	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 29;
+	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 31;
 	
-	public static final int TEST_LAST_WORKING = TEST_TWO_THREADS_ARRAYS;
-	
-	
+	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_LARGE_BYTE_ARRAY_BACK; 
 }
