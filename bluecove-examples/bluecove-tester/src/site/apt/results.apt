@@ -74,7 +74,7 @@ BlueCove test Results
 *--------------+--------------------+-
 | BlueCove-MS  | Nokia 6265i        |  2,020 Connections made before MS Stack hangs, {{#ms}}
 *--------------+--------------------+-
-| BlueCove-MS2 | BlueCove-WC        |
+| BlueCove-MS2 | BlueCove-WC        |  more than 3,000 Connections made and running
 *--------------+--------------------+-
 | BlueCove-WC  | BlueCove-MS2       |  more than 10,000 Connections made and running
 *--------------+--------------------+-
