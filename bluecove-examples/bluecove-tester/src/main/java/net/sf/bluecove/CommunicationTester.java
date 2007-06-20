@@ -263,12 +263,7 @@ public class CommunicationTester implements Consts {
 	private static void sendEOF(StreamConnectionHolder c, TestStatus testStatus) throws IOException  {
 		c.os.write(aKnowndPositiveByte);
 		c.os.flush();
-		// Let the server read the message
-		try {
-			Thread.sleep(700);
-		} catch (InterruptedException e) {
-			Assert.fail("Test Interrupted");
-		}
+		Assert.assertEquals("byte received", aKnowndNegativeByte, (byte)c.is.read());
 		c.disconnected();
 		c.os.close();
 		c.is.close();
@@ -276,7 +271,9 @@ public class CommunicationTester implements Consts {
 	}
 
 	private static void readEOF(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
-		Assert.assertEquals("byte", aKnowndPositiveByte, is.read());
+		Assert.assertEquals("byte", aKnowndPositiveByte, (byte)is.read());
+		os.write(aKnowndNegativeByte);
+		os.flush();
 		long startWait = System.currentTimeMillis();
 		Assert.assertEquals("EOF expected", -1, is.read());
 		testStatus.streamClosed = true;
@@ -290,7 +287,7 @@ public class CommunicationTester implements Consts {
 		c.os.flush();
 		// Let the server read the message
 		try {
-			Thread.sleep(700);
+			Thread.sleep(1200);
 		} catch (InterruptedException e) {
 			Assert.fail("Test Interrupted");
 		}
@@ -321,7 +318,7 @@ public class CommunicationTester implements Consts {
 		c.os.flush();
 		// Let the server read the message
 		try {
-			Thread.sleep(700);
+			Thread.sleep(1200);
 		} catch (InterruptedException e) {
 			Assert.fail("Test Interrupted");
 		}

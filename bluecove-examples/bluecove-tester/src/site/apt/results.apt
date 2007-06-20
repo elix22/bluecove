@@ -44,9 +44,9 @@ BlueCove test Results
 *-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
 | Nokia 6265i           |             |  Ok         |  Ok         | Works       |             |             |             |
 *-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
-| BlueCove-MS           | Ok          |             |  Ok         |             |  Ok         | Ok          | Ok          |
+| BlueCove-MS           | Ok          |             |  Ok         | Works       |  Ok         | Ok          | Ok          |
 *-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
-| BlueCove-WC           | Ok          |  Ok         |             |             |             | Ok          | Ok          |
+| BlueCove-WC           | Ok          |  Ok         |             | Works       |             | Ok          | Ok          |
 *-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
 | MPx220                |             |  Ok         |  Ok         |             |             |             |             |
 *-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
@@ -58,41 +58,51 @@ BlueCove test Results
 *-----------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
 
 
-    Long running tests. Application was left running for a long time (over night)
-    Discovery then connection.
+    Long running tests. Test application was left running for a long time (over night)
+    It does continuous Discovery then connection to discovered services.
 
-*-------------+--------------------+----------------------------------------------+
-| <<Server>>  | <<Client>>         | Problems/Comments
-*-------------+--------------------+-
-| Nokia 6265i | BlueCove-MS        |  1800 Connections made before MS Stack hangs, {{#ms}}
-*-------------+--------------------+-
-| Nokia 6265i | BlueCove-WC        |  more than 6000 Connections made and running
-*-------------+--------------------+-
-| BlueCove-MS | BlueCove-WC        |  1010 Connections made before MS Stack hangs, {{#ms}}
-*-------------+--------------------+-
-| BlueCove-MS | Nokia 6265i        |  2020 Connections made before MS Stack hangs, {{#ms}}
-*-------------+--------------------+-
-| BlueCove-WC | Nokia 6265i        |  more than 2000 Connections made and running
-*-------------+--------------------+-
-| BlueCove-WC | SE-K790            |  more than 3000 Connections made and running
-*-------------+--------------------+-
+*--------------+--------------------+----------------------------------------------+
+| <<Server>>   | <<Client>>         | Problems/Comments
+*--------------+--------------------+-
+| Nokia 6265i  | BlueCove-MS        |  1,800 Connections made before MS Stack hangs, {{#ms}}
+*--------------+--------------------+-
+| Nokia 6265i  | BlueCove-MS2       |  more than 3,000 Connections made and running
+*--------------+--------------------+-
+| Nokia 6265i  | BlueCove-WC        |  more than 6,000 Connections made and running
+*--------------+--------------------+-
+| BlueCove-MS  | BlueCove-WC        |  1,010 Connections made before MS Stack hangs, {{#ms}}
+*--------------+--------------------+-
+| BlueCove-MS  | Nokia 6265i        |  2,020 Connections made before MS Stack hangs, {{#ms}}
+*--------------+--------------------+-
+| BlueCove-MS2 | BlueCove-WC        |
+*--------------+--------------------+-
+| BlueCove-WC  | BlueCove-MS2       |  more than 10,000 Connections made and running
+*--------------+--------------------+-
+| BlueCove-WC  | Nokia 6265i        |  more than 2,000 Connections made and running
+*--------------+--------------------+-
+| BlueCove-WC  | SE-K790            |  more than 3,000 Connections made and running
+*--------------+--------------------+-
 
   Just connection tests
 
 *--------------------+--------------------+----------------------------------------------+
 | <<Server>>         | <<Client>>         | Problems/Comments
 *--------------------+--------------------+-
-| Nokia 6265i        | BlueCove-MS        |  7400 Connections made and running, NO Discovery
+| Nokia 6265i        | BlueCove-MS        |  7,400 Connections made and running, NO Discovery
 *--------------------+--------------------+-
-| Nokia 6265i        | BlueCove v1.2.3-MS |  7681 Connections made and running, NO Discovery
+| Nokia 6265i        | BlueCove v1.2.3-MS |  7,681 Connections made and running, NO Discovery
 *--------------------+--------------------+-
 | Nokia 6265i        | BlueCove-BS        |  256 Connections made OK, 257th will make BlueSoleil.exe taking 99% of CPU
 *--------------------+--------------------+-
-| BlueCove-MS        | Nokia 6265i        |  4500 Connections made and running, NO Discovery
+| BlueCove-MS        | Nokia 6265i        |  4,500 Connections made and running, NO Discovery
 *--------------------+--------------------+-
-| BlueCove v1.2.3-MS | Nokia 6265i        |  3114 Connections made and running, NO Discovery
+| BlueCove v1.2.3-MS | Nokia 6265i        |  3,114 Connections made and running, NO Discovery
 *--------------------+--------------------+-
 
-  * <<{ms}>> On Microsoft stack Server or Client 600-2000 connections made before MS Stack hangs, Apply to avetana-MS as well.  Don't know solution yet.
+  * <<{ms}>> On Microsoft stack with Microsoft Wireless Transceiver for Bluetooth 2.0 Server or Client 600-2000 connections made before MS Stack hangs, Apply to avetana-MS as well.
+             Don't know solution yet. May be this is related to MS Mouse Connected to the same Transceiver.
 
-  * <<{se}>> JSR-82 on Sony Ericsson K790 appears to be not stable. After some time connections may fail
+  * <<{se}>> JSR-82 on Sony Ericsson K790 appears to be not stable. After some time 2% of connections may fail.
+
+  * <<{BlueCove-BS}>> BlueSoleil stack of any version 1.6, 2.3 or 3.2.2.8 (process BlueSoleil.exe on WinXP in particular) eats handles for each connection (I think handles are used to paint nice sun). You may restart the BlueSoleil after each hundred connections so it will not hang.
+    See {{{http://code.google.com/p/bluecove/wiki/stacks}other limitations when running on BlueSoleil}}

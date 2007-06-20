@@ -132,7 +132,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		private void runEcho(InputStream is, char firstChar) {
 			int receivedCount = 1;
 			StringBuffer buf = new StringBuffer();
+			char cBuf[] = new char[50];
+			int cBufIdx = 0;
+			boolean cBufHasBinary = false;
 			buf.append(firstChar);
+			cBuf[cBufIdx] = firstChar;
+			cBufIdx ++;
 			try {
 				c.os = c.conn.openOutputStream();
 				OutputStream os = c.os;
@@ -141,12 +146,26 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					receivedCount ++;
 					c.os.write(i);
 					char c = (char)i;
-					if ((c == '\n') || (buf.length() > 40)) {
+					cBuf[cBufIdx] = c;
+					cBufIdx ++;
+					if ((c == '\n') || (cBufIdx > 40)) {
+						if (cBufHasBinary) {
+							buf.append(" [");
+							for(int k = 0; k < cBufIdx; k ++) {
+								buf.append(Integer.toHexString(cBuf[k])).append(' ');	
+							}
+							buf.append("]");
+						}
 						Logger.debug("|" + buf.toString());
 						os.flush();
 						buf = new StringBuffer();
+						cBufIdx = 0;
+						cBufHasBinary = false;
 					} else {
 						buf.append(c);
+						if (c < ' ') {
+							cBufHasBinary = true;
+						}
 					}
 				}
 			} catch (Throwable e) {

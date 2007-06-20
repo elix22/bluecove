@@ -115,7 +115,9 @@ public class TwoThreadsPerConnection {
 			}
 			equalizeWrite();
 		}
-		Logger.debug("speed " + TimeUtils.bps(bytesTotal, start));
+		if (!stoped) {
+			Logger.debug("speed " + TimeUtils.bps(sentCount, start));
+		}
 	}
 
 	void readingData(InputStream is, StreamConnectionHolder c) throws IOException {
@@ -124,22 +126,22 @@ public class TwoThreadsPerConnection {
 			try {
 				if (arraySize == 1) {
 					byte got = (byte)is.read();
-					Assert.assertEquals("byte [" + i + "]", (byte) i, got);
+					Assert.assertEquals("byte read [" + i + "]", (byte) i, got);
 					receivedCount++;
 				} else {
 					byte[] data = new byte[arraySize];
 					int len = arraySize;
-					int off = 0;
+					int read_off = 0;
 					while (len != 0) {
-						int rcvd = is.read(data, off, len);
+						int rcvd = is.read(data, read_off, len);
 						if (rcvd == -1) {
 							throw new IOException("EOF not expected");
 						}
 						len -= rcvd;
-						off += rcvd;
+						read_off += rcvd;
 					}
 					for(int j = 0; j < arraySize; j ++, k ++) {
-						Assert.assertEquals("byte [" + k + "]", (byte)k, data[j]);
+						Assert.assertEquals("byte read [" + k + "]", (byte)k, data[j]);
 					}
 					receivedCount += arraySize;
 				}

@@ -28,9 +28,9 @@ import net.sf.bluecove.util.CLDCStub;
 import net.sf.bluecove.util.Storage;
 
 /**
- * 
+ *
  * This define different cleint and server work parterns to identify problem in native code.
- * 
+ *
  * TODO Create an editable Form for this Configuarion settings.
  *
  * @author vlads
@@ -39,9 +39,9 @@ import net.sf.bluecove.util.Storage;
 public class Configuration {
 
 	public static boolean useShortUUID = false;
-	
+
 	public static boolean deviceClassFilter = true;
-	
+
 	public static boolean discoverDevicesComputers = true;
 
 	public static boolean discoverDevicesPhones = true;
@@ -49,7 +49,6 @@ public class Configuration {
 	public static boolean searchOnlyBluecoveUuid = true;
 
 	public static boolean discoverySearchOnlyBluecoveUuid = false;
-	
 
 	/**
 	 * Limit connections to precompiled list of test devices.
@@ -62,7 +61,7 @@ public class Configuration {
 	public static boolean discoveryGetDeviceFriendlyName = false;
 
 	public static UUID discoveryUUID = new UUID(0x0100); // L2CAP
-	
+
 	public static Hashtable testDeviceNames = null;
 
 	public static boolean serverAcceptWhileConnected = false;
@@ -70,15 +69,15 @@ public class Configuration {
 	public static boolean serverAcceptWhileConnectedOnJavaSE = true;
 
 	public static boolean serverContinuous = true;
-	
+
 	public static boolean clientContinuous = true;
 
 	public static boolean clientContinuousDiscovery = true;
-	
+
 	public static boolean clientContinuousDiscoveryDevices = true;
 
 	public static boolean clientContinuousServicesSearch = true;
-	
+
 	public static boolean clientTestConnections = true;
 
 	// This test concurrrent connections if you have Multiple servers running.
@@ -91,7 +90,7 @@ public class Configuration {
 	public static int STERSS_TEST_CASE = Consts.TEST_BYTE;
 
 	public static boolean testServiceAttributes = true;
-	
+
 	public static boolean testAllServiceAttributes = false;
 
 	/**
@@ -105,25 +104,25 @@ public class Configuration {
 	public static boolean testServerForceDiscoverable = true;
 
 	public static int clientSleepBetweenConnections = 4100;
-	
+
 	public static int serverSleepB4ClosingConnection = 1000;
-	
+
 	public static int clientTestTimeOutSec = 60;
-	
+
 	public static int serverTestTimeOutSec = 60;
-	
+
 	public static int serverMAXTimeSec = 80;
 
 	public static int clientSleepOnConnectionRetry = 500;
-	
+
 	public static int clientSleepOnDeviceInquiryError = 10000;
-	
+
 	public static Storage storage;
-	
+
 	private static String lastServerURL = null;
-	
+
 	public static CLDCStub cldcStub;
-	
+
 	/**
 	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */
@@ -144,21 +143,22 @@ public class Configuration {
 	public static boolean stackWIDCOMM = false;
 
 	public static boolean CLDC_1_0 = false;
-	
+
 	public static boolean logTimeStamp = false;
-	
-    static {
+
+	static {
 		testDeviceNames = new Hashtable();
-		
+
 		boolean testOnlyOneDevice = false;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
-			testDeviceNames.put("000D3AA5E36C", "Lapt MS");
+			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");
 			//testDeviceNames.put("0020E027CE32", "Lapt WC");
 			//testDeviceNames.put("0050F2E8D4A6", "Desk MS");
 			//testDeviceNames.put("000B0D4AECDE", "Desk WC");
 			//testDeviceNames.put("0019639C4007", "SE K790(r)");
 			testDeviceNames.put("00123755AE71", "N 6265i (t)");
+			testDeviceNames.put("0015E96A02DE", "D-Link");
 		} else {
 
 			// This is the list of my test devices with names for My convenience
@@ -169,7 +169,7 @@ public class Configuration {
 			testDeviceNames.put("000D3AA5E36C", "Lapt MS");
 			testDeviceNames.put("0020E027CE32", "Lapt WC");
 			testDeviceNames.put("000B0D4AECDE", "Desk WC");
-			testDeviceNames.put("0015E96A02DE", "Dlink BS");
+			testDeviceNames.put("0015E96A02DE", "D-Link");
 
 			testDeviceNames.put("0017841C5A8F", "Moto L7");
 			testDeviceNames.put("00123755AE71", "N 6265i (t)");
@@ -196,8 +196,8 @@ public class Configuration {
 			}
 		}
 
-        String sysName = System.getProperty("os.name");
-        if (sysName != null) {
+		String sysName = System.getProperty("os.name");
+		if (sysName != null) {
 			sysName = sysName.toLowerCase();
 			if (sysName.indexOf("windows") != -1) {
 				if (sysName.indexOf("ce") != -1) {
@@ -212,14 +212,14 @@ public class Configuration {
 			}
 		}
 	}
-    
-    public static UUID blueCoveUUID() {
-    	if (useShortUUID) {
-    		return Consts.uuidShort;
-    	} else {
-    		return Consts.uuidLong;
-    	}
-    }
+
+	public static UUID blueCoveUUID() {
+		if (useShortUUID) {
+			return Consts.uuidShort;
+		} else {
+			return Consts.uuidLong;
+		}
+	}
 
 	public static String getLastServerURL() {
 		if (lastServerURL == null) {

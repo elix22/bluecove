@@ -302,6 +302,7 @@ public class TestResponderClient implements Runnable {
         		return;
         	}
         	if (Configuration.discoverOnlyTestDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
+        		Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + BluetoothTypesInfo.toString(cod));
         		return;
         	}
         	if ((!Configuration.deviceClassFilter)
@@ -659,9 +660,9 @@ public class TestResponderClient implements Runnable {
 					c.os.flush();
 					Logger.debug(logPrefix + "read server status");
 					int ok = c.is.read();
-					Assert.assertEquals("Server reply", Consts.SEND_TEST_REPLY_OK, ok);
+					Assert.assertEquals("Server reply OK", Consts.SEND_TEST_REPLY_OK, ok);
 					int conformTestType = c.is.read();
-					Assert.assertEquals("Test reply conform", testType, conformTestType);
+					Assert.assertEquals("Test reply conform#", testType, conformTestType);
 					countSuccess++;
 					Logger.debug(logPrefix + "test #" + testType + " " + testStatus.getName() + ": OK");
 				}
