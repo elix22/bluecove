@@ -36,7 +36,7 @@
     * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
     * A Bluetooth [http://support.microsoft.com/default.aspx?kbid=841803 device supported] by the Microsoft Bluetooth stack.
     * [http://bluecove.wiki.sourceforge.net/ms-usb-dongles List of Bluetooth USB dongles working with Microsoft Bluetooth stack]
-    * [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile Devices]
+    * [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile Devices and installation instructions]
 
 === Limitations ===
 
@@ -61,6 +61,5 @@
     * Client `Connector.open()` use GUID of the discovered service. Only one would be selected
     * Server can't close incoming connection. It will wait until connection is closed remotely. (Our implementation should be changed to restart Service(Server) each time connection is closed to fix this)
     * In our test lab we can only make from 180 to 250 max connections in sequence. After this !BlueSoleil.exe needs to restart or Windows needs to be rebooted (May be you can help fixing this, I wrote to !BlueSoleil support; no reply)
-
 
 
