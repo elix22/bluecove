@@ -97,7 +97,9 @@ public class ConfigurationDialog extends OkCancelDialog {
 		
 		this.pack();
 		Rectangle b = owner.getBounds();
-		this.setLocation(b.x + (int)((b.getWidth() - this.getWidth())/2), b.y + 60);
+		// b.getWidth();  Not for J9
+		int bWidth = b.getBounds().width;
+		this.setLocation(b.x + (int)((bWidth - this.getWidth())/2), b.y + 60);
 	}
 	
 	protected void onClose(boolean isCancel) {
