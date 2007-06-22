@@ -6,10 +6,14 @@ call %~dp0scripts\version.cmd
 
 set JVM_ARGS=
 
-@rem set JVM_ARGS=%JVM_ARGS% -Dcom.ibm.oti.vm.bootstrap.library.path=..\..\bluecove\src\main\resources
 set JVM_ARGS=%JVM_ARGS% -jcl:midp20
 set JVM_ARGS=%JVM_ARGS% -Dmicroedition.connection.pkgs=com.intel.bluetooth
-@rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
+
+set JVM_ARGS=%JVM_ARGS% -Dcom.ibm.oti.vm.bootstrap.library.path=%~dp0..\..\bluecove\src\main\resources;%JAVA_HOME%\bin
+
+rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.native.path=%~dp0..\..\bluecove\src\main\resources
+
+rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
 
 @rem -cp ..\..\bluecove\target\bluecove-%VERSION%.jar
 copy ..\..\bluecove\target\bluecove-%VERSION%.jar "%JAVA_HOME%\lib\jclMidp20\ext\bluecove.jar"
