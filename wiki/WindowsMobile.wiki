@@ -13,7 +13,7 @@
 
 == Windows Mobile devices with Microsoft Bluetooth Stack ==
 
-=== Windows Mobile 2003™ Phone Edition with Microsoft Bluetooth Stack ===
+=== Windows Mobile 2003 Phone Edition with Microsoft Bluetooth Stack ===
 
    * Motorola MPx220
 
@@ -46,9 +46,17 @@
 
 == BlueCove Installation for IBM J9 on Windows Mobile ==
 
-   * Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory
-   * Copy intelbth_ce.dll or bluecove_ce.dll to %J9_HOME%\bin directory
-   * run app "%J9_HOME%\bin\j9.exe" -jcl:midp20 -Dmicroedition.connection.pkgs=com.intel.bluetooth -cp YourMidpApp.jar "-jxe:%J9_HOME%\lib\jclMidp20\jclMidp20.jxe" YourMidpApp.jad
+=== J9 for MIDP 2.0 Profile ===
+
+    * Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory
+    * Copy intelbth_ce.dll or bluecove_ce.dll to %J9_HOME%\bin directory
+    * run app "%J9_HOME%\bin\j9.exe" -jcl:midp20 -Dmicroedition.connection.pkgs=com.intel.bluetooth -cp YourMidpApp.jar "-jxe:%J9_HOME%\lib\jclMidp20\jclMidp20.jxe" YourMidpApp.jad
+
+=== J9 for Personal Profile 1.0 ===
+
+    * Add `bluecove.jar` to your classpath
+    * Add system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth` when running your application
+
 
 == Links to Java on PDA sites ==
 
