@@ -2,9 +2,18 @@
 
 = Introduction =
 
-  Current BlueCove code compiled for Windows Mobile.
+  Current !BlueCove Winsock code (Microsoft Bluetooth stack) compiled for Windows Mobile.
 
-== Windows Mobile 2003™ Phone Edition with Microsoft Bluetooth Stack ==
+  Version 2.0.0 has been tested with following JVMs:
+
+    * [http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html Mysaifu JVM ] - An open-source (GPL v.2 license) Java VM
+    * [http://www.ibm.com/software/wireless/weme/ IBMs WebSphere Everyplace Micro Environment] v5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+    * [http://www.ibm.com/software/wireless/weme/ IBMs WebSphere Everyplace Micro Environment] v6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+    * [http://www.ibm.com/software/wireless/weme/ IBMs WebSphere Everyplace Micro Environment] v5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
+
+== Windows Mobile devices with Microsoft Bluetooth Stack ==
+
+=== Windows Mobile 2003™ Phone Edition with Microsoft Bluetooth Stack ===
 
    * Motorola MPx220
 
@@ -23,17 +32,23 @@
    * I-mate JAM
 
 
-== Windows Mobile 5 Phone with Microsoft Bluetooth Stack  ==
+=== Windows Mobile 5 Phone with Microsoft Bluetooth Stack  ===
 
    * T-Mobile MDA
 
    * QTek 9100
 
 
-== Windows Mobile 5 with Microsoft Bluetooth Stack  ==
+=== Windows Mobile 5 with Microsoft Bluetooth Stack  ===
 
    * Dell Axim X51v
 
+
+== BlueCove Installation for IBM J9 on Windows Mobile ==
+
+   * Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory
+   * Copy intelbth_ce.dll or bluecove_ce.dll to %J9_HOME%\bin directory
+   * run app "%J9_HOME%\bin\j9.exe" -jcl:midp20 -Dmicroedition.connection.pkgs=com.intel.bluetooth -cp YourMidpApp.jar "-jxe:%J9_HOME%\lib\jclMidp20\jclMidp20.jxe" YourMidpApp.jad
 
 == Links to Java on PDA sites ==
 
