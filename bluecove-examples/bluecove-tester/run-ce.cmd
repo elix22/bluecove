@@ -10,10 +10,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
-cd ..\..\bluecove
-call m2
-cd %~dp0
-call m2
+rem cd ..\..\bluecove
+rem call m2
+rem cd %~dp0
+rem call m2
 call scripts\install-ce.cmd
 
 if NOT '%WIN_CE_PHONE%' EQU 'true' (
