@@ -23,11 +23,15 @@ package net.sf.bluecove.awt;
 import java.awt.BorderLayout;
 import java.awt.Checkbox;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Rectangle;
+import java.awt.ScrollPane;
+import java.awt.Scrollbar;
 import java.awt.TextField;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -65,7 +69,18 @@ public class ConfigurationDialog extends OkCancelDialog {
 	
 	public ConfigurationDialog(Frame owner) {
 		super(owner, "Configuration", true);
-
+		if (Configuration.screenSizeSmall) {
+			this.setFont(new Font("Default", Font.PLAIN, 9));
+		}
+//		if (Configuration.screenSizeSmall) {
+//			Scrollbar slider =new Scrollbar(Scrollbar.VERTICAL, 0, 1, 0, 255);
+//			add(slider, BorderLayout.EAST);
+//			 
+//			//ScrollPane scrollPane = new ScrollPane();
+//			//this.add(scrollPane, BorderLayout.NORTH);
+//			//scrollPane.add(panelItems, BorderLayout.NORTH);
+//		}
+//		 
 		panelItems = new BorderPanel();
 		this.add(panelItems, BorderLayout.NORTH);
 		
@@ -94,12 +109,14 @@ public class ConfigurationDialog extends OkCancelDialog {
 		panelItems.setLayout(new GridLayout(configItems.size(), 2));
 		
 		updateGUI();
-		
+
 		this.pack();
-		Rectangle b = owner.getBounds();
-		// b.getWidth();  Not for J9
-		int bWidth = b.getBounds().width;
-		this.setLocation(b.x + (int)((bWidth - this.getWidth())/2), b.y + 60);
+		if (!Configuration.screenSizeSmall) {
+			Rectangle b = owner.getBounds();
+			// b.getWidth(); Not for J9
+			int bWidth = b.getBounds().width;
+			this.setLocation(b.x + (int) ((bWidth - this.getWidth()) / 2), b.y + 60);
+		}
 	}
 	
 	protected void onClose(boolean isCancel) {

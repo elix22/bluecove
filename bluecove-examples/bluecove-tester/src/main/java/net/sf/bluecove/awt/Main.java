@@ -129,7 +129,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		
 		this.setTitle("BlueCove tester");
 		
-		MenuBar menuBar = new MenuBar();
+		final MenuBar menuBar = new MenuBar();
 		Menu menuBluetooth = new Menu("Bluetooth");
 		
 		final MenuItem serverStart = addMenu(menuBluetooth, "Server Start", new ActionListener() {
@@ -266,19 +266,19 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		// Create a scrolled text area.
         output = new TextArea("");
         output.setEditable(false);
-        Font logFont = new Font("Monospaced", Font.PLAIN, 12);
-        output.setFont(logFont);
         this.add(output);
         
         Timer statusUpdate = new Timer();
         statusUpdate.schedule(new TimerTask() {
         	public void run() {
-        		serverStop.setEnabled(Switcher.isRunningServer());
-        		serverStart.setEnabled(!Switcher.isRunningServer());
-        		
-        		clientStop.setEnabled(Switcher.isRunningClient());
-        		clientStart.setEnabled(!Switcher.isRunningClient());
-        		stop.setEnabled(Switcher.isRunningClient() || Switcher.isRunningServer());
+        		if (isMainFrameActive()) {
+					serverStop.setEnabled(Switcher.isRunningServer());
+					serverStart.setEnabled(!Switcher.isRunningServer());
+
+					clientStop.setEnabled(Switcher.isRunningClient());
+					clientStart.setEnabled(!Switcher.isRunningClient());
+					stop.setEnabled(Switcher.isRunningClient() || Switcher.isRunningServer());
+        		}
         	}
         }, 1000, 700);
 		
@@ -297,17 +297,32 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}});
         
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        if (screenSize.height < 400) {
+        	Configuration.screenSizeSmall = true;
+        }
+        Font logFont = new Font("Monospaced", Font.PLAIN, Configuration.screenSizeSmall?9:12);
+        output.setFont(logFont);
+        
 		if (screenSize.width > 600) {
 			screenSize.setSize(240, 320);
 		}
-		
-		Properties p = getProperties();
-		Rectangle b = this.getBounds();
-		b.x = Integer.valueOf(p.getProperty("main.x", "0")).intValue();
-		b.y = Integer.valueOf(p.getProperty("main.y", "0")).intValue();
-		b.height = Integer.valueOf(p.getProperty("main.height", String.valueOf(screenSize.height))).intValue();
-		b.width = Integer.valueOf(p.getProperty("main.width", String.valueOf(screenSize.width))).intValue();
-		this.setBounds(b);
+		if (this.isResizable()) {
+			Properties p = getProperties();
+			Rectangle b = this.getBounds();
+			b.x = Integer.valueOf(p.getProperty("main.x", "0")).intValue();
+			b.y = Integer.valueOf(p.getProperty("main.y", "0")).intValue();
+			b.height = Integer.valueOf(p.getProperty("main.height", String.valueOf(screenSize.height))).intValue();
+			b.width = Integer.valueOf(p.getProperty("main.width", String.valueOf(screenSize.width))).intValue();
+			this.setBounds(b);
+		}
+	}
+	
+	boolean isMainFrameActive() {
+		try {
+			return isActive();
+		} catch (Throwable j13) {
+			return true;
+		}
 	}
 	
 	private void updateTitle() {

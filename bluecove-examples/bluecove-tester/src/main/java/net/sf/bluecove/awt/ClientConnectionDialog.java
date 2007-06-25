@@ -217,10 +217,12 @@ public class ClientConnectionDialog extends Dialog {
 		});
 		this.pack();
 		
-		Rectangle b = owner.getBounds();
-		//	b.getWidth();  Not for J9
-		int bWidth = b.getBounds().width;
-		this.setLocation(b.x + (int)((bWidth - this.getWidth())/2), b.y + 60);
+		if (!Configuration.screenSizeSmall) {
+			Rectangle b = owner.getBounds();
+			// b.getWidth(); Not for J9
+			int bWidth = b.getBounds().width;
+			this.setLocation(b.x + (int) ((bWidth - this.getWidth()) / 2), b.y + 60);
+		}
 		
 		monitorTimer = new Timer();
 		monitorTimer.schedule(new ConnectionMonitor(), 1000, 700);

@@ -145,6 +145,8 @@ public class Configuration {
 	public static boolean CLDC_1_0 = false;
 
 	public static boolean logTimeStamp = false;
+	
+	public static boolean screenSizeSmall = false;
 
 	static {
 		testDeviceNames = new Hashtable();

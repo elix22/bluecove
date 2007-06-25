@@ -38,12 +38,13 @@ public abstract class OkCancelDialog extends Dialog {
 
 	private static final long serialVersionUID = 1L;
 
+	protected Panel panelBtns;
 	Button btnOk, btnCancel; 
 	
 	public OkCancelDialog(Frame owner, String title, boolean modal) {
 		super(owner, title, modal);
 		
-		Panel panelBtns = new Panel();
+		panelBtns = new Panel();
 		this.add(panelBtns, BorderLayout.SOUTH);
 		
 		panelBtns.add(btnOk = new Button("OK"));

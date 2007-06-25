@@ -24,6 +24,8 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Panel;
 
+import net.sf.bluecove.Configuration;
+
 /**
  * @author vlads
  *
@@ -33,6 +35,7 @@ public class BorderPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	private static final Insets insets =  new Insets(10,10,10,10);
+	private static final Insets insetsSmall =  new Insets(3,3,3,3);
 	
 	public BorderPanel() {
 		super();
@@ -42,6 +45,12 @@ public class BorderPanel extends Panel {
 		super(layout);
 	}
 	
-	public Insets getInsets() {return insets;}
+	public Insets getInsets() {
+		if (Configuration.screenSizeSmall) {
+			return insetsSmall;
+		} else {
+			return insets;
+		}
+	}
 
 }

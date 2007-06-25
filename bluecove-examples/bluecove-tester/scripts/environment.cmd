@@ -13,6 +13,7 @@ goto :errormark
 
 :pt_found
 
+set _JVM_MYSAIFU=true
 set XWIN_CE_PHONE=true
 
 if NOT '%WIN_CE_PHONE%' EQU 'true' (
