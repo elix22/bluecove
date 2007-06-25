@@ -99,7 +99,7 @@ public class Configuration {
 	 * INT_16 are truncated in discovery by WIDCOMM
 	 * Service attributes are not supported on BlueSoleil
 	 */
-	public static boolean testIgnoreNotWorkingServiceAttributes = true;
+	public static boolean testIgnoreNotWorkingServiceAttributes = false;
 
 	public static boolean testServerForceDiscoverable = true;
 
@@ -151,16 +151,16 @@ public class Configuration {
 	static {
 		testDeviceNames = new Hashtable();
 
-		boolean testOnlyOneDevice = false;
+		boolean testOnlyOneDevice = true;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
 			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");
 			//testDeviceNames.put("0020E027CE32", "Lapt WC");
 			//testDeviceNames.put("0050F2E8D4A6", "Desk MS");
 			//testDeviceNames.put("000B0D4AECDE", "Desk WC");
-			//testDeviceNames.put("0019639C4007", "SE K790(r)");
-			testDeviceNames.put("00123755AE71", "N 6265i (t)");
-			testDeviceNames.put("0015E96A02DE", "D-Link");
+			testDeviceNames.put("0019639C4007", "SE K790(r)");
+			//testDeviceNames.put("00123755AE71", "N 6265i (t)");
+			//testDeviceNames.put("0015E96A02DE", "D-Link");
 		} else {
 
 			// This is the list of my test devices with names for My convenience
@@ -225,7 +225,7 @@ public class Configuration {
 
 	public static String getLastServerURL() {
 		if (lastServerURL == null) {
-			lastServerURL = Configuration.storage.retriveData("lastURL");
+			lastServerURL = Configuration.storage.retriveData(Storage.configLastServiceURL);
 		}
 		return lastServerURL;
 	}
@@ -233,7 +233,7 @@ public class Configuration {
 	public static void setLastServerURL(String lastServerURL) {
 		Configuration.lastServerURL = lastServerURL;
 		if (Configuration.storage != null) {
-			Configuration.storage.storeData("lastURL", lastServerURL);
+			Configuration.storage.storeData(Storage.configLastServiceURL, lastServerURL);
 		}
 	}
 }

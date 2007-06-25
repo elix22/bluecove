@@ -258,6 +258,12 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		});
 		
+		addMenu(menuMore, "OBEX Client Connection", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				(new ObexClientConnectionDialog(Main.this)).setVisible(true); 
+			}
+		});
+		
 		menuBar.add(menuMore);
 		
 		setMenuBar(menuBar);

@@ -26,6 +26,8 @@ package net.sf.bluecove.util;
  */
 public interface Storage {
 
+	public static final String configLastServiceURL = "lastURL";
+	
 	void storeData(String name, String value);
 	
 	String retriveData(String name);

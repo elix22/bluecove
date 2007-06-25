@@ -94,6 +94,8 @@ public class ClientConnectionThread extends Thread {
 			}
 		} catch (IOException e) {
 			Logger.error("Communication error", e);
+		} catch (Throwable e) {
+			Logger.error("Error", e);
 		} finally {
 			isRunning = false;
 			c.shutdown();
