@@ -59,6 +59,8 @@ public class ObexClientConnectionThread extends Thread  {
 			}
 			status = "Connected";
 			HeaderSet hs = clientSession.connect(clientSession.createHeaderSet());
+			Logger.debug("connect responseCode " + hs.getResponseCode());
+
 
 			byte data[] = text.getBytes("iso-8859-1");
 			hs.setHeader (HeaderSet.NAME, "test.txt");
@@ -74,12 +76,16 @@ public class ObexClientConnectionThread extends Thread  {
 			
 			po.close();
 			clientSession.disconnect(null);
+			Logger.debug("disconnect responseCode " + hs.getResponseCode());
 			
 			status = "Finished";
 			
 		} catch (IOException e) {
-			status = "Communication error";
+			status = "Communication error " + e.toString();
 			Logger.error("Communication error", e);
+		} catch (Throwable e) {
+			status = "Error " + e.toString();
+			Logger.error("Error", e);
 		} finally {
 			isRunning = false;
 			IOUtils.closeQuietly(clientSession);
