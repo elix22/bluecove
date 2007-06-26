@@ -151,7 +151,7 @@ public class Configuration {
 	static {
 		testDeviceNames = new Hashtable();
 
-		boolean testOnlyOneDevice = true;
+		boolean testOnlyOneDevice = false;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
 			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");
