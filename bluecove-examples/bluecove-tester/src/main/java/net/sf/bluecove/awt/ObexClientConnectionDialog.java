@@ -68,6 +68,8 @@ public class ObexClientConnectionDialog extends Dialog {
 				}
 			} else {
 				status.setText("Idle");
+				btnDisconnect.setEnabled(false);
+				btnSend.setEnabled(true);
 			}
 		}
 	}
@@ -144,6 +146,7 @@ public class ObexClientConnectionDialog extends Dialog {
 			}
 		});
 		this.pack();
+		OkCancelDialog.centerParent(this);
 		
 		monitorTimer = new Timer();
 		monitorTimer.schedule(new ObexConnectionMonitor(), 1000, 700);

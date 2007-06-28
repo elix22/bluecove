@@ -111,12 +111,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		updateGUI();
 
 		this.pack();
-		if (!Configuration.screenSizeSmall) {
-			Rectangle b = owner.getBounds();
-			// b.getWidth(); Not for J9
-			int bWidth = b.getBounds().width;
-			this.setLocation(b.x + (int) ((bWidth - this.getWidth()) / 2), b.y + 60);
-		}
+		OkCancelDialog.centerParent(this);
 	}
 	
 	protected void onClose(boolean isCancel) {

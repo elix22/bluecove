@@ -21,6 +21,7 @@
 package net.sf.bluecove.awt;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.microedition.io.Connector;
 import javax.obex.ClientSession;
@@ -28,6 +29,7 @@ import javax.obex.HeaderSet;
 import javax.obex.Operation;
 
 import net.sf.bluecove.Logger;
+import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.IOUtils;
 
 public class ObexClientConnectionThread extends Thread  {
@@ -59,7 +61,7 @@ public class ObexClientConnectionThread extends Thread  {
 			}
 			status = "Connected";
 			HeaderSet hs = clientSession.connect(clientSession.createHeaderSet());
-			Logger.debug("connect responseCode " + hs.getResponseCode());
+			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hs.getResponseCode()));
 
 
 			byte data[] = text.getBytes("iso-8859-1");
@@ -72,11 +74,15 @@ public class ObexClientConnectionThread extends Thread  {
 			status = "Sending";
 			Operation po = clientSession.put(hs);
 
-			po.openOutputStream().write(data);
+			OutputStream os = po.openOutputStream();
+			os.write(data);
+			os.close();
+			
+			Logger.debug("put responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
 			
 			po.close();
 			clientSession.disconnect(null);
-			Logger.debug("disconnect responseCode " + hs.getResponseCode());
+			Logger.debug("disconnect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hs.getResponseCode()));
 			
 			status = "Finished";
 			

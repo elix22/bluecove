@@ -22,13 +22,17 @@ package net.sf.bluecove.awt;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.Panel;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import net.sf.bluecove.Configuration;
 
 /**
  * @author vlads
@@ -69,5 +73,14 @@ public abstract class OkCancelDialog extends Dialog {
 	}
 	
 	protected abstract void onClose(boolean isCancel);
+	
+	public static void centerParent(Component window) {
+		if (!Configuration.screenSizeSmall) {
+			Rectangle b = window.getParent().getBounds();
+			// b.getWidth(); Not for J9
+			int bWidth = b.getBounds().width;
+			window.setLocation(b.x + (int) ((bWidth - window.getWidth()) / 2), b.y + 60);
+		}
+	}
 }
 

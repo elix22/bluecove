@@ -29,6 +29,7 @@ import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
+import javax.obex.ResponseCodes;
 
 public abstract class BluetoothTypesInfo {
 
@@ -274,6 +275,14 @@ public abstract class BluetoothTypesInfo {
 		case DataElement.BOOL: return "BOOL";
 		case DataElement.DATALT: return "DATALT";
 		default: return "Unknown" + type;
+		}
+	}
+
+	public static String toStringObexResponseCodes(int code) {
+		switch (code) {
+		case 0x90: return "OBEX_RESPONSE_CONTINUE";
+		case ResponseCodes.OBEX_HTTP_OK: return "OBEX_HTTP_OK";
+		default: return "Unknown " + toHexString(code);
 		}
 	}
 	
