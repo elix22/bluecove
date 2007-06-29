@@ -23,8 +23,6 @@
 
         <menu name="Overview">
             <item name="Main Project" href="http://code.google.com/p/bluecove/" />
-            <item name="Introduction" href="http://bluecove.sourceforge.net/index.html" />
-            <item name="Run Web Start" href="http://bluecove.sourceforge.net/bluecove-webstart/demo.jnlp" />
 
             <item name="Download" href="#">
                 <item name="Releases" href="http://sourceforge.net/project/showfiles.php?group_id=114020"/>

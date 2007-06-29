@@ -164,6 +164,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>site-copy-jars</id>
                         <phase>site</phase>
                         <goals>
                             <goal>run</goal>
