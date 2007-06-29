@@ -210,8 +210,8 @@
                                     <tasks>
                                         <replace dir="${project.build.directory}/site">
                                             <include name="*.jnlp"></include>
-                                            <replacetoken><![CDATA[http://bluecove.sourceforge.net/]]></replacetoken>
-                                            <replacevalue><![CDATA[http://pyx4me.com/snapshot/bluecove/]]></replacevalue>
+                                            <replacetoken><![CDATA[http://bluecove.sourceforge.net/bluecove-examples]]></replacetoken>
+                                            <replacevalue><![CDATA[http://pyx4me.com/snapshot/bluecove/bluecove-examples]]></replacevalue>
                                         </replace>
                                     </tasks>
                                 </configuration>

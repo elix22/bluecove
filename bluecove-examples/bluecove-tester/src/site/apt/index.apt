@@ -58,7 +58,7 @@ Server failure 0
 
 * Start BlueCove on Windows
 
-   You can start Java Web Start with MIDlet application and see how it communicates with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
+   You can start Java Web Start with MIDlet application and see how it communicates with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
 
    Also AWT test application can be used in Java Web Start. <<<{{{awt-bctest.jnlp}\u00bbStart now}}>>>.
 
