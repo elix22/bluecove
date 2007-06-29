@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
   spec="1.0+"
-  codebase="http://bluecove.sourceforge.net/bluecove-tester"
+  codebase="http://bluecove.sourceforge.net/bluecove-examples/bluecove-tester"
   href="awt-bctest-bluesoleil.jnlp">
   <information>
     <title>bluecove-tester</title>
