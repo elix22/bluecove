@@ -204,7 +204,7 @@
 
     <profiles>
         <profile>
-            <id>webstart</id>
+            <id>build</id>
             <activation>
                 <property>
                     <name>buildByMicroEmulatorTeam</name>
