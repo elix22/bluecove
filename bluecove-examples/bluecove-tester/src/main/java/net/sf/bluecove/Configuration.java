@@ -99,7 +99,7 @@ public class Configuration {
 	 * INT_16 are truncated in discovery by WIDCOMM
 	 * Service attributes are not supported on BlueSoleil
 	 */
-	public static boolean testIgnoreNotWorkingServiceAttributes = false;
+	public static boolean testIgnoreNotWorkingServiceAttributes = true;
 
 	public static boolean testServerForceDiscoverable = true;
 
