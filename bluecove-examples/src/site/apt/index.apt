@@ -22,7 +22,7 @@ BlueCove example project
 
     * GPS receiver over bluetooth {{{http://wap.mgmaps.com/mgmaps.jad}Mobile GMaps JAD}};  FREE application {{{http://www.mgmaps.com/}Mobile GMaps}} created by Cristian Streng. <<<{{{bluecove-webstart/open/wap.mgmaps.com/mgmaps.jnlp}\u00bbStart now}}>>>.
 
-    * {{{bluecove-tester/bctest.jad}bluecove test application JAD}}. <<<{{{bluecove-webstart/open/bluecove.sourceforge.net/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
+    * {{{bluecove-tester/bctest.jad}bluecove test application JAD}}. <<<{{{bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
 
 * BlueCove Tests on windows
 
