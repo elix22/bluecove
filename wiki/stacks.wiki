@@ -43,7 +43,7 @@
     * Microsoft Bluetooth stack only supporting RFCOMM connections
     * `DiscoveryAgent.searchServices()` can't query for BOOL !DataElements
     * `DiscoveryAgent.searchServices()` can't query for UUID !DataElements other than one in !ProtocolDescriptorList and ServiceClassIDList
-    * `DiscoveryListener.deviceDiscovered()` would be called for devices that a _paired_ with you Microsoft BT stack regardless if device ON or OFF
+    * `DiscoveryListener.deviceDiscovered()` would be called for devices that a _paired_ with your Microsoft BT stack regardless if device ON or OFF
 
 == BlueSoleil (IVT Corporation) ==
 
