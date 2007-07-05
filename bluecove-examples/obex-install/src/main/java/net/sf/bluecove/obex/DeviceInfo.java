@@ -39,23 +39,37 @@ class DeviceInfo implements Storable {
 		}
 	}
 
+	private String fixNull(String str) {
+		if (str.equalsIgnoreCase("null")) {
+			return null;
+		}
+		return str;
+	}
+	
 	public void loadFromLine(String line) throws IOException {
 		StringTokenizer st = new StringTokenizer(line, "|");
 	     if (!st.hasMoreTokens()) {
 	    	 throw new IOException();
 	     }
-	     btAddress = st.nextToken();
+	     btAddress = fixNull(st.nextToken());
 	     if (!st.hasMoreTokens()) {
 	    	 throw new IOException();
 	     }
-	     name = st.nextToken();
+	     name = fixNull(st.nextToken());
 	     if (!st.hasMoreTokens()) {
 	    	 throw new IOException();
 	     }
-	     obexUrl = st.nextToken();
+	     obexUrl = fixNull(st.nextToken());
 	}
 
 	public String saveAsLine() {
 		return btAddress + "|" + name + "|" + obexUrl;
+	}
+	
+	public boolean isValid() {
+		if ((obexUrl == null) || (btAddress == null)) {
+			return false;
+		}
+		return (obexUrl.toLowerCase().indexOf("://" + btAddress.toLowerCase() + ":") != -1);
 	}
 }

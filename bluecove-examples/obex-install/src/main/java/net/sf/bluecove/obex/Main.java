@@ -72,6 +72,10 @@ public class Main extends JFrame implements ActionListener {
 	
 	private ImageIcon transferIcon;
 	
+	private ImageIcon searchIcon;
+	
+	private ImageIcon downloadIcon;
+	
 	private JComboBox cbDevices;
 	
 	private JButton btFindDevice;
@@ -95,6 +99,8 @@ public class Main extends JFrame implements ActionListener {
 		Image btImage = Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png"));
 		btIcon = new ImageIcon(btImage);
 		transferIcon = new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/transfer.png"))));
+		searchIcon = new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/search.png"))));
+		downloadIcon = new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/download.png"))));
 		
 		this.setIconImage(btImage);
 		
@@ -281,6 +287,7 @@ public class Main extends JFrame implements ActionListener {
 		Thread t = new Thread() {
 			public void run() {
 				if (bluetoothInquirer.startInquiry()) {
+					iconLabel.setIcon(searchIcon);
 					setStatus("Bluetooth discovery started");
 					btFindDevice.setEnabled(false);
 					timer.start();
@@ -310,6 +317,7 @@ public class Main extends JFrame implements ActionListener {
 					Persistence.storeDevices(devices, getSelectedDevice());
 					updateDevices(null);
 					btFindDevice.setEnabled(true);
+					iconLabel.setIcon(btIcon);
 				}
 			}
 		};
@@ -334,8 +342,10 @@ public class Main extends JFrame implements ActionListener {
 		final String serverURL = ((DeviceInfo)cbDevices.getSelectedItem()).obexUrl;
 		Thread t = new Thread() {
 			public void run() {
+				btSend.setEnabled(false);
 				iconLabel.setIcon(transferIcon);
 				o.obexPut(serverURL);
+				btSend.setEnabled(true);
 				iconLabel.setIcon(btIcon);
 				Persistence.storeDevices(devices, getSelectedDevice());
 			}
@@ -358,6 +368,7 @@ public class Main extends JFrame implements ActionListener {
 		Thread t = new Thread() {
 			public void run() {
 				try {
+					iconLabel.setIcon(downloadIcon);
 					URL url = new URL(filePath);
 					InputStream is = url.openConnection().getInputStream();  
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -373,6 +384,7 @@ public class Main extends JFrame implements ActionListener {
 					data = bos.toByteArray();
 					fileName = simpleFileName(url.getFile());
 					setStatus((data.length/1024) +"k " + fileName);
+					iconLabel.setIcon(btIcon);
 				} catch (Throwable e) {
 					debug(e);
 					setStatus("Download error" +  e.getMessage());

@@ -98,10 +98,12 @@ public class Persistence {
 			while (line != null) {
 				if (line.startsWith(devicePrefix)) {
 					DeviceInfo di = new DeviceInfo();
-					di.loadFromLine(line.substring(devicePrefix.length() + 1));
-					devices.put(di.btAddress.toLowerCase(), di);
+					di.loadFromLine(line.substring(devicePrefix.length()));
+					if (di.isValid()) {
+						devices.put(di.btAddress.toLowerCase(), di);
+					}
 				} else if (line.startsWith(selectedPrefix)) {
-					selected = line.substring(selectedPrefix.length() + 1);
+					selected = line.substring(selectedPrefix.length());
 				}
 				line = lnr.readLine();
 			}
