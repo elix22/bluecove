@@ -316,7 +316,9 @@ public class Main extends JFrame implements ActionListener {
 		final String serverURL = ((DeviceInfo)cbDevices.getSelectedItem()).obexUrl;
 		Thread t = new Thread() {
 			public void run() {
+				iconLabel.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/transfer.png"))));
 				o.obexPut(serverURL);
+				iconLabel.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png"))));
 			}
 		};
 		t.start();
