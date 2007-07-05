@@ -22,6 +22,7 @@
             <item name="Results" href="results.html" />
             <item name="Run Web Start MIDlet" href="../bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp" />
             <item name="Run Web Start AWT" href="awt-bctest.jnlp" />
+            <item name="Install MIDlet" href="../obex-install/push-local/~/bluecove-tester/bctest.jnlp" />
         </menu>
 
         <menu ref="reports" />

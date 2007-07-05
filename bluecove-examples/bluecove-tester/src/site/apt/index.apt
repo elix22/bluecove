@@ -110,6 +110,8 @@ java -cp ElectricBlue.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.aw
 
     You can upload this MIDlet to your cell phone and use it as responder for BlueCove application on PC.
 
+    <<<{{{../obex-install/push-local/~/bluecove-tester/bctest.jnlp}\u00bbInstall MIDlet now}}>>>
+
     See {{{http://code.google.com/p/bluecove/wiki/phones}complete list of the JSR-82 compliant phones}}
 
 * Windows Mobile
