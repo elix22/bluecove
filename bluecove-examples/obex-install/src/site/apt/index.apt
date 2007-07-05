@@ -1,0 +1,42 @@
+~~ @version $Revision$ ($Author$) $Date$
+~~ See this file format http://maven.apache.org/guides/mini/guide-apt-format.html
+
+                                    ------------------
+                                    BlueCove OBEX Push J2ME application installer
+                                    ------------------
+
+
+BlueCove OBEX Push J2ME application installer Web Start
+
+    To start application click this link {{{push.jnlp}Java Web Start}}.
+
+    You can Drag and Drop .jar files or http jar links to running application to install it on your mobile phone.
+
+* Some example applications you can try.
+
+*---------------------------+-----------+
+| Drag and Drop .jar link   | Web Start |
+*---------------------------+-----------+
+| {{{http://wintermute.de/wap/extended/5ud0ku.jar}A Sudoku Game}}  |  <<<{{{push/wintermute.de/wap/extended/5ud0ku.jnlp}\u00bbInstall}}>>>
+*-----------------------+-----------+
+
+* Add a link from your page to start BlueCove OBEX Push with your application.
+
+    Your users can install your MIDlet application with a single click.
+
+    URL Example:
+
+---
+For JAR URL:
+    http://wintermute.de/wap/extended/5ud0ku.jar
+BlueCove OBEX Push Web Start URL:
+    http://bluecove.sourceforge.net/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp
+---
+
+  HTML text on your page:
+
+---
+    <a href="http://microemu.org/webstart/wintermute.de/wap/extended/5ud0ku.jnlp">Install it now</a>
+---
+
+  {{{http://bluecove.sourceforge.net/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp}Try it yourself first}}
