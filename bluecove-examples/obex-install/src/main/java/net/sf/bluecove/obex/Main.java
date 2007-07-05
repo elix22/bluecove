@@ -206,6 +206,7 @@ public class Main extends JFrame implements ActionListener {
 		cbDevices.setEnabled(false);
 		setStatus("BlueCove not avalable");
 		btSend.setEnabled(false);
+		iconLabel.setIcon(new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/bt-off.png")))));
 	}
 	
 	protected boolean initializeBlueCove() {
