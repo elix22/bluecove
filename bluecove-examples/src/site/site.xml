@@ -22,6 +22,8 @@
         <menu ref="parent" />
 
         <menu name="Overview">
+
+            <item name="BlueCove" href="../" />
             <item name="Main Project" href="http://code.google.com/p/bluecove/" />
 
             <item name="Download" href="#">
