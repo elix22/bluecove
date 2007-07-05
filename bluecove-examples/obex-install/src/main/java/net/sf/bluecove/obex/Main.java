@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -67,6 +68,10 @@ public class Main extends JFrame implements ActionListener {
 	
 	JProgressBar progressBar;
 	
+	private ImageIcon btIcon;
+	
+	private ImageIcon transferIcon;
+	
 	private JComboBox cbDevices;
 	
 	private JButton btFindDevice;
@@ -86,18 +91,24 @@ public class Main extends JFrame implements ActionListener {
 	protected Main() {
 		super("BlueCove OBEX Push");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png")));
+		
+		Image btImage = Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png"));
+		btIcon = new ImageIcon(btImage);
+		transferIcon = new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/transfer.png"))));
+		
+		this.setIconImage(btImage);
 		
 		JPanel contentPane = (JPanel)this.getContentPane();
 		contentPane.setLayout(new BorderLayout(10, 10));
 		contentPane.setBorder(new EmptyBorder(10,10,10,10));
+		contentPane.setTransferHandler(new DropTransferHandler(this));
 		
 		JPanel progressPanel = new JPanel();
 		progressPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		
 		iconLabel = new JLabel();
-		iconLabel.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png"))));
+		iconLabel.setIcon(btIcon);
 		c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
 		progressPanel.add(iconLabel, c);
@@ -316,9 +327,9 @@ public class Main extends JFrame implements ActionListener {
 		final String serverURL = ((DeviceInfo)cbDevices.getSelectedItem()).obexUrl;
 		Thread t = new Thread() {
 			public void run() {
-				iconLabel.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/transfer.png"))));
+				iconLabel.setIcon(transferIcon);
 				o.obexPut(serverURL);
-				iconLabel.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png"))));
+				iconLabel.setIcon(btIcon);
 			}
 		};
 		t.start();
@@ -335,7 +346,7 @@ public class Main extends JFrame implements ActionListener {
 		return filePath.substring(idx + 1);
 	}
 	
-	private void downloadJar(final String filePath) {
+	void downloadJar(final String filePath) {
 		Thread t = new Thread() {
 			public void run() {
 				try {

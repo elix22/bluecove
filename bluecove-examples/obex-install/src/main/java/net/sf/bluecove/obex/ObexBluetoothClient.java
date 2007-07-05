@@ -60,7 +60,10 @@ public class ObexBluetoothClient {
 			HeaderSet hs = clientSession.connect(clientSession.createHeaderSet());
 
 			hs.setHeader(HeaderSet.NAME, fileName);
-			hs.setHeader(HeaderSet.TYPE, "jar");
+			String type = ObexTypes.getObexFileType(fileName);
+			if (type != null) {
+				hs.setHeader(HeaderSet.TYPE, type);
+			}
 			hs.setHeader(HeaderSet.LENGTH, new Long(data.length));
 			
 			mainInstance.progressBar.setMaximum(data.length);
@@ -81,7 +84,7 @@ public class ObexBluetoothClient {
 				mainInstance.setProgressValue(done);
 				i = is.read(buffer);
 			}
-
+			os.flush();
 			os.close();
 			
 			//log.debug("put responseCode " + po.getResponseCode());
