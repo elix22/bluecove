@@ -12,6 +12,8 @@ BlueCove OBEX Push J2ME application installer Web Start
 
     You can Drag and Drop .jar files or http jar links to running application to install it on your mobile phone.
 
+    Actualy it accept any file types and can be used to upload images or audio files using Bluetooth.
+
 * Some example applications you can try.
 
 *---------------------------+-----------+
@@ -19,6 +21,15 @@ BlueCove OBEX Push J2ME application installer Web Start
 *---------------------------+-----------+
 | {{{http://wintermute.de/wap/extended/5ud0ku.jar}A Sudoku Game}}  |  <<<{{{push/wintermute.de/wap/extended/5ud0ku.jnlp}\u00bbInstall}}>>>
 *-----------------------+-----------+
+
+* Using obex-install in command line
+
+---
+    java -jar bluecove-obex-install-mini.jar yourApp.jar
+---
+
+    {{{bluecove-obex-install-mini.jar}Download application jar}}
+
 
 * Add a link from your page to start BlueCove OBEX Push with your application.
 
