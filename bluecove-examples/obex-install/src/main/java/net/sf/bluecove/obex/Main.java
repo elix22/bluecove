@@ -148,6 +148,8 @@ public class Main extends JFrame implements ActionListener {
 
     	contentPane.add(actionPanel, BorderLayout.SOUTH);
 	    btSend.setEnabled(false);
+	    String selected = Persistence.loadDevices(devices);
+	    updateDevices(selected);
 	}
 	
 	private static void createAndShowGUI(final String[] args) {
@@ -244,20 +246,6 @@ public class Main extends JFrame implements ActionListener {
 		}
 	}
 	
-	private static class DeviceInfo {
-		String btAddress; 
-		String name; 
-		String obexUrl;
-		
-		public String toString() {
-			if ((name != null) && (name.length() > 0)) {
-				return name;		
-			} else {
-				return btAddress;
-			}
-		}
-	}
-
 	private void addDevice(String btAddress, String name, String obexUrl) {
 		DeviceInfo di = new DeviceInfo();
 		di.btAddress = btAddress;
@@ -266,7 +254,7 @@ public class Main extends JFrame implements ActionListener {
 		devices.put(btAddress.toLowerCase(), di);
 	}
 
-	private void updateDevices() {
+	private void updateDevices(String selected) {
 		cbDevices.removeAllItems();
 		if (devices.size() == 0) {
 			cbDevices.addItem("{no device found}");
@@ -276,7 +264,10 @@ public class Main extends JFrame implements ActionListener {
 			for (Enumeration i = devices.keys(); i.hasMoreElements();) {
 				String addr = (String) i.nextElement();
 				DeviceInfo di = (DeviceInfo)devices.get(addr);
-				cbDevices.addItem(di);		
+				cbDevices.addItem(di);
+				if ((selected != null) && (selected.equals(di.btAddress))) {
+					cbDevices.setSelectedItem(di); 
+				}
 			}
 			cbDevices.setEnabled(true);
 			btSend.setEnabled(true);
@@ -291,6 +282,7 @@ public class Main extends JFrame implements ActionListener {
 			public void run() {
 				if (bluetoothInquirer.startInquiry()) {
 					setStatus("Bluetooth discovery started");
+					btFindDevice.setEnabled(false);
 					timer.start();
 					while (bluetoothInquirer.inquiring) {
 						try {
@@ -302,20 +294,35 @@ public class Main extends JFrame implements ActionListener {
 					//setStatus("Bluetooth discovery finished");
 					
 					setProgressValue(0);
+					int idx = 0;
 					progressBar.setMaximum(bluetoothInquirer.devices.size());
 					for (Iterator iter = bluetoothInquirer.devices.iterator(); iter.hasNext();) {
 						RemoteDevice dev = (RemoteDevice) iter.next();
 						String obexUrl = bluetoothInquirer.findOBEX(dev.getBluetoothAddress());
-						if (obexUrl != null){ 
+						if (obexUrl != null){
+							Logger.debug("found", dev.getBluetoothAddress());
 							addDevice(dev.getBluetoothAddress(), BluetoothInquirer.getFriendlyName(dev), obexUrl);
 						}
+						idx ++;
+						setProgressValue(idx);
 					}
 					setProgressValue(0);
-					updateDevices();
+					Persistence.storeDevices(devices, getSelectedDevice());
+					updateDevices(null);
+					btFindDevice.setEnabled(true);
 				}
 			}
 		};
 		t.start();
+	}
+	
+	private String getSelectedDevice() {
+		Object o = cbDevices.getSelectedItem();
+		
+		if ((o == null) || !(o instanceof DeviceInfo)) {
+			return null;
+		}
+		return ((DeviceInfo)o).btAddress;
 	}
 	
 	private void obexSend() {
@@ -330,6 +337,7 @@ public class Main extends JFrame implements ActionListener {
 				iconLabel.setIcon(transferIcon);
 				o.obexPut(serverURL);
 				iconLabel.setIcon(btIcon);
+				Persistence.storeDevices(devices, getSelectedDevice());
 			}
 		};
 		t.start();

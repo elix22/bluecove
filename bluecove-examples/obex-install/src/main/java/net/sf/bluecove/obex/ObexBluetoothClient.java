@@ -55,6 +55,7 @@ public class ObexBluetoothClient {
 		ClientSession clientSession = null;
 		try {
 			//System.setProperty("bluecove.debug", "true");
+			Logger.debug("Connecting", serverURL);
 			mainInstance.setStatus("Connecting ...");
 			clientSession = (ClientSession) Connector.open(serverURL);
 			HeaderSet hs = clientSession.connect(clientSession.createHeaderSet());
