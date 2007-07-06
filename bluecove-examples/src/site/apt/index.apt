@@ -5,14 +5,7 @@
                                     BlueCove examples projects
                                     ------------------
 
-BlueCove
-
-    BlueCove is a Java library for Bluetooth (JSR-82 implementation) that currently interfaces with the Microsoft Bluetooth stack found in Windows XP SP2 or Windows Vista.
-    BlueCove can be used in  Java 2 Platform Standard Edition (J2SE).
-
-    Main project website {{{http://code.google.com/p/bluecove/}http://code.google.com/p/bluecove/}}
-
-BlueCove example project
+BlueCove examples project
 
     To start BlueCove with {{{http://www.microemu.org/}MicroEmulator}} click this link << {{{bluecove-webstart/demo.jnlp}Java Web Start}} >>.
 

@@ -17,11 +17,7 @@
 
     <body>
 
-        <menu name="Ver #version#" inherit="top"/>
-
-        <menu ref="parent" />
-
-        <menu name="Overview">
+        <menu name="Ver #version#">
 
             <item name="BlueCove" href="../" />
             <item name="Main Project" href="http://code.google.com/p/bluecove/" />
@@ -34,6 +30,8 @@
             </item>
 
         </menu>
+
+        <menu ref="parent" />
 
         <menu ref="modules" collapse="true" />
 

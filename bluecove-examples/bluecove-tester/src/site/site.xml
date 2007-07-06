@@ -5,13 +5,13 @@
 
     <body>
 
-        <menu ref="parent" />
-
-        <menu name="Overview">
+        <menu name="Ver #version#">
+            <item name="BlueCove" href="../../" />
             <item name="Main Project" href="http://code.google.com/p/bluecove/" />
             <item name="Introduction" href="index.html" />
             <item name="Download" href="#">
                 <item name="Releases" href="http://sourceforge.net/project/showfiles.php?group_id=114020"/>
+                <item name="Snapshot" href="http://www.pyx4me.com/maven2-snapshot/net/sf/bluecove/bluecove/#version#/"/>
                 <item name="SVN Access" href="source-repository.html"/>
                 <item name="Browse SVN" href="http://bluecove.googlecode.com/svn/bluecove-examples/"/>
             </item>
@@ -24,6 +24,8 @@
             <item name="Run Web Start AWT" href="awt-bctest.jnlp" />
             <item name="Install MIDlet" href="../obex-install/push-local/~/bluecove-tester/bctest.jnlp" />
         </menu>
+
+        <menu ref="parent" />
 
         <menu ref="reports" />
 
