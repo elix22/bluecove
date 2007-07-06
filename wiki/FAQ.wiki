@@ -3,7 +3,7 @@
 
 * How to determine which Bluetooth stack is installed on my Windows?
 
-  [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
+  [http://bluecove.sourceforge.net/bluecove-examples/bluetooth-stack.html see this page]
 
 * Where can I find API-Documentation of the !BlueCove Library?
 
