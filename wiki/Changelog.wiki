@@ -1,7 +1,12 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
-= 2.0.0 to be Released 2007-07-xx =
+= 2.0.0 released 2007-07-05 =
+
+    2007-06-29
+    * OBEX PUT over rfcomm and tcp  (btgoep and tcpobex)
+    * Merged J9 MIDP compatibility enhancements suggested by Kobus Grobler
+    * bluecove_ce.dll WIDCOMM Stack on WinCE
 
     2007-06-20 version 2.0.0-b2
     * Moved large Winsock discovery buffers to heap instead of stack to improve stability
