@@ -9,6 +9,8 @@
 
     !BlueCove is JSR-82, All JSR-82 API Documentation apply. See  [http://www.j2medev.com/api/btapi/ Java APIs for Bluetooth Wireless Technology]
 
+    [http://bluecove.sourceforge.net/apidocs/index.html BlueCove Java docs]
+
     Also this link may be useful
      * [http://today.java.net/pub/a/today/2004/07/27/bluetooth.html  Getting Started with Java and Bluetooth]
      * [http://forum.nokia.com/info/sw.nokia.com/id/0b51461e-5f77-40f4-b755-7915ad4d0e31/MIDP_Bluetooth_RFCOMM_Example_v1_0_en.zip.html Nokia Bluetooth RFCOMM and L2CAP Examples]
