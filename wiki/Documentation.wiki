@@ -42,7 +42,7 @@ that can (possibly) be used to achieve full OBEX functionality with !BlueCove.
 
 Installation of the binary (already compiled) version of !BlueCove is as follows:
 
-  # [http://code.google.com/p/bluecove/downloads/list Download] BlueCove binary release
+  # [http://code.google.com/p/bluecove/downloads/list Download] !BlueCove binary release
   # Add `bluecove.jar` to your classpath
 
 For maven2 users see [maven2 Using maven2 to build application or MIDlet]
@@ -57,7 +57,7 @@ Native Library location
 
 IBM J9 Personal Profile
 
-    To run BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
+    To run !BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
 
     Tested on
         # !WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
@@ -80,12 +80,11 @@ Debug
 You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition SP1 and SDK for Windows Vista or Windows Server 2003 R2 Platform SDK.
  VC++ and Windows SDK are available for free download from microsoft.com.
  We are using for Windows Vista SDK for binary distribution:
-    Make sure you have
-     Tools ->  Options -> VC++ Directories ->
-     {{
-        "Include files" %ProgramFiles%\Microsoft SDKs\Windows\v6.0\Include
-        "Library files" %ProgramFiles%\Microsoft SDKs\Windows\v6.0\lib
-     }}
+    Make sure you have  `Tools ->  Options -> VC++ Directories ->`
+     {{{
+        "Include files": %ProgramFiles%\Microsoft SDKs\Windows\v6.0\Include
+        "Library files": %ProgramFiles%\Microsoft SDKs\Windows\v6.0\lib
+     }}}
 
  We can't use the same DLL on windows for all implemenations. Since WIDCOMM need to be compile /MD using VC6 and winsock /MT using VC2005
   intelbth.dll build by VC2005 Configuration "Win32 winsock"
@@ -94,7 +93,7 @@ You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition SP1 a
  Visual C++ 6.0 SP6 used to build bluecove.dll for WIDCOMM
  Visual Visual C++ 2005 used to build intelbth.dll for winsock and BlueSoleil
 
-  # [http://code.google.com/p/bluecove/downloads/list Download] BlueCove source release
+  # [http://code.google.com/p/bluecove/downloads/list Download] !BlueCove source release
   # Unzip the source
   # Run `ant` or `mvn`
   # Go into `src\main\c\intelbth`
