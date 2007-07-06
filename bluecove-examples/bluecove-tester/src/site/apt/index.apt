@@ -96,7 +96,7 @@ java -cp avetanaBluetooth.jar:bluecove-tester-app.jar net.sf.bluecove.awt.Main
     You can download the {{{bluecove-tester.jar}bluecove-tester.jar}} application jar and run it without BlueCove JSR-82 in calsspath.
 
 ---
-java -cp ElectricBlue.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.awt.Main
+java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.awt.Main
 ---
 
     bluecove-tester-app.jar is the same application as bluecove-tester.jar only JUnit and BlueCove classes are included.
@@ -133,4 +133,6 @@ java -cp ElectricBlue.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.aw
 * Web Start with {previous} releases of BlueCove
 
         * <<<{{{awt-bctest-1.2.3.jnlp}\u00bbStart with Microsoft Winsock v 1.2.3}}>>>
+
+        * <<<{{{awt-bctest-2.0.0.jnlp}\u00bbStart with BlueCove v 2.0.0}}>>>
 
