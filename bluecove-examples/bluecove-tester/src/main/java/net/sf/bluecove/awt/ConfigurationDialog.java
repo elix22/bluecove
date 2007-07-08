@@ -43,6 +43,7 @@ import javax.bluetooth.UUID;
 
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
+import net.sf.bluecove.util.BluetoothTypesInfo;
 
 /**
  * @author vlads
@@ -156,14 +157,13 @@ public class ConfigurationDialog extends OkCancelDialog {
 					cc.configField.setBoolean(Configuration.class, c.getState());
 				} else if (type.equals(String.class)) {
 					TextField tf = (TextField) cc.guiComponent;
-					cc.configField.set(Configuration.class, tf.getText());
+					cc.configField.set(Configuration.class, tf.getText().trim());
 				} else if (type.equals(int.class)) {
 					TextField tf = (TextField) cc.guiComponent;
-					cc.configField.setInt(Configuration.class, Integer.valueOf(tf.getText()).intValue());
+					cc.configField.setInt(Configuration.class, Integer.valueOf(tf.getText().trim()).intValue());
 				} else if (type.equals(UUID.class)) {
 					TextField tf = (TextField) cc.guiComponent;
-					UUID uuid = new UUID(tf.getText(), false);
-					cc.configField.set(Configuration.class, uuid); 
+					cc.configField.set(Configuration.class, BluetoothTypesInfo.UUIDConsts.getUUID(tf.getText().trim())); 
 				}
 			} catch (Throwable e) {
 				Logger.error("internal error for " + cc.name, e);

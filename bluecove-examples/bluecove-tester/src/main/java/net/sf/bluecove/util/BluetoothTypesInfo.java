@@ -23,6 +23,7 @@ package net.sf.bluecove.util;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.bluetooth.DataElement;
@@ -138,6 +139,32 @@ public abstract class BluetoothTypesInfo {
 				return toHexString(Integer.parseInt(str.substring(0, shortIdx), 16));
 			}
 			return null;
+		}
+		
+		public static UUID getUUID(String uuidValue) {
+			if (uuidValue == null) {
+				return null;
+			}
+			String uuidValueUpper = uuidValue.toUpperCase(); 
+			if (uuidNames.contains(uuidValueUpper)) {
+				for (Enumeration iter = uuidNames.keys(); iter.hasMoreElements();) {
+					String uuidValueKey = (String) iter.nextElement();
+					String name = (String)uuidNames.get(uuidValueKey);
+					if ((name != null) && (uuidValueUpper.equals(name))) {
+						return new UUID(uuidValueKey, false);
+					}
+				}
+			}
+			UUID uuid;
+			if (uuidValue.startsWith("0x")) {
+				uuidValue = uuidValue.substring(3);
+			}
+			if (uuidValue.length() <=8) {
+				uuid = new UUID(uuidValue, true);
+			} else {
+				uuid = new UUID(uuidValue, false);
+			}
+			return uuid;
 		}
 	}
 
