@@ -31,6 +31,8 @@ class DeviceInfo implements Storable {
 	
 	String obexUrl;
 	
+	boolean obexServiceFound = false;
+	
 	public String toString() {
 		if ((name != null) && (name.length() > 0)) {
 			return name;		

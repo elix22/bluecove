@@ -254,11 +254,21 @@ public class Main extends JFrame implements ActionListener {
 	}
 	
 	private void addDevice(String btAddress, String name, String obexUrl) {
-		DeviceInfo di = new DeviceInfo();
+		String key = btAddress.toLowerCase(); 
+		DeviceInfo di = (DeviceInfo)devices.get(key);
+		if (di == null) {
+			di = new DeviceInfo();
+		}
 		di.btAddress = btAddress;
-		di.name = name;
+		// Update name if one found
+		if (di.name == null) {
+			di.name = name;
+		} else if (btAddress.equals(di.name)) {
+			di.name = name;
+		}
 		di.obexUrl = obexUrl; 
-		devices.put(btAddress.toLowerCase(), di);
+		di.obexServiceFound = true;
+		devices.put(key, di);
 	}
 
 	private void updateDevices(String selected) {
@@ -315,7 +325,7 @@ public class Main extends JFrame implements ActionListener {
 						setProgressValue(idx);
 					}
 					setProgressValue(0);
-					Persistence.storeDevices(devices, getSelectedDevice());
+					Persistence.storeDevices(devices, getSelectedDeviceAddress());
 					updateDevices(null);
 					btFindDevice.setEnabled(true);
 					iconLabel.setIcon(btIcon);
@@ -325,13 +335,33 @@ public class Main extends JFrame implements ActionListener {
 		t.start();
 	}
 	
-	private String getSelectedDevice() {
+	private String blueSoleilFindOBEX(String btAddress, String obexUrl) {
+		if ("bluesoleil".equals(LocalDevice.getProperty("bluecove.stack"))) {
+			RemoteDevice dev = new RemoteDeviceExt(btAddress);
+			String foundObexUrl = bluetoothInquirer.findOBEX(dev.getBluetoothAddress());
+			if (foundObexUrl != null){
+				Logger.debug("found", btAddress);
+				addDevice(dev.getBluetoothAddress(), BluetoothInquirer.getFriendlyName(dev), foundObexUrl);
+			}
+			return foundObexUrl;
+		} 
+		return obexUrl;
+	}
+
+	private DeviceInfo getSelectedDevice() {
 		Object o = cbDevices.getSelectedItem();
-		
 		if ((o == null) || !(o instanceof DeviceInfo)) {
 			return null;
 		}
-		return ((DeviceInfo)o).btAddress;
+		return (DeviceInfo)o;
+	}
+	
+	private String getSelectedDeviceAddress() {
+		DeviceInfo d = getSelectedDevice();
+		if (d == null) {
+			return null;
+		}
+		return d.btAddress;
 	}
 	
 	private void obexSend() {
@@ -339,17 +369,26 @@ public class Main extends JFrame implements ActionListener {
 			setStatus("No file selected");
 			return;
 		}
+		final DeviceInfo d = getSelectedDevice();
+		if (d == null) {
+			setStatus("No Device selected");
+			return;
+		}
 		final ObexBluetoothClient o = new ObexBluetoothClient(this, fileName, data);
-		final String serverURL = ((DeviceInfo)cbDevices.getSelectedItem()).obexUrl;
 		Thread t = new Thread() {
 			public void run() {
 				btSend.setEnabled(false);
 				iconLabel.setIcon(transferIcon);
-				o.obexPut(serverURL);
+				String obexUrl = d.obexUrl; 
+				if (!d.obexServiceFound) {
+					obexUrl = blueSoleilFindOBEX(d.btAddress, obexUrl);
+				}
+				o.obexPut(obexUrl);
 				btSend.setEnabled(true);
 				iconLabel.setIcon(btIcon);
-				Persistence.storeDevices(devices, getSelectedDevice());
+				Persistence.storeDevices(devices, getSelectedDeviceAddress());
 			}
+
 		};
 		t.start();
 	}

@@ -170,13 +170,7 @@ public class BluetoothInquirer implements DiscoveryListener {
     	return servicesSearchTransID != 0;
     }
 
-	private static class RemoteDeviceExt extends RemoteDevice {
-		public RemoteDeviceExt(String address) {
-			super(address);
-		}
-	}
-	
-    public String findOBEX(String btAddress) {
+	public String findOBEX(String btAddress) {
 		RemoteDevice device = new RemoteDeviceExt(btAddress);
 		if (!startServiceSearch(device)) {
 			mainInstance.setStatus("Cannot start inquiry");
