@@ -92,6 +92,8 @@ public class TestResponderClient implements Runnable {
 
 	boolean useDiscoveredDevices = false;
 
+	boolean searchOnlyBluecoveUuid = false;
+		
 	boolean isRunning = false;
 
 	boolean runStressTest = false;
@@ -104,7 +106,7 @@ public class TestResponderClient implements Runnable {
 
 	public String connectURL = null;
 
-	private boolean configured = false;
+	boolean configured = false;
 
 	private static int sdAttrRetrievableMax = 255;
 
@@ -153,7 +155,7 @@ public class TestResponderClient implements Runnable {
 		public BluetoothInquirer() {
 			inquiringDevice = false;
 			inquiring = false;
-			if (Configuration.searchOnlyBluecoveUuid) {
+			if (searchOnlyBluecoveUuid) {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID() };
 			} else {
 				searchUuidSet = new UUID[] { Configuration.discoveryUUID };
@@ -295,6 +297,19 @@ public class TestResponderClient implements Runnable {
 				RemoteDeviceInfo dev = (RemoteDeviceInfo) iter.nextElement();
 				devices.addElement(dev.remoteDevice);
 	    	}
+	    	if (devices.size() == 0) {
+	    		if (Configuration.storage == null) {
+					Logger.warn("no storage");
+					return;
+				}
+	    		String lastURL = Configuration.getLastServerURL();
+	    		if (lastURL != null) {
+	    			Logger.info("Will used device from recent Connections");
+	    			devices.addElement(new RemoteDeviceIheritance(extractBluetoothAddress(lastURL)));
+	    		} else {
+	    			Logger.warn("no recent Connections");
+	    		}
+	    	}
 	    }
 
         public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass cod) {
@@ -422,7 +437,7 @@ public class TestResponderClient implements Runnable {
 
 				boolean isBlueCoveTestService;
 
-				if (Configuration.searchOnlyBluecoveUuid) {
+				if (searchOnlyBluecoveUuid) {
 					isBlueCoveTestService = ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName, servicesOnDeviceAddress);
 				} else {
 					isBlueCoveTestService = ServiceRecordTester.hasServiceClassUUID(servRecord[i], Configuration.blueCoveUUID());
@@ -449,7 +464,7 @@ public class TestResponderClient implements Runnable {
 					Logger.info("Found BlueCove SRV:" + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 				}
 
-				if (Configuration.searchOnlyBluecoveUuid || isBlueCoveTestService) {
+				if (searchOnlyBluecoveUuid || isBlueCoveTestService) {
 					serverURLs.addElement(url);
 				} else {
 					Logger.info("is not TestService on " + niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
@@ -808,12 +823,6 @@ public class TestResponderClient implements Runnable {
 			} else {
 				Logger.info("Established " + connectedConnectionsExpect + " connections same time");
 			}
-		}
-	}
-
-	public static class RemoteDeviceIheritance extends RemoteDevice {
-		public RemoteDeviceIheritance(String address) {
-			super(address);
 		}
 	}
 

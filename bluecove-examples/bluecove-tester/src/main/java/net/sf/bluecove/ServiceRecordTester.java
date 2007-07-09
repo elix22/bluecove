@@ -55,6 +55,7 @@ public class ServiceRecordTester {
 			Logger.warn("Bogus ServiceClassIDList");
 			return false;
 		}
+		//Logger.debug("test ServiceClassIDList:" + BluetoothTypesInfo.toString(attrDataElement));
 		
 		Object value = attrDataElement.getValue();
 		if ((value == null) || (!(value instanceof Enumeration))) {
@@ -71,9 +72,14 @@ public class ServiceRecordTester {
 				continue;
 			}
 			DataElement dataElement = (DataElement) element;
-			if ((dataElement.getDataType() == DataElement.UUID) && 
-					(Consts.uuidLong.equals(dataElement.getValue())) || (Consts.uuidShort.equals(dataElement.getValue()))) {
-				return true;
+			if ((dataElement.getDataType() == DataElement.UUID)) { 
+				if (uuid.equals(dataElement.getValue())) {
+					return true;
+				} else {
+					//Logger.debug("not same " + BluetoothTypesInfo.toString((UUID)dataElement.getValue()));
+				}
+			} else {
+				//Logger.debug("test not UUID:" + BluetoothTypesInfo.toString(dataElement));
 			}
 		}
 		
@@ -122,7 +128,7 @@ public class ServiceRecordTester {
 			case DataElement.DATSEQ:
 			case DataElement.DATALT:
 				Enumeration en1 = (Enumeration) de1.getValue();
-				Enumeration en2 = (Enumeration) de1.getValue();
+				Enumeration en2 = (Enumeration) de2.getValue();
 				for (; en1.hasMoreElements() && en2.hasMoreElements();) {
 					DataElement d1 = (DataElement) en1.nextElement();
 					DataElement d2 = (DataElement) en2.nextElement();
@@ -133,6 +139,7 @@ public class ServiceRecordTester {
 				if (en1.hasMoreElements() || en2.hasMoreElements()) {
 					return false;
 				}
+				return true;
 			default:
 				return false;
 			}
@@ -161,15 +168,18 @@ public class ServiceRecordTester {
 				canTestLong = false;
 			}
 		}
-		
 		if (canTestLong && Configuration.testAllServiceAttributes) {
 			isBlueCoveTestService = hasServiceClassUUID(servRecord, Configuration.blueCoveUUID());
 			if (isBlueCoveTestService) {
 				compareAllServiceAttributes(servRecord, servicesOnDeviceName);
+			} else {
+				Logger.debug("NOT a BlueCove service");
 			}
 			return isBlueCoveTestService;
 		}
-		
+		if (!canTestLong && Configuration.testAllServiceAttributes) {
+			Logger.info("can't test all service Attributes");
+		}		
 		
 		try {
 				int[] attributeIDs = servRecord.getAttributeIDs();
@@ -375,6 +385,29 @@ public class ServiceRecordTester {
 			//allTestServiceAttributes.addElement(new DataElement(DataElement.UUID, new UUID("E10C0FE1121111A11111161911110003", false)));
 			
 			allTestServiceAttributes.addElement(new DataElement(DataElement.STRING, "BlueCove-2007"));
+			
+			DataElement seq1 = new DataElement(DataElement.DATSEQ);
+			seq1.addElement(new DataElement(DataElement.STRING, "BlueCove-seq1"));
+			seq1.addElement(new DataElement(DataElement.U_INT_1, 0x12));
+			allTestServiceAttributes.addElement(seq1);
+				
+//			DataElement seq2 = new DataElement(DataElement.DATSEQ);
+//			DataElement seq21 = new DataElement(DataElement.DATSEQ);
+//			seq21.addElement(new DataElement(DataElement.STRING, "BlueCove-seq2.1"));
+//			seq21.addElement(new DataElement(DataElement.U_INT_1, 0x22));
+//			seq2.addElement(seq21);
+//			DataElement seq22 = new DataElement(DataElement.DATSEQ);
+//			seq22.addElement(new DataElement(DataElement.STRING, "BlueCove-seq2.2"));
+//			seq22.addElement(new DataElement(DataElement.U_INT_2, 0x2));
+//			seq22.addElement(new DataElement(DataElement.U_INT_2, 0x3));
+////			This do not work on WIDCOMM
+////			DataElement seq23 = new DataElement(DataElement.DATSEQ);
+////			seq23.addElement(new DataElement(DataElement.STRING, "BlueCove-seq2.3"));
+////			seq22.addElement(seq23);
+//			seq2.addElement(seq22);
+////			This do not work on WIDCOMM
+////			seq2.addElement(new DataElement(DataElement.U_INT_1, 0x44));
+//			allTestServiceAttributes.addElement(seq2);
 			
 			// This breaks Service Search on MS stack
 			//allTestServiceAttributes.addElement(new DataElement(true));

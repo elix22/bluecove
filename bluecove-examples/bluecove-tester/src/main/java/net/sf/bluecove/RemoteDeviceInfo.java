@@ -76,6 +76,7 @@ public class RemoteDeviceInfo {
 		if (devInfo == null) {
 			devInfo = new RemoteDeviceInfo();
 			devInfo.name = TestResponderClient.niceDeviceName(addr);
+			devInfo.remoteDevice = remoteDevice;
 			devices.put(addr, devInfo);
 		}
 		return devInfo;
