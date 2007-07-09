@@ -39,7 +39,7 @@
 
   All other not listed above :)
 
-== BlueCove Installation for IBM J9 on Windows Mobile ==
+== JSR-82 Installation for IBM J9 on Windows Mobile ==
 
 === J9 for MIDP 2.0 Profile ===
 
@@ -50,7 +50,7 @@
 === J9 for Personal Profile 1.0 ===
 
     * Add `bluecove.jar` to your classpath
-    * Add system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth` when running your application
+    * Add system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth` when running your application to enable JSR-82 connections.
 
 
 == Links to Java on PDA sites ==
