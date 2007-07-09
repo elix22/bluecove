@@ -2,12 +2,12 @@
 
 = Introduction =
 
-  Current !BlueCove Winsock code (Microsoft Bluetooth stack) compiled for Windows Mobile.
+  Current !BlueCove winsock (Microsoft Bluetooth stack) and WIDCOOM code are compiled for Windows Mobile.
 
   Version 2.0.0 has been tested with following JVMs:
-    * [http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html Mysaifu JVM ] - An open-source (GPL v.2 license) Java VM
+    * [http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html Mysaifu JVM ] v0.3.3 - An open-source (GPL v.2 license) Java VM on Windows Mobile 2003
     * [http://www.ibm.com/software/wireless/weme/ IBMs WebSphere Everyplace Micro Environment] v5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
-    * [http://www.ibm.com/software/wireless/weme/ IBMs WebSphere Everyplace Micro Environment] v6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+    * [http://www.ibm.com/software/wireless/weme/ IBMs WebSphere Everyplace Micro Environment] v6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86 and Windows Mobile 2003
     * [http://www.ibm.com/software/wireless/weme/ IBMs WebSphere Everyplace Micro Environment] v5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
 
 == Windows Mobile devices with Microsoft Bluetooth Stack ==
@@ -34,6 +34,10 @@
 
    * Dell Axim X51v
 
+
+== Windows Mobile devices with WIDCOOM Bluetooth Stack ==
+
+  All other not listed above :)
 
 == BlueCove Installation for IBM J9 on Windows Mobile ==
 
