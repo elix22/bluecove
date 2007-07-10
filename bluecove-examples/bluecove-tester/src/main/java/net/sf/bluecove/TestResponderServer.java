@@ -139,8 +139,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			cBuf[cBufIdx] = firstChar;
 			cBufIdx ++;
 			try {
-				c.os.write(firstChar);
 				c.os = c.conn.openOutputStream();
+				c.os.write(firstChar);
 				OutputStream os = c.os;
 				int i;
 				while ((i = is.read()) != -1) {
