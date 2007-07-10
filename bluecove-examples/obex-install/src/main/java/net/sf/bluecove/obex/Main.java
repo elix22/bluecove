@@ -301,6 +301,7 @@ public class Main extends JFrame implements ActionListener {
 					iconLabel.setIcon(searchIcon);
 					setStatus("Bluetooth discovery started");
 					btFindDevice.setEnabled(false);
+					btSend.setEnabled(false);
 					timer.start();
 					while (bluetoothInquirer.inquiring) {
 						try {
@@ -328,6 +329,7 @@ public class Main extends JFrame implements ActionListener {
 					Persistence.storeDevices(devices, getSelectedDeviceAddress());
 					updateDevices(null);
 					btFindDevice.setEnabled(true);
+					btSend.setEnabled(true);
 					iconLabel.setIcon(btIcon);
 				}
 			}
@@ -383,7 +385,11 @@ public class Main extends JFrame implements ActionListener {
 				if (!d.obexServiceFound) {
 					obexUrl = blueSoleilFindOBEX(d.btAddress, obexUrl);
 				}
-				o.obexPut(obexUrl);
+				if ( obexUrl != null) {
+					o.obexPut(obexUrl);
+				} else {
+					setStatus("Service not found");
+				}
 				btSend.setEnabled(true);
 				iconLabel.setIcon(btIcon);
 				Persistence.storeDevices(devices, getSelectedDeviceAddress());
