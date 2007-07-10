@@ -274,19 +274,26 @@ public class Main extends Frame implements LoggerAppender, Storage {
         output.setEditable(false);
         this.add(output);
         
-        Timer statusUpdate = new Timer();
-        statusUpdate.schedule(new TimerTask() {
-        	public void run() {
-        		if (isMainFrameActive()) {
-					serverStop.setEnabled(Switcher.isRunningServer());
-					serverStart.setEnabled(!Switcher.isRunningServer());
+        Thread statusUpdate = new Thread() {
+			public void run() {
+				while (true) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						break;
+					}
+					if (isMainFrameActive()) {
+						serverStop.setEnabled(Switcher.isRunningServer());
+						serverStart.setEnabled(!Switcher.isRunningServer());
 
-					clientStop.setEnabled(Switcher.isRunningClient());
-					clientStart.setEnabled(!Switcher.isRunningClient());
-					stop.setEnabled(Switcher.isRunningClient() || Switcher.isRunningServer());
-        		}
-        	}
-        }, 1000, 700);
+						clientStop.setEnabled(Switcher.isRunningClient());
+						clientStart.setEnabled(!Switcher.isRunningClient());
+						stop.setEnabled(Switcher.isRunningClient() || Switcher.isRunningServer());
+					}
+				}
+			}
+		};
+        statusUpdate.start();
 		
 		
         output.addKeyListener(new KeyListener() {
@@ -458,10 +465,10 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		Properties p = getProperties();
 		
 		Rectangle b = this.getBounds();
-		p.setProperty("main.x", String.valueOf(b.x));
-		p.setProperty("main.y", String.valueOf(b.y));
-		p.setProperty("main.height", String.valueOf(b.height));
-		p.setProperty("main.width", String.valueOf(b.width));
+		p.put("main.x", String.valueOf(b.x));
+		p.put("main.y", String.valueOf(b.y));
+		p.put("main.height", String.valueOf(b.height));
+		p.put("main.width", String.valueOf(b.width));
 		storeData(null, null);
 		
 		Logger.removeAppender(this);
@@ -513,7 +520,11 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			logLinesQueue.addElement(buf.toString());
 		}
 		if (createUpdater) {
-			EventQueue.invokeLater(new AwtLogUpdater());
+			try {
+				EventQueue.invokeLater(new AwtLogUpdater());
+			} catch (NoSuchMethodError java1) {
+				(new AwtLogUpdater()).run();
+			}
 		}
 	}
 	
@@ -590,7 +601,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 					return;
 				}
 			} else {
-				if (value.equals(p.setProperty(name, value))) {
+				if (value.equals(p.put(name, value))) {
 					// Not updated
 					return;
 				}
