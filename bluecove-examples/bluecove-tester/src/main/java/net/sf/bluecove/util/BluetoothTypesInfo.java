@@ -157,7 +157,7 @@ public abstract class BluetoothTypesInfo {
 			}
 			UUID uuid;
 			if (uuidValue.startsWith("0x")) {
-				uuidValue = uuidValue.substring(3);
+				uuidValue = uuidValue.substring(2);
 			}
 			if (uuidValue.length() <=8) {
 				uuid = new UUID(uuidValue, true);
