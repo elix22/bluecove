@@ -89,7 +89,7 @@ public class BluetoothInquirer implements DiscoveryListener {
     public boolean startServiceSearch(RemoteDevice device) {
 		serviceURL = null;
     	try {
-        	UUID[] searchUuidSet = new UUID[] { L2CAP, RFCOMM, OBEX, OBEX_OBJECT_PUSH };
+        	UUID[] searchUuidSet = new UUID[] { L2CAP, RFCOMM, OBEX_OBJECT_PUSH };
         	int[] attrIDs =  new int[] {
 			    	0x0100 // Service name
         	};

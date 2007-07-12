@@ -319,7 +319,7 @@ public class Main extends JFrame implements ActionListener {
 						RemoteDevice dev = (RemoteDevice) iter.next();
 						String obexUrl = bluetoothInquirer.findOBEX(dev.getBluetoothAddress());
 						if (obexUrl != null){
-							Logger.debug("found", dev.getBluetoothAddress());
+							Logger.debug("found obex url", obexUrl);
 							addDevice(dev.getBluetoothAddress(), BluetoothInquirer.getFriendlyName(dev), obexUrl);
 						}
 						idx ++;
