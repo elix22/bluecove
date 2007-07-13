@@ -10,9 +10,9 @@ echo BLUECOVE_HOME=[%BLUECOVE_HOME%]
 
 set BLUECOVE_JAR=%BLUECOVE_HOME%\bluecove\target\bluecove-%VERSION%.jar
 
-set TCK_JSR82_HOME=%BC_HOME%\3p\TCK
+set TCK_JSR82_HOME=%BLUECOVE_HOME%\3p\TCK
 
-set GATLING_HOME=%BC_HOME%\3p\TCK\gatling
+set GATLING_HOME=%BLUECOVE_HOME%\3p\TCK\gatling
 
 set GATLING_CORE_ROOT=%GATLING_HOME%\plugins\com.motorola.test.tckui_0.1.0\gatling_core
 
