@@ -10,9 +10,9 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set BLUECOVE_JAR=%BLUECOVE_HOME%\3p\avetanaBluetooth\avetanaBluetooth.jar
-java -cp %TCK_JSR82_HOME%\Bluetooth_1-1_005_TCK\BluetoothTCKAgent.zip;%BLUECOVE_JAR% BluetoothTCKAgent.BluetoothTCKAgentApp
-
+SET STACK=widcomm
+title %STACK%-BluetoothTCKAgent
+java -Dbluecove.stack=%STACK% -cp %TCK_JSR82_HOME%\Bluetooth_1-1_005_TCK\BluetoothTCKAgent.zip;%BLUECOVE_JAR% BluetoothTCKAgent.BluetoothTCKAgentApp
 
 if errorlevel 1 goto errormark
 echo [Launched OK]
