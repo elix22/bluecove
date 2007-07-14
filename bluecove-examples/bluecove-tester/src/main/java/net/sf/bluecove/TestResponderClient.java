@@ -151,7 +151,9 @@ public class TestResponderClient implements Runnable {
 		private boolean servicesFound = false;
 
 		private boolean anyServicesFound = false;
-
+		
+		private int anyServicesFoundCount;
+		
 		public BluetoothInquirer() {
 			inquiringDevice = false;
 			inquiring = false;
@@ -353,6 +355,7 @@ public class TestResponderClient implements Runnable {
 				}
 				servicesFound = false;
 				anyServicesFound = false;
+				anyServicesFoundCount = 0;
 				long start = System.currentTimeMillis();
 				RemoteDevice remoteDevice = (RemoteDevice) iter.nextElement();
 				String name = "";
@@ -408,7 +411,7 @@ public class TestResponderClient implements Runnable {
 				cancelServiceSearch();
 
 				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, TimeUtils.since(start));
-				String msg = (anyServicesFound) ? "; service(s) found" : "; no services";
+				String msg = (anyServicesFound) ? "; " + anyServicesFoundCount + " service(s) found" : "; no services";
 				Logger.debug(" Services Search " + transID + " took " + TimeUtils.secSince(start) + msg);
 			}
 	        String msg = "";
@@ -425,6 +428,7 @@ public class TestResponderClient implements Runnable {
         	}
 			for (int i = 0; i < servRecord.length; i++) {
 				anyServicesFound = true;
+				anyServicesFoundCount ++;
 				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 				Logger.info("*found server " + url);
 				if (discoveryOnce) {

@@ -22,7 +22,6 @@ package net.sf.bluecove;
 
 import java.util.Random;
 
-
 /**
  * @author vlads
  *
@@ -47,6 +46,10 @@ public class Switcher implements Runnable {
 
 	Random random = new Random();
 
+	private static Thread tckRFCOMMThread;
+	
+	private static Thread tckL2CALthread;
+	
 	public Switcher() {
 		instance = this;
 	}
@@ -169,6 +172,36 @@ public class Switcher implements Runnable {
 		instance = null;
 	}
 
+	public static Thread createThreadByName(String className) {
+		try {
+			Class c = Class.forName(className);
+			return (Thread)c.newInstance();
+		} catch (Throwable e) {
+			Logger.debug(className, e);
+			return null;
+		}
+	}
+	
+	public static void startTCKAgent() {
+		if (Configuration.likedTCKAgent) {
+			tckRFCOMMThread = createThreadByName("BluetoothTCKAgent.RFCOMMThread");
+			if (tckRFCOMMThread == null) {
+				Logger.info("Due to the License we do not include the TCK agent in distribution");	
+			} else {
+				tckRFCOMMThread.start();
+				
+				try {
+					tckL2CALthread = createThreadByName("BluetoothTCKAgent.L2CAPThread");
+					if (tckL2CALthread != null) {
+						tckL2CALthread.start();
+					}
+				} catch (Throwable e) {
+					Logger.debug("Fail to start L2CAP", e);
+				}
+			}
+		}
+	}
+	
 	public static TestResponderClient createClient() {
 		try {
 			if (client == null) {

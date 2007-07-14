@@ -124,6 +124,11 @@ public class Configuration {
 	public static CLDCStub cldcStub;
 
 	/**
+	 * We can't add Motorola TCKAgent to this midlet.
+	 */
+	public static final boolean likedTCKAgent = true;
+	
+	/**
 	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */
 	public static boolean canCloseServer = true;

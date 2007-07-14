@@ -44,8 +44,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.bluetooth.LocalDevice;
@@ -158,6 +156,14 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				Switcher.clientShutdown();
 			}
 		}, KeyEvent.VK_3);
+		
+		if (Configuration.likedTCKAgent) {
+			addMenu(menuBluetooth, "Start TCK Agent", new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Switcher.startTCKAgent();
+				}
+			});
+		}
 
 		addMenu(menuBluetooth, "Discovery", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

@@ -23,7 +23,6 @@ package net.sf.bluecove.util;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Vector;
 
 import javax.bluetooth.DataElement;
@@ -121,6 +120,10 @@ public abstract class BluetoothTypesInfo {
 			
 			addName(0xBC01, "BlueCoveT short");
 			addName("B10C0BE1111111111111111111110001", "BlueCoveT long");
+			
+			addName("3B9FA89520078C303355AAA694238F07", "JSR-82 TCK L2CAP AGENT");
+			addName("2000000031b811d88698000874b33fc0", "JSR-82 TCK RFCOMM AGENT");
+			addName("3000000031b811d88698000874b33fc0", "JSR-82 TCK BTGOEP AGENT");
 			
 		}
 

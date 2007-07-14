@@ -8,7 +8,11 @@
 
 BlueCove test application
 
-    This Project used to test BlueCove. It contains MIDlet responder application and J2SE application. We are testing BlueCove before release on WinXP connecting to Nokia, Motorola and Sony Ericsson phones.
+    This Project used to test BlueCove. We are using it in addition to {{{../../tck}JSR 82 TCK tests}} because it is simple.
+
+    WebStart AWT Test application can also be used as simple Bluetooth client to do Device and Service Discovery.
+
+    Tests contains MIDlet responder application and J2SE application. We are testing BlueCove before release on WinXP connecting to Nokia, Motorola and Sony Ericsson phones.
 
     Server and Client application can be started directly from this page using Java Web Start.
 

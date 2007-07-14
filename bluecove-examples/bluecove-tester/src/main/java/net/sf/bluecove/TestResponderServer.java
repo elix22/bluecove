@@ -20,13 +20,9 @@
  */ 
 package net.sf.bluecove;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
@@ -40,6 +36,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
+import junit.framework.Assert;
 import net.sf.bluecove.awt.JavaSECommon;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.CountStatistic;
@@ -47,8 +44,6 @@ import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.StringUtils;
 import net.sf.bluecove.util.TimeStatistic;
 import net.sf.bluecove.util.TimeUtils;
-
-import junit.framework.Assert;
 
 public class TestResponderServer implements CanShutdown, Runnable {
 	
