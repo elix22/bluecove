@@ -1,6 +1,11 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
+= 2.0.1 to be Released 2007-09-xx =
+
+    2007-07-15
+    * Use TCK JSR 82 for tests, fixed major incompatibility problems
+
 = 2.0.0 released 2007-07-05 =
 
     2007-06-29
