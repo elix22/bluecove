@@ -325,6 +325,18 @@ public class Switcher implements Runnable {
 			Logger.warn("no recent Connections");
 		}
 	}
+	
+	public static void startClientSelectService() {
+		if ((client != null) && client.isRunning) {
+			Logger.warn("Client is already Running");
+			return;
+		}
+		createClient();
+		if (client != null) {
+			client.connectURL = "";
+			client.configured();
+		}
+	}
 
 	public static void startClientLastDevice() {
 		if (Configuration.storage == null) {

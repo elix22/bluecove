@@ -186,6 +186,13 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		});
 		
+		addMenu(menuBluetooth, "Client selectService Start", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Switcher.startClientSelectService();
+				updateTitle();
+			}
+		});
+		
 		addMenu(menuBluetooth, "Client Last service Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startClientLastURl();

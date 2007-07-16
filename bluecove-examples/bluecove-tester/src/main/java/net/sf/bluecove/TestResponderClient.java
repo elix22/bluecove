@@ -305,7 +305,7 @@ public class TestResponderClient implements Runnable {
 					return;
 				}
 	    		String lastURL = Configuration.getLastServerURL();
-	    		if (lastURL != null) {
+	    		if (StringUtils.isStringSet(lastURL)) {
 	    			Logger.info("Will used device from recent Connections");
 	    			devices.addElement(new RemoteDeviceIheritance(extractBluetoothAddress(lastURL)));
 	    		} else {
@@ -854,14 +854,30 @@ public class TestResponderClient implements Runnable {
 
 			int startTry = 0;
 			if (connectURL != null) {
-				bluetoothInquirer.serverURLs.addElement(connectURL);
+				if (!connectURL.equals("")) {
+					bluetoothInquirer.serverURLs.addElement(connectURL);
+				}
 			} else if (connectDevice != null) {
 				Configuration.clientContinuousDiscoveryDevices = false;
 				bluetoothInquirer.devices.addElement(new RemoteDeviceIheritance(connectDevice));
 			}
 
 			while (!stoped) {
-				if ((!bluetoothInquirer.hasServers()) || (Configuration.clientContinuousDiscovery && (connectURL == null)) || (!Configuration.clientTestConnections) ) {
+				if (connectURL.equals("")) {
+					try {
+						DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+						UUID uuid = (searchOnlyBluecoveUuid)?Configuration.blueCoveUUID():Configuration.discoveryUUID;
+						String url = discoveryAgent.selectService(uuid, ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+						if (url != null) {
+							Logger.debug("selectService service found " + url);
+							bluetoothInquirer.serverURLs.addElement(url);
+						} else {
+							Logger.debug("selectService service not found");
+						}
+					} catch (BluetoothStateException e) {
+						Logger.error("Cannot selectService", e);
+					}
+				} else  if ((!bluetoothInquirer.hasServers()) || (Configuration.clientContinuousDiscovery && (connectURL == null)) || (!Configuration.clientTestConnections) ) {
 					if (!bluetoothInquirer.runDeviceInquiry()) {
 						startTry ++;
 						try {
