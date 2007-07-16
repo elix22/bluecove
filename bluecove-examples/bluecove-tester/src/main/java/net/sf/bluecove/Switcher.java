@@ -22,6 +22,12 @@ package net.sf.bluecove;
 
 import java.util.Random;
 
+import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.LocalDevice;
+
+import net.sf.bluecove.util.BluetoothTypesInfo;
+
 /**
  * @author vlads
  *
@@ -183,6 +189,16 @@ public class Switcher implements Runnable {
 	}
 	
 	public static void startTCKAgent() {
+		try {
+			LocalDevice localDevice = LocalDevice.getLocalDevice();
+			Logger.info("address:" + localDevice.getBluetoothAddress());
+			Logger.info("name:" + localDevice.getFriendlyName());
+			Logger.info("class:" + BluetoothTypesInfo.toString(localDevice.getDeviceClass()));
+			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+		} catch (BluetoothStateException e) {
+			Logger.error("start", e);
+		}
+		
 		if (Configuration.likedTCKAgent) {
 			tckRFCOMMThread = createThreadByName("BluetoothTCKAgent.RFCOMMThread");
 			if (tckRFCOMMThread == null) {
