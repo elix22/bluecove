@@ -371,7 +371,7 @@ public class CommunicationTester implements Consts {
 		boolean isAuthenticated = device.isAuthenticated();
 		boolean isEncrypted = device.isEncrypted();
 		
-		if (Configuration.authenticate) {
+		if (Configuration.authenticate.booleanValue()) {
 			if (!isAuthenticated) {
 				Logger.error("wrong isAuthenticated " + isAuthenticated);
 				testStatus.isError = true;	
@@ -384,7 +384,7 @@ public class CommunicationTester implements Consts {
 			testStatus.isError = true;
 		}
 		
-		if (Configuration.encrypt) {
+		if (Configuration.encrypt.booleanValue()) {
 			if (!isEncrypted) {
 				Logger.error("wrong isEncrypted " + isEncrypted);
 				testStatus.isError = true;	
@@ -418,12 +418,12 @@ public class CommunicationTester implements Consts {
 		dos.writeBoolean(isAuthenticated);
 		dos.writeBoolean(isEncrypted);
 		
-		if (Configuration.authenticate == device.isAuthenticated()) {
+		if (Configuration.authenticate.booleanValue() == device.isAuthenticated()) {
 			Logger.debug("isAuthenticated OK " + Configuration.authenticate); 
 		} else {
 			Logger.error("wrong isAuthenticated " + isAuthenticated);
 		}
-		if (Configuration.encrypt == isEncrypted) {
+		if (Configuration.encrypt.booleanValue() == isEncrypted) {
 			Logger.debug("isEncrypted OK " + Configuration.encrypt); 
 		} else {
 			Logger.error("wrong isEncrypted " + isEncrypted);

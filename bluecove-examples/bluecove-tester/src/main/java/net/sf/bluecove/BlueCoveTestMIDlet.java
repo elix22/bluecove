@@ -51,13 +51,17 @@ public class BlueCoveTestMIDlet extends MIDlet {
 		if (tester == null) {
 			tester = new BlueCoveTestCanvas();
 		}
-		setCurrentDisplayable(tester);
+		showMain();
 	}
 
 	protected void destroyApp(boolean unconditional) throws MIDletStateChangeException {
 	}
 
 	protected void pauseApp() {
+	}
+	
+	public static void showMain() {
+		setCurrentDisplayable(instance.tester);
 	}
 	
 	public static void setCurrentDisplayable(Displayable nextDisplayable) {

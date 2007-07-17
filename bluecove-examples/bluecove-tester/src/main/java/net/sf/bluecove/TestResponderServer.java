@@ -293,8 +293,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							+ Configuration.blueCoveUUID()
 							+ ";name="
 							+ Consts.RESPONDER_SERVERNAME
-							+ ";authenticate=" + (Configuration.authenticate?"true":"false")
-							+ ";encrypt=" + (Configuration.encrypt?"true":"false")
+							+ ";authenticate=" + (Configuration.authenticate.booleanValue()?"true":"false")
+							+ ";encrypt=" + (Configuration.encrypt.booleanValue()?"true":"false")
 							+ ";authorize=" + (Configuration.authorize?"true":"false"));
 
 			connectorOpenTime = System.currentTimeMillis();
@@ -477,7 +477,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
     private void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
         String id = "";
     	try {
-			if (Configuration.testAllServiceAttributes) {
+			if (Configuration.testAllServiceAttributes.booleanValue()) {
 				id = "all";
 				ServiceRecordTester.addAllTestServiceAttributes(record);
 				return;
@@ -491,7 +491,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			id = "long";
 			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID,
 			        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_LONG_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_LONG_VALUE));
-			if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
+			if (!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
 				id = "str";
 				record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_STR_ID, new DataElement(DataElement.STRING,
 						Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE));

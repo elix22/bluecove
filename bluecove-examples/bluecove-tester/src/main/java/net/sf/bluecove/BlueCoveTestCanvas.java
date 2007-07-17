@@ -53,6 +53,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 	static final Command startClientLastServiceCommand = new Command("Client Last service Start", Command.ITEM, 10);
 	static final Command startClientLastDeviceCommand = new Command("Client Last device Start", Command.ITEM, 11);
 	static final Command startTCKAgentCommand = new Command("TCK Agent", Command.ITEM, 12);
+	static final Command configurationCommand = new Command("Options...", Command.ITEM, 13);
 	
 	private boolean showLogDebug = true;
 	
@@ -102,6 +103,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		if (Configuration.likedTCKAgent) {
 			addCommand(startTCKAgentCommand);
 		}
+		addCommand(configurationCommand);
 		
 		setCommandListener(this);
 		Logger.addAppender(this);
@@ -463,8 +465,18 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			startSwitcher();
 		} else if (c == stopSwitcherCommand) {
 			stopSwitcher();
+		} else if (c == configurationCommand) {
+			try {
+				BlueCoveTestMIDlet.setCurrentDisplayable(new BlueCoveTestConfigurationForm());
+			} catch (Throwable e) {
+				Logger.error("Internal error", e);
+			}
 		} else if ((Configuration.likedTCKAgent) && (c == startTCKAgentCommand)) {
 			Switcher.startTCKAgent();
+		} else {
+			if (c != null) {
+				Logger.info("Command " + c.getLabel() + " not found");
+			}
 		}
 	}
 

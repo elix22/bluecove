@@ -164,14 +164,14 @@ public class TestResponderClient implements Runnable {
 			}
 			if (!Configuration.testServiceAttributes) {
 				attrIDs = null;
-			} else if (Configuration.testAllServiceAttributes) {
+			} else if (Configuration.testAllServiceAttributes.booleanValue()) {
 				int allSize = ServiceRecordTester.allTestServiceAttributesSize();
 				attrIDs = new int[allSize + 1];
 				attrIDs[0] = Consts.TEST_SERVICE_ATTRIBUTE_INT_ID;
 				for(int i = 0; i < allSize; i++) {
 					attrIDs[1 + i] = Consts.SERVICE_ATTRIBUTE_ALL_START + i;
 				}
-			} else if (Configuration.testIgnoreNotWorkingServiceAttributes) {
+			} else if (Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
 				attrIDs = new int[] {
 				    	Consts.TEST_SERVICE_ATTRIBUTE_INT_ID,
 				    	Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
@@ -322,9 +322,9 @@ public class TestResponderClient implements Runnable {
         		Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + BluetoothTypesInfo.toString(cod));
         		return;
         	}
-        	if ((!Configuration.deviceClassFilter)
-				 || ((Configuration.discoverDevicesComputers && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER))
-					|| ((Configuration.discoverDevicesPhones && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE))))) {
+        	if ((!Configuration.deviceClassFilter.booleanValue())
+				 || ((Configuration.discoverDevicesComputers.booleanValue() && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER))
+					|| ((Configuration.discoverDevicesPhones.booleanValue() && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE))))) {
 				devices.addElement(remoteDevice);
 			} else {
 				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " " + BluetoothTypesInfo.toString(cod));
@@ -607,7 +607,7 @@ public class TestResponderClient implements Runnable {
 		if (connectedConnectionsExpect > 1) {
 			logPrefix = "[" + StringUtils.padRight(deviceName, connectionLogPrefixLength, ' ') + "] ";
 		}
-		for(int testType = Configuration.TEST_CASE_FIRST; (!stoped) && (runStressTest || testType <= Configuration.TEST_CASE_LAST); testType ++) {
+		for(int testType = Configuration.TEST_CASE_FIRST.getValue(); (!stoped) && (runStressTest || testType <= Configuration.TEST_CASE_LAST.getValue()); testType ++) {
 			StreamConnectionHolder c = new StreamConnectionHolder();
 			TestStatus testStatus = new TestStatus();
 			testStatus.pairBTAddress = deviceAddress;
@@ -617,7 +617,7 @@ public class TestResponderClient implements Runnable {
 				if (!runStressTest) {
 					Logger.debug(logPrefix + "test #" + testType + " connects");
 				} else {
-					testType = Configuration.STERSS_TEST_CASE;
+					testType = Configuration.STERSS_TEST_CASE.getValue();
 				}
 				int connectionOpenTry = 0;
 				while ((c.conn == null) && (!stoped)) {
@@ -744,7 +744,7 @@ public class TestResponderClient implements Runnable {
 				}
 			}
 		}
-		if (!Configuration.clientContinuous) {
+		if (!Configuration.clientContinuous.booleanValue()) {
 			sendStopServerCmd(serverURL);
 		}
 	}
@@ -925,7 +925,7 @@ public class TestResponderClient implements Runnable {
 					}
 				}
 				Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
-				if ((countSuccess + failure.countFailure > 0) && (!Configuration.clientContinuous)) {
+				if ((countSuccess + failure.countFailure > 0) && (!Configuration.clientContinuous.booleanValue())) {
 					break;
 				}
 				if (stoped || discoveryOnce || connectOnce) {

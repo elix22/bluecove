@@ -168,7 +168,7 @@ public class ServiceRecordTester {
 				canTestLong = false;
 			}
 		}
-		if (canTestLong && Configuration.testAllServiceAttributes) {
+		if (canTestLong && Configuration.testAllServiceAttributes.booleanValue()) {
 			isBlueCoveTestService = hasServiceClassUUID(servRecord, Configuration.blueCoveUUID());
 			if (isBlueCoveTestService) {
 				compareAllServiceAttributes(servRecord, servicesOnDeviceName);
@@ -177,7 +177,7 @@ public class ServiceRecordTester {
 			}
 			return isBlueCoveTestService;
 		}
-		if (!canTestLong && Configuration.testAllServiceAttributes) {
+		if (!canTestLong && Configuration.testAllServiceAttributes.booleanValue()) {
 			Logger.info("can't test all service Attributes");
 		}		
 		
@@ -211,7 +211,7 @@ public class ServiceRecordTester {
 							break;
 						case 0x0100:
 							foundName = true;
-							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
+							if (!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
 								Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
 								isBlueCoveTestService = true;
 							}
@@ -226,7 +226,7 @@ public class ServiceRecordTester {
 						case Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID:
 							foundLong = true;
 							Assert.assertEquals("long type", Consts.TEST_SERVICE_ATTRIBUTE_LONG_TYPE, attrDataElement.getDataType());
-							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
+							if (!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
 								Assert.assertEquals("long", Consts.TEST_SERVICE_ATTRIBUTE_LONG_VALUE, attrDataElement.getLong());
 								isBlueCoveTestService = true;
 							}
@@ -234,7 +234,7 @@ public class ServiceRecordTester {
 						case Consts.TEST_SERVICE_ATTRIBUTE_STR_ID:
 							foundStr = true;
 							Assert.assertEquals("str type", DataElement.STRING, attrDataElement.getDataType());
-							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
+							if (!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
 								Assert.assertEquals("str", Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE, attrDataElement.getValue());
 								isBlueCoveTestService = true;
 							}
@@ -265,7 +265,7 @@ public class ServiceRecordTester {
 							}
 							Assert.assertEquals("byteAray.len of " + byteArrayTypeName, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE.length, byteAray.length);
 							for(int k = 0; k < byteAray.length; k++) {
-								if (Configuration.testIgnoreNotWorkingServiceAttributes && Configuration.stackWIDCOMM && k >= 4) {
+								if (Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue() && Configuration.stackWIDCOMM && k >= 4) {
 									// INT_16 are truncated in discovery
 									break;
 								}
@@ -295,7 +295,7 @@ public class ServiceRecordTester {
 							}
 							break;
 						default:
-							if (!Configuration.testIgnoreNotWorkingServiceAttributes) {
+							if (!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
 								Logger.debug("attribute " + id + " " + BluetoothTypesInfo.toStringDataElementType(attrDataElement.getDataType()));
 							}
 						}
@@ -306,7 +306,7 @@ public class ServiceRecordTester {
 						hadError = true;
 					}
 				}
-				if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundName)) {
+				if ((!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) && (!foundName)) {
 					Logger.warn("srv name attr. not found");
 					TestResponderClient.failure.addFailure("srv name attr. not found on " + servicesOnDeviceName);
 				}
@@ -314,11 +314,11 @@ public class ServiceRecordTester {
 					Logger.warn("srv INT attr. not found");
 					TestResponderClient.failure.addFailure("srv INT attr. not found on " + servicesOnDeviceName);
 				}
-				if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundLong)) {
+				if ((!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) && (!foundLong)) {
 					Logger.warn("srv long attr. not found");
 					TestResponderClient.failure.addFailure("srv long attr. not found on " + servicesOnDeviceName);
 				}
-				if ((!Configuration.testIgnoreNotWorkingServiceAttributes) && (!foundStr)) {
+				if ((!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) && (!foundStr)) {
 					Logger.warn("srv STR attr. not found");
 					TestResponderClient.failure.addFailure("srv STR attr. not found on " + servicesOnDeviceName);
 				}
@@ -337,7 +337,7 @@ public class ServiceRecordTester {
 				if (foundName && foundUrl && foundInt && foundStr && foundLong && foundBytes && !hadError) {
 					Logger.info("all service Attr OK");
 					TestResponderClient.countSuccess++;
-				} else if ((Configuration.testIgnoreNotWorkingServiceAttributes) && foundUrl && foundInt && foundBytes && !hadError) {
+				} else if ((Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) && foundUrl && foundInt && foundBytes && !hadError) {
 					Logger.info("service Attr found");
 					TestResponderClient.countSuccess++;
 				}

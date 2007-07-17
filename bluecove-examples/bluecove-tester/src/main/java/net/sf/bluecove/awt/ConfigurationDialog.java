@@ -40,6 +40,9 @@ import javax.bluetooth.UUID;
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.BooleanVar;
+import net.sf.bluecove.util.IntVar;
+import net.sf.bluecove.util.StringVar;
 
 /**
  * @author vlads
@@ -131,15 +134,21 @@ public class ConfigurationDialog extends OkCancelDialog {
 				if (type.equals(boolean.class)) {
 					Checkbox c = (Checkbox) cc.guiComponent;
 					c.setState(cc.configField.getBoolean(Configuration.class));
+				} else if (type.equals(BooleanVar.class)) {
+					Checkbox c = (Checkbox) cc.guiComponent;
+					c.setState(((BooleanVar)cc.configField.get(Configuration.class)).booleanValue());
 				} else if (type.equals(UUID.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					tf.setText(cc.configField.get(Configuration.class).toString());
-				} else if (type.equals(String.class)) {
+				} else if ((type.equals(String.class)) || (type.equals(StringVar.class))) {
 					TextField tf = (TextField) cc.guiComponent;
 					tf.setText(cc.configField.get(Configuration.class).toString());
 				} else if (type.equals(int.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					tf.setText(String.valueOf(cc.configField.getInt(Configuration.class)));
+				} else if (type.equals(IntVar.class)) {
+					TextField tf = (TextField) cc.guiComponent;
+					tf.setText(cc.configField.get(Configuration.class).toString());
 				}
 			} catch (Throwable e) {
 				Logger.error("internal error for " + cc.name, e);
@@ -155,12 +164,21 @@ public class ConfigurationDialog extends OkCancelDialog {
 				if (type.equals(boolean.class)) {
 					Checkbox c = (Checkbox) cc.guiComponent;
 					cc.configField.setBoolean(Configuration.class, c.getState());
+				} else if (type.equals(BooleanVar.class)) {
+					Checkbox c = (Checkbox) cc.guiComponent;
+					((BooleanVar)cc.configField.get(Configuration.class)).setValue(c.getState());
 				} else if (type.equals(String.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					cc.configField.set(Configuration.class, tf.getText().trim());
+				} else if (type.equals(StringVar.class)) {
+					TextField tf = (TextField) cc.guiComponent;
+					((StringVar)cc.configField.get(Configuration.class)).setValue(tf.getText().trim());
 				} else if (type.equals(int.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					cc.configField.setInt(Configuration.class, Integer.valueOf(tf.getText().trim()).intValue());
+				} else if (type.equals(IntVar.class)) {
+					TextField tf = (TextField) cc.guiComponent;
+					((IntVar)cc.configField.get(Configuration.class)).setValue(tf.getText());
 				} else if (type.equals(UUID.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					cc.configField.set(Configuration.class, BluetoothTypesInfo.UUIDConsts.getUUID(tf.getText().trim())); 
@@ -185,10 +203,10 @@ public class ConfigurationDialog extends OkCancelDialog {
 		
 		Class type = cc.configField.getType();
 		
-		if (type.equals(boolean.class)) {
+		if ((type.equals(boolean.class)) || (type.equals(BooleanVar.class))) {
 			Checkbox c = new Checkbox();
 			cc.guiComponent = c;
-		} else if ((type.equals(String.class)) || (type.equals(UUID.class)) || (type.equals(int.class))) {
+		} else if ((type.equals(String.class)) || (type.equals(StringVar.class)) || (type.equals(UUID.class)) || (type.equals(int.class))|| (type.equals(IntVar.class))) {
 			TextField tf = new TextField(); 
 			cc.guiComponent = tf; 
 		} else {

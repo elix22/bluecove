@@ -76,6 +76,9 @@ public class Logger {
 	public static void error(String message, Throwable t) {
 		try {
 			System.out.println("error " + message + " " + t);
+			if (t != null) {
+				t.printStackTrace();
+			}
 		} catch (Throwable ignore) {}
 		callAppenders(ERROR, message, t);
 	}

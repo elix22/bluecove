@@ -25,7 +25,9 @@ import java.util.Hashtable;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
+import net.sf.bluecove.util.BooleanVar;
 import net.sf.bluecove.util.CLDCStub;
+import net.sf.bluecove.util.IntVar;
 import net.sf.bluecove.util.Storage;
 
 /**
@@ -41,11 +43,11 @@ public class Configuration {
 
 	public static boolean useShortUUID = false;
 
-	public static boolean deviceClassFilter = true;
+	public static BooleanVar deviceClassFilter = new BooleanVar(true);
 
-	public static boolean discoverDevicesComputers = true;
+	public static BooleanVar discoverDevicesComputers = new BooleanVar(true);
 
-	public static boolean discoverDevicesPhones = true;
+	public static BooleanVar discoverDevicesPhones = new BooleanVar(true);
 
 	public static boolean searchOnlyBluecoveUuid = true;
 
@@ -71,7 +73,7 @@ public class Configuration {
 
 	public static boolean serverContinuous = true;
 
-	public static boolean clientContinuous = true;
+	public static BooleanVar clientContinuous = new BooleanVar(true);
 
 	public static boolean clientContinuousDiscovery = true;
 
@@ -84,21 +86,21 @@ public class Configuration {
 	// This test concurrrent connections if you have Multiple servers running.
 	public static boolean clientTestConnectionsMultipleThreads = true;
 
-	public static boolean authenticate = false;	
+	public static BooleanVar authenticate = new BooleanVar(false);	
 	
-	public static boolean encrypt = false;
+	public static BooleanVar encrypt = new BooleanVar(false);
 	
 	public static boolean authorize = false;
 	
-	public static int TEST_CASE_FIRST = 1;
+	public static IntVar TEST_CASE_FIRST = new IntVar(1);
 
-	public static int TEST_CASE_LAST = Consts.TEST_LAST_WORKING;
+	public static IntVar TEST_CASE_LAST = new IntVar(Consts.TEST_LAST_WORKING);
 
-	public static int STERSS_TEST_CASE = Consts.TEST_BYTE;
+	public static IntVar STERSS_TEST_CASE = new IntVar(Consts.TEST_BYTE);
 
 	public static boolean testServiceAttributes = true;
 
-	public static boolean testAllServiceAttributes = false;
+	public static BooleanVar testAllServiceAttributes = new BooleanVar(false);
 
 	/**
 	 * Apperantly Motorola Service Attribute STRING is not working.
@@ -106,7 +108,7 @@ public class Configuration {
 	 * INT_16 are truncated in discovery by WIDCOMM
 	 * Service attributes are not supported on BlueSoleil
 	 */
-	public static boolean testIgnoreNotWorkingServiceAttributes = true;
+	public static BooleanVar testIgnoreNotWorkingServiceAttributes = new BooleanVar(true);
 
 	public static boolean testServerForceDiscoverable = true;
 
@@ -203,7 +205,7 @@ public class Configuration {
 			testDeviceNames.put("0010C65C08A3", "AximX30");
 			testDeviceNames.put("00022B001234", "MPx220");
 
-			if (deviceClassFilter) {
+			if (deviceClassFilter.booleanValue()) {
 				testDeviceNames.put("000B0D1796FC", "GPS");
 				testDeviceNames.put("000D3AA4F7F9", "My Keyboard");
 				testDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
@@ -237,13 +239,13 @@ public class Configuration {
 
 	public static int getRequiredSecurity() {
 		int requiredSecurity = ServiceRecord.NOAUTHENTICATE_NOENCRYPT;
-		if (Configuration.authenticate) {
-			if (Configuration.encrypt) {
+		if (Configuration.authenticate.booleanValue()) {
+			if (Configuration.encrypt.booleanValue()) {
 				requiredSecurity = ServiceRecord.AUTHENTICATE_ENCRYPT;
 			} else {
 				requiredSecurity = ServiceRecord.AUTHENTICATE_NOENCRYPT;
 			}
-		} else if (Configuration.encrypt) {
+		} else if (Configuration.encrypt.booleanValue()) {
 			throw new IllegalArgumentException("Illegal encrypt configuration");
 		}
 		return requiredSecurity;
