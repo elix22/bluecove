@@ -338,6 +338,9 @@ public class TestResponderClient implements Runnable {
 			} catch (IOException e) {
 				Logger.debug("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 			}
+			if (remoteDevice.isTrustedDevice()) {
+				name += " Trusted";
+			}
         	RemoteDeviceInfo.deviceFound(remoteDevice);
 			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + name + " " + BluetoothTypesInfo.toString(cod));
         }
