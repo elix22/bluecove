@@ -429,7 +429,7 @@ public class TestResponderClient implements Runnable {
 			for (int i = 0; i < servRecord.length; i++) {
 				anyServicesFound = true;
 				anyServicesFoundCount ++;
-				String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+				String url = servRecord[i].getConnectionURL(Configuration.getRequiredSecurity(), false);
 				Logger.info("*found server " + url);
 				if (discoveryOnce) {
 					Logger.debug("ServiceRecord "  + (i+1) + "/" + servRecord.length + "\n" + BluetoothTypesInfo.toString(servRecord[i]));
@@ -628,11 +628,16 @@ public class TestResponderClient implements Runnable {
 						Logger.debug(logPrefix + "Connector error", e);
 						Thread.sleep(Configuration.clientSleepOnConnectionRetry);
 						Logger.debug(logPrefix + "connect retry:" + connectionOpenTry);
+						String cCount = LocalDevice.getProperty("bluecove.connections");
+						if ((cCount != null) && (!"0".equals(cCount))) {
+							Logger.debug(logPrefix + "has connections:" + cCount);	
+						}
 					}
 				}
 				if (stoped) {
 					return;
 				}
+			
 				c.os = c.conn.openOutputStream();
 				connectionStartTime = System.currentTimeMillis();
 				connectionRetyStatistic.add(connectionOpenTry);
@@ -670,6 +675,8 @@ public class TestResponderClient implements Runnable {
 
 				if (monitor.isShutdownCalled()) {
 					failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName() + " termintade by  by TimeOut");
+				} else if (testStatus.isError) {
+					failure.addFailure(deviceName + " test #" + testType  + " " + testStatus.getName());
 				} else if (testStatus.isSuccess) {
 					countSuccess++;
 					Logger.debug(logPrefix + "test #" + testType + " " + testStatus.getName() + ": OK");
@@ -863,11 +870,12 @@ public class TestResponderClient implements Runnable {
 			}
 
 			while (!stoped) {
-				if (connectURL.equals("")) {
+				if ((connectURL != null) && (connectURL.equals(""))) {
 					try {
+						bluetoothInquirer.serverURLs.removeAllElements();
 						DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 						UUID uuid = (searchOnlyBluecoveUuid)?Configuration.blueCoveUUID():Configuration.discoveryUUID;
-						String url = discoveryAgent.selectService(uuid, ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+						String url = discoveryAgent.selectService(uuid, Configuration.getRequiredSecurity(), false);
 						if (url != null) {
 							Logger.debug("selectService service found " + url);
 							bluetoothInquirer.serverURLs.addElement(url);

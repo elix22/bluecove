@@ -22,6 +22,7 @@ package net.sf.bluecove;
 
 import java.util.Hashtable;
 
+import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
 import net.sf.bluecove.util.CLDCStub;
@@ -83,6 +84,12 @@ public class Configuration {
 	// This test concurrrent connections if you have Multiple servers running.
 	public static boolean clientTestConnectionsMultipleThreads = true;
 
+	public static boolean authenticate = false;	
+	
+	public static boolean encrypt = false;
+	
+	public static boolean authorize = false;
+	
 	public static int TEST_CASE_FIRST = 1;
 
 	public static int TEST_CASE_LAST = Consts.TEST_LAST_WORKING;
@@ -228,6 +235,20 @@ public class Configuration {
 		}
 	}
 
+	public static int getRequiredSecurity() {
+		int requiredSecurity = ServiceRecord.NOAUTHENTICATE_NOENCRYPT;
+		if (Configuration.authenticate) {
+			if (Configuration.encrypt) {
+				requiredSecurity = ServiceRecord.AUTHENTICATE_ENCRYPT;
+			} else {
+				requiredSecurity = ServiceRecord.AUTHENTICATE_NOENCRYPT;
+			}
+		} else if (Configuration.encrypt) {
+			throw new IllegalArgumentException("Illegal encrypt configuration");
+		}
+		return requiredSecurity;
+	}
+	
 	public static String getLastServerURL() {
 		if (lastServerURL == null) {
 			lastServerURL = Configuration.storage.retriveData(Storage.configLastServiceURL);

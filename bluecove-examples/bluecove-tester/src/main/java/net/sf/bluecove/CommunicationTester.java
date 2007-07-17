@@ -364,6 +364,42 @@ public class CommunicationTester implements Consts {
 		DataInputStream dis = new DataInputStream(is);
 		String gotBluetoothAddress = dis.readUTF();
 		Assert.assertEquals("PairBTAddress", gotBluetoothAddress.toUpperCase(), device.getBluetoothAddress().toUpperCase());
+		
+		boolean remoreIsAuthenticated = dis.readBoolean();
+		boolean remoreIsEncrypted = dis.readBoolean();
+		
+		boolean isAuthenticated = device.isAuthenticated();
+		boolean isEncrypted = device.isEncrypted();
+		
+		if (Configuration.authenticate) {
+			if (!isAuthenticated) {
+				Logger.error("wrong isAuthenticated " + isAuthenticated);
+				testStatus.isError = true;	
+			} else {
+				Logger.debug("isAuthenticated OK " + isAuthenticated);
+			}
+		} 
+		if (remoreIsAuthenticated != isAuthenticated) {
+			Logger.error("this Authenticated " + isAuthenticated + " != remote " + remoreIsAuthenticated);
+			testStatus.isError = true;
+		}
+		
+		if (Configuration.encrypt) {
+			if (!isEncrypted) {
+				Logger.error("wrong isEncrypted " + isEncrypted);
+				testStatus.isError = true;	
+			} else {
+				Logger.debug("isEncrypted OK " + isEncrypted);
+			}
+		} else if (isEncrypted && (remoreIsEncrypted == isEncrypted)) {
+			Logger.debug("isEncrypted OK " + isEncrypted);
+		} else {
+			Logger.debug("isEncrypted " + isEncrypted);
+		}
+		if (remoreIsEncrypted != isEncrypted) {
+			Logger.error("this Encrypted " + isEncrypted + " != remote " + remoreIsEncrypted);
+			testStatus.isError = true;
+		}
 	}
 	
 	private static void clientRemoteDevice(StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
@@ -375,6 +411,23 @@ public class CommunicationTester implements Consts {
 			dos.flush();
 		}
 		Assert.assertEquals("PairBTAddress", testStatus.pairBTAddress.toUpperCase(), device.getBluetoothAddress().toUpperCase());
+		
+		boolean isAuthenticated = device.isAuthenticated();
+		boolean isEncrypted = device.isEncrypted();
+		
+		dos.writeBoolean(isAuthenticated);
+		dos.writeBoolean(isEncrypted);
+		
+		if (Configuration.authenticate == device.isAuthenticated()) {
+			Logger.debug("isAuthenticated OK " + Configuration.authenticate); 
+		} else {
+			Logger.error("wrong isAuthenticated " + isAuthenticated);
+		}
+		if (Configuration.encrypt == isEncrypted) {
+			Logger.debug("isEncrypted OK " + Configuration.encrypt); 
+		} else {
+			Logger.error("wrong isEncrypted " + isEncrypted);
+		}
 	}
 	
 	static void sendByte4clientToClose(OutputStream os, InputStream is, TestStatus testStatus) throws IOException {

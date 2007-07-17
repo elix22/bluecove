@@ -93,6 +93,10 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("clientContinuousServicesSearch");
 		addConfig("clientTestConnections");
 
+		addConfig("authenticate");
+		addConfig("encrypt");
+		addConfig("authorize");
+		
 		addConfig("TEST_CASE_FIRST");
 		addConfig("TEST_CASE_LAST");
 		addConfig("STERSS_TEST_CASE");

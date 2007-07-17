@@ -293,8 +293,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							+ Configuration.blueCoveUUID()
 							+ ";name="
 							+ Consts.RESPONDER_SERVERNAME
-							//;authenticate=false;encrypt=false
-							+ ";authorize=false");
+							+ ";authenticate=" + (Configuration.authenticate?"true":"false")
+							+ ";encrypt=" + (Configuration.encrypt?"true":"false")
+							+ ";authorize=" + (Configuration.authorize?"true":"false"));
 
 			connectorOpenTime = System.currentTimeMillis();
 			Logger.info("ResponderServer started " + TimeUtils.timeNowToString());
