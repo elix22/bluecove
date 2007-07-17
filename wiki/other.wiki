@@ -7,6 +7,7 @@
 || [http://sourceforge.net/projects/bluecove/ BlueCove] || LGPL ||
 || [http://www.avetana-gmbh.de/avetana-gmbh/produkte/jsr82.eng.xml avetana JSR-82 implementation] || Commercial ||
 || [http://sourceforge.net/projects/avetanabt/ AvetanaBluetooth] || Open Source ||
+|| [http://www.rococosoft.com/blue_dk.html Impronto Developer Kit] || Commercial; Free for Non Commercial Use ||
 || [http://www.javabluetooth.org/ javabluetooth.org] || GPL ||
 || [http://www.avelink.com/products/java_solutions/jsr-82.asp  aveLink ] || Commercial ||
 || [http://www.javabluetoothstack.com/ ElectricBlue] || Commercial ||
