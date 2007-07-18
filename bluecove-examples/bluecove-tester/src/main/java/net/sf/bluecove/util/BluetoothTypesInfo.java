@@ -35,6 +35,35 @@ public abstract class BluetoothTypesInfo {
 
 	public static final String NULL = "{null}";
 	
+	public static final String PROTOCOL_SCHEME_L2CAP = "btl2cap";
+	
+	public static final String PROTOCOL_SCHEME_RFCOMM = "btspp";
+	
+	public static final String PROTOCOL_SCHEME_BT_OBEX = "btgoep";
+	
+	public static final String PROTOCOL_SCHEME_TCP_OBEX = "tcpobex";
+	
+	public static String extractBluetoothAddress(String serverURL) {
+		int start = serverURL.indexOf("//");
+		if (start == -1) {
+			return null;
+		}
+		start += 2;
+		int end = serverURL.indexOf(":", start);
+		if (end == -1) {
+			return null;
+		}
+		return serverURL.substring(start, end);
+	}
+	
+	public static boolean isRFCOMM(String serverURL) {
+		return ((serverURL != null) && (serverURL.startsWith(PROTOCOL_SCHEME_RFCOMM)));
+	}
+	
+	public static boolean isL2CAP(String serverURL) {
+		return ((serverURL != null) && (serverURL.startsWith(PROTOCOL_SCHEME_L2CAP)));
+	}
+	
 	public static class UUIDConsts {
 
 		private static String SHORT_BASE = "00001000800000805F9B34FB";

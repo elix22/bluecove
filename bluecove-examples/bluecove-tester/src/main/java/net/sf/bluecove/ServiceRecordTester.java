@@ -53,6 +53,15 @@ public class ServiceRecordTester {
 		DataElement attrDataElement = servRecord.getAttributeValue(ServiceClassIDList);
 		if ((attrDataElement == null) || (attrDataElement.getDataType() != DataElement.DATSEQ) || attrDataElement.getSize() == 0) {
 			Logger.warn("Bogus ServiceClassIDList");
+			if (Configuration.isBlueCove) {
+				return false;
+			}
+			
+			// Avetana version 3.17
+			if ((attrDataElement != null) && (attrDataElement.getDataType() == DataElement.UUID)) {
+				return uuid.equals(attrDataElement.getValue());
+			}
+			
 			return false;
 		}
 		//Logger.debug("test ServiceClassIDList:" + BluetoothTypesInfo.toString(attrDataElement));

@@ -36,12 +36,10 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
-import junit.framework.Assert;
 import net.sf.bluecove.awt.JavaSECommon;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.CountStatistic;
 import net.sf.bluecove.util.IOUtils;
-import net.sf.bluecove.util.StringUtils;
 import net.sf.bluecove.util.TimeStatistic;
 import net.sf.bluecove.util.TimeUtils;
 
@@ -77,6 +75,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	private TestTimeOutMonitor monitorServer;
 	
+	private Thread responderL2CAPServerThread = null;
+	
 	private Vector concurrentConnectionThreads = new Vector();
 	
 	public static CountStatistic concurrentStatistic = new CountStatistic();
@@ -89,7 +89,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		
 		int concurrentCount = 0;
 		
-		StreamConnectionHolder c = new StreamConnectionHolder();
+		ConnectionHolderStream c = new ConnectionHolderStream();
 		
 		boolean isRunning = true;
 		
@@ -257,20 +257,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 	
 	public TestResponderServer() throws BluetoothStateException {
-		
-		LocalDevice localDevice = LocalDevice.getLocalDevice();
-		Logger.info("address:" + localDevice.getBluetoothAddress());
-		Logger.info("name:" + localDevice.getFriendlyName());
-		Logger.info("class:" + BluetoothTypesInfo.toString(localDevice.getDeviceClass()));
-		
-		Assert.assertNotNull("BT Address", localDevice.getBluetoothAddress());
-		if (!Configuration.windowsCE) {
-			Assert.assertNotNull("BT Name", localDevice.getFriendlyName());
-		}
-		if (StringUtils.isStringSet(LocalDevice.getProperty("bluecove"))) {
-			Configuration.isBlueCove = true;
-		}
-		Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice.getProperty("bluecove.stack"));
+		TestResponderCommon.startLocalDevice();
 	}
 	
 	public void run() {
@@ -321,13 +308,20 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					}
 				}
 			}
+			
+			if (Configuration.supportL2CAP) {
+				responderL2CAPServerThread = TestResponderServerL2CAP.startServer();
+			} else {
+				Logger.info("No L2CAP support");
+			}
+			
 			boolean showServiceRecordOnce = true;
 			while (!stoped) {
 				if ((countConnection % 5 == 0) && (Configuration.testServiceAttributes)) {
 					// Problems on SE
 					//updateServiceRecord();
 				}
-				Logger.info("Accepting connection");
+				Logger.info("Accepting RFCOMM connections");
 				StreamConnection conn = serverConnection.acceptAndOpen();
 				if (!stoped) {
 					Logger.info("Received connection");
@@ -362,10 +356,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			closeServer();
 		} catch (Throwable e) {
 			if (!stoped) {
-				Logger.error("Server start error", e);
+				Logger.error("RFCOMM Server start error", e);
 			}
 		} finally {
-			Logger.info("Server finished! " + TimeUtils.timeNowToString());
+			Logger.info("RFCOMM Server finished! " + TimeUtils.timeNowToString());
 			isRunning = false;
 		}
 		if (monitorServer != null) {
@@ -409,6 +403,11 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 			}
 			serverConnection = null;
+		}
+		Thread t = responderL2CAPServerThread;
+		responderL2CAPServerThread = null;
+		if (t != null) {
+			t.interrupt();
 		}
 		setNotDiscoverable();
 	}
@@ -463,7 +462,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
 	}
 	
-	private void updateVariableServiceRecord(ServiceRecord record) {
+	static void updateVariableServiceRecord(ServiceRecord record) {
 //		long data;
 //		
 //		Calendar calendar = Calendar.getInstance();
@@ -474,7 +473,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 //		        new DataElement(DataElement.U_INT_4, data));
 	}
 	
-    private void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
+    static void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
         String id = "";
     	try {
 			if (Configuration.testAllServiceAttributes.booleanValue()) {
@@ -519,7 +518,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
     }
     
-    public void setAttributeValue(ServiceRecord record, int attrID, DataElement attrValue) {
+    static void setAttributeValue(ServiceRecord record, int attrID, DataElement attrValue) {
         try {
             if (!record.setAttributeValue(attrID, attrValue)) {
                 Logger.error("SrvReg attrID=" + attrID);
@@ -529,7 +528,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
         }
     }
     
-    public void buildServiceRecordPub(ServiceRecord record) throws ServiceRegistrationException {
+    static void buildServiceRecordPub(ServiceRecord record) throws ServiceRegistrationException {
         final short UUID_PUBLICBROWSE_GROUP = 0x1002;
         final short ATTR_BROWSE_GRP_LIST = 0x0005;
         // Add the service to the 'Public Browse Group'

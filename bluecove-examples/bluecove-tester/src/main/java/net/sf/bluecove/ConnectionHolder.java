@@ -20,40 +20,23 @@
  */ 
 package net.sf.bluecove;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Vector;
-
-import javax.microedition.io.StreamConnection;
-
-import net.sf.bluecove.util.IOUtils;
 
 /**
  * @author vlads
  *
  */
-public class StreamConnectionHolder implements CanShutdown {
-
-	public StreamConnection conn = null;
-	
-	public InputStream is = null;
-	
-	public OutputStream os = null;
+public abstract class ConnectionHolder implements CanShutdown {
 	
 	long lastActivityTime;
 	
 	int concurrentCount = 0;
 	
-	private Vector concurrentConnections;
-	
-	public StreamConnectionHolder() {
+	protected Vector concurrentConnections;
+
+	ConnectionHolder() {
 		active();
-	}
-	
-	StreamConnectionHolder(StreamConnection conn) {
-		this();
-		this.conn = conn;
 	}
 	
 	public void active() {
@@ -62,12 +45,6 @@ public class StreamConnectionHolder implements CanShutdown {
 	
 	public long lastActivityTime() {
 		return lastActivityTime;
-	}
-
-	public void shutdown() {
-		IOUtils.closeQuietly(os);
-		IOUtils.closeQuietly(is);
-		IOUtils.closeQuietly(conn);
 	}
 	
 	public void registerConcurrent(Vector concurrentConnections) {
@@ -84,7 +61,7 @@ public class StreamConnectionHolder implements CanShutdown {
 			if (concurNow > 1) {
 				// Update all other working Threads
 				for (Enumeration iter = concurrentConnections.elements(); iter.hasMoreElements();) {
-					StreamConnectionHolder t = (StreamConnectionHolder) iter.nextElement();
+					ConnectionHolder t = (ConnectionHolder) iter.nextElement();
 					t.setConcurrentCount(concurNow);
 				}
 			}

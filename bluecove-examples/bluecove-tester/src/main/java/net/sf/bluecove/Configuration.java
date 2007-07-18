@@ -92,12 +92,20 @@ public class Configuration {
 	
 	public static boolean authorize = false;
 	
+	public static BooleanVar testRFCOMM = new BooleanVar(false);
+	
 	public static IntVar TEST_CASE_FIRST = new IntVar(1);
 
 	public static IntVar TEST_CASE_LAST = new IntVar(Consts.TEST_LAST_WORKING);
 
 	public static IntVar STERSS_TEST_CASE = new IntVar(Consts.TEST_BYTE);
 
+	public static BooleanVar testL2CAP = new BooleanVar(true);
+	
+	public static IntVar TEST_CASE_L2CAP_FIRST = new IntVar(1);
+
+	public static IntVar TEST_CASE_L2CAP_LAST = new IntVar(1);
+	
 	public static boolean testServiceAttributes = true;
 
 	public static BooleanVar testAllServiceAttributes = new BooleanVar(false);
@@ -156,6 +164,8 @@ public class Configuration {
 
 	public static boolean stackWIDCOMM = false;
 
+	public static boolean supportL2CAP = true;
+	
 	public static boolean CLDC_1_0 = false;
 
 	public static boolean logTimeStamp = false;
@@ -165,7 +175,7 @@ public class Configuration {
 	static {
 		testDeviceNames = new Hashtable();
 
-		boolean testOnlyOneDevice = false;
+		boolean testOnlyOneDevice = true;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
 			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");

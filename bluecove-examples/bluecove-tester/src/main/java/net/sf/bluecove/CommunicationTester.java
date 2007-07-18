@@ -35,27 +35,11 @@ import net.sf.bluecove.tests.TwoThreadsPerConnection;
 import net.sf.bluecove.util.TimeUtils;
 import net.sf.bluecove.util.ValueHolder;
 
-public class CommunicationTester implements Consts {
+public class CommunicationTester extends CommunicationData {
 
 	public static boolean dataOutputStreamFlush = true;
 	
 	public static int clientConnectionOpenRetry = 3;
-	
-	private static final String stringData = "TestString2007";
-	
-	private static final String stringUTFData = "\u0413\u043E\u043B\u0443\u0431\u043E\u0439\u0417\u0443\u0431";
-	
-	private static final int byteCount = 12; //1024;
-	
-	private static final byte[] byteAray = new byte[] {1 , 7, -40, 80, 90, -1, 126, 100, 87, -10, 127, 31, -127, 0, -77};  
-	
-	private static final byte streamAvailableByteCount = 126;
-	
-	private static final int byteArayLargeSize = 0x2010; // More then 8K
-	
-	private static final byte aKnowndPositiveByte = 21;
-	
-	private static final byte aKnowndNegativeByte = -33;
 	
 	static void sendString(OutputStream os) throws IOException {
 		DataOutputStream dos = new DataOutputStream(os);
@@ -260,7 +244,7 @@ public class CommunicationTester implements Consts {
 		os.flush();
 	}
 	
-	private static void sendEOF(StreamConnectionHolder c, TestStatus testStatus) throws IOException  {
+	private static void sendEOF(ConnectionHolderStream c, TestStatus testStatus) throws IOException  {
 		c.os.write(aKnowndPositiveByte);
 		c.os.flush();
 		Assert.assertEquals("byte received", aKnowndNegativeByte, (byte)c.is.read());
@@ -281,7 +265,7 @@ public class CommunicationTester implements Consts {
 		testStatus.isSuccess = true;
 	}
 
-	private static void sendArayEOF(StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+	private static void sendArayEOF(ConnectionHolderStream c, TestStatus testStatus) throws IOException {
 		c.os.write(aKnowndPositiveByte);
 		c.os.write(aKnowndNegativeByte);
 		c.os.flush();
@@ -312,7 +296,7 @@ public class CommunicationTester implements Consts {
 		testStatus.isSuccess = true;
 	}
 
-	private static void sendClosedConnection(StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+	private static void sendClosedConnection(ConnectionHolderStream c, TestStatus testStatus) throws IOException {
 		c.os.write(aKnowndPositiveByte);
 		c.os.write(aKnowndNegativeByte);
 		c.os.flush();
@@ -336,7 +320,7 @@ public class CommunicationTester implements Consts {
 		}
 	}
 
-	private static void readClosedConnection(StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+	private static void readClosedConnection(ConnectionHolderStream c, TestStatus testStatus) throws IOException {
 		Assert.assertEquals("byte1", aKnowndPositiveByte, (byte)c.is.read());
 		Assert.assertEquals("byte2", aKnowndNegativeByte, (byte)c.is.read());
 		testStatus.streamClosed = true;
@@ -452,7 +436,7 @@ public class CommunicationTester implements Consts {
 		testStatus.isSuccess = true;
 	}
 
-	static void reciveByteAndCloseStream(boolean testArray, final StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+	static void reciveByteAndCloseStream(boolean testArray, final ConnectionHolderStream c, TestStatus testStatus) throws IOException {
 		Assert.assertEquals("byte", aKnowndPositiveByte, (byte)c.is.read());
 		final ValueHolder whenClose = new ValueHolder();
 		final ValueHolder alreadyClose = new ValueHolder(false);
@@ -567,7 +551,7 @@ public class CommunicationTester implements Consts {
 		Logger.debug("read speed " + TimeUtils.bps(byteArayLargeSize, start));
 	}
 	
-	public static void runTest(int testType, boolean server, StreamConnectionHolder c, TestStatus testStatus) throws IOException {
+	public static void runTest(int testType, boolean server, ConnectionHolderStream c, TestStatus testStatus) throws IOException {
 		InputStream is = c.is; 
 		OutputStream os = c.os;
 		switch (testType) {

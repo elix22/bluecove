@@ -100,9 +100,13 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("encrypt");
 		addConfig("authorize");
 		
+		addConfig("testRFCOMM");
 		addConfig("TEST_CASE_FIRST");
 		addConfig("TEST_CASE_LAST");
 		addConfig("STERSS_TEST_CASE");
+		addConfig("testL2CAP");
+		addConfig("TEST_CASE_L2CAP_FIRST");
+		addConfig("TEST_CASE_L2CAP_LAST");
 		addConfig("clientSleepBetweenConnections");
 		addConfig("clientTestTimeOutSec");
 		addConfig("serverSleepB4ClosingConnection");

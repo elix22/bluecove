@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import junit.framework.Assert;
 
 import net.sf.bluecove.Logger;
-import net.sf.bluecove.StreamConnectionHolder;
+import net.sf.bluecove.ConnectionHolderStream;
 import net.sf.bluecove.util.TimeUtils;
 
 /**
@@ -129,7 +129,7 @@ public class TwoThreadsPerConnection {
 		}
 	}
 
-	void readingData(InputStream is, StreamConnectionHolder c) throws IOException {
+	void readingData(InputStream is, ConnectionHolderStream c) throws IOException {
 		int k = 0;
 		for (int i = 1; i <= iterations; i++) {
 			try {
@@ -162,7 +162,7 @@ public class TwoThreadsPerConnection {
 		}
 	}
 	
-	public static void start(StreamConnectionHolder c, int arraySize, boolean synchronize) throws IOException {
+	public static void start(ConnectionHolderStream c, int arraySize, boolean synchronize) throws IOException {
 		TwoThreadsPerConnection worker = new TwoThreadsPerConnection();
 		worker.synchronize = synchronize;
 		worker.arraySize = arraySize;

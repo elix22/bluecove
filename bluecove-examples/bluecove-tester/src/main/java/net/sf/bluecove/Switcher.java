@@ -351,7 +351,7 @@ public class Switcher implements Runnable {
 		if (lastURL != null) {
 			createClient();
 			if (client != null) {
-				client.connectDevice = TestResponderClient.extractBluetoothAddress(lastURL);
+				client.connectDevice = BluetoothTypesInfo.extractBluetoothAddress(lastURL);
 				client.configured();
 			}
 		} else {
