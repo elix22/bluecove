@@ -92,7 +92,7 @@ public class Configuration {
 	
 	public static boolean authorize = false;
 	
-	public static BooleanVar testRFCOMM = new BooleanVar(false);
+	public static BooleanVar testRFCOMM = new BooleanVar(true);
 	
 	public static IntVar TEST_CASE_FIRST = new IntVar(1);
 
@@ -175,7 +175,7 @@ public class Configuration {
 	static {
 		testDeviceNames = new Hashtable();
 
-		boolean testOnlyOneDevice = true;
+		boolean testOnlyOneDevice = false;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
 			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");
