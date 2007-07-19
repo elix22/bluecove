@@ -72,6 +72,8 @@ public class ClientConnectionDialog extends Dialog {
 		
 		boolean wasStarted = false;
 		
+		int connectingCount = 0;
+		
 		public void run() {
 			if (thread == null) {
 				if (wasConnected || wasStarted) {
@@ -81,6 +83,7 @@ public class ClientConnectionDialog extends Dialog {
 					btnSend.setEnabled(false);
 					wasConnected = false;
 					wasStarted = false;
+					connectingCount = 0;
 				}
 			} else if (thread.isRunning) {
 				if (!wasConnected) {
@@ -95,9 +98,14 @@ public class ClientConnectionDialog extends Dialog {
 			} else {
 				wasStarted = true;
 				if (thread.isConnecting) {
-					status.setText("Connecting");
+					StringBuffer progress = new StringBuffer("Connecting ");  
+					for (int i = 0; i <= connectingCount; i++) {
+						progress.append('.');
+					}
+					status.setText(progress.toString());
 				} else {
 					status.setText("Disconnected");
+					connectingCount = 0;
 				}
 			}
 		}
@@ -225,7 +233,7 @@ public class ClientConnectionDialog extends Dialog {
 		OkCancelDialog.centerParent(this);
 		
 		monitorTimer = new Timer();
-		monitorTimer.schedule(new ConnectionMonitor(), 1000, 700);
+		monitorTimer.schedule(new ConnectionMonitor(), 1000, 1000);
 	}
 	
 	protected void connect() {
