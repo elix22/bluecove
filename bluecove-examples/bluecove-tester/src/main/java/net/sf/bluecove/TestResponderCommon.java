@@ -55,6 +55,7 @@ public class TestResponderCommon {
 		printProperty("bluetooth.connected.inquiry.scan");
 		printProperty("bluetooth.connected.page.scan");
 		printProperty("bluetooth.connected.inquiry");
+		printProperty("bluetooth.l2cap.receiveMTU.max");
 
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
 		if (StringUtils.isStringSet(bluecoveVersion)) {
