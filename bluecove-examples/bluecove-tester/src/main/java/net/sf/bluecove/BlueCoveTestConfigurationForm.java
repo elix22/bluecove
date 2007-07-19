@@ -90,9 +90,11 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 		addConfig("encrypt", Configuration.encrypt);
 		//addConfig("authorize");
 		
+		addConfig("RFCOMM", Configuration.testRFCOMM);
 		addConfig("TEST_CASE_FIRST", Configuration.TEST_CASE_FIRST);
 		addConfig("TEST_CASE_LAST", Configuration.TEST_CASE_LAST);
 		addConfig("STERSS_TEST_CASE", Configuration.STERSS_TEST_CASE);
+		addConfig("L2CAP", Configuration.testL2CAP);
 		addConfig("test Ignore Broken Srv Attr", Configuration.testIgnoreNotWorkingServiceAttributes);
 		addConfig("test All Srv Attr", Configuration.testAllServiceAttributes);
 		
