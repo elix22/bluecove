@@ -30,11 +30,13 @@ import javax.microedition.io.Connection;
  */
 public abstract class TestResponderClientConnection {
 
+	public abstract String protocolID();
+	
 	public abstract ConnectionHolder connected(Connection conn) throws IOException;
 
 	public abstract void executeTest(int testType, TestStatus testStatus) throws IOException;
 
-	public abstract void replySuccess(int testType) throws IOException;
+	public abstract void replySuccess(String logPrefix, int testType) throws IOException;
 	
 	public abstract void sendStopServerCmd(String serverURL);
 }

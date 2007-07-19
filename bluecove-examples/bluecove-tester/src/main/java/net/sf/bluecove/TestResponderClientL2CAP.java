@@ -37,6 +37,10 @@ public class TestResponderClientL2CAP extends TestResponderClientConnection {
 		client.connectAndTest(serverURL, Configuration.TEST_CASE_L2CAP_FIRST, Configuration.TEST_CASE_L2CAP_LAST, new TestResponderClientL2CAP());
 	}
 
+	public String protocolID() {
+		return "L2";
+	}
+	
 	public ConnectionHolder connected(Connection conn) throws IOException {
 		c = new ConnectionHolderL2CAP((L2CAPConnection)conn);
 		return c;
@@ -46,7 +50,7 @@ public class TestResponderClientL2CAP extends TestResponderClientConnection {
 		CommunicationTesterL2CAP.runTest(testType, false, c, null, testStatus);
 	}
 
-	public void replySuccess(int testType) throws IOException {
+	public void replySuccess(String logPrefix, int testType) throws IOException {
 	}
 
 	public void sendStopServerCmd(String serverURL) {

@@ -39,6 +39,10 @@ public class TestResponderClientRFCOMM extends TestResponderClientConnection  {
 		client.connectAndTest(serverURL, Configuration.TEST_CASE_FIRST, Configuration.TEST_CASE_LAST, new TestResponderClientRFCOMM());
 	}
 
+	public String protocolID() {
+		return "RF";
+	}
+	
 	public ConnectionHolder connected(Connection conn) throws IOException {
 		c = new ConnectionHolderStream((StreamConnection)conn);
 		c.os = c.conn.openOutputStream();
@@ -59,9 +63,9 @@ public class TestResponderClientRFCOMM extends TestResponderClientConnection  {
 
 	}
 	
-	public void replySuccess(int testType) throws IOException {
+	public void replySuccess(String logPrefix, int testType) throws IOException {
 		c.os.flush();
-		Logger.debug("read server status");
+		Logger.debug(logPrefix + "read server status");
 		int ok = c.is.read();
 		Assert.assertEquals("Server reply OK", Consts.SEND_TEST_REPLY_OK, ok);
 		int conformTestType = c.is.read();

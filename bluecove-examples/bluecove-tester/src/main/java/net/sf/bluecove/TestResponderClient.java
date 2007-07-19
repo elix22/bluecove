@@ -533,6 +533,9 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 	}
 
+	static boolean isMultiProtocol() {
+		return ((Configuration.supportL2CAP) && Configuration.testL2CAP.booleanValue() && Configuration.testRFCOMM.booleanValue());
+	}
 
 	public void connectAndTest(String serverURL, IntVar firstCase, IntVar lastCase, TestResponderClientConnection connectionHandler) {
 		String deviceAddress = BluetoothTypesInfo.extractBluetoothAddress(serverURL);
@@ -540,6 +543,9 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		long start = System.currentTimeMillis();
 		Logger.debug("connect:" + deviceName + " " + serverURL);
 		String logPrefix = "";
+		if (isMultiProtocol()) {
+			deviceName = connectionHandler.protocolID() + " " + deviceName;
+		}
 		if (connectedConnectionsExpect > 1) {
 			logPrefix = "[" + StringUtils.padRight(deviceName, connectionLogPrefixLength, ' ') + "] ";
 		}
@@ -616,7 +622,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				} else if (testStatus.streamClosed) {
 					Logger.debug(logPrefix + "see server log");
 				} else {
-					connectionHandler.replySuccess(testType);
+					connectionHandler.replySuccess(logPrefix, testType);
 					countSuccess++;
 					Logger.debug(logPrefix + "test #" + testType + " " + testStatus.getName() + ": OK");
 				}
@@ -684,8 +690,10 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			}
 		} else if (BluetoothTypesInfo.isL2CAP(serverURL)) {
 			if (Configuration.supportL2CAP) {
-				TestResponderClientL2CAP.connectAndTest(this, serverURL);
-				return true;
+				if (Configuration.testL2CAP.booleanValue()) {
+					TestResponderClientL2CAP.connectAndTest(this, serverURL);
+					return true;
+				}
 			} else {
 				Logger.warn("Can't test L2CAP on this stack");
 			}
@@ -736,6 +744,10 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				if (deviceName.length() > connectionLogPrefixLength) {
 					connectionLogPrefixLength = deviceName.length();
 				}
+			}
+			
+			if (isMultiProtocol()) {
+				connectionLogPrefixLength += 3;
 			}
 
 			Logger.debug("start " + numberOfURLs + " threads");
