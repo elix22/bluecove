@@ -64,6 +64,7 @@
 
     SDK provided by IVT is very limited. We just implemented what we can on top of it.
 
+    * BlueSoleil Bluetooth stack only supporting RFCOMM connections
     * Service attributes are not supported in Service search of when creating Server, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
     * `DiscoveryAgent.searchServices(.. UUID[] uuidSet, ..)`  only ONE UUID is used during search, the last one in array.
