@@ -71,6 +71,10 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 	private static void sequenceRecive(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
 		Assert.assertEquals("initialData.len", 1, initialData.length);
 		final int sequenceSize = initialData[0];
+		int receiveMTU = c.channel.getReceiveMTU();
+		int transmitMTU = c.channel.getTransmitMTU();
+		Assert.assertTrue("ReceiveMTU " + receiveMTU, sequenceSize <= receiveMTU);
+		Assert.assertTrue("TransmitMTU " + transmitMTU, sequenceSize <= transmitMTU);
 		int sequenceRecivedCount = 0;
 		int sequenceSentCount = 0;
 		try {
@@ -82,17 +86,19 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 						break mainLoop;
 					}
 				}
-				int receiveMTU = c.channel.getReceiveMTU();
 				byte[] dataRecived = new byte[receiveMTU];
 				int lengthdataRecived = c.channel.receive(dataRecived);
+				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
+				Assert.assertEquals("sequence", (byte)i, dataRecived[0]);
 				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
-				for (int j = 0; j < lengthdataRecived; j++) {
+				for (int j = 1; j < lengthdataRecived; j++) {
 					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndNegativeByte), dataRecived[j]);
 				}
 				sequenceRecivedCount ++;
 				
 				byte[] data = new byte[i];
-				for (int j = 0; j < data.length; j++) {
+				data[0] = (byte)i;
+				for (int j = 1; j < data.length; j++) {
 					data[j] = (byte) (j + aKnowndPositiveByte);
 				}
 				c.channel.send(data);
@@ -113,10 +119,15 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		int sequenceRecivedCount = 0;
 		int sequenceSentCount = 0;
 		c.channel.send(startPrefix(testType, new byte[] { sequenceSize }));
+		int receiveMTU = c.channel.getReceiveMTU();
+		int transmitMTU = c.channel.getTransmitMTU();
+		Assert.assertTrue("ReceiveMTU " + receiveMTU, sequenceSize <= receiveMTU);
+		Assert.assertTrue("TransmitMTU " + transmitMTU, sequenceSize <= transmitMTU);
 		try {
 			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
 				byte[] data = new byte[i];
-				for (int j = 0; j < data.length; j++) {
+				data[0] = (byte)i;
+				for (int j = 1; j < data.length; j++) {
 					data[j] = (byte) (j + aKnowndNegativeByte);
 				}
 				c.channel.send(data);
@@ -128,11 +139,12 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 						break mainLoop;
 					}
 				}
-				int receiveMTU = c.channel.getReceiveMTU();
 				byte[] dataRecived = new byte[receiveMTU];
 				int lengthdataRecived = c.channel.receive(dataRecived);
+				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
+				Assert.assertEquals("sequence", (byte)i, dataRecived[0]);
 				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
-				for (int j = 0; j < lengthdataRecived; j++) {
+				for (int j = 1; j < lengthdataRecived; j++) {
 					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndPositiveByte), dataRecived[j]);
 				}
 				sequenceRecivedCount ++;

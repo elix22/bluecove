@@ -34,7 +34,8 @@ public class TestResponderClientL2CAP extends TestResponderClientConnection {
 	ConnectionHolderL2CAP c;
 	
 	static void connectAndTest(TestResponderClient client, String serverURL) {
-		client.connectAndTest(serverURL, Configuration.TEST_CASE_L2CAP_FIRST, Configuration.TEST_CASE_L2CAP_LAST, new TestResponderClientL2CAP());
+		client.connectAndTest(serverURL + ";TransmitMTU=" + L2CAPConnection.DEFAULT_MTU + ";ReceiveMTU=" + L2CAPConnection.DEFAULT_MTU, 
+				Configuration.TEST_CASE_L2CAP_FIRST, Configuration.TEST_CASE_L2CAP_LAST, new TestResponderClientL2CAP());
 	}
 
 	public String protocolID() {

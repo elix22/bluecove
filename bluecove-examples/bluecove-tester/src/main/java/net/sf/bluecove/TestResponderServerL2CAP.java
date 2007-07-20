@@ -67,7 +67,9 @@ public class TestResponderServerL2CAP extends Thread {
 					+ Consts.RESPONDER_SERVERNAME
 					+ ";authenticate=" + (Configuration.authenticate.booleanValue()?"true":"false")
 					+ ";encrypt=" + (Configuration.encrypt.booleanValue()?"true":"false")
-					+ ";authorize=" + (Configuration.authorize?"true":"false"));
+					+ ";authorize=" + (Configuration.authorize?"true":"false")
+					+ ";TransmitMTU=" + L2CAPConnection.DEFAULT_MTU
+					+ ";ReceiveMTU=" + L2CAPConnection.DEFAULT_MTU);
 			if (Configuration.testServiceAttributes) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 				if (record == null) {
