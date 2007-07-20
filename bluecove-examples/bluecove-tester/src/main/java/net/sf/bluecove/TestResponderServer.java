@@ -275,36 +275,35 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 			}
 			
-			serverConnection = (StreamConnectionNotifier) Connector
-					.open("btspp://localhost:"
-							+ Configuration.blueCoveUUID()
-							+ ";name="
-							+ Consts.RESPONDER_SERVERNAME
-							+ ";authenticate=" + (Configuration.authenticate.booleanValue()?"true":"false")
-							+ ";encrypt=" + (Configuration.encrypt.booleanValue()?"true":"false")
-							+ ";authorize=" + (Configuration.authorize?"true":"false"));
+			if (Configuration.testRFCOMM.booleanValue()) {
+				serverConnection = (StreamConnectionNotifier) Connector.open("btspp://localhost:"
+						+ Configuration.blueCoveUUID() + ";name=" + Consts.RESPONDER_SERVERNAME + ";authenticate="
+						+ (Configuration.authenticate.booleanValue() ? "true" : "false") + ";encrypt="
+						+ (Configuration.encrypt.booleanValue() ? "true" : "false") + ";authorize="
+						+ (Configuration.authorize ? "true" : "false"));
 
-			connectorOpenTime = System.currentTimeMillis();
-			Logger.info("ResponderServer started " + TimeUtils.timeNowToString());
-			if (Configuration.testServiceAttributes) {
-				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
-				if (record == null) {
-					Logger.warn("Bluetooth ServiceRecord is null");
-				} else {
-					String initial = BluetoothTypesInfo.toString(record);
-					boolean printAllVersion = true;
-					if (printAllVersion) {
-						Logger.debug("ServiceRecord\n" + initial);
-					}
-					buildServiceRecord(record);
-					try {
-						localDevice.updateRecord(record);
-						Logger.debug("ServiceRecord updated\n" + BluetoothTypesInfo.toString(record));
-					} catch (Throwable e) {
-						if (!printAllVersion) {
+				connectorOpenTime = System.currentTimeMillis();
+				Logger.info("ResponderServer started " + TimeUtils.timeNowToString());
+				if (Configuration.testServiceAttributes) {
+					ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
+					if (record == null) {
+						Logger.warn("Bluetooth ServiceRecord is null");
+					} else {
+						String initial = BluetoothTypesInfo.toString(record);
+						boolean printAllVersion = true;
+						if (printAllVersion) {
 							Logger.debug("ServiceRecord\n" + initial);
 						}
-						Logger.error("Service Record update error", e);
+						buildServiceRecord(record);
+						try {
+							localDevice.updateRecord(record);
+							Logger.debug("ServiceRecord updated\n" + BluetoothTypesInfo.toString(record));
+						} catch (Throwable e) {
+							if (!printAllVersion) {
+								Logger.debug("ServiceRecord\n" + initial);
+							}
+							Logger.error("Service Record update error", e);
+						}
 					}
 				}
 			}
@@ -316,7 +315,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			
 			boolean showServiceRecordOnce = true;
-			while (!stoped) {
+			while ((Configuration.testRFCOMM.booleanValue()) && (!stoped)) {
 				if ((countConnection % 5 == 0) && (Configuration.testServiceAttributes)) {
 					// Problems on SE
 					//updateServiceRecord();
@@ -351,9 +350,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					IOUtils.closeQuietly(conn);
 				}
 				Switcher.yield(this);
+				closeServer();
 			}
 
-			closeServer();
 		} catch (Throwable e) {
 			if (!stoped) {
 				Logger.error("RFCOMM Server start error", e);
@@ -365,6 +364,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		if (monitorServer != null) {
 			monitorServer.finish();
 		}
+	}
+	
+	public boolean isRunning() {
+		return isRunning || ((responderL2CAPServerThread != null) && responderL2CAPServerThread.isRunning());
 	}
 	
 	public static long avgServerDurationSec() {

@@ -42,6 +42,8 @@ public class TestResponderServerL2CAP extends Thread {
 	
 	private boolean isStoped = false;
 	
+	private boolean isRunning = false;
+	
 	private TestResponderServerL2CAP() {
 		
 	}
@@ -50,6 +52,10 @@ public class TestResponderServerL2CAP extends Thread {
 		TestResponderServerL2CAP srv = new TestResponderServerL2CAP();
 		srv.start();
 		return srv;
+	}
+	
+	public boolean isRunning() {
+		return isRunning;
 	}
 	
 	public void run() {
@@ -83,6 +89,7 @@ public class TestResponderServerL2CAP extends Thread {
 		}
 		try {
 			int errorCount = 0;
+			isRunning = true;
 			while (!isStoped) {
 				L2CAPConnection channel;
 				try {
@@ -109,6 +116,7 @@ public class TestResponderServerL2CAP extends Thread {
 		} finally {
 			close();
 			Logger.info("L2CAP Server finished! " + TimeUtils.timeNowToString());
+			isRunning = false;
 		}
 	}
 	

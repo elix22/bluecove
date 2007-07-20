@@ -96,7 +96,7 @@ public class Switcher implements Runnable {
 	}
 
 	public static boolean isRunningServer() {
-		return (server != null) && TestResponderServer.discoverable && server.isRunning;
+		return (server != null) && TestResponderServer.discoverable && server.isRunning();
 	}
 
 	public void run() {
@@ -371,7 +371,7 @@ public class Switcher implements Runnable {
 			if (server == null) {
 				server = new TestResponderServer();
 			}
-			if (!server.isRunning) {
+			if (!server.isRunning()) {
 				serverStartCount ++;
 				(server.thread = new Thread(server)).start();
 			} else {
