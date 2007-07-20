@@ -103,6 +103,7 @@ public class ClientConnectionDialog extends Dialog {
 						progress.append('.');
 					}
 					status.setText(progress.toString());
+					connectingCount ++;
 				} else {
 					status.setText("Disconnected");
 					connectingCount = 0;
