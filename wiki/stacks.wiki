@@ -1,5 +1,5 @@
 #summary BlueCove supported stacks.
-#labels Phase-Design
+#labels Phase-Design,Featured
 
 = BlueCove supported stacks =
 
@@ -54,7 +54,7 @@
     * `DiscoveryAgent.searchServices()` can't query for UUID !DataElements other than one in !ProtocolDescriptorList and ServiceClassIDList
     * `DiscoveryListener.deviceDiscovered()` would be called for devices that a _paired_ with your Microsoft BT stack regardless if device ON or OFF
 
-== BlueSoleil (IVT Corporation) ==
+== !BlueSoleil (IVT Corporation) ==
 
 === Requirements ===
 
@@ -74,5 +74,4 @@
     * In our test lab we can only make from 180 to 250 max connections in sequence. After this !BlueSoleil.exe needs to restart or Windows needs to be rebooted (May be you can help fixing this, I wrote to !BlueSoleil support; no reply)
     * `searchServices` can't distinguish the service type (RFCOMM or OBEX). To solve this following UUIDs are always discoved as obex (btgoep://) connections
         * IR_MC_SYNC (0x1104), OBEX_OBJECT_PUSH (0x1105), OBEX_FILE_TRANSFER (0x1106), IR_MC_SYNC_COMMAND (0x1107), IMG_RESPONDER (0x111B)
-
 
