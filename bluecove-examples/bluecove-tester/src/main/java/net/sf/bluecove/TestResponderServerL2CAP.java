@@ -110,6 +110,7 @@ public class TestResponderServerL2CAP extends Thread {
 					continue;
 				}
 				errorCount = 0;
+				Logger.info("Received L2CAP connection");
 				receive(channel);
 				IOUtils.closeQuietly(channel);
 			}
@@ -130,6 +131,7 @@ public class TestResponderServerL2CAP extends Thread {
             if (receivedLength == 0) {
             	Logger.debug("a zero length L2CAP packet is received");
             } else {
+            	Logger.debug("received L2CAP packet", buffer, 0, receivedLength);
             	processData(channel, buffer, receivedLength);
             }
             
@@ -154,8 +156,8 @@ public class TestResponderServerL2CAP extends Thread {
 		TestTimeOutMonitor monitorConnection = new TestTimeOutMonitor("test" + testType, c, Configuration.serverTestTimeOutSec);
 		
 		
-		byte[] initialData = new byte[receivedLength];
-		System.arraycopy(buffer, 0, initialData, 0, receivedLength - 2);
+		byte[] initialData = new byte[receivedLength - CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN];
+		System.arraycopy(buffer, CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN, initialData, 0, receivedLength - CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN);
 		
 		try {
 			CommunicationTesterL2CAP.runTest(testType, true, c, initialData, testStatus);

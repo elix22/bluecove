@@ -92,7 +92,7 @@ public class Configuration {
 	
 	public static boolean authorize = false;
 	
-	public static BooleanVar testRFCOMM = new BooleanVar(true);
+	public static BooleanVar testRFCOMM = new BooleanVar(false);
 	
 	public static IntVar TEST_CASE_FIRST = new IntVar(1);
 
@@ -104,7 +104,7 @@ public class Configuration {
 	
 	public static IntVar TEST_CASE_L2CAP_FIRST = new IntVar(1);
 
-	public static IntVar TEST_CASE_L2CAP_LAST = new IntVar(1);
+	public static IntVar TEST_CASE_L2CAP_LAST = new IntVar(Consts.TEST_L2CAP_LAST_WORKING);
 	
 	public static boolean testServiceAttributes = true;
 
@@ -175,13 +175,13 @@ public class Configuration {
 	static {
 		testDeviceNames = new Hashtable();
 
-		boolean testOnlyOneDevice = false;
+		boolean testOnlyOneDevice = true;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
 			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");
 			//testDeviceNames.put("0020E027CE32", "Lapt WC");
 			//testDeviceNames.put("0050F2E8D4A6", "Desk MS");
-			//testDeviceNames.put("000B0D4AECDE", "Desk WC");
+			testDeviceNames.put("000B0D4AECDE", "Desk WC");
 			testDeviceNames.put("0019639C4007", "SE K790(r)");
 			//testDeviceNames.put("00123755AE71", "N 6265i (t)");
 			//testDeviceNames.put("0015E96A02DE", "D-Link");

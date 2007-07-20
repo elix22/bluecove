@@ -52,6 +52,33 @@ public class Logger {
 		callAppenders(DEBUG, message, null);
 	}
 	
+	public static void debug(String message, byte[] data) {
+		debug(message, data, 0, (data==null)?0:data.length);
+	}
+	
+	public static void debug(String message, byte[] data, int off, int len) {
+		StringBuffer buf = new StringBuffer(message);
+		if (data == null) {
+			buf.append(" null byte[]");
+		} else {
+			buf.append(" [");
+			for (int i = off; i < off + len; i++) {
+				if (i != off) {
+					buf.append(", ");
+				}
+				buf.append((new Byte(data[i])).toString());
+			}
+			buf.append("]");
+			if (len > 4) {
+				buf.append(" ").append(len);	
+			}
+		}
+		try {
+			System.out.println(buf.toString());
+		} catch (Throwable ignore) {}
+		callAppenders(DEBUG, buf.toString(), null);
+	}
+	
 	public static void debug(String message, Throwable t) {
 		try {
 			System.out.println(message);

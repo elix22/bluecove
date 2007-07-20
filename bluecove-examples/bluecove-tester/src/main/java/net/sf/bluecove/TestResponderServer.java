@@ -323,7 +323,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.info("Accepting RFCOMM connections");
 				StreamConnection conn = serverConnection.acceptAndOpen();
 				if (!stoped) {
-					Logger.info("Received connection");
+					Logger.info("Received RFCOMM connection");
 					if (countConnection % 5 == 0) {
 						Logger.debug("Server up time " + TimeUtils.secSince(connectorOpenTime));
 						Logger.debug("max concurrent con " + concurrentConnectionsMax);

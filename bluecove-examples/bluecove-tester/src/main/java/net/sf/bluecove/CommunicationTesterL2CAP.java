@@ -30,17 +30,21 @@ import junit.framework.Assert;
  */
 public class CommunicationTesterL2CAP extends CommunicationData {
 
+	public static final int INITIAL_DATA_PREFIX_LEN = 2;
+	
 	private static byte[] startPrefix(int testType, byte[] data) {
-		byte[] dataToSend = new byte[data.length + 2];
+		byte[] dataToSend = new byte[data.length + INITIAL_DATA_PREFIX_LEN];
 		dataToSend[0] = Consts.SEND_TEST_START;
-		System.arraycopy(data, 0, dataToSend, 2, data.length);
+		dataToSend[1] = (byte)testType;
+		System.arraycopy(data, 0, dataToSend, INITIAL_DATA_PREFIX_LEN, data.length);
+		Logger.debug("send L2CAP packet", dataToSend);
 		return dataToSend;
 	}
 	
 	public static void runTest(int testType, boolean server, ConnectionHolderL2CAP c, byte[] initialData, TestStatus testStatus) throws IOException {
 		switch (testType) {
 		case 1:
-			testStatus.setName("l2-byteAray");
+			testStatus.setName("l2byteAray");
 			if (!server) {
 				c.channel.send(startPrefix(testType, byteAray));
 			} else {
@@ -49,7 +53,97 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 					Assert.assertEquals("byte[" + i + "]", byteAray[i], initialData[i]);
 				}
 			}
+			break;
+		case 2:
+			testStatus.setName("l2sequence");
+			if (server) {
+				sequenceRecive(c, initialData);
+			} else {
+				sequenceSend(testType, c);
+			}
+			break;
+		default:
+			Assert.fail("Invalid test#" + testType);				
 		}
 
+	}
+
+	private static void sequenceRecive(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+		Assert.assertEquals("initialData.len", 1, initialData.length);
+		final int sequenceSize = initialData[0];
+		int sequenceRecivedCount = 0;
+		int sequenceSentCount = 0;
+		try {
+			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
+				while (!c.channel.ready()) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break mainLoop;
+					}
+				}
+				int receiveMTU = c.channel.getReceiveMTU();
+				byte[] dataRecived = new byte[receiveMTU];
+				int lengthdataRecived = c.channel.receive(dataRecived);
+				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
+				for (int j = 0; j < lengthdataRecived; j++) {
+					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndNegativeByte), dataRecived[j]);
+				}
+				sequenceRecivedCount ++;
+				
+				byte[] data = new byte[i];
+				for (int j = 0; j < data.length; j++) {
+					data[j] = (byte) (j + aKnowndPositiveByte);
+				}
+				c.channel.send(data);
+				sequenceSentCount++;
+			}
+		} finally {
+			if (sequenceRecivedCount != sequenceSize) {
+				Logger.debug("Recived only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
+			}
+			if (sequenceSentCount != sequenceSize) {
+				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
+			}
+		}
+	}
+
+	private static void sequenceSend(int testType, ConnectionHolderL2CAP c) throws IOException {
+		final int sequenceSize = 77;
+		int sequenceRecivedCount = 0;
+		int sequenceSentCount = 0;
+		c.channel.send(startPrefix(testType, new byte[] { sequenceSize }));
+		try {
+			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
+				byte[] data = new byte[i];
+				for (int j = 0; j < data.length; j++) {
+					data[j] = (byte) (j + aKnowndNegativeByte);
+				}
+				c.channel.send(data);
+				sequenceSentCount++;
+				while (!c.channel.ready()) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break mainLoop;
+					}
+				}
+				int receiveMTU = c.channel.getReceiveMTU();
+				byte[] dataRecived = new byte[receiveMTU];
+				int lengthdataRecived = c.channel.receive(dataRecived);
+				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
+				for (int j = 0; j < lengthdataRecived; j++) {
+					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndPositiveByte), dataRecived[j]);
+				}
+				sequenceRecivedCount ++;
+			}
+		} finally {
+			if (sequenceSentCount != sequenceSize) {
+				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
+			}
+			if (sequenceRecivedCount != sequenceSize) {
+				Logger.debug("Recived only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
+			}
+		}
 	}
 }

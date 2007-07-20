@@ -148,5 +148,7 @@ public interface Consts {
 	
 	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 31;
 	
-	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_LARGE_BYTE_ARRAY_BACK; 
+	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_LARGE_BYTE_ARRAY_BACK;
+	
+	public static final int TEST_L2CAP_LAST_WORKING = 2; 
 }

@@ -160,7 +160,7 @@ public class ClientConnectionThread extends Thread {
 					} else {
 						((ConnectionHolderL2CAP) c).channel.send(data);
 					}
-					Logger.debug("data sent");
+					Logger.debug("data " + data.length + " sent");
 				} catch (IOException e) {
 					Logger.error("Communication error", e);
 				}
