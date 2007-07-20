@@ -309,7 +309,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			
 			if (Configuration.supportL2CAP) {
-				responderL2CAPServerThread = TestResponderServerL2CAP.startServer();
+				if (Configuration.testL2CAP.booleanValue()) {
+					responderL2CAPServerThread = TestResponderServerL2CAP.startServer();
+				}
 			} else {
 				Logger.info("No L2CAP support");
 			}
