@@ -195,18 +195,24 @@ public class TestResponderServerL2CAP extends Thread {
 	
 	private void echo(L2CAPConnection channel, byte[] buffer, int receivedLength) throws IOException {
 		boolean cBufHasBinary = false;
+		int messageLength = receivedLength;
 		for (int k = 0; k < receivedLength; k++) {
 			char c = (char) buffer[k];
 			if (c < ' ') {
-				if (((c == '\n') && (k == receivedLength - 1)) || ((c == '\r') && (k == receivedLength - 2))) {
-					receivedLength --;
+				if ((c == '\n') && (k == receivedLength - 1)) {
+					messageLength = receivedLength - 1;
 					break;
 				}
 				cBufHasBinary = true;
 				break;
 			}
 		}
-		String message = new String(buffer, 0, receivedLength);
+		String message;
+		if (messageLength != 0) {
+			message = new String(buffer, 0, messageLength);
+		} else {
+			message = "";
+		}
 		StringBuffer buf = new StringBuffer(message);
 		if (cBufHasBinary) {
 			buf.append(" [");
@@ -215,10 +221,13 @@ public class TestResponderServerL2CAP extends Thread {
 			}
 			buf.append("]");
 		}
+		buf.append(" (").append(receivedLength).append(")");
 		Logger.debug("|" + buf.toString());
 		
 		byte[] reply = new byte[receivedLength];
-		System.arraycopy(buffer, 0, reply, 0, receivedLength); 
+		if (receivedLength != 0) {
+			System.arraycopy(buffer, 0, reply, 0, receivedLength);
+		}
 		channel.send(reply);
 	}
 

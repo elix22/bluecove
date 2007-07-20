@@ -122,11 +122,16 @@ public class ClientConnectionThread extends Thread {
 					int receiveMTU = lc.channel.getReceiveMTU();
 					byte[] data = new byte[receiveMTU];
 					int length = lc.channel.receive(data);
+					int messageLength = length; 
 					if ((length > 0) && (data[length - 1] == '\n')) {
-						length--;
+						messageLength = length-1;
 					}
-					String message = new String(data, 0, length);
-					Logger.debug("cc:" + message);
+					StringBuffer buf = new StringBuffer();
+					if (messageLength != 0) {
+						buf.append(new String(data, 0, messageLength));
+					}
+					buf.append(" (").append(length).append(")");
+					Logger.debug("cc:" + buf.toString());
 				}
 			}
 		} catch (IOException e) {
