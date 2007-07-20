@@ -223,8 +223,8 @@ public class TestResponderServerL2CAP extends Thread {
 		}
 	}
 	
-	public void interrupt()  {
+	void closeServer()  {
 		isStoped = true;
-		super.interrupt();
+		close();
 	}
 }

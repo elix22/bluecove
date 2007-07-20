@@ -59,7 +59,7 @@
     </dependencies>
 
     <properties>
-        <wtk.bluetooth.enabled>true</wtk.bluetooth.enabled>
+        <!--wtk.bluetooth.enabled>true</wtk.bluetooth.enabled-->
         <!-- short name for Motorola iDEN phones -->
         <mainjarname>bctest</mainjarname>
     </properties>
@@ -107,6 +107,25 @@
                             <class>net.sf.bluecove.BlueCoveTestMIDlet</class>
                         </MIDlet>
                     </midlets>
+
+                    <useWtkLibs>false</useWtkLibs>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                    </libs>
+
+                    <dependencies>
+                        <dependency>
+                            <groupId>net.sf.bluecove</groupId>
+                            <artifactId>bluecove</artifactId>
+                            <filter>!javax/microedition/io/**,!com/intel/bluetooth/**</filter>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.pyx4me</groupId>
+                            <artifactId>cldcunit-se</artifactId>
+                            <exclude>true</exclude>
+                        </dependency>
+                    </dependencies>
+
                 </configuration>
             </plugin>
 

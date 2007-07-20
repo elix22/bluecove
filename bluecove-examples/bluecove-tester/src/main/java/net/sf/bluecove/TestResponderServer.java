@@ -75,7 +75,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	private TestTimeOutMonitor monitorServer;
 	
-	private Thread responderL2CAPServerThread = null;
+	private TestResponderServerL2CAP responderL2CAPServerThread = null;
 	
 	private Vector concurrentConnectionThreads = new Vector();
 	
@@ -404,10 +404,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			serverConnection = null;
 		}
-		Thread t = responderL2CAPServerThread;
+		TestResponderServerL2CAP t = responderL2CAPServerThread;
 		responderL2CAPServerThread = null;
 		if (t != null) {
-			t.interrupt();
+			t.closeServer();
 		}
 		setNotDiscoverable();
 	}
