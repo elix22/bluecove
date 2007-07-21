@@ -113,4 +113,16 @@ public class IOUtils {
         }
     }
     
+	public static byte hiByte(int value) {
+		return (byte)((value >> 8) & 0xFF);
+	}
+	
+	public static byte loByte(int value) {
+		return (byte)(0xFF & value);
+	}
+
+	public static int bytesToShort(byte valueHi, byte valueLo) {
+		return ((((int)valueHi << 8) & 0xFF00) + (valueLo & 0xFF));
+	}
+    
 }

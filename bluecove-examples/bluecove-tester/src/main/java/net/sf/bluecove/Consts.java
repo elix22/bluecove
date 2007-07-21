@@ -80,7 +80,8 @@ public interface Consts {
 	public static final int SEND_TEST_REPLY_OK = 77;
 	
 	public static final int TEST_SERVER_TERMINATE = 99;
-	
+
+	// RFCOMM test numbers
 
 	public static final int TEST_STRING = 1;
 	
@@ -150,5 +151,8 @@ public interface Consts {
 	
 	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_LARGE_BYTE_ARRAY_BACK;
 	
-	public static final int TEST_L2CAP_LAST_WORKING = 2; 
+	
+	// L2CAP test numbers
+	
+	public static final int TEST_L2CAP_LAST_WORKING = 3; 
 }
