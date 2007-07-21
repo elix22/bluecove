@@ -316,42 +316,46 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.info("No L2CAP support");
 			}
 			
-			boolean showServiceRecordOnce = true;
-			while ((Configuration.testRFCOMM.booleanValue()) && (!stoped)) {
-				if ((countConnection % 5 == 0) && (Configuration.testServiceAttributes)) {
-					// Problems on SE
-					//updateServiceRecord();
-				}
-				Logger.info("Accepting RFCOMM connections");
-				StreamConnection conn = serverConnection.acceptAndOpen();
-				if (!stoped) {
-					Logger.info("Received RFCOMM connection");
-					if (countConnection % 5 == 0) {
-						Logger.debug("Server up time " + TimeUtils.secSince(connectorOpenTime));
-						Logger.debug("max concurrent con " + concurrentConnectionsMax);
+			if (Configuration.testRFCOMM.booleanValue()) {
+				boolean showServiceRecordOnce = true;
+				while ((Configuration.testRFCOMM.booleanValue()) && (!stoped)) {
+					if ((countConnection % 5 == 0) && (Configuration.testServiceAttributes)) {
+						// Problems on SE
+						// updateServiceRecord();
 					}
-					if (showServiceRecordOnce) {
-						Logger.debug("ServiceRecord\n" + BluetoothTypesInfo.toString(LocalDevice.getLocalDevice().getRecord(serverConnection)));
-						showServiceRecordOnce = false;
-					}
-					lastActivityTime = System.currentTimeMillis();
-					ServerConnectionTread t = new ServerConnectionTread(conn);
-					t.start();
-					if (!Configuration.serverAcceptWhileConnected) {
-						while (t.isRunning) {
-							 synchronized (t) {
-								 try {
-									t.wait();
-								} catch (InterruptedException e) {
-									break;
-								}
-							 }
+					Logger.info("Accepting RFCOMM connections");
+					StreamConnection conn = serverConnection.acceptAndOpen();
+					if (!stoped) {
+						Logger.info("Received RFCOMM connection");
+						if (countConnection % 5 == 0) {
+							Logger.debug("Server up time " + TimeUtils.secSince(connectorOpenTime));
+							Logger.debug("max concurrent con " + concurrentConnectionsMax);
 						}
+						if (showServiceRecordOnce) {
+							Logger.debug("ServiceRecord\n"
+									+ BluetoothTypesInfo.toString(LocalDevice.getLocalDevice().getRecord(
+											serverConnection)));
+							showServiceRecordOnce = false;
+						}
+						lastActivityTime = System.currentTimeMillis();
+						ServerConnectionTread t = new ServerConnectionTread(conn);
+						t.start();
+						if (!Configuration.serverAcceptWhileConnected) {
+							while (t.isRunning) {
+								synchronized (t) {
+									try {
+										t.wait();
+									} catch (InterruptedException e) {
+										break;
+									}
+								}
+							}
+						}
+					} else {
+						IOUtils.closeQuietly(conn);
 					}
-				} else {
-					IOUtils.closeQuietly(conn);
+					Switcher.yield(this);
 				}
-				Switcher.yield(this);
 				closeServer();
 			}
 

@@ -110,10 +110,17 @@
 
                     <useWtkLibs>false</useWtkLibs>
                     <libs>
-                        <lib>${java.home}/lib/rt.jar</lib>
+                        <!--lib>${java.home}/lib/rt.jar</lib-->
+                        <lib>${env.WTK_HOME}/lib/cldcapi10.jar</lib>
+                        <lib>${env.WTK_HOME}/lib/midpapi20.jar</lib>
                     </libs>
 
                     <dependencies>
+                        <dependency>
+                            <groupId>org.microemu</groupId>
+                            <artifactId>microemulator</artifactId>
+                            <exclude>true</exclude>
+                        </dependency>
                         <dependency>
                             <groupId>net.sf.bluecove</groupId>
                             <artifactId>bluecove</artifactId>
