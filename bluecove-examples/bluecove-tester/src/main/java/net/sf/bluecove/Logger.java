@@ -23,6 +23,8 @@ package net.sf.bluecove;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import net.sf.bluecove.util.TimeUtils;
+
 
 public class Logger {
 
@@ -40,6 +42,13 @@ public class Logger {
 		public void appendLog(int level, String message, Throwable throwable);
 	}
 
+	private static void systemOutTimeStamp() {
+		if (Configuration.logTimeStamp) {
+			System.out.print(TimeUtils.timeStampNowToString());
+			System.out.print(" ");
+		}
+	}
+	
 	/**
 	 * We want to ingore Error when writing to console on Windows.
 	 *  e.g.  java.lang.NullPointerException
@@ -47,6 +56,7 @@ public class Logger {
 	 */
 	public static void debug(String message) {
 		try {
+			systemOutTimeStamp();
 			System.out.println(message);
 		} catch (Throwable ignore) {}
 		callAppenders(DEBUG, message, null);
@@ -74,6 +84,7 @@ public class Logger {
 			}
 		}
 		try {
+			systemOutTimeStamp();
 			System.out.println(buf.toString());
 		} catch (Throwable ignore) {}
 		callAppenders(DEBUG, buf.toString(), null);
@@ -81,6 +92,7 @@ public class Logger {
 	
 	public static void debug(String message, Throwable t) {
 		try {
+			systemOutTimeStamp();
 			System.out.println(message);
 		} catch (Throwable ignore) {}
 		callAppenders(DEBUG, message, t);
@@ -88,6 +100,7 @@ public class Logger {
 	
 	public static void info(String message) {
 		try {
+			systemOutTimeStamp();
 			System.out.println(message);
 		} catch (Throwable ignore) {}
 		callAppenders(INFO, message, null);
@@ -95,6 +108,7 @@ public class Logger {
 
 	public static void warn(String message) {
 		try {
+			systemOutTimeStamp();
 			System.out.println(message);
 		} catch (Throwable ignore) {}
 		callAppenders(WARN, message, null);
@@ -102,6 +116,7 @@ public class Logger {
 	
 	public static void error(String message, Throwable t) {
 		try {
+			systemOutTimeStamp();
 			System.out.println("error " + message + " " + t);
 			if (t != null) {
 				t.printStackTrace();
@@ -112,6 +127,7 @@ public class Logger {
 
 	public static void error(String message) {
 		try {
+			systemOutTimeStamp();
 			System.out.println("error " + message);
 		} catch (Throwable ignore) {}
 		callAppenders(ERROR, message, null);

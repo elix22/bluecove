@@ -80,22 +80,34 @@ public abstract class TimeUtils {
 		return timeToString(System.currentTimeMillis());
 	}
 
-	public static String timeToString(Calendar calendar) {
+	public static String timeStampNowToString() {
+		return timeStampToString(System.currentTimeMillis(), true);
+	}
+	
+	public static String timeToString(Calendar calendar, boolean millisecond) {
 	    StringBuffer sb;
 	    sb = new StringBuffer();
 	    sb.append(StringUtils.d00(calendar.get(Calendar.HOUR_OF_DAY))).append(":");
 	    sb.append(StringUtils.d00(calendar.get(Calendar.MINUTE))).append(":");
 	    sb.append(StringUtils.d00(calendar.get(Calendar.SECOND)));
+	    if (millisecond) {
+	    	sb.append(".");
+	    	sb.append(StringUtils.d000(calendar.get(Calendar.MILLISECOND)));
+	    }
 	    return sb.toString();
 	}
 
-	public static synchronized String timeToString(long timeStamp) {
+	public static String timeToString(long timeStamp) {
+		return timeStampToString(timeStamp, false);
+	}
+	
+	public static synchronized String timeStampToString(long timeStamp, boolean millisecond) {
 		if (timeStamp == 0) {
 			return "n/a";
 		}
 		Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(new Date(timeStamp));
-	    return timeToString(calendar);
+	    return timeToString(calendar, millisecond);
 	}
 
 	public static boolean sleep(long millis) {
