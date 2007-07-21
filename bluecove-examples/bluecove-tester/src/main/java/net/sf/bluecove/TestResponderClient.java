@@ -537,7 +537,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		return ((Configuration.supportL2CAP) && Configuration.testL2CAP.booleanValue() && Configuration.testRFCOMM.booleanValue());
 	}
 
-	public void connectAndTest(String serverURL, IntVar firstCase, IntVar lastCase, TestResponderClientConnection connectionHandler) {
+	public void connectAndTest(String serverURL, String urlArgs, IntVar firstCase, IntVar lastCase, TestResponderClientConnection connectionHandler) {
 		String deviceAddress = BluetoothTypesInfo.extractBluetoothAddress(serverURL);
 		String deviceName = niceDeviceName(deviceAddress);
 		long start = System.currentTimeMillis();
@@ -565,7 +565,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				int connectionOpenTry = 0;
 				while ((conn == null) && (!stoped)) {
 					try {
-						conn = Connector.open(serverURL);
+						conn = Connector.open(serverURL + urlArgs);
 					} catch (IOException e) {
 						connectionOpenTry ++;
 						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {

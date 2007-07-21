@@ -36,7 +36,7 @@ public class TestResponderClientRFCOMM extends TestResponderClientConnection  {
 	private ConnectionHolderStream c;
 	
 	static void connectAndTest(TestResponderClient client, String serverURL) {
-		client.connectAndTest(serverURL, Configuration.TEST_CASE_FIRST, Configuration.TEST_CASE_LAST, new TestResponderClientRFCOMM());
+		client.connectAndTest(serverURL, "", Configuration.TEST_CASE_FIRST, Configuration.TEST_CASE_LAST, new TestResponderClientRFCOMM());
 	}
 
 	public String protocolID() {
