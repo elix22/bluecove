@@ -277,7 +277,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			
 			if (Configuration.testRFCOMM.booleanValue()) {
 				serverConnection = (StreamConnectionNotifier) Connector.open("btspp://localhost:"
-						+ Configuration.blueCoveUUID() + ";name=" + Consts.RESPONDER_SERVERNAME + ";authenticate="
+						+ Configuration.blueCoveUUID() + ";name=" + Consts.RESPONDER_SERVERNAME + "_rf;authenticate="
 						+ (Configuration.authenticate.booleanValue() ? "true" : "false") + ";encrypt="
 						+ (Configuration.encrypt.booleanValue() ? "true" : "false") + ";authorize="
 						+ (Configuration.authorize ? "true" : "false"));

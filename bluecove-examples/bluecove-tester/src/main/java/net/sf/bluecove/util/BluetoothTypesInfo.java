@@ -31,6 +31,8 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.obex.ResponseCodes;
 
+import net.sf.bluecove.Consts;
+
 public abstract class BluetoothTypesInfo {
 
 	public static final String NULL = "{null}";
@@ -147,8 +149,11 @@ public abstract class BluetoothTypesInfo {
 			addName(0x1301, "ESDP_UPNP_IP_LAP");
 			addName(0x1302, "ESDP_UPNP_L2CAP");
 			
-			addName(0xBC01, "BlueCoveT short");
-			addName("B10C0BE1111111111111111111110001", "BlueCoveT long");
+			addName(Consts.RESPONDER_SHORT_UUID, "BlueCoveT RFCOMM short");
+			addName(Consts.RESPONDER_LONG_UUID, "BlueCoveT RFCOMM long");
+			
+			addName(Consts.RESPONDER_SHORT_UUID_L2CAP, "BlueCoveT L2CAP short");
+			addName(Consts.RESPONDER_LONG_UUID_L2CAP, "BlueCoveT L2CAP long");
 			
 			addName("3B9FA89520078C303355AAA694238F07", "JSR-82 TCK L2CAP AGENT");
 			addName("2000000031b811d88698000874b33fc0", "JSR-82 TCK RFCOMM AGENT");

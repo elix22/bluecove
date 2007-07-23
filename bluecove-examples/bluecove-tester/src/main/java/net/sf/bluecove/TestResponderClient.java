@@ -140,6 +140,8 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 		private UUID searchUuidSet[];
 
+		private UUID searchUuidSet2[];
+		
 		DiscoveryAgent discoveryAgent;
 
 		int servicesSearchTransID;
@@ -158,10 +160,9 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			inquiringDevice = false;
 			inquiring = false;
 			if (searchOnlyBluecoveUuid) {
+				searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID() };
 				if (Configuration.testL2CAP.booleanValue()) {
-					searchUuidSet = new UUID[] { L2CAP, Configuration.blueCoveUUID() };
-				} else {
-					searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID() };
+					searchUuidSet2 = new UUID[] { L2CAP, Configuration.blueCoveL2CAPUUID() };
 				}
 			} else {
 				searchUuidSet = new UUID[] { Configuration.discoveryUUID };
@@ -380,42 +381,54 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				servicesOnDeviceName = niceDeviceName(servicesOnDeviceAddress);
 				Logger.debug("Search Services on " + servicesOnDeviceName + " " + name);
 
-				int transID;
+				int transID = -1;
 
-				try {
-					discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
-
-					int[] shortAttrSet;
-					if ((sdAttrRetrievableMax != 0) && (attrIDs != null) && (sdAttrRetrievableMax < attrIDs.length)) {
-						shortAttrSet = new int[sdAttrRetrievableMax];
-						for (int i = 0; i < sdAttrRetrievableMax; i++) {
-							shortAttrSet[i] = attrIDs[i];
-						}
-						Logger.debug("search attr first " + shortAttrSet.length + " of " + attrIDs.length);
-					} else {
-						shortAttrSet = attrIDs;
-					}
-					searchingServices = true;
-					servicesSearchTransID = discoveryAgent.searchServices(shortAttrSet, searchUuidSet, remoteDevice, this);
-					transID = servicesSearchTransID;
-					if (transID <= 0) {
-						Logger.warn("servicesSearch TransID mast be positive, " + transID);
-					}
-				} catch (BluetoothStateException e) {
-					Logger.error("Cannot start searchServices", e);
-					continue nextDevice;
-				}
-				// By this time serviceSearchCompleted maybe already been called, because we are too fast
-				while (searchingServices) {
-					synchronized (this) {
-						try {
-							wait();
-						} catch (InterruptedException e) {
+				for (int uuidType = 1; uuidType <= 2; uuidType++) {
+					UUID[] uuidSet = searchUuidSet;
+					if (uuidType == 2) {
+						if (searchUuidSet2 != null) {
+							uuidSet = searchUuidSet2;
+						} else {
 							break;
 						}
 					}
+					try {
+						discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+
+						int[] shortAttrSet;
+						if ((sdAttrRetrievableMax != 0) && (attrIDs != null) && (sdAttrRetrievableMax < attrIDs.length)) {
+							shortAttrSet = new int[sdAttrRetrievableMax];
+							for (int i = 0; i < sdAttrRetrievableMax; i++) {
+								shortAttrSet[i] = attrIDs[i];
+							}
+							Logger.debug("search attr first " + shortAttrSet.length + " of " + attrIDs.length);
+						} else {
+							shortAttrSet = attrIDs;
+						}
+						searchingServices = true;
+						servicesSearchTransID = discoveryAgent.searchServices(shortAttrSet, uuidSet,
+								remoteDevice, this);
+						transID = servicesSearchTransID;
+						if (transID <= 0) {
+							Logger.warn("servicesSearch TransID mast be positive, " + transID);
+						}
+					} catch (BluetoothStateException e) {
+						Logger.error("Cannot start searchServices", e);
+						continue nextDevice;
+					}
+					// By this time serviceSearchCompleted maybe already been
+					// called, because we are too fast
+					while (searchingServices) {
+						synchronized (this) {
+							try {
+								wait();
+							} catch (InterruptedException e) {
+								break;
+							}
+						}
+					}
+					cancelServiceSearch();
 				}
-				cancelServiceSearch();
 
 				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, TimeUtils.since(start));
 				String msg = (anyServicesFound) ? "; " + anyServicesFoundCount + " service(s) found" : "; no services";

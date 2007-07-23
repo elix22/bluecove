@@ -246,6 +246,14 @@ public class Configuration {
 			return Consts.uuidLong;
 		}
 	}
+	
+	public static UUID blueCoveL2CAPUUID() {
+		if (useShortUUID) {
+			return Consts.uuidL2CAPShort;
+		} else {
+			return Consts.uuidL2CAPLong;
+		}
+	}
 
 	public static int getRequiredSecurity() {
 		int requiredSecurity = ServiceRecord.NOAUTHENTICATE_NOENCRYPT;

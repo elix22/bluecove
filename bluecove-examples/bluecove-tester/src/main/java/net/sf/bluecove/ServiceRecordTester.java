@@ -221,7 +221,8 @@ public class ServiceRecordTester {
 						case 0x0100:
 							foundName = true;
 							if (!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
-								Assert.assertEquals("name", Consts.RESPONDER_SERVERNAME, attrDataElement.getValue());
+								String nameValue = (String)attrDataElement.getValue();
+								Assert.assertTrue("name [" + nameValue + "]", nameValue.startsWith((Consts.RESPONDER_SERVERNAME)));
 								isBlueCoveTestService = true;
 							}
 							break;
