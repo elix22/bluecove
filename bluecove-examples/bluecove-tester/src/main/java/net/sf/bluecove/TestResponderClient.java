@@ -166,7 +166,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			} else {
 				searchUuidSet = new UUID[] { Configuration.discoveryUUID };
 			}
-			if (!Configuration.testServiceAttributes) {
+			if (!Configuration.testServiceAttributes.booleanValue()) {
 				attrIDs = null;
 			} else if (Configuration.testAllServiceAttributes.booleanValue()) {
 				int allSize = ServiceRecordTester.allTestServiceAttributesSize();

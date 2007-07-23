@@ -70,7 +70,7 @@ public class TestResponderServerL2CAP extends Thread {
 					+ ";authorize=" + (Configuration.authorize?"true":"false")
 					+ ";TransmitMTU=" + L2CAPConnection.DEFAULT_MTU
 					+ ";ReceiveMTU=" + L2CAPConnection.DEFAULT_MTU);
-			if (Configuration.testServiceAttributes) {
+			if (Configuration.testServiceAttributes.booleanValue()) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 				if (record == null) {
 					Logger.warn("Bluetooth ServiceRecord is null");

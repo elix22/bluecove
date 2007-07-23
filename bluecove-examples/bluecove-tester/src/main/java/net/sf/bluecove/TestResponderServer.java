@@ -284,7 +284,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 
 				connectorOpenTime = System.currentTimeMillis();
 				Logger.info("ResponderServer started " + TimeUtils.timeNowToString());
-				if (Configuration.testServiceAttributes) {
+				if (Configuration.testServiceAttributes.booleanValue()) {
 					ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 					if (record == null) {
 						Logger.warn("Bluetooth ServiceRecord is null");
@@ -319,7 +319,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			if (Configuration.testRFCOMM.booleanValue()) {
 				boolean showServiceRecordOnce = true;
 				while ((Configuration.testRFCOMM.booleanValue()) && (!stoped)) {
-					if ((countConnection % 5 == 0) && (Configuration.testServiceAttributes)) {
+					if ((countConnection % 5 == 0) && (Configuration.testServiceAttributes.booleanValue())) {
 						// Problems on SE
 						// updateServiceRecord();
 					}

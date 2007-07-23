@@ -166,7 +166,7 @@ public class ServiceRecordTester {
 		
 		long variableData = 0;
 		
-		if (!Configuration.testServiceAttributes || ("0".equals(LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max")))) {
+		if (!Configuration.testServiceAttributes.booleanValue() || ("0".equals(LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max")))) {
 			return hasServiceClassUUID(servRecord, Configuration.blueCoveUUID());
 		}
 		
