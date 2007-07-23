@@ -464,7 +464,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				if (searchOnlyBluecoveUuid) {
 					isBlueCoveTestService = ServiceRecordTester.testServiceAttributes(servRecord[i], servicesOnDeviceName, servicesOnDeviceAddress);
 				} else {
-					isBlueCoveTestService = ServiceRecordTester.hasServiceClassUUID(servRecord[i], Configuration.blueCoveUUID());
+					isBlueCoveTestService = ServiceRecordTester.hasServiceClassBlieCoveUUID(servRecord[i]);
 					if (isBlueCoveTestService) {
 
 						// Retive other service attributes
