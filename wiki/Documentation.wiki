@@ -35,9 +35,9 @@ that can (possibly) be used to achieve full OBEX functionality with !BlueCove.
 If someone writes code to support another stack and/or operating system, it will be considered for
 inclusion. TOSHIBA on Win32 and BlueZ are wellcome!
 
- In spring there was an attempt to make OS X port by Eric Wagner. The code is avalable in SVN.
+In spring there was an attempt to make OS X port by Eric Wagner. The code is avalable in SVN.
 
- For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
+For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
 
 == Not Implemented functionality ===
 
@@ -68,7 +68,7 @@ Bluetooth Stack
    If multiple stacks are detected they are selected in following order: "winsock", "widcomm", "bluesoleil".
    Since !BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
 
-   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to !BlueCove or Application jar.
+   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to !BlueCove or Application jar. (Since v2.0.1)
 
 Native Library location
 

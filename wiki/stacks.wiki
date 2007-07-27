@@ -19,7 +19,7 @@
    If multiple stacks are detected they are selected in following order: "winsock", "widcomm", "bluesoleil".
    Since !BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
 
-   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to BlueCove or Application jar. (Since v2.0.1)
+   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to !BlueCove or Application jar. (Since v2.0.1)
 
    Use `LocalDevice.getProperty("bluecove.stack")` to find out what stack is used.
 
@@ -41,8 +41,7 @@
     * `ServiceRecord.setDeviceServiceClasses(..)` not supported.
     * `ServiceRecord` attributes of `DataElement` types URL are discovered as STRING
     * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8, INT_16 and UINT_16 are not properly discovered (Bug submitted to Support@broadcom)
-    * The discovery database is cumulative. It contains the results of all previous discoveries of the application or any other applications that are running or that have run.
-      So !ServiceSearch may return service even when it is down.
+    * The discovery database is cumulative. It contains the results of all previous discoveries of the application or any other applications that are running or that have run. So !ServiceSearch may return service even when it is down.
     * L2CAP unable to send and receive empty L2CAP packet
 
 
@@ -73,7 +72,7 @@
 
     SDK provided by IVT is very limited. We just implemented what we can on top of it.
 
-    * BlueSoleil Bluetooth stack only supporting RFCOMM connections
+    * !BlueSoleil Bluetooth stack only supporting RFCOMM connections
     * L2CAP not supported
     * Service attributes are not supported in Service search of when creating Server, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
