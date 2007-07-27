@@ -5,6 +5,13 @@
 
   [http://bluecove.sourceforge.net/bluecove-examples/bluetooth-stack.html see this page]
 
+* Where can I can get help or support?
+
+  [http://groups.google.com/group/bluecove-users/ discussions here]
+
+  [http://code.google.com/p/bluecove/issues/list bugs here]
+
+
 * Where can I find API-Documentation of the !BlueCove Library?
 
     !BlueCove is JSR-82, All JSR-82 API Documentation apply. See  [http://www.j2medev.com/api/btapi/ Java APIs for Bluetooth Wireless Technology]
