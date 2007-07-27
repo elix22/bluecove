@@ -7,9 +7,11 @@
 
 !BlueCove is a LGPL licensed JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
 the WIDCOMM, !BlueSoleil and Microsoft Bluetooth stack. Originally developed by Intel Research and
-currently maintained by volunteers.
+currently maintained by volunteers. The LGPL license allow to link and distribute commercial software with !BlueCove.
 
  [http://bluecove.wiki.sourceforge.net/ BlueCove public contirbutions Wiki]
+
+ [http://www.rococosoft.com/weblog/archives/2007/07/another_cool_project_using_jsr.html Blog about Blue Cove]
 
 == Requirements ==
 
@@ -22,20 +24,27 @@ currently maintained by volunteers.
 
 == Limitations ==
 
-Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
-!BlueCove also only supports RFCOMM connections. The operating system support is
-currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
-stack is not available on other operating systems. If someone writes code to
-support another stack and/or operating system, it will be considered for
-inclusion.  !BlueCove only support OBEX PUT, but there are other projects
-that can (possibly) be used to achieve full OBEX functionality with !BlueCove.
+  L2CAP support available only on WIDCOMM Stack since !BlueCove version 2.0.1.
 
-    For more details see [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
+  Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
+BlueCove also only supports RFCOMM connections on this stack. The operating system support is
+currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
+stack is not available on other operating systems.
+
+  BlueCove only support OBEX PUT, but there are other projects
+that can (possibly) be used to achieve full OBEX functionality with BlueCove.
+
+  If someone writes code to support another stack and/or operating system, it will be considered for
+inclusion. TOSHIBA on Win32 and BlueZ are wellcome!
+
+  In spring there was an attempt to make OS X port by Eric Wagner. The code is avalable in SVN.
+
+  For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
 
 == Not Implemented functionality ===
 
-  * `DiscoveryAgent.cancelServiceSearch(..)`  Not implemented
-  * `DiscoveryAgent.selectService(..)`  Not implemented
+  * `DiscoveryAgent.cancelServiceSearch(..)`  Implemented in 2.0.1
+  * `DiscoveryAgent.selectService(..)`  Implemented in 2.0.1
   * `RemoteDevice` authenticate, authorize and encrypt Not implemented
 
 == Installation ==
@@ -48,6 +57,20 @@ Installation of the binary (already compiled) version of !BlueCove is as follows
 For maven2 users see [maven2 Using maven2 to build application or MIDlet]
 
 == Runtime configuration ==
+
+Bluetooth Stack
+
+   If automatic Bluetooth Stack detection is not enough Java System property "bluecove.stack" can be used to force desired Stack Initialization.
+   Values "widcomm", "bluesoleil" or "winsock". By default winsock is selected if available.
+
+   Another property "bluecove.stack.first" is used optimize stack detection.
+   If -Dbluecove.stack.first=widcomm then widcomm (bluecove.dll) stack is loaded first and if not available then !BlueCove will switch to winsock.
+   By default intelbth.dll is loaded first.
+
+   If multiple stacks are detected they are selected in following order: "winsock", "widcomm", "bluesoleil".
+   Since BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
+
+   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to BlueCove or Application jar.
 
 Native Library location
 
@@ -92,6 +115,9 @@ You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition SP1 a
 
  Visual C++ 6.0 SP6 used to build bluecove.dll for WIDCOMM
  Visual Visual C++ 2005 used to build intelbth.dll for winsock and BlueSoleil
+ More detail on building native code `src\main\c\intelbth\ReadMe.txt`
+
+ Ant or maven2 are used as the build tool for java.
 
   # [http://code.google.com/p/bluecove/downloads/list Download] !BlueCove source release
   # Unzip the source
@@ -100,6 +126,8 @@ You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition SP1 a
   # Open `intelbth.sln`
   # Compile the project for your platform (e.g. 'Winsock' for 'Win32')
   # Run `ant jar` or `mvn`
+
+ We don't use `ant` for official distributions! `build.xml` only provided for your convenience
 
 == Source ==
 

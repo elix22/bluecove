@@ -5,38 +5,46 @@
 
    WIDCOMM and !BlueSoleil are added in !BlueCove version 2.0.0.
 
-   To determine which Bluetooth stack is installed on your Windows [http://bluecove.sourceforge.net/bluetooth-stack.html see this page]
+   To determine which Bluetooth stack is installed on your Windows XP [http://bluecove.sourceforge.net/bluecove-examples/bluetooth-stack.html see this page]
 
-   If automatic Bluetooth Stack detection is not enough Java System property "bluecove.stack" can be used to force desired Stack Initialization. Values "widcomm", "bluesoleil" or "winsock".
-   By default winsock is selected if available.
+   [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile]
+
+   If automatic Bluetooth Stack detection is not enough Java System property "bluecove.stack" can be used to force desired Stack Initialization.
+   Values "widcomm", "bluesoleil" or "winsock". By default winsock is selected if available.
 
    Another property "bluecove.stack.first" is used optimize stack detection.
    If -Dbluecove.stack.first=widcomm then widcomm (bluecove.dll) stack is loaded first and if not available then !BlueCove will switch to winsock.
    By default intelbth.dll is loaded first.
 
    If multiple stacks are detected they are selected in following order: "winsock", "widcomm", "bluesoleil".
-   In !BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
+   Since !BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
+
+   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to BlueCove or Application jar. (Since v2.0.1)
 
    Use `LocalDevice.getProperty("bluecove.stack")` to find out what stack is used.
-
-   [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile]
 
 == WIDCOMM (Broadcom) ==
 
     This stack is most stable stack from one supported by !BlueCove
+    Supported RFCOMM and L2CAP (since !BlueCove v2.0.1)
 
 === Requirements ===
 
-    * BTW Stack software version 1.4.2.10 SP5 or above on Win32
+    * BTW Stack software version 1.4.2.10 SP5 or above on Windows32
     * For AMD64 systems you need to build dll yourself
     * Broadcom wbtapi.dll required. It is installed with WIDCOMM drivers.
 
 === JSR-82 Limitations ===
 
     * RFCOMM Server can accept only one connection at a time
+    * `LocalDevice.setDiscoverable(...)` not supported.
+    * `ServiceRecord.setDeviceServiceClasses(..)` not supported.
     * `ServiceRecord` attributes of `DataElement` types URL are discovered as STRING
     * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8, INT_16 and UINT_16 are not properly discovered (Bug submitted to Support@broadcom)
-    * The discovery database is cumulative. It contains the results of all previous discoveries of the application or any other applications that are running or that have run. So !ServiceSearch may return service even when it is down.
+    * The discovery database is cumulative. It contains the results of all previous discoveries of the application or any other applications that are running or that have run.
+      So !ServiceSearch may return service even when it is down.
+    * L2CAP unable to send and receive empty L2CAP packet
+
 
 == Winsock (Microsoft) ==
 
@@ -53,6 +61,7 @@
     * `DiscoveryAgent.searchServices()` can't query for BOOL !DataElements
     * `DiscoveryAgent.searchServices()` can't query for UUID !DataElements other than one in !ProtocolDescriptorList and ServiceClassIDList
     * `DiscoveryListener.deviceDiscovered()` would be called for devices that a _paired_ with your Microsoft BT stack regardless if device ON or OFF
+    * L2CAP not supported
 
 == !BlueSoleil (IVT Corporation) ==
 
@@ -65,6 +74,7 @@
     SDK provided by IVT is very limited. We just implemented what we can on top of it.
 
     * BlueSoleil Bluetooth stack only supporting RFCOMM connections
+    * L2CAP not supported
     * Service attributes are not supported in Service search of when creating Server, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
     * `DiscoveryAgent.searchServices(.. UUID[] uuidSet, ..)`  only ONE UUID is used during search, the last one in array.
