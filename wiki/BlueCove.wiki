@@ -1,5 +1,0 @@
-#summary BlueCove
-
-= BlueCove =
-
-BlueCove is a LGPL licensed JSR-82 implementation that currently interfaces with the Microsoft Bluetooth stack. Originally developed by Intel Research and currently maintained by volunteers.
