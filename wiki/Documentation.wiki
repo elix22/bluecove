@@ -24,22 +24,22 @@ currently maintained by volunteers. The LGPL license allow to link and distribut
 
 == Limitations ==
 
-  L2CAP support available only on WIDCOMM Stack since !BlueCove version 2.0.1.
+ L2CAP support available only on WIDCOMM Stack since !BlueCove version 2.0.1.
 
-  Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
-BlueCove also only supports RFCOMM connections on this stack. The operating system support is
+ Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
+!BlueCove also only supports RFCOMM connections on this stack. The operating system support is
 currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
 stack is not available on other operating systems.
 
-  BlueCove only support OBEX PUT, but there are other projects
+ !BlueCove only support OBEX PUT, but there are other projects
 that can (possibly) be used to achieve full OBEX functionality with BlueCove.
 
-  If someone writes code to support another stack and/or operating system, it will be considered for
+ If someone writes code to support another stack and/or operating system, it will be considered for
 inclusion. TOSHIBA on Win32 and BlueZ are wellcome!
 
-  In spring there was an attempt to make OS X port by Eric Wagner. The code is avalable in SVN.
+ In spring there was an attempt to make OS X port by Eric Wagner. The code is avalable in SVN.
 
-  For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
+ For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
 
 == Not Implemented functionality ===
 
@@ -68,9 +68,9 @@ Bluetooth Stack
    By default intelbth.dll is loaded first.
 
    If multiple stacks are detected they are selected in following order: "winsock", "widcomm", "bluesoleil".
-   Since BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
+   Since !BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
 
-   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to BlueCove or Application jar.
+   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to !BlueCove or Application jar.
 
 Native Library location
 
