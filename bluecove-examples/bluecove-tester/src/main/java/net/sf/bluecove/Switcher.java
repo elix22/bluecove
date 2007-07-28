@@ -56,6 +56,8 @@ public class Switcher implements Runnable {
 	
 	private static Thread tckL2CALthread;
 	
+	private static Thread tckGOEPThread;
+	
 	public Switcher() {
 		instance = this;
 	}
@@ -96,7 +98,7 @@ public class Switcher implements Runnable {
 	}
 
 	public static boolean isRunningServer() {
-		return (server != null) && TestResponderServer.discoverable && server.isRunning();
+		return isTCKRunning() || ((server != null) && TestResponderServer.discoverable && server.isRunning());
 	}
 
 	public void run() {
@@ -169,13 +171,17 @@ public class Switcher implements Runnable {
 	public void shutdown() {
 		Logger.info("shutdownSwitcher");
 		stoped = true;
-		if (Configuration.cldcStub != null) {
-			Configuration.cldcStub.interruptThread(thread);
-		}
+		interruptThread(thread);
 		synchronized (this) {
 			notifyAll();
 		}
 		instance = null;
+	}
+	
+	public static void interruptThread(Thread thread) {
+		if (Configuration.cldcStub != null) {
+			Configuration.cldcStub.interruptThread(thread);
+		}
 	}
 
 	public static Thread createThreadByName(String className) {
@@ -214,8 +220,32 @@ public class Switcher implements Runnable {
 				} catch (Throwable e) {
 					Logger.debug("Fail to start L2CAP", e);
 				}
+				
+				try {
+					tckGOEPThread = createThreadByName("BluetoothTCKAgent.GOEPThread");
+					if (tckGOEPThread != null) {
+						tckGOEPThread.start();
+					}
+				} catch (Throwable e) {
+					Logger.debug("Fail to start OBEX srv", e);
+				}
 			}
 		}
+	}
+	
+	static boolean isTCKRunning() {
+		return (tckRFCOMMThread != null) || (tckL2CALthread != null) || (tckGOEPThread != null);
+	}
+	
+	static void stopTCK() {
+		interruptThread(tckRFCOMMThread);
+		tckRFCOMMThread = null;
+
+		interruptThread(tckL2CALthread);
+		tckL2CALthread = null;
+
+		interruptThread(tckGOEPThread);
+		tckGOEPThread = null;
 	}
 	
 	public static TestResponderClient createClient() {
@@ -398,6 +428,7 @@ public class Switcher implements Runnable {
 		} else {
 			TestResponderServer.setNotDiscoverable();
 		}
+		stopTCK();
 	}
 
 	public static void serverShutdownOnExit() {

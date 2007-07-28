@@ -18,38 +18,21 @@
  *
  *  @version $Id$
  */ 
-package net.sf.bluecove.awt;
+package net.sf.bluecove.util;
 
-import net.sf.bluecove.Configuration;
-import net.sf.bluecove.Logger;
-import net.sf.bluecove.util.CLDCStub;
+/**
+ * @author vlads
+ *
+ */
+public class CLDC11 implements CLDCStub {
 
-public class JavaSECommon implements CLDCStub {
-
-	private static boolean initialized = false;
-	
-	public static void initOnce() {
-		if (initialized) {
-			return;
-		}
-		initialized = true;
-		Configuration.logTimeStamp = true;
-		Logger.addAppender(new LoggerJavaSEAppender());
-
-		//System.getProperties().put("bluecove.debug", "true");
-		//System.getProperties().put("bluecove.native.path", "../../bluecove/target/obj");
-		
-		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
-			Configuration.serverAcceptWhileConnected = true;
-			//Configuration.testIgnoreNotWorkingServiceAttributes = false;
-		}
-		
-		Configuration.cldcStub = new JavaSECommon();
-	}
-	
+	/* (non-Javadoc)
+	 * @see net.sf.bluecove.util.CLDCStub#interruptThread(java.lang.Thread)
+	 */
 	public void interruptThread(Thread t) {
 		if (t != null) {
 			t.interrupt();
 		}
 	}
+
 }
