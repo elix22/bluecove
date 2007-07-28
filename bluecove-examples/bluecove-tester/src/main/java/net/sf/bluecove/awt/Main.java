@@ -157,12 +157,15 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		}, KeyEvent.VK_3);
 		
+		final MenuItem tckStart;
 		if (Configuration.likedTCKAgent) {
-			addMenu(menuBluetooth, "Start TCK Agent", new ActionListener() {
+			tckStart = addMenu(menuBluetooth, "Start TCK Agent", new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Switcher.startTCKAgent();
 				}
 			});
+		} else {
+			tckStart = null;
 		}
 
 		addMenu(menuBluetooth, "Discovery", new ActionListener() {
@@ -302,6 +305,9 @@ public class Main extends Frame implements LoggerAppender, Storage {
 						clientStop.setEnabled(Switcher.isRunningClient());
 						clientStart.setEnabled(!Switcher.isRunningClient());
 						stop.setEnabled(Switcher.isRunningClient() || Switcher.isRunningServer());
+						if (tckStart != null) {
+							tckStart.setEnabled(!Switcher.isTCKRunning());
+						}
 					}
 				}
 			}

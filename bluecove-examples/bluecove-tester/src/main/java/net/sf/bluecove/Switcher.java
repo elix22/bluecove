@@ -233,7 +233,7 @@ public class Switcher implements Runnable {
 		}
 	}
 	
-	static boolean isTCKRunning() {
+	public static boolean isTCKRunning() {
 		return (tckRFCOMMThread != null) || (tckL2CALthread != null) || (tckGOEPThread != null);
 	}
 	
