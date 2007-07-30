@@ -77,6 +77,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	
 	private TestResponderServerL2CAP responderL2CAPServerThread = null;
 	
+	private TestResponderServerOBEX responderOBEXServer = null;
+	
 	private Vector concurrentConnectionThreads = new Vector();
 	
 	public static CountStatistic concurrentStatistic = new CountStatistic();
@@ -315,6 +317,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			} else {
 				Logger.info("No L2CAP support");
 			}
+			responderOBEXServer = TestResponderServerOBEX.startServer();
 			
 			if (Configuration.testRFCOMM.booleanValue()) {
 				boolean showServiceRecordOnce = true;
@@ -373,7 +376,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 	
 	public boolean isRunning() {
-		return isRunning || ((responderL2CAPServerThread != null) && responderL2CAPServerThread.isRunning());
+		return isRunning || ((responderL2CAPServerThread != null) && responderL2CAPServerThread.isRunning())
+		|| ((responderOBEXServer != null) && (responderOBEXServer.isRunning()));
 	}
 	
 	public static long avgServerDurationSec() {
@@ -418,6 +422,11 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		if (t != null) {
 			t.closeServer();
 		}
+		if (responderOBEXServer != null) {
+			responderOBEXServer.closeServer();
+			responderOBEXServer = null;
+		}
+		
 		setNotDiscoverable();
 	}
 

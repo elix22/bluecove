@@ -106,6 +106,8 @@ public class Configuration {
 
 	public static IntVar TEST_CASE_L2CAP_LAST = new IntVar(Consts.TEST_L2CAP_LAST_WORKING);
 	
+	public static boolean testServerOBEX_TCP = true;
+	
 	public static BooleanVar testServiceAttributes = new BooleanVar(true);
 
 	public static BooleanVar testAllServiceAttributes = new BooleanVar(false);
@@ -255,6 +257,10 @@ public class Configuration {
 		}
 	}
 
+	public static UUID blueCoveOBEXUUID() {
+		return Consts.uuidOBEX; 
+	}
+	
 	public static int getRequiredSecurity() {
 		int requiredSecurity = ServiceRecord.NOAUTHENTICATE_NOENCRYPT;
 		if (Configuration.authenticate.booleanValue()) {
