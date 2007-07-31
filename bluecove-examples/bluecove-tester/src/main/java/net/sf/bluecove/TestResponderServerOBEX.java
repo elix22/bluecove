@@ -20,6 +20,8 @@
  */
 package net.sf.bluecove;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,6 +38,7 @@ import javax.obex.SessionNotifier;
 
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.IOUtils;
+import net.sf.bluecove.util.StringUtils;
 import net.sf.bluecove.util.TimeUtils;
 
 public class TestResponderServerOBEX extends ServerRequestHandler implements Runnable {
@@ -129,7 +132,7 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 							public void run() {
 								notConnectedClose();
 							}
-						}, 1000 * 5);
+						}, 1000 * 30);
 						connectionLock.wait();
 					} catch (InterruptedException e) {
 						isStoped = true;
@@ -200,7 +203,32 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 	
 	public int onPut(Operation op) {
 		Logger.debug("OBEX onPut");
-		return super.onPut(op);
+
+		try {
+			InputStream is = op.openInputStream();
+
+			StringBuffer buf = new StringBuffer();
+			while (!isStoped) {
+				int data = is.read();
+				if (data == -1) {
+					Logger.debug("EOS recived");
+					break;
+				}
+				char c = (char) data;
+				buf.append(c);
+				if ((c == '\n') || (buf.length() > 30)) {
+					Logger.debug("cc:" + StringUtils.toBinaryText(buf));
+					buf = new StringBuffer();
+				}
+			}
+			if (buf.length() > 0) {
+				Logger.debug("cc:" + StringUtils.toBinaryText(buf));
+			}
+			return ResponseCodes.OBEX_HTTP_OK;
+		} catch (IOException e) {
+			Logger.error("OBEX Server onPut error", e);
+			return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
+		}
 	}
 	
 	public int onGet(Operation op) {

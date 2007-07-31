@@ -85,4 +85,24 @@ public class StringUtils {
 		}
 		return sb.toString();
 	}
+	
+	public static String toBinaryText(StringBuffer buf) {
+		boolean bufHasBinary = false;
+		int len = buf.length();
+		for (int i = 0; i < len; i++) {
+			if (buf.charAt(i) < ' ') {
+				bufHasBinary = true;
+				break;
+			}
+		}
+		if (bufHasBinary) {
+			buf.append(" 0x[");
+			for(int k = 0; k < len; k ++) {
+				buf.append(Integer.toHexString(buf.charAt(k))).append(' ');	
+			}
+			buf.append("]");
+		}
+		
+		return buf.toString();
+	}
 }

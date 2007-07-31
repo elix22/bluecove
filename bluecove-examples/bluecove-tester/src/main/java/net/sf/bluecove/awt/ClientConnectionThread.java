@@ -32,6 +32,7 @@ import net.sf.bluecove.ConnectionHolderL2CAP;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.ConnectionHolderStream;
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.StringUtils;
 
 /**
  * @author vlads
@@ -93,23 +94,22 @@ public class ClientConnectionThread extends Thread {
 					int data = cs.is.read();
 					if (data == -1) {
 						Logger.debug("EOF recived");
-						if (buf.length() > 0) {
-							Logger.debug("cc:" + toBinaryText(buf));
-						}
 						break;
 					}
 					receivedCount++;
 					switch (interpretData) {
 					case interpretDataChars:
 						char c = (char) data;
-						if (c == '\n') {
-							Logger.debug("cc:" + toBinaryText(buf));
+						buf.append(c);
+						if ((c == '\n') || (buf.length() > 30)) {
+							Logger.debug("cc:" + StringUtils.toBinaryText(buf));
 							buf = new StringBuffer();
-						} else {
-							buf.append(c);
 						}
 						break;
 					}
+				}
+				if (buf.length() > 0) {
+					Logger.debug("cc:" + StringUtils.toBinaryText(buf));
 				}
 			} else { // l2cap
 				ConnectionHolderL2CAP lc = new ConnectionHolderL2CAP((L2CAPConnection) conn);
@@ -131,7 +131,7 @@ public class ClientConnectionThread extends Thread {
 					}
 					StringBuffer buf = new StringBuffer();
 					if (messageLength != 0) {
-						buf.append(toBinaryText(new StringBuffer(new String(data, 0, messageLength))));
+						buf.append(StringUtils.toBinaryText(new StringBuffer(new String(data, 0, messageLength))));
 					}
 					buf.append(" (").append(length).append(")");
 					Logger.debug("cc:" + buf.toString());
@@ -151,26 +151,6 @@ public class ClientConnectionThread extends Thread {
 		}
 	}
 
-	private static String toBinaryText(StringBuffer buf) {
-		boolean bufHasBinary = false;
-		int len = buf.length();
-		for (int i = 0; i < len; i++) {
-			if (buf.charAt(i) < ' ') {
-				bufHasBinary = true;
-				break;
-			}
-		}
-		if (bufHasBinary) {
-			buf.append(" 0x[");
-			for(int k = 0; k < len; k ++) {
-				buf.append(Integer.toHexString(buf.charAt(k))).append(' ');	
-			}
-			buf.append("]");
-		}
-		
-		return buf.toString();
-	}
-	
 	public void shutdown() {
 		stoped = true;
 		if (c != null) {
