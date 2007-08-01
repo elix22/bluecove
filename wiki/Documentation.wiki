@@ -41,7 +41,7 @@ For more limitations details see stacks.txt or [http://code.google.com/p/bluecov
 
 We hope you enjoy using !BlueCove. Please note that this is an open-source effort.
 If you feel the code could use new features or fixes, or the documentation can be improved, please get involved and lend us a hand!
-The BlueCove developer community welcomes your participation.
+The !BlueCove developer community welcomes your participation.
 
 == Not Implemented functionality ===
 
