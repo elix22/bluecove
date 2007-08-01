@@ -45,9 +45,11 @@ public class ObexClientConnectionDialog extends Dialog {
 	
 	private static final String configObexConnectionURL = "obexConnectionURL";
 	
-	Button btnCancel, btnSend, btnDisconnect; 
+	Button btnCancel, btnPut, btnGet, btnDisconnect; 
 	
 	TextField tfURL; 
+	
+	TextField tfName;
 	
 	TextField tfData;
 	
@@ -64,12 +66,14 @@ public class ObexClientConnectionDialog extends Dialog {
 				status.setText(thread.status);
 				if (!thread.isRunning) {
 					btnDisconnect.setEnabled(false);
-					btnSend.setEnabled(true);
+					btnPut.setEnabled(true);
+					btnGet.setEnabled(true);
 				}
 			} else {
 				status.setText("Idle");
 				btnDisconnect.setEnabled(false);
-				btnSend.setEnabled(true);
+				btnPut.setEnabled(true);
+				btnGet.setEnabled(true);
 			}
 		}
 	}
@@ -105,6 +109,14 @@ public class ObexClientConnectionDialog extends Dialog {
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfData, c);
 		
+		Label l3 = new Label("Name:");
+		panelItems.add(l3);
+		panelItems.add(tfName = new TextField("test.txt"));
+		c.gridwidth = 1;
+		gridbag.setConstraints(l3, c);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		gridbag.setConstraints(tfName, c);
+		
 		Label l4 = new Label("Status:");
 		panelItems.add(l4);
 		c.gridwidth = 1;
@@ -118,10 +130,17 @@ public class ObexClientConnectionDialog extends Dialog {
 		Panel panelBtns = new Panel();
 		this.add(panelBtns, BorderLayout.SOUTH);
 
-		panelBtns.add(btnSend = new Button("Send"));
-		btnSend.addActionListener(new ActionListener() {
+		panelBtns.add(btnPut = new Button("Put"));
+		btnPut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				send();
+				send(true);
+			}
+		});
+		
+		panelBtns.add(btnGet = new Button("Get"));
+		btnGet.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				send(false);
 			}
 		});
 		
@@ -152,7 +171,7 @@ public class ObexClientConnectionDialog extends Dialog {
 		monitorTimer.schedule(new ObexConnectionMonitor(), 1000, 700);
 	}
 	
-	protected void send() {
+	protected void send(boolean isPut) {
 		if (thread != null) {
 			thread.shutdown();
 			thread = null;
@@ -160,11 +179,12 @@ public class ObexClientConnectionDialog extends Dialog {
 		if (Configuration.storage != null) {
 			Configuration.storage.storeData(configObexConnectionURL, tfURL.getText());
 		}
-		thread = new ObexClientConnectionThread(tfURL.getText(), tfData.getText());
+		thread = new ObexClientConnectionThread(tfURL.getText(), tfName.getText(), tfData.getText(), isPut);
 		thread.setDaemon(true);
 		thread.start();
 		btnDisconnect.setEnabled(true);
-		btnSend.setEnabled(false);
+		btnPut.setEnabled(false);
+		btnGet.setEnabled(false);
 	}
 	
 	public void shutdown() {

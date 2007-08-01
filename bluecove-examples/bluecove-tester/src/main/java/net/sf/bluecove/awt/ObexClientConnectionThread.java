@@ -21,6 +21,7 @@
 package net.sf.bluecove.awt;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.microedition.io.Connector;
@@ -36,7 +37,11 @@ public class ObexClientConnectionThread extends Thread  {
 
 	private String serverURL;
 	
+	private String name;
+	
 	private String text;
+	
+	boolean isPut;
 	
 	boolean isRunning = false;
 	
@@ -46,9 +51,11 @@ public class ObexClientConnectionThread extends Thread  {
 	
 	private ClientSession clientSession;
 	
-	public ObexClientConnectionThread(String serverURL, String text) {
+	public ObexClientConnectionThread(String serverURL, String name, String text, boolean isPut) {
 		this.serverURL = serverURL;
+		this.name = name;
 		this.text = text;
+		this.isPut = isPut;
 	}
 	
 	public void run() {
@@ -60,29 +67,54 @@ public class ObexClientConnectionThread extends Thread  {
 				return;
 			}
 			status = "Connected";
-			HeaderSet hs = clientSession.connect(clientSession.createHeaderSet());
-			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hs.getResponseCode()));
+			HeaderSet chs = clientSession.connect(clientSession.createHeaderSet());
+			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(chs.getResponseCode()));
 
 
-			byte data[] = text.getBytes("iso-8859-1");
-			hs.setHeader (HeaderSet.NAME, "test.txt");
-			hs.setHeader (HeaderSet.TYPE, "text");
+			HeaderSet hs = clientSession.createHeaderSet();
+			hs.setHeader(HeaderSet.NAME, name);
+			hs.setHeader(HeaderSet.TYPE, "text");
 
 			if (stoped) {
 				return;
 			}
-			status = "Sending";
-			Operation po = clientSession.put(hs);
+			if (isPut) {
+				byte data[] = text.getBytes("iso-8859-1");
+				status = "Putting";
+				Operation po = clientSession.put(hs);
 
-			OutputStream os = po.openOutputStream();
-			os.write(data);
-			os.close();
+				OutputStream os = po.openOutputStream();
+				os.write(data);
+				os.close();
 			
-			Logger.debug("put responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
+				Logger.debug("put responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
 			
-			po.close();
-			clientSession.disconnect(null);
-			Logger.debug("disconnect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hs.getResponseCode()));
+				po.close();
+			} else {
+				status = "Getting";
+				Operation po = clientSession.get(hs);
+
+				InputStream is = po.openInputStream();
+				StringBuffer buf = new StringBuffer();
+				while (!stoped) {
+					int i = is.read();
+					if (i == -1) {
+						break;
+					}
+					buf.append((char) i);
+				}
+				if (buf.length() > 0) {
+					Logger.debug("got:" + buf);
+				}
+				is.close();
+			
+				Logger.debug("get responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
+			
+				po.close();
+			}
+			
+			HeaderSet dhs =  clientSession.disconnect(null);
+			Logger.debug("disconnect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(dhs.getResponseCode()));
 			
 			status = "Finished";
 			

@@ -23,6 +23,8 @@ package net.sf.bluecove;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -185,10 +187,10 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 	}
 	
 	public void onDisconnect(HeaderSet request, HeaderSet reply) {
+		Logger.debug("OBEX onDisconnect");
 		synchronized (connectionLock) {
 			connectionLock.notify();
 		}
-		Logger.debug("OBEX onDisconnect");
 	}
 	
 	public int onSetPath(HeaderSet request, HeaderSet reply, boolean backup, boolean create) {
@@ -224,6 +226,7 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 			if (buf.length() > 0) {
 				Logger.debug("cc:" + StringUtils.toBinaryText(buf));
 			}
+			op.close();
 			return ResponseCodes.OBEX_HTTP_OK;
 		} catch (IOException e) {
 			Logger.error("OBEX Server onPut error", e);
@@ -233,6 +236,24 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 	
 	public int onGet(Operation op) {
 		Logger.debug("OBEX onGet");
-		return super.onGet(op);
+		String message = "Hello client! now " + new Date().toString();
+		try {
+			HeaderSet hs = op.getReceivedHeaders();
+			String name = (String)hs.getHeader(HeaderSet.NAME);
+			if (name != null) {
+				message += "\nYou ask for [" + name + "]";
+			}
+			byte[] messageBytes = message.getBytes();
+			
+			OutputStream os = op.openOutputStream();
+			os.write(messageBytes);
+			os.flush();
+			os.close();
+			op.close();
+			return ResponseCodes.OBEX_HTTP_OK;
+		} catch (IOException e) {
+			Logger.error("OBEX Server onGet error", e);
+			return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
+		}
 	}
 }
