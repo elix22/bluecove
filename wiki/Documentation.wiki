@@ -39,6 +39,10 @@ In spring there was an attempt to make OS X port by Eric Wagner. The code is ava
 
 For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
 
+ We hope you enjoy using !BlueCove. Please note that this is an open-source effort.
+If you feel the code could use new features or fixes, or the documentation can be improved, please get involved and lend us a hand!
+The BlueCove developer community welcomes your participation.
+
 == Not Implemented functionality ===
 
   * `DiscoveryAgent.cancelServiceSearch(..)`  Implemented in 2.0.1
