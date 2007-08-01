@@ -107,6 +107,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("testL2CAP");
 		addConfig("TEST_CASE_L2CAP_FIRST");
 		addConfig("TEST_CASE_L2CAP_LAST");
+		addConfig("testServerOBEX_TCP");
 		addConfig("clientSleepBetweenConnections");
 		addConfig("clientTestTimeOutSec");
 		addConfig("serverSleepB4ClosingConnection");

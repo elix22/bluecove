@@ -58,6 +58,8 @@ public class Switcher implements Runnable {
 	
 	private static Thread tckGOEPThread;
 	
+	private static Thread tckOBEXThread;
+	
 	public Switcher() {
 		instance = this;
 	}
@@ -227,6 +229,15 @@ public class Switcher implements Runnable {
 						tckGOEPThread.start();
 					}
 				} catch (Throwable e) {
+					Logger.debug("Fail to start GOEP srv", e);
+				}
+				
+				try {
+					tckOBEXThread = createThreadByName("OBEXTCKAgent.OBEXTCKAgentApp");
+					if (tckOBEXThread != null) {
+						tckOBEXThread.start();
+					}
+				} catch (Throwable e) {
 					Logger.debug("Fail to start OBEX srv", e);
 				}
 			}
@@ -234,7 +245,7 @@ public class Switcher implements Runnable {
 	}
 	
 	public static boolean isTCKRunning() {
-		return (tckRFCOMMThread != null) || (tckL2CALthread != null) || (tckGOEPThread != null);
+		return (tckRFCOMMThread != null) || (tckL2CALthread != null) || (tckGOEPThread != null) || (tckOBEXThread != null);
 	}
 	
 	static void stopTCK() {
@@ -246,6 +257,9 @@ public class Switcher implements Runnable {
 
 		interruptThread(tckGOEPThread);
 		tckGOEPThread = null;
+		
+		interruptThread(tckOBEXThread);
+		tckOBEXThread = null;
 	}
 	
 	public static TestResponderClient createClient() {

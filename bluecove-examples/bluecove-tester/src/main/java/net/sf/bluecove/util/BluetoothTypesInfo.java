@@ -155,9 +155,12 @@ public abstract class BluetoothTypesInfo {
 			addName(Consts.RESPONDER_SHORT_UUID_L2CAP, "BlueCoveT L2CAP short");
 			addName(Consts.RESPONDER_LONG_UUID_L2CAP, "BlueCoveT L2CAP long");
 			
+			addName(Consts.RESPONDER_LONG_UUID_OBEX, "BlueCoveT OBEX");
+			
 			addName("3B9FA89520078C303355AAA694238F07", "JSR-82 TCK L2CAP AGENT");
 			addName("2000000031b811d88698000874b33fc0", "JSR-82 TCK RFCOMM AGENT");
 			addName("3000000031b811d88698000874b33fc0", "JSR-82 TCK BTGOEP AGENT");
+			addName("4000000031b811d88698000874b33fc0", "JSR-82 OBEX TCK AGENT");
 			
 		}
 
