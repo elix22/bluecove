@@ -67,13 +67,13 @@ public class ObexClientConnectionThread extends Thread  {
 				return;
 			}
 			status = "Connected";
-			HeaderSet chs = clientSession.connect(clientSession.createHeaderSet());
-			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(chs.getResponseCode()));
+			HeaderSet hsc = clientSession.connect(clientSession.createHeaderSet());
+			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsc.getResponseCode()));
 
 
-			HeaderSet hs = clientSession.createHeaderSet();
-			hs.setHeader(HeaderSet.NAME, name);
-			hs.setHeader(HeaderSet.TYPE, "text");
+			HeaderSet hsp = clientSession.createHeaderSet();
+			hsp.setHeader(HeaderSet.NAME, name);
+			hsp.setHeader(HeaderSet.TYPE, "text");
 
 			if (stoped) {
 				return;
@@ -81,7 +81,7 @@ public class ObexClientConnectionThread extends Thread  {
 			if (isPut) {
 				byte data[] = text.getBytes("iso-8859-1");
 				status = "Putting";
-				Operation po = clientSession.put(hs);
+				Operation po = clientSession.put(hsp);
 
 				OutputStream os = po.openOutputStream();
 				os.write(data);
@@ -92,7 +92,7 @@ public class ObexClientConnectionThread extends Thread  {
 				po.close();
 			} else {
 				status = "Getting";
-				Operation po = clientSession.get(hs);
+				Operation po = clientSession.get(hsp);
 
 				InputStream is = po.openInputStream();
 				StringBuffer buf = new StringBuffer();
@@ -113,8 +113,8 @@ public class ObexClientConnectionThread extends Thread  {
 				po.close();
 			}
 			
-			HeaderSet dhs =  clientSession.disconnect(null);
-			Logger.debug("disconnect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(dhs.getResponseCode()));
+			HeaderSet hsd =  clientSession.disconnect(null);
+			Logger.debug("disconnect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsd.getResponseCode()));
 			
 			status = "Finished";
 			
