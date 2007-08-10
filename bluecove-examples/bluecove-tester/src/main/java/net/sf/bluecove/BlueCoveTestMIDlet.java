@@ -116,4 +116,9 @@ public class BlueCoveTestMIDlet extends MIDlet {
         // invokeLater
         display.callSerially(r);
     }
+    
+    static void invokeLater(Runnable r) {
+    	Thread t = new Thread(r);
+    	t.start();
+    }
 }

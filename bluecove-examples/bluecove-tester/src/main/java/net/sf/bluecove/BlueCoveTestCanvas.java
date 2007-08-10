@@ -431,53 +431,58 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		}
 	}
 	
-	public void commandAction(Command c, Displayable d) {
-		if (c == exitCommand) {
-			Switcher.clientShutdown();
-			Switcher.serverShutdownOnExit();
-			BlueCoveTestMIDlet.exit();
-			return;
-		} else if (c == printStatsCommand) {
-			printStats();
-		} else if (c == printFailureLogCommand) {
-			printFailureLog();
-		} else if (c == clearCommand) {
-			 clear();
-		} else if (c == startDiscoveryCommand) {
-			Switcher.startDiscovery();
-		} else if (c == startServicesSearchCommand) {
-			Switcher.startServicesSearch();
-		} else if (c == startClientCommand) {
-			Switcher.startClient();
-		} else if (c == startClientStressCommand) {
-			Switcher.startClientStress();	
-		} else if (c == startClientLastServiceCommand) {
-			Switcher.startClientLastURl();
-		} else if (c == startClientLastDeviceCommand) {
-			Switcher.startClientLastDevice();
-		} else if (c == stopClientCommand) {
-			Switcher.clientShutdown();
-		} else if (c == stopServerCommand) {
-			Switcher.serverShutdown();
-		} else if (c == startServerCommand) {
-			Switcher.startServer();
-		} else if (c == startSwitcherCommand) {
-			startSwitcher();
-		} else if (c == stopSwitcherCommand) {
-			stopSwitcher();
-		} else if (c == configurationCommand) {
-			try {
-				BlueCoveTestMIDlet.setCurrentDisplayable(new BlueCoveTestConfigurationForm());
-			} catch (Throwable e) {
-				Logger.error("Internal error", e);
+	public void commandAction(final Command c, Displayable d) {
+		Runnable r = new Runnable() {
+			public void run() {
+				if (c == exitCommand) {
+					Switcher.clientShutdown();
+					Switcher.serverShutdownOnExit();
+					BlueCoveTestMIDlet.exit();
+					return;
+				} else if (c == printStatsCommand) {
+					printStats();
+				} else if (c == printFailureLogCommand) {
+					printFailureLog();
+				} else if (c == clearCommand) {
+					clear();
+				} else if (c == startDiscoveryCommand) {
+					Switcher.startDiscovery();
+				} else if (c == startServicesSearchCommand) {
+					Switcher.startServicesSearch();
+				} else if (c == startClientCommand) {
+					Switcher.startClient();
+				} else if (c == startClientStressCommand) {
+					Switcher.startClientStress();
+				} else if (c == startClientLastServiceCommand) {
+					Switcher.startClientLastURl();
+				} else if (c == startClientLastDeviceCommand) {
+					Switcher.startClientLastDevice();
+				} else if (c == stopClientCommand) {
+					Switcher.clientShutdown();
+				} else if (c == stopServerCommand) {
+					Switcher.serverShutdown();
+				} else if (c == startServerCommand) {
+					Switcher.startServer();
+				} else if (c == startSwitcherCommand) {
+					startSwitcher();
+				} else if (c == stopSwitcherCommand) {
+					stopSwitcher();
+				} else if (c == configurationCommand) {
+					try {
+						BlueCoveTestMIDlet.setCurrentDisplayable(new BlueCoveTestConfigurationForm());
+					} catch (Throwable e) {
+						Logger.error("Internal error", e);
+					}
+				} else if ((Configuration.likedTCKAgent) && (c == startTCKAgentCommand)) {
+					Switcher.startTCKAgent();
+				} else {
+					if (c != null) {
+						Logger.info("Command " + c.getLabel() + " not found");
+					}
+				}
 			}
-		} else if ((Configuration.likedTCKAgent) && (c == startTCKAgentCommand)) {
-			Switcher.startTCKAgent();
-		} else {
-			if (c != null) {
-				Logger.info("Command " + c.getLabel() + " not found");
-			}
-		}
+		};
+		BlueCoveTestMIDlet.invokeLater(r);
 	}
 
 }
