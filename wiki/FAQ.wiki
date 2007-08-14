@@ -16,7 +16,7 @@
 
     !BlueCove is JSR-82, All JSR-82 API Documentation apply. See  [http://www.j2medev.com/api/btapi/ Java APIs for Bluetooth Wireless Technology]
 
-    [http://bluecove.sourceforge.net/apidocs/index.html BlueCove Java docs]
+    [http://bluecove.sourceforge.net/apidocs/index.html BlueCove Java docs]. For application it is not recommended to use any classes or API other than defined in JSR-82.
 
     Also this link may be useful
      * [http://today.java.net/pub/a/today/2004/07/27/bluetooth.html  Getting Started with Java and Bluetooth]
