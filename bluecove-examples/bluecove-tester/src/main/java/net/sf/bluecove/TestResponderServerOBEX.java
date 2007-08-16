@@ -29,6 +29,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.bluetooth.LocalDevice;
+import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
@@ -54,6 +55,8 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 	private Object connectionLock = new Object(); 
 	
 	private boolean isConnected = false;
+	
+	private RemoteDevice remoteDevice;
 	
 	private TestResponderServerOBEX() {
 		
@@ -112,6 +115,8 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 					try {
 						Logger.info("Accepting OBEX connections");
 						cconn = serverConnection.acceptAndOpen(this);
+						remoteDevice = RemoteDevice.getRemoteDevice(cconn);
+						Logger.debug("connected toBTAddress " + remoteDevice.getBluetoothAddress());
 					} catch (InterruptedIOException e) {
 						isStoped = true;
 						break;
@@ -140,6 +145,7 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 						isStoped = true;
 					} finally {
 						notConnectedTimer.cancel();
+						remoteDevice = null;
 					}
 				}
 				IOUtils.closeQuietly(cconn);
@@ -183,6 +189,12 @@ public class TestResponderServerOBEX extends ServerRequestHandler implements Run
 	public int onConnect(HeaderSet request, HeaderSet reply) {
 		isConnected = true;
 		Logger.debug("OBEX onConnect");
+		if (Configuration.authenticate.booleanValue()) {
+			if (!remoteDevice.isAuthenticated()) {
+				return ResponseCodes.OBEX_HTTP_UNAUTHORIZED;
+			}
+			Logger.debug("OBEX connection Authenticated");
+		}
 		return ResponseCodes.OBEX_HTTP_OK;
 	}
 	
