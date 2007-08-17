@@ -275,6 +275,14 @@ public class Configuration {
 		return requiredSecurity;
 	}
 	
+	public static String serverURLParams() {
+		StringBuffer buf = new StringBuffer(); 
+		buf.append(";authenticate=").append(authenticate.booleanValue() ? "true" : "false");
+		buf.append(";encrypt=").append(encrypt.booleanValue() ? "true" : "false");
+		buf.append(";authorize=").append(authorize ? "true" : "false");
+		return buf.toString();
+	}
+	
 	public static String getLastServerURL() {
 		if (lastServerURL == null) {
 			lastServerURL = Configuration.storage.retriveData(Storage.configLastServiceURL);

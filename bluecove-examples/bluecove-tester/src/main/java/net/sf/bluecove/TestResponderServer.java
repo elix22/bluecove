@@ -278,11 +278,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			
 			if (Configuration.testRFCOMM.booleanValue()) {
-				serverConnection = (StreamConnectionNotifier) Connector.open("btspp://localhost:"
-						+ Configuration.blueCoveUUID() + ";name=" + Consts.RESPONDER_SERVERNAME + "_rf;authenticate="
-						+ (Configuration.authenticate.booleanValue() ? "true" : "false") + ";encrypt="
-						+ (Configuration.encrypt.booleanValue() ? "true" : "false") + ";authorize="
-						+ (Configuration.authorize ? "true" : "false"));
+				serverConnection = (StreamConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_RFCOMM + "://localhost:"
+						+ Configuration.blueCoveUUID() 
+						+ ";name=" + Consts.RESPONDER_SERVERNAME + "_rf"
+						+ Configuration.serverURLParams());
 
 				connectorOpenTime = System.currentTimeMillis();
 				Logger.info("ResponderServer started " + TimeUtils.timeNowToString());

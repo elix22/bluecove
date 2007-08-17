@@ -63,11 +63,8 @@ public class TestResponderServerL2CAP extends Thread {
 		try {
 			serverConnection =  (L2CAPConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_L2CAP + "://localhost:"
 					+ Configuration.blueCoveL2CAPUUID()
-					+ ";name="
-					+ Consts.RESPONDER_SERVERNAME + "_l2"
-					+ ";authenticate=" + (Configuration.authenticate.booleanValue()?"true":"false")
-					+ ";encrypt=" + (Configuration.encrypt.booleanValue()?"true":"false")
-					+ ";authorize=" + (Configuration.authorize?"true":"false")
+					+ ";name=" + Consts.RESPONDER_SERVERNAME + "_l2"
+					+ Configuration.serverURLParams()
 					+ ";TransmitMTU=" + L2CAPConnection.DEFAULT_MTU
 					+ ";ReceiveMTU=" + L2CAPConnection.DEFAULT_MTU);
 			if (Configuration.testServiceAttributes.booleanValue()) {
