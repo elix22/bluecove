@@ -146,9 +146,40 @@ public class TestResponderServerOBEX implements Runnable {
 		close();
 	}
 
+	/*  We testing on Java 1.1 and Timer is not important
+	 */
+	private class NoTimeWrapper {
+		
+		Object timer;
+		
+		NoTimeWrapper() {
+			try {
+				timer = new Timer();
+			} catch (Throwable e) {
+				Logger.warn("OBEX Server has no timer");
+			}
+		}
+		
+		void schedule(final RequestHandler handler) {
+			if (timer != null) {
+				((Timer) timer).schedule(new TimerTask() {
+					public void run() {
+						handler.notConnectedClose();
+					}
+				}, 1000 * 30);
+			}
+		}
+		
+		void cancel() {
+			if (timer != null) {
+				((Timer) timer).cancel();
+			}
+		}
+	}
+	
 	private class RequestHandler extends ServerRequestHandler {
 
-		Timer notConnectedTimer = new Timer();
+		NoTimeWrapper notConnectedTimer = new NoTimeWrapper();
 		
 		boolean isConnected = false;
 
@@ -166,11 +197,7 @@ public class TestResponderServerOBEX implements Runnable {
 				Logger.error("OBEX Server error", e);
 			}
 			if (!isConnected) {
-				notConnectedTimer.schedule(new TimerTask() {
-					public void run() {
-						notConnectedClose();
-					}
-				}, 1000 * 30);
+				notConnectedTimer.schedule(this);
 			}
 		}	
 		
