@@ -238,6 +238,16 @@ public class TestResponderServerOBEX implements Runnable {
 		public int onPut(Operation op) {
 			Logger.debug("OBEX onPut");
 			try {
+				HeaderSet hs = op.getReceivedHeaders();
+				String name = (String) hs.getHeader(HeaderSet.NAME);
+				if (name != null) {
+					Logger.debug("name:" + name);
+
+					HeaderSet sendHeaders = createHeaderSet();
+					sendHeaders.setHeader(HeaderSet.DESCRIPTION, name);
+					op.sendHeaders(sendHeaders);
+				}
+				
 				InputStream is = op.openInputStream();
 
 				StringBuffer buf = new StringBuffer();
@@ -273,8 +283,14 @@ public class TestResponderServerOBEX implements Runnable {
 			try {
 				HeaderSet hs = op.getReceivedHeaders();
 				String name = (String) hs.getHeader(HeaderSet.NAME);
+				
 				if (name != null) {
 					message += "\nYou ask for [" + name + "]";
+				}
+				if (name != null) {
+					HeaderSet sendHeaders = createHeaderSet();
+					sendHeaders.setHeader(HeaderSet.DESCRIPTION, name);
+					op.sendHeaders(sendHeaders);
 				}
 				byte[] messageBytes = message.getBytes();
 

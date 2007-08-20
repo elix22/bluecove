@@ -89,6 +89,12 @@ public class ObexClientConnectionThread extends Thread  {
 			
 				Logger.debug("put responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
 			
+				HeaderSet receivedHeaders = po.getReceivedHeaders();
+				String description = (String)receivedHeaders.getHeader(HeaderSet.DESCRIPTION);
+				if (description != null) {
+					Logger.debug("Description " + description);
+				}
+				
 				po.close();
 			} else {
 				status = "Getting";
@@ -110,6 +116,12 @@ public class ObexClientConnectionThread extends Thread  {
 			
 				Logger.debug("get responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
 			
+				HeaderSet receivedHeaders = po.getReceivedHeaders();
+				String description = (String)receivedHeaders.getHeader(HeaderSet.DESCRIPTION);
+				if (description != null) {
+					Logger.debug("Description " + description);
+				}
+				
 				po.close();
 			}
 			

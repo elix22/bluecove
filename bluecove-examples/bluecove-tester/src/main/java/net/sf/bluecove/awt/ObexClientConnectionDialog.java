@@ -167,8 +167,11 @@ public class ObexClientConnectionDialog extends Dialog {
 		this.pack();
 		OkCancelDialog.centerParent(this);
 		
-		monitorTimer = new Timer();
-		monitorTimer.schedule(new ObexConnectionMonitor(), 1000, 700);
+		try {
+			monitorTimer = new Timer();
+			monitorTimer.schedule(new ObexConnectionMonitor(), 1000, 700);
+		} catch (Throwable java11) {
+		}
 	}
 	
 	protected void send(boolean isPut) {
@@ -196,7 +199,10 @@ public class ObexClientConnectionDialog extends Dialog {
 
 	protected void onClose() {
 		shutdown();
-		monitorTimer.cancel();
+		try {
+			monitorTimer.cancel();
+		} catch (Throwable java11) {
+		}
 		setVisible(false);
 	}
 

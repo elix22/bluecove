@@ -233,8 +233,11 @@ public class ClientConnectionDialog extends Dialog {
 		this.pack();
 		OkCancelDialog.centerParent(this);
 		
-		monitorTimer = new Timer();
-		monitorTimer.schedule(new ConnectionMonitor(), 1000, 1000);
+		try {
+			monitorTimer = new Timer();
+			monitorTimer.schedule(new ConnectionMonitor(), 1000, 1000);
+		} catch (Throwable java11) {
+		}
 	}
 	
 	protected void connect() {
@@ -277,7 +280,10 @@ public class ClientConnectionDialog extends Dialog {
 
 	protected void onClose() {
 		shutdown();
-		monitorTimer.cancel();
+		try {
+			monitorTimer.cancel();
+		} catch (Throwable java11) {
+		}
 		setVisible(false);
 	}
 

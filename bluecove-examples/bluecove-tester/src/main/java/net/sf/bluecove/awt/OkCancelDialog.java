@@ -76,10 +76,13 @@ public abstract class OkCancelDialog extends Dialog {
 	
 	public static void centerParent(Component window) {
 		if (!Configuration.screenSizeSmall) {
-			Rectangle b = window.getParent().getBounds();
-			// b.getWidth(); Not for J9
-			int bWidth = b.getBounds().width;
-			window.setLocation(b.x + (int) ((bWidth - window.getWidth()) / 2), b.y + 60);
+			try {
+				Rectangle b = window.getParent().getBounds();
+				// b.getWidth(); Not for J9
+				int bWidth = b.getBounds().width;
+				window.setLocation(b.x + (int) ((bWidth - window.getWidth()) / 2), b.y + 60);
+			} catch (Throwable java11) {
+			}
 		}
 	}
 }
