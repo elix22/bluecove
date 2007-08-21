@@ -91,7 +91,7 @@
                     <j2meConfiguration>CLDC-1.1</j2meConfiguration>
                     <wtkHome>${env.WTK_HOME}</wtkHome>
                     <proguard>true</proguard>
-                    <obfuscate>false</obfuscate>
+                    <obfuscate>true</obfuscate>
                     <appendClassifier>false</appendClassifier>
                     <jarfile>${mainjarname}</jarfile>
                     <jadfile>${mainjarname}</jadfile>
