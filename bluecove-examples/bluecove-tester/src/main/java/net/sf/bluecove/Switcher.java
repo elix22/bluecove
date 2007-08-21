@@ -208,14 +208,14 @@ public class Switcher implements Runnable {
 		}
 		
 		if (Configuration.likedTCKAgent) {
-			tckRFCOMMThread = createThreadByName("BluetoothTCKAgent.RFCOMMThread");
+			tckRFCOMMThread = new BluetoothTCKAgent.RFCOMMThread("RFCOMMThread");
 			if (tckRFCOMMThread == null) {
 				Logger.info("Due to the License we do not include the TCK agent in distribution");	
 			} else {
 				tckRFCOMMThread.start();
 				
 				try {
-					tckL2CALthread = createThreadByName("BluetoothTCKAgent.L2CAPThread");
+					tckL2CALthread = new BluetoothTCKAgent.L2CAPThread("L2CAPThread");
 					if (tckL2CALthread != null) {
 						tckL2CALthread.start();
 					}
@@ -224,7 +224,7 @@ public class Switcher implements Runnable {
 				}
 				
 				try {
-					tckGOEPThread = createThreadByName("BluetoothTCKAgent.GOEPThread");
+					tckGOEPThread = new BluetoothTCKAgent.GOEPThread("GOEPThread");
 					if (tckGOEPThread != null) {
 						tckGOEPThread.start();
 					}
@@ -233,7 +233,7 @@ public class Switcher implements Runnable {
 				}
 				
 				try {
-					tckOBEXThread = createThreadByName("OBEXTCKAgent.OBEXTCKAgentApp");
+					tckOBEXThread = new OBEXTCKAgent.OBEXTCKAgentApp("10", Configuration.testServerOBEX_TCP?"tcpobex":"btgoep");
 					if (tckOBEXThread != null) {
 						tckOBEXThread.start();
 					}

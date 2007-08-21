@@ -30,6 +30,7 @@
 package BluetoothTCKAgent;
 
 import java.io.*;
+
 import javax.microedition.io.*;
 import javax.obex.*;
 
@@ -73,9 +74,15 @@ public class GOEPThread extends Thread {
                 TCKAgentUtil.pause(TCKAgentUtil.MEDIUM);
                 System.out.println("GOEPThread: closing session");
                 session.close();                
+            } catch (InterruptedIOException e) {
+            	System.out.println("GOEPThread:TCK Interrupted");
+            	return;
             } catch (Exception e) {
                 System.out.println("GOEPThread: Error occured when " + 
                                    "connecting with client: " + e);
+                if ("Stack closed".equals(e.getMessage())) {
+                	return;
+                }
                 try {
                     session.close();
                 } catch(Exception ex) {

@@ -29,6 +29,8 @@
 
 package BluetoothTCKAgent;
 
+import java.io.InterruptedIOException;
+
 import javax.bluetooth.DataElement;
 import javax.bluetooth.L2CAPConnection;
 import javax.bluetooth.L2CAPConnectionNotifier;
@@ -84,10 +86,16 @@ public class L2CAPThread extends Thread {
                 System.out.println("L2CAPThread: "
                         + "Waiting for Client to Connect");
                 channel = server.acceptAndOpen();
+            } catch (InterruptedIOException e) {
+            	System.out.println("L2CAPThread:TCK Interrupted");
+            	return;
             } catch (Exception e) {
                 System.out.println("L2CAPThread: Error connecting to "
                         + "client. Aborting connection.");
                 can_run = false;
+                if ("Stack closed".equals(e.getMessage())) {
+                	return;
+                }
             } finally {
                 if (!can_run) {
                     command = "CLOSE";

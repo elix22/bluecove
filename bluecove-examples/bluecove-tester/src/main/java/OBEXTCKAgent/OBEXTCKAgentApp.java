@@ -31,8 +31,11 @@ package OBEXTCKAgent;
 
 import java.lang.*;
 import java.io.*;
+
 import javax.obex.*;
 import javax.microedition.io.*;
+
+import BluetoothTCKAgent.System;
 
 /**
  * The OBEXTCKAgent class contains the main method of the OBEX TCK
@@ -167,10 +170,16 @@ public class OBEXTCKAgentApp extends Thread {
             try {
                 session = server.acceptAndOpen(agent.handler,
                     agent.auth);
+            } catch (InterruptedIOException e) {
+            	System.out.println("OBEX TCK Agent Interrupted");  
+            	return;
             } catch (Exception e) {
                 System.out.println("Exception: " +
                     e.getClass().getName() + " " +
                     e.getMessage());
+                if ("Stack closed".equals(e.getMessage())) {
+                	return;
+                }
                 try {
                     Thread.sleep(timeout * 10);
                 } catch(Exception ex) {

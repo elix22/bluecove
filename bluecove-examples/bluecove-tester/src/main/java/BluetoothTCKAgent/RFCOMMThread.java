@@ -66,11 +66,17 @@ public class RFCOMMThread extends Thread {
                 System.out.println("RFCOMMThread: Waiting for Client" +
                                     " to Connect");
                 channel = server.acceptAndOpen();
+            } catch (InterruptedIOException e) {
+            	System.out.println("RFCOMMThread:TCK Interrupted");
+            	return;
             } catch (Exception e) {
                 System.out.println("RFCOMMThread: Error occurred when " +
                                     "connecting with client:" + e);
                 can_run = false;
                 command = "CLOSE";
+                if ("Stack closed".equals(e.getMessage())) {
+                	return;
+                }
             }
 
             if (can_run) {
