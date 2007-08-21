@@ -21,6 +21,7 @@
 package net.sf.bluecove.awt;
 
 import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Component;
 import java.awt.Font;
@@ -29,6 +30,8 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
@@ -52,9 +55,13 @@ public class ConfigurationDialog extends OkCancelDialog {
 
 	private static final long serialVersionUID = 1L;
 	
-	Panel panelItems;
+	private Panel panelItems;
 	
-	Vector configItems = new Vector(); 
+	private Vector configItems = new Vector(); 
+	
+	private Button btnPagePrev, btnPageNext; 
+	
+	private int page = 0;
 	
 	private class ConfigurationComponent {
 		
@@ -69,6 +76,21 @@ public class ConfigurationDialog extends OkCancelDialog {
 	
 	public ConfigurationDialog(Frame owner) {
 		super(owner, "Configuration", true);
+		
+		panelBtns.add(btnPagePrev = new Button("<<"));
+		btnPagePrev.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onPage(-1);
+			}
+		});
+		
+		panelBtns.add(btnPageNext = new Button(">>"));
+		btnPageNext.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onPage(1);
+			}
+		});
+		
 		if (Configuration.screenSizeSmall) {
 			this.setFont(new Font("Default", Font.PLAIN, 9));
 		}
@@ -90,16 +112,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("discoveryUUID");
 		
 		addConfig("useShortUUID");
-		addConfig("clientContinuous");
-		addConfig("clientContinuousDiscovery");
-		addConfig("clientContinuousDiscoveryDevices");
-		addConfig("clientContinuousServicesSearch");
-		addConfig("clientTestConnections");
-
-		addConfig("authenticate");
-		addConfig("encrypt");
-		addConfig("authorize");
-		
+	
 		addConfig("testRFCOMM");
 		addConfig("TEST_CASE_FIRST");
 		addConfig("TEST_CASE_LAST");
@@ -108,6 +121,14 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("TEST_CASE_L2CAP_FIRST");
 		addConfig("TEST_CASE_L2CAP_LAST");
 		addConfig("testServerOBEX_TCP");
+		addConfig("authenticateOBEX");
+		
+		addConfig(null);
+		
+		addConfig("authenticate");
+		addConfig("encrypt");
+		addConfig("authorize");
+		
 		addConfig("clientSleepBetweenConnections");
 		addConfig("clientTestTimeOutSec");
 		addConfig("serverSleepB4ClosingConnection");
@@ -115,8 +136,15 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("testIgnoreNotWorkingServiceAttributes");
 		addConfig("testAllServiceAttributes");
 
+		addConfig("clientContinuous");
+		addConfig("clientContinuousDiscovery");
+		addConfig("clientContinuousDiscoveryDevices");
+		addConfig("clientContinuousServicesSearch");
+		addConfig("clientTestConnections");
+		
 		panelItems.setLayout(new GridLayout(configItems.size(), 2));
 		
+		buildUIItems();
 		updateGUI();
 
 		this.pack();
@@ -130,11 +158,20 @@ public class ConfigurationDialog extends OkCancelDialog {
 		setVisible(false);
 	}
 	
+	private void onPage(int i) {
+		page += i;
+		updateConfig();
+		buildUIItems();
+		updateGUI();
+	}
+	
 	private void updateGUI() {
 		for (Iterator iter = configItems.iterator(); iter.hasNext();) {
 			ConfigurationComponent cc = (ConfigurationComponent) iter.next();
+			if (cc.guiComponent == null) {
+				continue;
+			}
 			Class type = cc.configField.getType();
-			
 			try {
 				if (type.equals(boolean.class)) {
 					Checkbox c = (Checkbox) cc.guiComponent;
@@ -159,11 +196,65 @@ public class ConfigurationDialog extends OkCancelDialog {
 				Logger.error("internal error for " + cc.name, e);
 			}
 		}
+		this.pack();
+	}
+	
+	private void buildUIItems() {
+		
+		panelItems.removeAll();
+		
+		int cPage = 0;
+		int lineCount = 0;
+		for (Iterator iter = configItems.iterator(); iter.hasNext();) {
+			
+			final ConfigurationComponent cc = (ConfigurationComponent) iter.next();
+			
+			if (cc.name == null) {
+				cPage ++;
+				continue;
+			}
+			if (cPage != page) {
+				cc.guiComponent = null;
+				continue;
+			}
+			
+			Class type = cc.configField.getType();
+			
+			if ((type.equals(boolean.class)) || (type.equals(BooleanVar.class))) {
+				Checkbox c = new Checkbox();
+				cc.guiComponent = c;
+			} else if ((type.equals(String.class)) || (type.equals(StringVar.class)) || (type.equals(UUID.class)) || (type.equals(int.class))|| (type.equals(IntVar.class))) {
+				TextField tf = new TextField(); 
+				cc.guiComponent = tf; 
+			} else {
+				Logger.error("internal error for " + cc.name + " unsupported class " + type.getName());
+				return;
+			}
+
+			Label l = new Label(cc.name);
+			panelItems.add(l);
+			panelItems.add(cc.guiComponent);
+			
+			lineCount ++;
+			
+			l.addMouseListener(new MouseAdapter() {
+				Component guiComponent = cc.guiComponent;
+				public void mouseClicked(MouseEvent e) {
+					guiComponent.requestFocus();
+				}
+			});
+		}
+		panelItems.setLayout(new GridLayout(lineCount, 2));
+		btnPagePrev.setEnabled((page > 0));
+		btnPageNext.setEnabled((cPage > page));
 	}
 	
 	private void updateConfig() {
 		for (Iterator iter = configItems.iterator(); iter.hasNext();) {
 			ConfigurationComponent cc = (ConfigurationComponent) iter.next();
+			if (cc.guiComponent == null) {
+				continue;
+			}
 			Class type = cc.configField.getType();
 			try {
 				if (type.equals(boolean.class)) {
@@ -195,41 +286,17 @@ public class ConfigurationDialog extends OkCancelDialog {
 	}
 	
 	private void addConfig(String name) {
-		final ConfigurationComponent cc = new ConfigurationComponent();
+		ConfigurationComponent cc = new ConfigurationComponent();
 		cc.name = name;
-		
-		try {
-			cc.configField = Configuration.class.getDeclaredField(name);
-			
-		} catch (Throwable e) {
-			Logger.error("internal error for " + name, e);
-			return;
-		}
-		
-		Class type = cc.configField.getType();
-		
-		if ((type.equals(boolean.class)) || (type.equals(BooleanVar.class))) {
-			Checkbox c = new Checkbox();
-			cc.guiComponent = c;
-		} else if ((type.equals(String.class)) || (type.equals(StringVar.class)) || (type.equals(UUID.class)) || (type.equals(int.class))|| (type.equals(IntVar.class))) {
-			TextField tf = new TextField(); 
-			cc.guiComponent = tf; 
-		} else {
-			Logger.error("internal error for " + name + " unsupported class " + type.getName());
-			return;
-		}
-
-		Label l = new Label(name);
-		panelItems.add(l);
-		panelItems.add(cc.guiComponent);
-		
-		l.addMouseListener(new MouseAdapter() {
-			Component guiComponent = cc.guiComponent;
-			public void mouseClicked(MouseEvent e) {
-				guiComponent.requestFocus();
+		if (cc.name != null) {
+			try {
+				cc.configField = Configuration.class.getDeclaredField(name);
+			} catch (Throwable e) {
+				Logger.error("internal error for " + name, e);
+				return;
 			}
-		});
-		
+		}
+		cc.guiComponent = null;
 		configItems.addElement(cc);
 	}
 

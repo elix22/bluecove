@@ -29,7 +29,9 @@ import javax.obex.ClientSession;
 import javax.obex.HeaderSet;
 import javax.obex.Operation;
 
+import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
+import net.sf.bluecove.OBEXTestAuthenticator;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.IOUtils;
 
@@ -51,11 +53,14 @@ public class ObexClientConnectionThread extends Thread  {
 	
 	private ClientSession clientSession;
 	
+	private static int count = 0;
+	
 	public ObexClientConnectionThread(String serverURL, String name, String text, boolean isPut) {
 		this.serverURL = serverURL;
 		this.name = name;
 		this.text = text;
 		this.isPut = isPut;
+		count ++;
 	}
 	
 	public void run() {
@@ -66,22 +71,29 @@ public class ObexClientConnectionThread extends Thread  {
 			if (stoped) {
 				return;
 			}
+			if (Configuration.authenticateOBEX.booleanValue()) {
+				clientSession.setAuthenticator(new OBEXTestAuthenticator("client" + count));
+			}
 			status = "Connected";
-			HeaderSet hsc = clientSession.connect(clientSession.createHeaderSet());
-			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsc.getResponseCode()));
+			HeaderSet hsConnect = clientSession.createHeaderSet();
+			HeaderSet hsConnectReply = clientSession.connect(hsConnect);
+			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsConnectReply.getResponseCode()));
 
 
-			HeaderSet hsp = clientSession.createHeaderSet();
-			hsp.setHeader(HeaderSet.NAME, name);
-			hsp.setHeader(HeaderSet.TYPE, "text");
+			HeaderSet hsOperation = clientSession.createHeaderSet();
+			hsOperation.setHeader(HeaderSet.NAME, name);
+			hsOperation.setHeader(HeaderSet.TYPE, "text");
 
+			if (Configuration.authenticateOBEX.booleanValue()) {
+				hsOperation.createAuthenticationChallenge("OBEX-Test", false, true);
+			}
 			if (stoped) {
 				return;
 			}
 			if (isPut) {
 				byte data[] = text.getBytes("iso-8859-1");
 				status = "Putting";
-				Operation po = clientSession.put(hsp);
+				Operation po = clientSession.put(hsOperation);
 
 				OutputStream os = po.openOutputStream();
 				os.write(data);
@@ -98,7 +110,7 @@ public class ObexClientConnectionThread extends Thread  {
 				po.close();
 			} else {
 				status = "Getting";
-				Operation po = clientSession.get(hsp);
+				Operation po = clientSession.get(hsOperation);
 
 				InputStream is = po.openInputStream();
 				StringBuffer buf = new StringBuffer();

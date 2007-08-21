@@ -101,12 +101,19 @@ public class TestResponderServerOBEX implements Runnable {
 
 		try {
 			int errorCount = 0;
+			int count  = 0;
 			isRunning = true;
 			while (!isStoped) {
 				RequestHandler handler = new RequestHandler();
 				try {
+					count ++;
 					Logger.info("Accepting OBEX connections");
-					handler.connectionAccepted(serverConnection.acceptAndOpen(handler));
+					if (Configuration.authenticateOBEX.booleanValue()) {
+						handler.auth = new OBEXTestAuthenticator("server" + count);
+						handler.connectionAccepted(serverConnection.acceptAndOpen(handler, handler.auth));
+					} else {
+						handler.connectionAccepted(serverConnection.acceptAndOpen(handler));
+					}
 				} catch (InterruptedIOException e) {
 					isStoped = true;
 					break;
@@ -179,6 +186,8 @@ public class TestResponderServerOBEX implements Runnable {
 	
 	private class RequestHandler extends ServerRequestHandler {
 
+		OBEXTestAuthenticator auth; 
+		
 		NoTimeWrapper notConnectedTimer = new NoTimeWrapper();
 		
 		boolean isConnected = false;
@@ -214,7 +223,7 @@ public class TestResponderServerOBEX implements Runnable {
 			Logger.debug("OBEX onConnect");
 			if (Configuration.authenticate.booleanValue()) {
 				if (!remoteDevice.isAuthenticated()) {
-					return ResponseCodes.OBEX_HTTP_UNAUTHORIZED;
+					return ResponseCodes.OBEX_HTTP_FORBIDDEN;
 				}
 				Logger.debug("OBEX connection Authenticated");
 			}
@@ -306,6 +315,10 @@ public class TestResponderServerOBEX implements Runnable {
 			} finally {
 				Logger.debug("OBEX onGet ends");
 			}
+		}
+		
+		public void onAuthenticationFailure(byte[] userName) {
+			Logger.debug("OBEX AuthFailure " + new String(userName));
 		}
 
 	}
