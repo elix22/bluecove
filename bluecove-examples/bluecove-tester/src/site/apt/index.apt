@@ -18,9 +18,11 @@ BlueCove test application
 
     * Simplify the start of {{{https://opensource.motorola.com/sf/sfmain/do/viewProject/projects.jsr82}JSR 82 TCK Agent}} using BlueCove
 
-    WebStart AWT Test application can also be used as simple Bluetooth client to do Device and Service Discovery.
+    []
 
-    Tests contains MIDlet responder application and J2SE application. We are testing BlueCove before release on WinXP connecting to Nokia, Motorola and Sony Ericsson phones.
+    Test application can also be used as simple Bluetooth client for Device and Service Discovery.
+
+    Tests contains {{{#MIDlet}MIDlet}} application and {{{#Start}J2SE AWT application}}. We are testing BlueCove before release on WinXP connecting to Nokia, Motorola and Sony Ericsson phones.
 
     Server and Client application can be started directly from this page using Java Web Start.
 
@@ -31,9 +33,7 @@ BlueCove test application
 
     For tests you need two devices. Once device should run as server another as client. You can switch roles in the application.
 
-    There is no fancy GUI! Just communication log windows.
-
-    While client is running you will see the log like this:
+    There is no fancy GUI! Just communication log windows.  While client is running you will see the log like this:
 
 ---
 Client started...21:52:02
@@ -68,11 +68,11 @@ Server failure 0
 ---
 
 
-* Start BlueCove on Windows
+* {Start} BlueCove on Windows
 
-   You can start Java Web Start with MIDlet application and see how it communicates with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
+   You can start Java Web Start with MIDlet application and see how it communicates with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart MIDlet now}}>>>.
 
-   Also AWT test application can be used in Java Web Start. <<<{{{awt-bctest.jnlp}\u00bbStart now}}>>>.
+   Also AWT test application can be used in Java Web Start. <<<{{{awt-bctest.jnlp}\u00bbStart application now}}>>>.
 
    You can start two Java Web Start applications and see how they communicate if you have two different Bluetooth Stacks. e.g. Winsock (Microsoft) and WIDCOMM (Broadcom).
    More information on {{{http://code.google.com/p/bluecove/wiki/stacks}BlueCove supported stacks here}}
@@ -99,7 +99,7 @@ java -jar bluecove-tester-app.jar
 java -cp avetanaBluetooth.jar;bluecove-tester-app.jar net.sf.bluecove.awt.Main
 ---
 
-on Linux
+* on Linux
 
 ---
 java -cp avetanaBluetooth.jar:bluecove-tester-app.jar net.sf.bluecove.awt.Main
@@ -114,17 +114,39 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
     bluecove-tester-app.jar is the same application as bluecove-tester.jar only JUnit and BlueCove classes are included.
 
 
-* This is the test MIDlet. It can run on a {{{http://code.google.com/p/bluecove/wiki/phones} cell phone with JSR-82}}
+* This is the test {MIDlet}. It can run on a {{{http://code.google.com/p/bluecove/wiki/phones} cell phone with JSR-82}}
 
     * {{{bctest.jar}bctest.jar}}
 
     * {{{bctest.jad}bctest.jad}}
+
+    []
 
     You can upload this MIDlet to your cell phone and use it as responder for BlueCove application on PC.
 
     <<<{{{../obex-install/push-local/~/bluecove-tester/bctest.jnlp}\u00bbInstall MIDlet now}}>>>
 
     See {{{http://code.google.com/p/bluecove/wiki/phones}complete list of the JSR-82 compliant phones}}
+
+    MIDlet application hot keys:
+
+    * <<<2>>> - Start Client
+
+    * <<<3>>> - Stop Client
+
+    * <<<5>>> - Start Server
+
+    * <<<6>>> - Stop Server
+
+    * <<<*>>> - Run Discovery
+
+    * <<<Arrows>>> - Scroll log
+
+    * <<<#>>> - Clear log
+
+    * <<<0>>> - Scroll to the end of the log
+
+    []
 
 * Windows Mobile
 
