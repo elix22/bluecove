@@ -8,7 +8,15 @@
 
 BlueCove test application
 
-    This Project used to test BlueCove. We are using it in addition to {{{../../tck}JSR 82 TCK tests}} because it is simple.
+    This Project used to test BlueCove. We are using it in addition to {{{../../tck}JSR 82 TCK tests}} because it is simple to start and we can add implementation specific cases.
+
+    The goals of this project:
+
+    * Verify BlueCove communication with other devices
+
+    * Verify BlueCove stability using long running tests
+
+    * Simplify the start of {{{https://opensource.motorola.com/sf/sfmain/do/viewProject/projects.jsr82}JSR 82 TCK Agent}} using BlueCove
 
     WebStart AWT Test application can also be used as simple Bluetooth client to do Device and Service Discovery.
 
