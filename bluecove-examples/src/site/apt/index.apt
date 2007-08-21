@@ -21,3 +21,6 @@ BlueCove examples project
 
     You can help us to make BlueCove better or understand how we are testing it look {{{bluecove-tester}here}}.
 
+* BlueCove OBEX Push J2ME application installer
+
+    This application will install MIDlets on your mobile phone using Bluetooth. Details {{{obex-install}here}}.
