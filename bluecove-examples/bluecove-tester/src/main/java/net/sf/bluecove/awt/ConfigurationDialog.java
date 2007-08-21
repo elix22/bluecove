@@ -35,7 +35,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
-import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.Vector;
 
 import javax.bluetooth.UUID;
@@ -166,8 +166,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 	}
 	
 	private void updateGUI() {
-		for (Iterator iter = configItems.iterator(); iter.hasNext();) {
-			ConfigurationComponent cc = (ConfigurationComponent) iter.next();
+		for(Enumeration en = configItems.elements(); en.hasMoreElements(); ) {
+			ConfigurationComponent cc = (ConfigurationComponent)en.nextElement();
 			if (cc.guiComponent == null) {
 				continue;
 			}
@@ -205,9 +205,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 		
 		int cPage = 0;
 		int lineCount = 0;
-		for (Iterator iter = configItems.iterator(); iter.hasNext();) {
-			
-			final ConfigurationComponent cc = (ConfigurationComponent) iter.next();
+		for(Enumeration en = configItems.elements(); en.hasMoreElements(); ) {
+			final  ConfigurationComponent cc = (ConfigurationComponent)en.nextElement();
 			
 			if (cc.name == null) {
 				cPage ++;
@@ -250,8 +249,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 	}
 	
 	private void updateConfig() {
-		for (Iterator iter = configItems.iterator(); iter.hasNext();) {
-			ConfigurationComponent cc = (ConfigurationComponent) iter.next();
+		for(Enumeration en = configItems.elements(); en.hasMoreElements(); ) {
+			ConfigurationComponent cc = (ConfigurationComponent)en.nextElement();
 			if (cc.guiComponent == null) {
 				continue;
 			}
