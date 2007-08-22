@@ -65,8 +65,8 @@ public class TestResponderServerL2CAP extends Thread {
 					+ Configuration.blueCoveL2CAPUUID()
 					+ ";name=" + Consts.RESPONDER_SERVERNAME + "_l2"
 					+ Configuration.serverURLParams()
-					+ ";TransmitMTU=" + L2CAPConnection.DEFAULT_MTU
-					+ ";ReceiveMTU=" + L2CAPConnection.DEFAULT_MTU);
+					+ ";TransmitMTU=" + TestResponderCommon.receiveMTU_max
+					+ ";ReceiveMTU=" + TestResponderCommon.receiveMTU_max);
 			if (Configuration.testServiceAttributes.booleanValue()) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 				if (record == null) {
