@@ -10,10 +10,20 @@ if errorlevel 1 (
     exit /b 1
 )
 
-rem set ARGS=-Xdomain:trusted
-set ARGS=-Xdomain:untrusted
+echo WTK_HOME=[%WTK_HOME%]
 
-..\..\..\..\..\..\tools\WTK22\bin\emulator.exe %ARGS% -Xautotest:http://localhost:8080/getNextApp.jad
+rem set ARGS=-Xdomain:trusted
+rem set ARGS=-Xdomain:untrusted
+set ARGS=-Xdomain:manufacturer
+
+rem set ARGS=%ARGS% -Xverbose:class
+rem set ARGS=%ARGS% -Xverbose:exceptions
+
+title TCK tests on Sun WTK
+
+set GATLING_HOST=localhost
+
+%WTK_HOME%\bin\emulator.exe %ARGS% -Xautotest:http://%GATLING_HOST%:8080/getNextApp.jad
 
 if errorlevel 1 goto errormark
 echo [Launched OK]
