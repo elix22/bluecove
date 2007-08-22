@@ -71,11 +71,14 @@ public class ObexClientConnectionThread extends Thread  {
 			if (stoped) {
 				return;
 			}
-			if (Configuration.authenticateOBEX.booleanValue()) {
+			if (Configuration.authenticateOBEX.getValue() != 0) {
 				clientSession.setAuthenticator(new OBEXTestAuthenticator("client" + count));
 			}
 			status = "Connected";
 			HeaderSet hsConnect = clientSession.createHeaderSet();
+			if (Configuration.authenticateOBEX.getValue() == 1) {
+				hsConnect.createAuthenticationChallenge("OBEX-Con-Auth-Test", false, true);
+			}
 			HeaderSet hsConnectReply = clientSession.connect(hsConnect);
 			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsConnectReply.getResponseCode()));
 
@@ -84,8 +87,8 @@ public class ObexClientConnectionThread extends Thread  {
 			hsOperation.setHeader(HeaderSet.NAME, name);
 			hsOperation.setHeader(HeaderSet.TYPE, "text");
 
-			if (Configuration.authenticateOBEX.booleanValue()) {
-				hsOperation.createAuthenticationChallenge("OBEX-Test", false, true);
+			if (Configuration.authenticateOBEX.getValue() == 2) {
+				hsOperation.createAuthenticationChallenge("OBEX-OP-Auth-Test", false, true);
 			}
 			if (stoped) {
 				return;

@@ -108,7 +108,7 @@ public class TestResponderServerOBEX implements Runnable {
 				try {
 					count ++;
 					Logger.info("Accepting OBEX connections");
-					if (Configuration.authenticateOBEX.booleanValue()) {
+					if (Configuration.authenticateOBEX.getValue() != 0) {
 						handler.auth = new OBEXTestAuthenticator("server" + count);
 						handler.connectionAccepted(serverConnection.acceptAndOpen(handler, handler.auth));
 					} else {
@@ -199,11 +199,13 @@ public class TestResponderServerOBEX implements Runnable {
 		void connectionAccepted(Connection cconn) {
 			Logger.info("Received OBEX connection");
 			this.cconn = cconn;
-			try {
-				remoteDevice = RemoteDevice.getRemoteDevice(cconn);
-				Logger.debug("connected toBTAddress " + remoteDevice.getBluetoothAddress());
-			} catch (IOException e) {
-				Logger.error("OBEX Server error", e);
+			if (!Configuration.testServerOBEX_TCP) {
+				try {
+					remoteDevice = RemoteDevice.getRemoteDevice(cconn);
+					Logger.debug("connected toBTAddress " + remoteDevice.getBluetoothAddress());
+				} catch (IOException e) {
+					Logger.error("OBEX Server error", e);
+				}
 			}
 			if (!isConnected) {
 				notConnectedTimer.schedule(this);

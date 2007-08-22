@@ -36,6 +36,7 @@ public class OBEXTestAuthenticator implements Authenticator {
 	}
 	
 	public PasswordAuthentication onAuthenticationChallenge(String description, boolean isUserIdRequired, boolean isFullAccess) {
+		Logger.debug("challenge " + description);
 		return new PasswordAuthentication(userName.getBytes(), (new String("password")).getBytes());
 	}
 
