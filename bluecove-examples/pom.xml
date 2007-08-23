@@ -61,7 +61,7 @@
             <id>pyx4me-web-repo</id>
             <url>http://www.pyx4me.com/maven2-snapshot</url>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </snapshots>
             <releases>
                 <enabled>true</enabled>
@@ -86,6 +86,7 @@
 
     <properties>
         <me2Version>2.0.2-SNAPSHOT</me2Version>
+        <pyx4meVersion>2.0.2-SNAPSHOT</pyx4meVersion>
     </properties>
 
     <modules>
