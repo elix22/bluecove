@@ -24,3 +24,21 @@ BlueCove examples project
 * BlueCove OBEX Push J2ME application installer
 
     This application will install MIDlets on your mobile phone using Bluetooth. Details {{{obex-install}here}}.
+
+* Short JSR-82 usage examples
+
+    BlueCove provides an implementation of the JSR 82. Applications should use API defined in JSR-82.
+
+    We created a short (50 lines of code each) examples for you to get started with JSR-82 application development:
+
+    * {{{../apidocs/overview-summary.html#DeviceDiscovery}Remote Device Discovery}}
+
+    * {{{../apidocs/overview-summary.html#ServicesSearch}Services Search}}
+
+    * {{{../apidocs/overview-summary.html#OBEXPutClient}OBEX Put Client}}
+
+    * {{{../apidocs/overview-summary.html#OBEXPutServer}OBEX Put Server}}
+
+    []
+
+    Examples can be downloaded from <a href="http://bluecove.googlecode.com/svn/trunk/src/test/java/com/intel/bluetooth/javadoc">SVN repository</a>
