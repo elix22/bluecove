@@ -64,6 +64,9 @@ public class ObexClientConnectionThread extends Thread  {
 	}
 	
 	public void run() {
+		final boolean isUserIdRequired = true; 
+		final boolean isFullAccess = true;
+		
 		isRunning = true;
 		try {
 			status = "Connecting...";
@@ -77,7 +80,7 @@ public class ObexClientConnectionThread extends Thread  {
 			status = "Connected";
 			HeaderSet hsConnect = clientSession.createHeaderSet();
 			if (Configuration.authenticateOBEX.getValue() == 1) {
-				hsConnect.createAuthenticationChallenge("OBEX-Con-Auth-Test", false, true);
+				hsConnect.createAuthenticationChallenge("OBEX-Con-Auth-Test", isUserIdRequired, isFullAccess);
 			}
 			HeaderSet hsConnectReply = clientSession.connect(hsConnect);
 			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsConnectReply.getResponseCode()));
@@ -88,7 +91,7 @@ public class ObexClientConnectionThread extends Thread  {
 			hsOperation.setHeader(HeaderSet.TYPE, "text");
 
 			if (Configuration.authenticateOBEX.getValue() == 2) {
-				hsOperation.createAuthenticationChallenge("OBEX-OP-Auth-Test", false, true);
+				hsOperation.createAuthenticationChallenge("OBEX-OP-Auth-Test", isUserIdRequired, isFullAccess);
 			}
 			if (stoped) {
 				return;
