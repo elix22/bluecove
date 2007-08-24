@@ -26,6 +26,7 @@ import java.io.OutputStream;
 
 import junit.framework.Assert;
 
+import net.sf.bluecove.CommunicationData;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.ConnectionHolderStream;
 import net.sf.bluecove.util.TimeUtils;
@@ -189,6 +190,8 @@ public class TwoThreadsPerConnection {
 		}
 		Assert.assertEquals("sentCount", worker.bytesTotal, worker.sentCount);
 		Assert.assertTrue("sendFinishedSuccessfully", sender.sendFinishedSuccessfully);
+		c.os.write(CommunicationData.aKnowndPositiveByte);
+		Assert.assertEquals("end conformation", CommunicationData.aKnowndPositiveByte, c.is.read());
 		
 	}
 }
