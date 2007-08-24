@@ -1,7 +1,12 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
-= 2.0.1 to be Released 2007-09-xx =
+= 2.0.1 to be Released 2007-08-28 =
+
+    2007-08-24
+    * Full OBEX over RFCOMM and TCP
+    * Bluetooth_1-1_006_TCK on WIDCOMM, Pass 513, Fail 19. (some security features not implemented)
+    * Review javadocs
 
     2007-07-22
     * L2CAP imlementation only on WIDCOMM stack
