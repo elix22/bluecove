@@ -34,15 +34,12 @@
 
 * Can I distribute a non-'open source' Java application that imports !BlueCove LGPL libraries?
 
-    Your application's license needs to allow users to modify the library, and reverse engineer your code to debug these modifications,
-this is only for the purposes of replacing the LGPL code with a different version of the LGPL code. (LGPL section 6)
-This doesn't mean you need to provide source code or any details about the internals of your application.
+    Yes. Your application's license needs to allow users to modify the library, and reverse engineer your code to debug these modifications, this is only for the purposes of replacing the LGPL code with a different version of the LGPL code. (LGPL section 6)
+    This doesn't mean you need to provide source code or any details about the internals of your application.
 
-    Any reverse engineering of company's code (ie. that written by company) would be unacceptable!
-Reverse engineering (decompilation-for-interoperability) is a right given by the law in Europe.
-In the US, the only legal restriction on reverse engineering is the abominable DMCA. It prohibits reverse engineering, but only when used to circumvent copy protection.
+    Q: But any reverse engineering of company's code (ie. that written by company) would be unacceptable! A: This is not true. Reverse engineering (decompilation-for-interoperability) is a right given by the law in Europe. In the US, the only legally working restriction on reverse engineering is the abominable DMCA. It prohibits reverse engineering, but only when used to circumvent copy protection.
 
-N.B. This is my (Vlad) personal opinion on licenses. For any quastion contact your corprate lawyer.
+    N.B. This is my (Vlad) personal opinion on licenses. For any questions contact your corporate lawyer.
 
 * Can I make a non-'open source' modification to !BlueCove LGPL library?
 
