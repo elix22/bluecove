@@ -106,7 +106,7 @@ public class ObexBluetoothClient {
 			mainInstance.setStatus("Communication error " + e.getMessage());
 		} catch (Throwable e) {
 			Main.debug(e);
-			mainInstance.setStatus("Error" + e.getMessage());
+			mainInstance.setStatus("Error " + e.getMessage());
 		} finally {
 			if (clientSession != null) {
 				try {
