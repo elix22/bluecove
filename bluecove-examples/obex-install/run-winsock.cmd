@@ -3,9 +3,9 @@ rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
 call %~dp0..\bluecove-tester\scripts\version.cmd
 SET STACK=winsock
-title %STACK%-tester
+title %STACK%-obex
 rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
-java -Dbluecove.stack=%STACK% %JVM_ARGS% -jar target\obex-install-%VERSION%-mini.jar
+java -Dbluecove.stack=%STACK% %JVM_ARGS% -jar target\obex-install-%VERSION%-mini.jar http://wintermute.de/wap/extended/5ud0ku.jar
 if errorlevel 1 (
     echo Error calling java
     pause
