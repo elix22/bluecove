@@ -33,9 +33,6 @@ Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
 currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
 stack is not available on other operating systems.
 
-!BlueCove only support OBEX PUT, but there are other projects
-that can (possibly) be used to achieve full OBEX functionality with !BlueCove.
-
 If someone writes code to support another stack and/or operating system, it will be considered for
 inclusion. TOSHIBA on Win32 and BlueZ are wellcome!
 
