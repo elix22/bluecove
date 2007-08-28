@@ -58,20 +58,23 @@ public class ObexBluetoothClient {
 			Logger.debug("Connecting", serverURL);
 			mainInstance.setStatus("Connecting ...");
 			clientSession = (ClientSession) Connector.open(serverURL);
-			HeaderSet hs = clientSession.connect(clientSession.createHeaderSet());
-
-			hs.setHeader(HeaderSet.NAME, fileName);
+			HeaderSet hsConnectReply = clientSession.connect(clientSession.createHeaderSet());
+			if (hsConnectReply.getResponseCode() != ResponseCodes.OBEX_HTTP_OK) {
+				mainInstance.setStatus("Connect Error " + hsConnectReply.getResponseCode());
+			}
+			HeaderSet hsOperation = clientSession.createHeaderSet();
+			hsOperation.setHeader(HeaderSet.NAME, fileName);
 			String type = ObexTypes.getObexFileType(fileName);
 			if (type != null) {
-				hs.setHeader(HeaderSet.TYPE, type);
+				hsOperation.setHeader(HeaderSet.TYPE, type);
 			}
-			hs.setHeader(HeaderSet.LENGTH, new Long(data.length));
+			hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
 			
 			mainInstance.progressBar.setMaximum(data.length);
 			mainInstance.setProgressValue(0);
 
 			mainInstance.setStatus("Sending " + fileName + " ...");
-			Operation po = clientSession.put(hs);
+			Operation po = clientSession.put(hsOperation);
 
 			OutputStream os = po.openOutputStream();
 			
@@ -91,10 +94,10 @@ public class ObexBluetoothClient {
 			//log.debug("put responseCode " + po.getResponseCode());
 			
 			po.close();
-			clientSession.disconnect(null);
+			HeaderSet hsDisconnect =  clientSession.disconnect(null);
 			//log.debug("disconnect responseCode " + hs.getResponseCode());
 			
-			if (hs.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
+			if (hsDisconnect.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
 				mainInstance.setStatus("Finished successfully");
 			}
 			
