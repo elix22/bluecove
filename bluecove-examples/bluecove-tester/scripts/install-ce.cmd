@@ -10,7 +10,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-%WMDPT%\CECopy\cecopy "%DEFAULT_BUILD_HOME%\target\bluecove-tester-%VERSION%-app.jar" "dev:%BLUECOVE_INSTALL_DIR%\bluecove-tester.jar"
+%WMDPT%\CECopy\cecopy "%DEFAULT_BUILD_HOME%\target\bluecove-tester-%VERSION%-%ASSEMBLY_ID%.jar" "dev:%BLUECOVE_INSTALL_DIR%\bluecove-tester.jar"
 
 if errorlevel 1 goto errormark
 echo [Copy OK]

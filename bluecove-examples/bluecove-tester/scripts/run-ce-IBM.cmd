@@ -10,10 +10,9 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set JVM_ARGS=
+set JVM_ARGS=%WIN_CE_JVM_ARGS%
 set JVM_ARGS=%JVM_ARGS% -jcl:ppro10
 set JVM_ARGS=%JVM_ARGS% -Dmicroedition.connection.pkgs=com.intel.bluetooth
-rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
 set JVM_ARGS=%JVM_ARGS% -Dbluecove.stack=widcomm
 
 %WMDPT%\RAPI_Start\rapistart "\Program Files\J9\PPRO10\bin\j9.exe" %JVM_ARGS% -cp "%BLUECOVE_INSTALL_DIR%\bluecove-tester.jar" net.sf.bluecove.awt.Main

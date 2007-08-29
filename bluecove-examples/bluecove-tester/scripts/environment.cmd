@@ -14,7 +14,12 @@ goto :errormark
 :pt_found
 
 set _JVM_MYSAIFU=true
-set XWIN_CE_PHONE=true
+set WIN_CE_PHONE=true
+
+set ASSEMBLY_ID=app
+
+set WIN_CE_JVM_ARGS=
+rem set WIN_CE_JVM_ARGS=%WIN_CE_JVM_ARGS% -Dbluecove.debug=true
 
 if NOT '%WIN_CE_PHONE%' EQU 'true' (
     set BLUECOVE_INSTALL_DIR=\bluecove
@@ -22,6 +27,7 @@ if NOT '%WIN_CE_PHONE%' EQU 'true' (
 
 if '%WIN_CE_PHONE%' EQU 'true' (
     set BLUECOVE_INSTALL_DIR=\Storage\bluecove
+    set ASSEMBLY_ID=phone
 )
 
 rem set BLUECOVE_INSTALL_DIR=\Storage Card\bluecove
