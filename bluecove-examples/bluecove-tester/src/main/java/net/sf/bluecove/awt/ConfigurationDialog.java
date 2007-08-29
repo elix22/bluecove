@@ -67,6 +67,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 		
 		String name;
 		
+		String guiName;
+		
 		Component guiComponent;
 		
 		Field configField;
@@ -133,7 +135,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("clientTestTimeOutSec");
 		addConfig("serverSleepB4ClosingConnection");
 		addConfig("testServiceAttributes");
-		addConfig("testIgnoreNotWorkingServiceAttributes");
+		addConfig("testIgnoreNotWorkingServiceAttributes", "ignoreNotWorkingServAttr");
 		addConfig("testAllServiceAttributes");
 
 		addConfig("clientContinuous");
@@ -230,7 +232,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 				return;
 			}
 
-			Label l = new Label(cc.name);
+			Label l = new Label((cc.guiName == null)?cc.name:cc.guiName);
 			panelItems.add(l);
 			panelItems.add(cc.guiComponent);
 			
@@ -285,6 +287,10 @@ public class ConfigurationDialog extends OkCancelDialog {
 	}
 	
 	private void addConfig(String name) {
+		addConfig(name, null);
+	}
+	
+	private void addConfig(String name, String guiName) {
 		ConfigurationComponent cc = new ConfigurationComponent();
 		cc.name = name;
 		if (cc.name != null) {
@@ -295,6 +301,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 				return;
 			}
 		}
+		cc.guiName = guiName;
 		cc.guiComponent = null;
 		configItems.addElement(cc);
 	}
