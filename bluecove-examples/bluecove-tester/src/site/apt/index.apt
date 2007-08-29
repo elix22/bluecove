@@ -128,7 +128,7 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
 
     See {{{http://code.google.com/p/bluecove/wiki/phones}complete list of the JSR-82 compliant phones}}
 
-    MIDlet application hot keys:
+    MIDlet application hot {keys}:
 
     * <<<2>>> - Start Client
 
@@ -163,6 +163,8 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
 ---
 
     We tried IBM's J9 VM  and NSICOM's CrEme JVM and BlueCove works there.
+
+    If you run test application Mysaifu on Windows Mobile Phone Edition application Menu will not appear in AWT application! Use {{{#keys}hot keys}}. # key two times will exit the application.
 
 * Web Start with {previous} releases of BlueCove
 
