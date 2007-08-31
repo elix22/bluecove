@@ -41,9 +41,6 @@
         [http://www.javabluetooth.com/index.html Companion Website]    [http://www.javabluetooth.com/jb_source.zip Source Code]
 
 
-    * Programming Java 2 Micro Edition on Symbian OS, by Martin de Jode (chapter on the JSR-82)
-        [http://www.symbian.com/books/j2me/j2me_info.html Companion Website]    [http://www.symbian.com/books/j2me/j2me_src.html Source Code]
-
 * Can I distribute a non-'open source' Java application that imports !BlueCove LGPL libraries?
 
     Yes. Your application's license needs to allow users to modify the library, and reverse engineer your code to debug these modifications, this is only for the purposes of replacing the LGPL code with a different version of the LGPL code. (LGPL section 6)
@@ -56,4 +53,3 @@
 * Can I make a non-'open source' modification to !BlueCove LGPL library?
 
     No. You should redistribute your modified version of library under the LGPL or GPL.
-
