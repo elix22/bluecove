@@ -35,17 +35,14 @@
 * Are there any books on Java and Bluetooth?
 
 Bluetooth Application Programming with the Java APIs, by C Bala Kumar, Paul Kline, Tim Thompson 
-      [http://books.elsevier.com/us//mk/us/subindex.asp?maintarget=companions/defaultindividual.asp&isbn=1558609342&country=United%2BStates&srccode=&ref=&subcode=&head=&pdf=&basiccode=&txtSearch=&SearchField=&operator=&order=&community=mk Companion Website]
-    [http://books.elsevier.com/companions/1558609342/software/bluetooth_application_programming_with_the_java_apis_-_application_source_code.zip Source Code]
+      [http://books.elsevier.com/us//mk/us/subindex.asp?maintarget=companions/defaultindividual.asp&isbn=1558609342&country=United%2BStates&srccode=&ref=&subcode=&head=&pdf=&basiccode=&txtSearch=&SearchField=&operator=&order=&community=mk Companion Website]  [http://books.elsevier.com/companions/1558609342/software/bluetooth_application_programming_with_the_java_apis_-_application_source_code.zip Source Code]
 
 Bluetooth for Java, by Bruce Hopkins and Ranjith Antony
-    [http://www.javabluetooth.com/index.html Companion Website]
-    [http://www.javabluetooth.com/jb_source.zip Source Code]
+    [http://www.javabluetooth.com/index.html Companion Website]    [http://www.javabluetooth.com/jb_source.zip Source Code]
 
 
 Programming Java 2 Micro Edition on Symbian OS, by Martin de Jode (chapter on the JSR-82)
-    [http://www.symbian.com/books/j2me/j2me_info.html Companion Website]
-    [http://www.symbian.com/books/j2me/j2me_src.html Source Code]
+    [http://www.symbian.com/books/j2me/j2me_info.html Companion Website]    [http://www.symbian.com/books/j2me/j2me_src.html Source Code]
 
 * Can I distribute a non-'open source' Java application that imports !BlueCove LGPL libraries?
 
