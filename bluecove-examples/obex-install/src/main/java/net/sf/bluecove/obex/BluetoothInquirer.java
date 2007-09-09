@@ -86,10 +86,10 @@ public class BluetoothInquirer implements DiscoveryListener {
         return inquiring;
     }
     
-    public boolean startServiceSearch(RemoteDevice device) {
+    public boolean startServiceSearch(RemoteDevice device, UUID obexUUID) {
 		serviceURL = null;
     	try {
-        	UUID[] searchUuidSet = new UUID[] { L2CAP, RFCOMM, OBEX_OBJECT_PUSH };
+        	UUID[] searchUuidSet = new UUID[] { /*L2CAP, RFCOMM,*/ obexUUID };
         	int[] attrIDs =  new int[] {
 			    	0x0100 // Service name
         	};
@@ -172,7 +172,8 @@ public class BluetoothInquirer implements DiscoveryListener {
 
 	public String findOBEX(String btAddress) {
 		RemoteDevice device = new RemoteDeviceExt(btAddress);
-		if (!startServiceSearch(device)) {
+		this.serviceURL = null;
+		if (!startServiceSearch(device, OBEX_OBJECT_PUSH)) {
 			mainInstance.setStatus("Cannot start inquiry");
 		} else {
 			while (searching()) {
@@ -181,6 +182,18 @@ public class BluetoothInquirer implements DiscoveryListener {
 				} catch (Exception e) {
 				}
 			}
+		}
+		if (this.serviceURL == null) {
+			if (!startServiceSearch(device, OBEX_FILE_TRANSFER)) {
+				mainInstance.setStatus("Cannot start inquiry");
+			} else {
+				while (searching()) {
+					try {
+						Thread.sleep(1000);
+					} catch (Exception e) {
+					}
+				}
+			}	
 		}
 		return this.serviceURL;
 	}

@@ -28,12 +28,17 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
@@ -43,6 +48,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -88,9 +94,13 @@ public class Main extends JFrame implements ActionListener {
 	
 	private Hashtable devices = new Hashtable(); 
 	
+	private JFileChooser fileChooser;
+	
 	private String fileName;
 	
 	private byte[] data;
+
+	private List queue = new Vector();
 	
 	protected Main() {
 		super("BlueCove OBEX Push");
@@ -108,6 +118,8 @@ public class Main extends JFrame implements ActionListener {
 		contentPane.setLayout(new BorderLayout(10, 10));
 		contentPane.setBorder(new EmptyBorder(10,10,10,10));
 		contentPane.setTransferHandler(new DropTransferHandler(this));
+		
+		contentPane.addMouseListener(new MouseDoubleClickListener());
 		
 		JPanel progressPanel = new JPanel();
 		progressPanel.setLayout(new GridBagLayout());
@@ -239,9 +251,68 @@ public class Main extends JFrame implements ActionListener {
 		} else if (e.getSource() == btSend) {
 			obexSend();
 		}
+	}
+	
+	private class MouseDoubleClickListener implements MouseListener {
+
+		private long firstClick = 0;
+		
+		public void mouseClicked(MouseEvent e) {
+			long now = System.currentTimeMillis();
+			if ((firstClick != 0) && (firstClick - now < 1000)) {
+				fireDoubleClick();
+			} else {
+				firstClick = now;
+			}
+			
+		}
+
+		public void mouseEntered(MouseEvent e) {
+			firstClick = 0;
+		}
+
+		public void mouseExited(MouseEvent e) {
+			firstClick = 0;
+		}
+
+		public void mousePressed(MouseEvent e) {
+		}
+		
+		public void mouseReleased(MouseEvent e) {
+		}
 		
 	}
 
+	public void fireDoubleClick() {
+		if (fileChooser == null) {
+			fileChooser = new JFileChooser();
+			fileChooser.setDialogTitle("Select File to send...");
+			fileChooser.setCurrentDirectory(new File(Persistence.getProperty("recentDirectory", ".")));
+		}
+		int returnVal = fileChooser.showOpenDialog(Main.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			Persistence.setProperty("recentDirectory", fileChooser.getCurrentDirectory().getAbsolutePath());
+			downloadJar(DropTransferHandler.getCanonicalFileURL(fileChooser.getSelectedFile()));
+			saveConfig();
+		}
+		
+	}
+	
+	private void selectNextFile() {
+		if (queue.size() > 0) {
+			String url = (String)queue.remove(0);
+			downloadJar(url);
+		}
+	}
+	
+	public void queueFile(String url) {
+		queue.add(url);
+	}
+	
+
+	private void saveConfig() {
+		Persistence.storeDevices(devices, getSelectedDeviceAddress());
+	}
 
 	private class DiscoveryTimerListener implements ActionListener {
 		int seconds = 0;
@@ -326,7 +397,7 @@ public class Main extends JFrame implements ActionListener {
 						setProgressValue(idx);
 					}
 					setProgressValue(0);
-					Persistence.storeDevices(devices, getSelectedDeviceAddress());
+					saveConfig();
 					updateDevices(null);
 					btFindDevice.setEnabled(true);
 					btSend.setEnabled(true);
@@ -386,13 +457,15 @@ public class Main extends JFrame implements ActionListener {
 					obexUrl = blueSoleilFindOBEX(d.btAddress, obexUrl);
 				}
 				if ( obexUrl != null) {
-					o.obexPut(obexUrl);
+					if (o.obexPut(obexUrl)) {
+						selectNextFile();
+					}
 				} else {
 					setStatus("Service not found");
 				}
 				btSend.setEnabled(true);
 				iconLabel.setIcon(btIcon);
-				Persistence.storeDevices(devices, getSelectedDeviceAddress());
+				saveConfig();
 			}
 
 		};
@@ -430,10 +503,11 @@ public class Main extends JFrame implements ActionListener {
 					data = bos.toByteArray();
 					fileName = simpleFileName(url.getFile());
 					setStatus((data.length/1024) +"k " + fileName);
-					iconLabel.setIcon(btIcon);
 				} catch (Throwable e) {
 					debug(e);
-					setStatus("Download error" +  e.getMessage());
+					setStatus("Download error " +  e.getMessage());
+				} finally {
+					iconLabel.setIcon(btIcon);
 				}
 			}
 		};

@@ -28,6 +28,7 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Properties;
 
 public class Persistence {
 
@@ -36,6 +37,8 @@ public class Persistence {
 	private static final String devicePrefix = "device:";
 	
 	private static final String selectedPrefix = "selected:";
+	
+	private static final Properties properties = new Properties(); 
 	
 	private static File homePath() {
 		String path = ".bluecove";
@@ -104,6 +107,11 @@ public class Persistence {
 					}
 				} else if (line.startsWith(selectedPrefix)) {
 					selected = line.substring(selectedPrefix.length());
+				} else {
+					int p = line.indexOf('=');
+					if (p != -1) {
+						properties.put(line.substring(0, p), line.substring(p + 1));
+					}
 				}
 				line = lnr.readLine();
 			}
@@ -143,6 +151,10 @@ public class Persistence {
 			if (selected != null) {
 				fw.write(selectedPrefix + selected + "\n");
 			}
+			for(Enumeration en = properties.propertyNames(); en.hasMoreElements(); ) {
+				String name = (String)en.nextElement();
+				fw.write(name + "=" + properties.getProperty(name) + "\n");
+			}
 			fw.flush();
 		} catch (Throwable e) {
 			Logger.debug(e);
@@ -155,5 +167,13 @@ public class Persistence {
 				}
 			}
 		}
+	}
+
+	public static String getProperty(String key, String defaultValue) {
+		return properties.getProperty(key, defaultValue);
+	}
+	
+	public static void setProperty(String key, String value) {
+		properties.setProperty(key, value);
 	}
 }

@@ -46,6 +46,7 @@
                         <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
                             <mainClass>net.sf.bluecove.obex.Main</mainClass>
+                            <addClasspath>true</addClasspath>
                         </manifest>
                         <manifestEntries>
                             <Version>${label}</Version>

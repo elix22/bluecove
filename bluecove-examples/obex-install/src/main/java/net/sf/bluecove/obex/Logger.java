@@ -27,11 +27,11 @@ public class Logger {
 	}
 	
 	static void debug(String message, Object o) {
-		System.out.println(message + " "+ o);
+		System.out.println(message + " " + o);
 	}
 	
 	static void debug(String message, Throwable e) {
-		System.out.println(message + " "+ e.getMessage());
+		System.out.println(message + " " + e.getMessage());
 		e.printStackTrace();
 	}
 	

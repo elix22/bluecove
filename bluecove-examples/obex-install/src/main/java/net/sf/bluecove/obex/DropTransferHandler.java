@@ -115,6 +115,10 @@ public class DropTransferHandler extends TransferHandler {
 					if (fileList.get(0) instanceof File) {
 						File f = (File) fileList.get(0);
 						mainInstance.downloadJar(getCanonicalFileURL(f));
+						for(int fi = 1; fi < fileList.size(); fi ++) {
+							f = (File) fileList.get(fi);
+							mainInstance.queueFile(getCanonicalFileURL(f));	
+						}
 					} else {
 						Logger.debug("Unknown object in list ", fileList.get(0));	
 					}

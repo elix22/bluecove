@@ -51,7 +51,7 @@ public class ObexBluetoothClient {
 		this.data = data;
 	}
 	
-	public void obexPut(String serverURL) {
+	public boolean obexPut(String serverURL) {
 		ClientSession clientSession = null;
 		try {
 			//System.setProperty("bluecove.debug", "true");
@@ -99,14 +99,19 @@ public class ObexBluetoothClient {
 			
 			if (hsDisconnect.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
 				mainInstance.setStatus("Finished successfully");
+				return true;
+			} else {
+				return false;
 			}
 			
 		} catch (IOException e) {
 			Main.debug(e);
 			mainInstance.setStatus("Communication error " + e.getMessage());
+			return false;
 		} catch (Throwable e) {
 			Main.debug(e);
 			mainInstance.setStatus("Error " + e.getMessage());
+			return false;
 		} finally {
 			if (clientSession != null) {
 				try {
