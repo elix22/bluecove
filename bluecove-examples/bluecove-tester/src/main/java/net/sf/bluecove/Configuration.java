@@ -183,12 +183,13 @@ public class Configuration {
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
 			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");
-			//testDeviceNames.put("0020E027CE32", "Lapt WC");
+			testDeviceNames.put("0020E027CE32", "Lapt WC");
 			//testDeviceNames.put("0050F2E8D4A6", "Desk MS");
-			testDeviceNames.put("000B0D4AECDE", "Desk WC");
-			testDeviceNames.put("0019639C4007", "SE K790(r)");
+			//testDeviceNames.put("000B0D4AECDE", "Desk WC");
+			//testDeviceNames.put("0019639C4007", "SE K790(r)");
+			//testDeviceNames.put("001A8AD8979B", "Samsung D807 An");
 			//testDeviceNames.put("00123755AE71", "N 6265i (t)");
-			//testDeviceNames.put("0015E96A02DE", "D-Link");
+			testDeviceNames.put("0015E96A02DE", "D-Link");
 		} else {
 
 			// This is the list of my test devices with names for My convenience
@@ -212,6 +213,7 @@ public class Configuration {
 			testDeviceNames.put("001ADBBFCA67", "Mi880(t-b)");
 			testDeviceNames.put("0019639C4007", "SE K790(r)");
 			testDeviceNames.put("001ADBBFCEED", "Mi880(t-m)");
+			testDeviceNames.put("001A8AD8979B", "Samsung D807 An");
 
 			testDeviceNames.put("00149ABD52E7", "M V551 A");
 			testDeviceNames.put("00149ABD538D", "M V551 N");
