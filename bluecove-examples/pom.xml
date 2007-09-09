@@ -94,6 +94,7 @@
         <module>bluecove-webstart</module>
         <module>bluecove-microemu-starter</module>
         <module>obex-install</module>
+        <module>obex-server</module>
     </modules>
 
     <developers>
