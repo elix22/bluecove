@@ -1,6 +1,14 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
+= 2.0.2 to be released 2007-10-?? =
+
+    2007-09-04
+    * for J9 -Dmicroedition.connection.pkgs=com.intel.bluetooth is optonal
+
+    2007-08-28
+    * log4j integration, Bluecove log redirected to log4j when one is available in classpath
+
 = 2.0.1 released 2007-08-28 =
 
     2007-08-24
@@ -99,6 +107,26 @@
     Remco Poortinga has contributed updated support for Windows CE. That has
     been merged and now I merged some fixes by him.
 
+= 1.2.0 =
+
+    2006-03-01 Paul Tötterman
+    * javax.bluetooth.LocalDevice.getFriendlyName(): Now returns a real name
+    * Migrated to Visual C++ 2005 Express Edition
+    * Migrated to Subversion, CVS exists only for archival now
+    * javax.bluetooth.RemoteDevice.getAddress(): Now returns _remote_ address
+    * javax.bluetooth.RemoteDevice.getFriendlyName(): Now returns a real name
+    * Reformatted changelog close to GNU standards
+
+
+= Beta 1.1 =
+
+    2005-05-15 Denis Labaye
+    * Added the method setDeviceServiceClasses(int service_telephony) in
+        javax.bluetooth.ServiceRecord for compatibility with Benhui example.
+
+= Beginning =
+
+    2004 James Scott, Eben Upton and Christophe Diot at Intel Research Cambridge
 
 
 
