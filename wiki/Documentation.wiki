@@ -3,13 +3,12 @@
 
 == About !BlueCove ==
 
-!BlueCove is a LGPL licensed JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
+!BlueCove is a [http://www.gnu.org/licenses/lgpl.html LGPL licensed] JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
 the WIDCOMM, !BlueSoleil and Microsoft Bluetooth stack. Originally developed by Intel Research and
 currently maintained by volunteers. The LGPL license allow to link and distribute commercial software with !BlueCove.
 
- [http://bluecove.wiki.sourceforge.net/ BlueCove public contirbutions Wiki]
-
- [http://www.rococosoft.com/weblog/archives/2007/07/another_cool_project_using_jsr.html Blog about Blue Cove]
+[http://bluecove.wiki.sourceforge.net/ BlueCove public contirbutions Wiki]
+[http://www.rococosoft.com/weblog/archives/2007/07/another_cool_project_using_jsr.html Blog about Blue Cove]
 
 == Library API ===
 
@@ -40,14 +39,14 @@ In spring there was an attempt to make OS X port by Eric Wagner. The code is ava
 
 For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
 
+== GNU Lesser General Public License ==
+
 We hope you enjoy using !BlueCove. Please note that this is an open-source effort.
 If you feel the code could use new features or fixes, or the documentation can be improved, please get involved and lend us a hand!
-The !BlueCove developer community welcomes your participation.
+The !BlueCove [http://groups.google.com/group/bluecove-developers developers community] welcomes your participation.
 
 == Not Implemented functionality ===
 
-  * `DiscoveryAgent.cancelServiceSearch(..)`  Implemented in 2.0.1
-  * `DiscoveryAgent.selectService(..)`  Implemented in 2.0.1
   * `RemoteDevice` authenticate, authorize and encrypt Not implemented
 
 == Installation ==
