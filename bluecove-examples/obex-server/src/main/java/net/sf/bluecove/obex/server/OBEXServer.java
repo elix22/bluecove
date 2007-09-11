@@ -53,6 +53,8 @@ public class OBEXServer implements Runnable {
 	
 	public final UUID OBEX_OBJECT_PUSH = new UUID(0x1105);
 	
+	public static final String SERVER_NAME = "OBEX Object Push";
+	
 	private OBEXServer() {
 		
 	}
@@ -83,7 +85,7 @@ public class OBEXServer implements Runnable {
 			LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.GIAC);
 			serverConnection = (SessionNotifier) Connector.open(
 						"btgoep://localhost:" + OBEX_OBJECT_PUSH 
-						+ ";name=OBEX Server");
+						+ ";name=" + SERVER_NAME);
 		} catch (Throwable e) {
 			Logger.error("OBEX Server start error", e);
 			isStoped = true;
