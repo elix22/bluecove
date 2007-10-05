@@ -32,7 +32,7 @@ import net.sf.bluecove.util.Storage;
 
 /**
  *
- * This define different cleint and server work parterns to identify problem in native code.
+ * This define different client and server work patterns to identify problem in native code.
  *
  * TODO Create an editable Form for this Configuarion settings.
  *
@@ -83,7 +83,7 @@ public class Configuration {
 
 	public static boolean clientTestConnections = true;
 
-	// This test concurrrent connections if you have Multiple servers running.
+	// This test concurrent connections if you have Multiple servers running.
 	public static boolean clientTestConnectionsMultipleThreads = true;
 
 	public static BooleanVar authenticate = new BooleanVar(false);	
@@ -115,8 +115,8 @@ public class Configuration {
 	public static BooleanVar testAllServiceAttributes = new BooleanVar(false);
 
 	/**
-	 * Apperantly Motorola Service Attribute STRING is not working.
-	 * INT_4 not working on some Nokia and breakes its discovery by Motorola.
+	 * Apparently Motorola Service Attribute STRING is not working.
+	 * INT_4 not working on some Nokia and breakers its discovery by Motorola.
 	 * INT_16 are truncated in discovery by WIDCOMM
 	 * Service attributes are not supported on BlueSoleil
 	 */
@@ -124,6 +124,8 @@ public class Configuration {
 
 	public static boolean testServerForceDiscoverable = true;
 
+	public static boolean initializeLocalDevice = true;
+	
 	public static int clientSleepBetweenConnections = 4100;
 
 	public static int serverSleepB4ClosingConnection = 1000;
@@ -145,12 +147,12 @@ public class Configuration {
 	public static CLDCStub cldcStub;
 
 	/**
-	 * We can't add Motorola TCKAgent to this midlet.
+	 * We can't add Motorola TCKAgent to this MIDlet.
 	 */
 	public static final boolean likedTCKAgent = true;
 	
 	/**
-	 * Apperantly on Motorola iDEN serverConnection.acceptAndOpen() never returns.
+	 * Apparently on Motorola iDEN serverConnection.acceptAndOpen() never returns.
 	 */
 	public static boolean canCloseServer = true;
 

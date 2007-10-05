@@ -46,6 +46,10 @@ public class TestResponderCommon {
 
 	public static void startLocalDevice() throws BluetoothStateException {
 
+		if (!Configuration.initializeLocalDevice) {
+			return;
+		}
+		
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
