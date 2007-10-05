@@ -101,7 +101,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--stack")) {
-				// This is used in WebStart when system properties cant be defined.
+				// This is used in WebStart when system properties can't be defined.
 				i ++;
 				BlueCoveImpl.instance().setBluetoothStack(args[i]);
 				app.updateTitle();
