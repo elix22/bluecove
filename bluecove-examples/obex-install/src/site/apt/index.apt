@@ -49,7 +49,7 @@ BlueCove OBEX Push Web Start URL:
   HTML text on your page:
 
 ---
-    <a href="http://microemu.org/webstart/wintermute.de/wap/extended/5ud0ku.jnlp">Install it now</a>
+    <a href="http://bluecove.sourceforge.net/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp">Install it now</a>
 ---
 
   {{{http://bluecove.sourceforge.net/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp}Try it yourself first}}
