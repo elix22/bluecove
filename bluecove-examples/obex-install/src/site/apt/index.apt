@@ -20,7 +20,9 @@ BlueCove OBEX Push J2ME application installer Web Start
 | Drag and Drop .jar link   | Web Start |
 *---------------------------+-----------+
 | {{{http://wintermute.de/wap/extended/5ud0ku.jar}A Sudoku Game}}  |  <<<{{{push/wintermute.de/wap/extended/5ud0ku.jnlp}\u00bbInstall}}>>>
-*-----------------------+-----------+
+*---------------------------+-----------+
+| {{{http://www.mgmaps.com/mgmaps.jar}Mobile GMaps}} | <<<{{{push/wap.mgmaps.com/mgmaps.jnlp}\u00bbInstall}}>>>.
+*---------------------------+-----------+
 
 * Using obex-install in command line
 

@@ -30,22 +30,34 @@
     $baseURL = ereg_replace('/[a-zA-Z_0-9\-]+$', '', $baseURL);
 
     // Can't use .. in Url, Use ~ in the beginning
+    $appURLfixed = $appURL;
     do {
-        $pos = strpos($appURL, '~');
+        $pos = strpos($appURLfixed, '~');
         if ($pos === 0) {
             $baseURL = ereg_replace('/[a-zA-Z_0-9\-]+$', '', $baseURL);
-            $appURL = substr($appURL, 1);
+            $appURLfixed = substr($appURLfixed, 1);
         }
     } while($pos === 0);
 
-    $jadURL = 'http://' . $_SERVER['HTTP_HOST'] . $baseURL . $appURL . '.jar';
+    $jadURL = 'http://' . $_SERVER['HTTP_HOST'] . $baseURL . $appURLfixed . '.jar';
 
     $patern = '<!--jadRewrite-->';
 
-    $jnlpFileName = "../push.jnlp";
-    $fh = fopen($jnlpFileName, 'r');
-    $xml = fread($fh, filesize($jnlpFileName));
+    $jnlpFileName = "push.jnlp";
+
+    $jnlpRewritDir = "push-local/";
+
+    $jnlpFilePath = "../" . $jnlpFileName;
+    $fh = fopen($jnlpFilePath, 'r');
+    $xml = fread($fh, filesize($jnlpFilePath));
     fclose($fh);
     $xml = ereg_replace($patern . '.+' . $patern, '<argument>' . $jadURL . '</argument>', $xml);
+
+    if (strlen($appURL) > 0) {
+        $patern_href = 'href="' . $jnlpFileName . '"';
+        $new_href = 'href="' . $jnlpRewritDir . $appURL . '.jnlp"';
+        $xml = str_replace($patern_href, $new_href, $xml);
+    }
+
     echo($xml);
 ?>
