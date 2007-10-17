@@ -98,7 +98,15 @@
                     <appendClassifier>false</appendClassifier>
                     <jarfile>${mainjarname}</jarfile>
                     <jadfile>${mainjarname}</jadfile>
-                    <proguardInclude>${basedir}/proguard.conf</proguardInclude>
+                    <!--proguardInclude>${basedir}/proguard.conf</proguardInclude-->
+                    <proguardInclude></proguardInclude>
+                    <proguardOptions>
+                        <options>
+                            <option>-ignorewarnings</option>
+                            <option>-dontusemixedcaseclassnames</option>
+                            <option>-defaultpackage 'bc1'</option>
+                        </options>
+                    </proguardOptions>
                     <inFilter>!net/sf/bluecove/awt/**</inFilter>
                     <jadAttributes>
                         <!--FlipInsensitive>true</FlipInsensitive-->
