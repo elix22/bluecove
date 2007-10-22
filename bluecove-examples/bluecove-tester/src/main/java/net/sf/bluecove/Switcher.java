@@ -30,7 +30,7 @@ import net.sf.bluecove.util.BluetoothTypesInfo;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class Switcher implements Runnable {
 
@@ -53,13 +53,13 @@ public class Switcher implements Runnable {
 	Random random = new Random();
 
 	private static Thread tckRFCOMMThread;
-	
+
 	private static Thread tckL2CALthread;
-	
+
 	private static Thread tckGOEPThread;
-	
+
 	private static Thread tckOBEXThread;
-	
+
 	public Switcher() {
 		instance = this;
 	}
@@ -179,7 +179,7 @@ public class Switcher implements Runnable {
 		}
 		instance = null;
 	}
-	
+
 	public static void interruptThread(Thread thread) {
 		if (Configuration.cldcStub != null) {
 			Configuration.cldcStub.interruptThread(thread);
@@ -189,13 +189,13 @@ public class Switcher implements Runnable {
 	public static Thread createThreadByName(String className) {
 		try {
 			Class c = Class.forName(className);
-			return (Thread)c.newInstance();
+			return (Thread) c.newInstance();
 		} catch (Throwable e) {
 			Logger.debug(className, e);
 			return null;
 		}
 	}
-	
+
 	public static void startTCKAgent() {
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
@@ -206,14 +206,14 @@ public class Switcher implements Runnable {
 		} catch (BluetoothStateException e) {
 			Logger.error("start", e);
 		}
-		
+
 		if (Configuration.likedTCKAgent) {
 			tckRFCOMMThread = new BluetoothTCKAgent.RFCOMMThread("RFCOMMThread");
 			if (tckRFCOMMThread == null) {
-				Logger.info("Due to the License we do not include the TCK agent in distribution");	
+				Logger.info("Due to the License we do not include the TCK agent in distribution");
 			} else {
 				tckRFCOMMThread.start();
-				
+
 				try {
 					tckL2CALthread = new BluetoothTCKAgent.L2CAPThread("L2CAPThread");
 					if (tckL2CALthread != null) {
@@ -222,7 +222,7 @@ public class Switcher implements Runnable {
 				} catch (Throwable e) {
 					Logger.debug("Fail to start L2CAP", e);
 				}
-				
+
 				try {
 					tckGOEPThread = new BluetoothTCKAgent.GOEPThread("GOEPThread");
 					if (tckGOEPThread != null) {
@@ -231,9 +231,10 @@ public class Switcher implements Runnable {
 				} catch (Throwable e) {
 					Logger.debug("Fail to start GOEP srv", e);
 				}
-				
+
 				try {
-					tckOBEXThread = new OBEXTCKAgent.OBEXTCKAgentApp("10", Configuration.testServerOBEX_TCP?"tcpobex":"btgoep");
+					tckOBEXThread = new OBEXTCKAgent.OBEXTCKAgentApp("10", Configuration.testServerOBEX_TCP ? "tcpobex"
+							: "btgoep");
 					if (tckOBEXThread != null) {
 						tckOBEXThread.start();
 					}
@@ -243,11 +244,12 @@ public class Switcher implements Runnable {
 			}
 		}
 	}
-	
+
 	public static boolean isTCKRunning() {
-		return (tckRFCOMMThread != null) || (tckL2CALthread != null) || (tckGOEPThread != null) || (tckOBEXThread != null);
+		return (tckRFCOMMThread != null) || (tckL2CALthread != null) || (tckGOEPThread != null)
+				|| (tckOBEXThread != null);
 	}
-	
+
 	static void stopTCK() {
 		interruptThread(tckRFCOMMThread);
 		tckRFCOMMThread = null;
@@ -257,11 +259,11 @@ public class Switcher implements Runnable {
 
 		interruptThread(tckGOEPThread);
 		tckGOEPThread = null;
-		
+
 		interruptThread(tckOBEXThread);
 		tckOBEXThread = null;
 	}
-	
+
 	public static TestResponderClient createClient() {
 		try {
 			if (client == null) {
@@ -310,9 +312,13 @@ public class Switcher implements Runnable {
 	}
 
 	public static void startClient() {
-		createClient();
-		if (client != null) {
-			client.configured();
+		try {
+			createClient();
+			if (client != null) {
+				client.configured();
+			}
+		} catch (Throwable e) {
+			Logger.error("startClient", e);
 		}
 	}
 
@@ -369,7 +375,7 @@ public class Switcher implements Runnable {
 			Logger.warn("no recent Connections");
 		}
 	}
-	
+
 	public static void startClientSelectService() {
 		if ((client != null) && client.isRunning) {
 			Logger.warn("Client is already Running");
@@ -416,7 +422,7 @@ public class Switcher implements Runnable {
 				server = new TestResponderServer();
 			}
 			if (!server.isRunning()) {
-				serverStartCount ++;
+				serverStartCount++;
 				(server.thread = new Thread(server)).start();
 			} else {
 				if (Configuration.canCloseServer) {
@@ -426,7 +432,7 @@ public class Switcher implements Runnable {
 						Logger.warn("Server is already running");
 					}
 				} else {
-					serverStartCount ++;
+					serverStartCount++;
 					server.updateServiceRecord();
 					TestResponderServer.setDiscoverable();
 				}

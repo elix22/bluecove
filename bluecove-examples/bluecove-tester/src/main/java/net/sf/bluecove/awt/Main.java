@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Vector;
 
+import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.LocalDevice;
 
 import net.sf.bluecove.Configuration;
@@ -63,7 +64,7 @@ import com.intel.bluetooth.BlueCoveImpl;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class Main extends Frame implements LoggerAppender, Storage {
 
@@ -72,38 +73,44 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	private TextArea output = null;
 
 	private int outputLines = 0;
-		
+
 	private Vector logLinesQueue = new Vector();
-	
+
 	ScrollPane scrollPane;
-	
+
 	int lastKeyCode;
-	
+
 	MenuItem debugOn;
-	
+
 	private Properties properties;
 
 	private long propertiesFileLoadedLastModified = 0;
-	
+
 	public static void main(String[] args) {
-		//System.setProperty("bluecove.debug", "true");
-		//System.getProperties().put("bluecove.debug", "true");
-		
-		//BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(true);
+		// System.setProperty("bluecove.debug", "true");
+		// System.getProperties().put("bluecove.debug", "true");
+
+		// BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(true);
 		JavaSECommon.initOnce();
 		Main app = new Main();
 		app.setVisible(true);
 		Logger.debug("Stated app");
-		Logger.debug("OS:" + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
+		Logger.debug("OS:" + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|"
+				+ System.getProperty("os.arch"));
 		Logger.debug("Java:" + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
-		
+
 		Configuration.storage = app;
-		
+
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--stack")) {
-				// This is used in WebStart when system properties can't be defined.
-				i ++;
-				BlueCoveImpl.instance().setBluetoothStack(args[i]);
+				// This is used in WebStart when system properties can't be
+				// defined.
+				i++;
+				try {
+					BlueCoveImpl.instance().setBluetoothStack(args[i]);
+				} catch (BluetoothStateException e) {
+					Logger.error("cna't init stack", e);
+				}
 				app.updateTitle();
 			} else if (args[i].equalsIgnoreCase("--runonce")) {
 				int rc = Switcher.runClient();
@@ -112,24 +119,24 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		}
 	}
-	
+
 	public Main() {
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent w) {
 				quit();
 			}
 		});
-		
+
 		Logger.addAppender(this);
 		BlueCoveSpecific.addAppender(this);
-		
+
 		Logger.debug("Stating app");
-		
+
 		this.setTitle("BlueCove tester");
-		
+
 		final MenuBar menuBar = new MenuBar();
 		Menu menuBluetooth = new Menu("Bluetooth");
-		
+
 		final MenuItem serverStart = addMenu(menuBluetooth, "Server Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startServer();
@@ -143,7 +150,6 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		}, KeyEvent.VK_6);
 
-		
 		final MenuItem clientStart = addMenu(menuBluetooth, "Client Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startClient();
@@ -156,7 +162,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				Switcher.clientShutdown();
 			}
 		}, KeyEvent.VK_3);
-		
+
 		final MenuItem tckStart;
 		if (Configuration.likedTCKAgent) {
 			tckStart = addMenu(menuBluetooth, "Start TCK Agent", new ActionListener() {
@@ -188,14 +194,14 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				updateTitle();
 			}
 		});
-		
+
 		addMenu(menuBluetooth, "Client selectService Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startClientSelectService();
 				updateTitle();
 			}
 		});
-		
+
 		addMenu(menuBluetooth, "Client Last service Start", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startClientLastURl();
@@ -209,25 +215,24 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				updateTitle();
 			}
 		});
-		
+
 		final MenuItem stop = addMenu(menuBluetooth, "Stop all work", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.clientShutdown();
 				Switcher.serverShutdown();
 			}
 		}, KeyEvent.VK_S);
-		
+
 		addMenu(menuBluetooth, "Quit", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				quit();
 			}
 		}, KeyEvent.VK_X);
 
-		
 		menuBar.add(menuBluetooth);
-		
+
 		Menu menuLogs = new Menu("Logs");
-		
+
 		debugOn = addMenu(menuLogs, "BlueCove Debug ON", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				boolean dbg = BlueCoveSpecific.changeDebug();
@@ -238,59 +243,57 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				}
 			}
 		});
-		
+
 		addMenu(menuLogs, "Clear Log", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clear();
 			}
 		}, KeyEvent.VK_Z);
-		
+
 		addMenu(menuLogs, "Print FailureLog", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				printFailureLog();
 			}
 		}, KeyEvent.VK_4);
-		
+
 		addMenu(menuLogs, "Clear Stats", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clearStats();
 			}
 		});
-		
+
 		menuBar.add(menuLogs);
-		
-		
+
 		Menu menuMore = new Menu("More");
-		
+
 		addMenu(menuMore, "Configuration", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				(new ConfigurationDialog(Main.this)).setVisible(true); 
+				(new ConfigurationDialog(Main.this)).setVisible(true);
 			}
 		});
-		
+
 		addMenu(menuMore, "Client Connection", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				(new ClientConnectionDialog(Main.this)).setVisible(true); 
+				(new ClientConnectionDialog(Main.this)).setVisible(true);
 			}
 		});
-		
+
 		addMenu(menuMore, "OBEX Client Connection", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				(new ObexClientConnectionDialog(Main.this)).setVisible(true); 
+				(new ObexClientConnectionDialog(Main.this)).setVisible(true);
 			}
 		});
-		
+
 		menuBar.add(menuMore);
-		
+
 		setMenuBar(menuBar);
 
-		
 		// Create a scrolled text area.
-        output = new TextArea("");
-        output.setEditable(false);
-        this.add(output);
-        
-        Thread statusUpdate = new Thread() {
+		output = new TextArea("");
+		output.setEditable(false);
+		this.add(output);
+
+		Thread statusUpdate = new Thread() {
 			public void run() {
 				while (true) {
 					try {
@@ -312,13 +315,13 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				}
 			}
 		};
-        statusUpdate.start();
-		
-		
-        output.addKeyListener(new KeyListener() {
+		statusUpdate.start();
+
+		output.addKeyListener(new KeyListener() {
 
 			public void keyPressed(KeyEvent e) {
-				//Logger.debug("key:" + e.getKeyCode() + " " + KeyEvent.getKeyText(e.getKeyCode()));
+				// Logger.debug("key:" + e.getKeyCode() + " " +
+				// KeyEvent.getKeyText(e.getKeyCode()));
 				Main.this.keyPressed(e.getKeyCode());
 			}
 
@@ -326,15 +329,16 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 
 			public void keyTyped(KeyEvent e) {
-			}});
-        
+			}
+		});
+
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        if (screenSize.height < 400) {
-        	Configuration.screenSizeSmall = true;
-        }
-        Font logFont = new Font("Monospaced", Font.PLAIN, Configuration.screenSizeSmall?9:12);
-        output.setFont(logFont);
-        
+		if (screenSize.height < 400) {
+			Configuration.screenSizeSmall = true;
+		}
+		Font logFont = new Font("Monospaced", Font.PLAIN, Configuration.screenSizeSmall ? 9 : 12);
+		output.setFont(logFont);
+
 		if (screenSize.width > 600) {
 			screenSize.setSize(240, 320);
 		}
@@ -348,7 +352,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			this.setBounds(b);
 		}
 	}
-	
+
 	boolean isMainFrameActive() {
 		try {
 			return isActive();
@@ -356,7 +360,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			return true;
 		}
 	}
-	
+
 	private void updateTitle() {
 		String title = "BlueCove tester";
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
@@ -366,12 +370,12 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			if (StringUtils.isStringSet(stack)) {
 				title += " on [" + stack + "]";
 			} else {
-				title += " on [winsock]"; 
+				title += " on [winsock]";
 			}
 		}
 		this.setTitle(title);
 	}
-	
+
 	private void printFailureLog() {
 		if (TestResponderClient.countSuccess + TestResponderClient.failure.countFailure != 0) {
 			Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:"
@@ -383,7 +387,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 			TestResponderClient.failure.writeToLog();
 		}
-		
+
 		if (TestResponderServer.countSuccess + TestResponderServer.failure.countFailure != 0) {
 			Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:"
 					+ TestResponderServer.failure.countFailure);
@@ -393,7 +397,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			TestResponderServer.failure.writeToLog();
 		}
 	}
-	
+
 	private void clearStats() {
 		TestResponderClient.clear();
 		TestResponderServer.clear();
@@ -401,18 +405,17 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		RemoteDeviceInfo.clear();
 		clear();
 	}
-	
-	
-	private MenuItem addMenu(Menu menu,String name, ActionListener l) {
-		return addMenu(menu, name,l, 0);
+
+	private MenuItem addMenu(Menu menu, String name, ActionListener l) {
+		return addMenu(menu, name, l, 0);
 	}
-	
-	private MenuItem addMenu(Menu menu,String name, ActionListener l, int key) {
+
+	private MenuItem addMenu(Menu menu, String name, ActionListener l, int key) {
 		MenuItem menuItem = new MenuItem(name);
 		menuItem.addActionListener(l);
 		menu.add(menuItem);
 		if (key != 0) {
-			menuItem.setShortcut(new MenuShortcut(key, false)); 
+			menuItem.setShortcut(new MenuShortcut(key, false));
 		}
 		return menuItem;
 	}
@@ -420,14 +423,14 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	protected void keyPressed(int keyCode) {
 		switch (keyCode) {
 		case '1':
-			//printStats();
+			// printStats();
 			break;
 		case '4':
 			printFailureLog();
 			break;
 		case '0':
-			//logScrollX = 0;
-			//setLogEndLine();
+			// logScrollX = 0;
+			// setLogEndLine();
 			break;
 		case '*':
 		case KeyEvent.VK_MULTIPLY:
@@ -450,10 +453,10 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			Switcher.serverShutdown();
 			break;
 		case '8':
-			//startSwitcher();
+			// startSwitcher();
 			break;
 		case '9':
-			//stopSwitcher();
+			// stopSwitcher();
 			break;
 		case '#':
 		case 120:
@@ -463,11 +466,11 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			clear();
 			break;
 		default:
-			//Logger.debug("keyCode " + keyCode);
+			// Logger.debug("keyCode " + keyCode);
 		}
-		lastKeyCode = keyCode; 
+		lastKeyCode = keyCode;
 	}
-	
+
 	private void clear() {
 		if (output == null) {
 			return;
@@ -475,42 +478,42 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		output.setText("");
 		outputLines = 0;
 	}
-	
+
 	private void quit() {
 		Logger.debug("quit");
 		Switcher.clientShutdown();
 		Switcher.serverShutdownOnExit();
-		
+
 		Properties p = getProperties();
-		
+
 		Rectangle b = this.getBounds();
 		p.put("main.x", String.valueOf(b.x));
 		p.put("main.y", String.valueOf(b.y));
 		p.put("main.height", String.valueOf(b.height));
 		p.put("main.width", String.valueOf(b.width));
 		storeData(null, null);
-		
+
 		Logger.removeAppender(this);
 		BlueCoveSpecific.removeAppender();
-		
-		//this.dispose();
+
+		// this.dispose();
 		System.exit(0);
 	}
-	
+
 	public void appendLog(int level, String message, Throwable throwable) {
 		if (output == null) {
 			return;
 		}
 		final StringBuffer buf = new StringBuffer();
-		
+
 		if (Configuration.logTimeStamp) {
 			String time = TimeUtils.timeNowToString();
 			buf.append(time).append(" ");
 		}
-		
+
 		switch (level) {
 		case Logger.ERROR:
-			//errorCount ++;
+			// errorCount ++;
 			buf.append("e.");
 			break;
 		case Logger.WARN:
@@ -534,7 +537,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		boolean createUpdater = false;
 		synchronized (logLinesQueue) {
 			if (logLinesQueue.isEmpty()) {
-				createUpdater = true; 
+				createUpdater = true;
 			}
 			logLinesQueue.addElement(buf.toString());
 		}
@@ -546,7 +549,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		}
 	}
-	
+
 	private class AwtLogUpdater implements Runnable {
 
 		private String getNextLine() {
@@ -554,17 +557,17 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				if (logLinesQueue.isEmpty()) {
 					return null;
 				}
-				String line = (String)logLinesQueue.firstElement();
+				String line = (String) logLinesQueue.firstElement();
 				logLinesQueue.removeElementAt(0);
 				return line;
 			}
 		}
-		
+
 		public void run() {
 			String line;
 			while ((line = getNextLine()) != null) {
 				output.append(line);
-				outputLines ++;
+				outputLines++;
 				if (outputLines > 5000) {
 					clear();
 				}
@@ -576,15 +579,15 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		return new File(tmpDir, "bluecove-tester.properties");
 	}
-	
+
 	private Properties getProperties() {
 		File f = getPropertyFile();
 		long lastModified = 0;
-		
+
 		if (f.exists()) {
 			lastModified = f.lastModified();
 		}
-		
+
 		if ((properties != null) && (propertiesFileLoadedLastModified == lastModified)) {
 			return properties;
 		}
@@ -602,17 +605,17 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				}
 			}
 		}
-		propertiesFileLoadedLastModified = lastModified; 
+		propertiesFileLoadedLastModified = lastModified;
 		properties = p;
 		return properties;
 	}
-	
+
 	public String retriveData(String name) {
 		return getProperties().getProperty(name);
 	}
 
 	public void storeData(String name, String value) {
-		Properties p = getProperties(); 
+		Properties p = getProperties();
 		if (name != null) {
 			if (value == null) {
 				if (p.remove(name) == null) {
