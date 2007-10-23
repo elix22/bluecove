@@ -16,7 +16,7 @@ rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.native.path=%~dp0..\..\bluecove\src\main\
 rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
 
 @rem -cp ..\..\bluecove\target\bluecove-%VERSION%.jar
-rem copy ..\..\bluecove\target\bluecove-%VERSION%.jar "%JAVA_HOME%\lib\jclMidp20\ext\bluecove.jar"
+copy ..\..\bluecove\target\bluecove-%VERSION%.jar "%JAVA_HOME%\lib\jclMidp20\ext\bluecove.jar"
 
 title J9 MIDP20-v5.7.2
 
