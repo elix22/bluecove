@@ -31,13 +31,14 @@ import net.sf.bluecove.util.IntVar;
 import net.sf.bluecove.util.Storage;
 
 /**
- *
- * This define different client and server work patterns to identify problem in native code.
- *
+ * 
+ * This define different client and server work patterns to identify problem in
+ * native code.
+ * 
  * TODO Create an editable Form for this Configuarion settings.
- *
+ * 
  * @author vlads
- *
+ * 
  */
 public class Configuration {
 
@@ -61,7 +62,7 @@ public class Configuration {
 	/**
 	 * This may hung forever on some Nokia devices.
 	 */
-	public static boolean discoveryGetDeviceFriendlyName = false;
+	public static BooleanVar discoveryGetDeviceFriendlyName = new BooleanVar(false);
 
 	public static UUID discoveryUUID = new UUID(0x0100); // L2CAP
 
@@ -86,14 +87,14 @@ public class Configuration {
 	// This test concurrent connections if you have Multiple servers running.
 	public static boolean clientTestConnectionsMultipleThreads = true;
 
-	public static BooleanVar authenticate = new BooleanVar(false);	
-	
+	public static BooleanVar authenticate = new BooleanVar(false);
+
 	public static BooleanVar encrypt = new BooleanVar(false);
-	
+
 	public static boolean authorize = false;
-	
+
 	public static BooleanVar testRFCOMM = new BooleanVar(true);
-	
+
 	public static IntVar TEST_CASE_FIRST = new IntVar(1);
 
 	public static IntVar TEST_CASE_LAST = new IntVar(Consts.TEST_LAST_WORKING);
@@ -101,31 +102,31 @@ public class Configuration {
 	public static IntVar STERSS_TEST_CASE = new IntVar(Consts.TEST_BYTE);
 
 	public static BooleanVar testL2CAP = new BooleanVar(true);
-	
+
 	public static IntVar TEST_CASE_L2CAP_FIRST = new IntVar(1);
 
 	public static IntVar TEST_CASE_L2CAP_LAST = new IntVar(Consts.TEST_L2CAP_LAST_WORKING);
-	
+
 	public static boolean testServerOBEX_TCP = false;
-	
-	public static IntVar authenticateOBEX =  new IntVar(0);
-	
+
+	public static IntVar authenticateOBEX = new IntVar(0);
+
 	public static BooleanVar testServiceAttributes = new BooleanVar(true);
 
 	public static BooleanVar testAllServiceAttributes = new BooleanVar(false);
 
 	/**
-	 * Apparently Motorola Service Attribute STRING is not working.
-	 * INT_4 not working on some Nokia and breakers its discovery by Motorola.
-	 * INT_16 are truncated in discovery by WIDCOMM
-	 * Service attributes are not supported on BlueSoleil
+	 * Apparently Motorola Service Attribute STRING is not working. INT_4 not
+	 * working on some Nokia and breakers its discovery by Motorola. INT_16 are
+	 * truncated in discovery by WIDCOMM Service attributes are not supported on
+	 * BlueSoleil
 	 */
 	public static BooleanVar testIgnoreNotWorkingServiceAttributes = new BooleanVar(true);
 
 	public static boolean testServerForceDiscoverable = true;
 
 	public static boolean initializeLocalDevice = true;
-	
+
 	public static int clientSleepBetweenConnections = 4100;
 
 	public static int serverSleepB4ClosingConnection = 1000;
@@ -150,9 +151,10 @@ public class Configuration {
 	 * We can't add Motorola TCKAgent to this MIDlet.
 	 */
 	public static final boolean likedTCKAgent = true;
-	
+
 	/**
-	 * Apparently on Motorola iDEN serverConnection.acceptAndOpen() never returns.
+	 * Apparently on Motorola iDEN serverConnection.acceptAndOpen() never
+	 * returns.
 	 */
 	public static boolean canCloseServer = true;
 
@@ -171,11 +173,11 @@ public class Configuration {
 	public static boolean stackWIDCOMM = false;
 
 	public static boolean supportL2CAP = true;
-	
+
 	public static boolean CLDC_1_0 = false;
 
 	public static boolean logTimeStamp = false;
-	
+
 	public static boolean screenSizeSmall = false;
 
 	static {
@@ -184,13 +186,13 @@ public class Configuration {
 		boolean testOnlyOneDevice = false;
 		if (testOnlyOneDevice) {
 			discoverOnlyTestDevices = true;
-			//testDeviceNames.put("000D3AA5E36C", "Lapt MS");
+			// testDeviceNames.put("000D3AA5E36C", "Lapt MS");
 			testDeviceNames.put("0020E027CE32", "Lapt WC");
-			//testDeviceNames.put("0050F2E8D4A6", "Desk MS");
-			//testDeviceNames.put("000B0D4AECDE", "Desk WC");
-			//testDeviceNames.put("0019639C4007", "SE K790(r)");
-			//testDeviceNames.put("001A8AD8979B", "Samsung D807 An");
-			//testDeviceNames.put("00123755AE71", "N 6265i (t)");
+			// testDeviceNames.put("0050F2E8D4A6", "Desk MS");
+			// testDeviceNames.put("000B0D4AECDE", "Desk WC");
+			// testDeviceNames.put("0019639C4007", "SE K790(r)");
+			// testDeviceNames.put("001A8AD8979B", "Samsung D807 An");
+			// testDeviceNames.put("00123755AE71", "N 6265i (t)");
 			testDeviceNames.put("0015E96A02DE", "D-Link");
 		} else {
 
@@ -254,7 +256,7 @@ public class Configuration {
 			return Consts.uuidLong;
 		}
 	}
-	
+
 	public static UUID blueCoveL2CAPUUID() {
 		if (useShortUUID) {
 			return Consts.uuidL2CAPShort;
@@ -264,9 +266,9 @@ public class Configuration {
 	}
 
 	public static UUID blueCoveOBEXUUID() {
-		return Consts.uuidOBEX; 
+		return Consts.uuidOBEX;
 	}
-	
+
 	public static int getRequiredSecurity() {
 		int requiredSecurity = ServiceRecord.NOAUTHENTICATE_NOENCRYPT;
 		if (Configuration.authenticate.booleanValue()) {
@@ -280,15 +282,15 @@ public class Configuration {
 		}
 		return requiredSecurity;
 	}
-	
+
 	public static String serverURLParams() {
-		StringBuffer buf = new StringBuffer(); 
+		StringBuffer buf = new StringBuffer();
 		buf.append(";authenticate=").append(authenticate.booleanValue() ? "true" : "false");
 		buf.append(";encrypt=").append(encrypt.booleanValue() ? "true" : "false");
 		buf.append(";authorize=").append(authorize ? "true" : "false");
 		return buf.toString();
 	}
-	
+
 	public static String getLastServerURL() {
 		if (lastServerURL == null) {
 			lastServerURL = Configuration.storage.retriveData(Storage.configLastServiceURL);

@@ -39,28 +39,30 @@ import net.sf.bluecove.util.StringVar;
 public class BlueCoveTestConfigurationForm extends Form implements CommandListener {
 
 	Command okCommand = new Command("Ok", Command.OK, 2);
-	
+
 	Command cancelCommand = new Command("Cancel", Command.CANCEL, 3);
-	
-	Vector configItems = new Vector(); 
-	
-	private static final String[] booleanStrings =  new String[] { "on" };
+
+	Vector configItems = new Vector();
+
+	private static final String[] booleanStrings = new String[] { "on" };
 
 	private class ConfigurationComponent {
 		String name;
+
 		Item guiComponent;
+
 		Object configField;
 	}
-	
+
 	BlueCoveTestConfigurationForm() {
 		super("Configuration");
-		
+
 		addCommand(okCommand);
 		addCommand(cancelCommand);
 		setCommandListener(this);
-		
+
 		buildFields();
-		
+
 	}
 
 	public void commandAction(Command c, Displayable d) {
@@ -70,25 +72,26 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 		} else if (c == cancelCommand) {
 			BlueCoveTestMIDlet.showMain();
 		}
-		
+
 	}
 
 	private void buildFields() {
 		addConfig("deviceClassFilter", Configuration.deviceClassFilter);
 		addConfig("discoverDevicesComputers", Configuration.discoverDevicesComputers);
 		addConfig("discoverDevicesPhones", Configuration.discoverDevicesPhones);
-		//addConfig("discoveryUUID");
-		
-		//addConfig("useShortUUID");
+		addConfig("getDeviceFriendlyName", Configuration.discoveryGetDeviceFriendlyName);
+		// addConfig("discoveryUUID");
+
+		// addConfig("useShortUUID");
 		addConfig("clientContinuous", Configuration.clientContinuous);
-		//addConfig("clientContinuousDiscovery");
-		//addConfig("clientContinuousDiscoveryDevices");
-		//addConfig("clientContinuousServicesSearch");
-		//addConfig("clientTestConnections");
+		// addConfig("clientContinuousDiscovery");
+		// addConfig("clientContinuousDiscoveryDevices");
+		// addConfig("clientContinuousServicesSearch");
+		// addConfig("clientTestConnections");
 
 		addConfig("authenticate", Configuration.authenticate);
 		addConfig("encrypt", Configuration.encrypt);
-		//addConfig("authorize");
+		// addConfig("authorize");
 		addConfig("RFCOMM", Configuration.testRFCOMM);
 		addConfig("TEST_CASE_FIRST", Configuration.TEST_CASE_FIRST);
 		addConfig("TEST_CASE_LAST", Configuration.TEST_CASE_LAST);
@@ -98,16 +101,16 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 		addConfig("test Srvc Attr", Configuration.testServiceAttributes);
 		addConfig("test Ignore Broken Srv Attr", Configuration.testIgnoreNotWorkingServiceAttributes);
 		addConfig("test All Srv Attr", Configuration.testAllServiceAttributes);
-		
+
 	}
-	
+
 	private void addConfig(String name, Object var) {
 		ConfigurationComponent cc = new ConfigurationComponent();
 		cc.configField = var;
 		cc.name = name;
 		if (var instanceof BooleanVar) {
 			ChoiceGroup c = new ChoiceGroup(name, Choice.MULTIPLE, booleanStrings, null);
-			c.setSelectedIndex(0, ((BooleanVar)var).booleanValue());
+			c.setSelectedIndex(0, ((BooleanVar) var).booleanValue());
 			cc.guiComponent = c;
 		} else if (var instanceof StringVar) {
 			cc.guiComponent = new TextField(name, var.toString(), 128, TextField.ANY);
@@ -121,16 +124,15 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 		append(cc.guiComponent);
 	}
 
-
 	private void saveConfig() {
-		for(Enumeration en = configItems.elements(); en.hasMoreElements(); ) {
-			ConfigurationComponent cc = (ConfigurationComponent)en.nextElement();
+		for (Enumeration en = configItems.elements(); en.hasMoreElements();) {
+			ConfigurationComponent cc = (ConfigurationComponent) en.nextElement();
 			if (cc.configField instanceof BooleanVar) {
-				((BooleanVar)cc.configField).setValue(((ChoiceGroup)cc.guiComponent).isSelected(0));
+				((BooleanVar) cc.configField).setValue(((ChoiceGroup) cc.guiComponent).isSelected(0));
 			} else if (cc.configField instanceof StringVar) {
-				((StringVar)cc.configField).setValue(((TextField)cc.guiComponent).getString());
+				((StringVar) cc.configField).setValue(((TextField) cc.guiComponent).getString());
 			} else if (cc.configField instanceof IntVar) {
-				((IntVar)cc.configField).setValue(((TextField)cc.guiComponent).getString());
+				((IntVar) cc.configField).setValue(((TextField) cc.guiComponent).getString());
 			}
 		}
 	}
