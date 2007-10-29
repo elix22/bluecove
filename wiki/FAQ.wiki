@@ -19,7 +19,6 @@
     [http://bluecove.sourceforge.net/apidocs/index.html BlueCove Java docs]. For application it is not recommended to use any classes or API other than defined in JSR-82.
 
     Also these links may be useful
-     * [http://today.java.net/pub/a/today/2004/07/27/bluetooth.html  Getting Started with Java and Bluetooth]
      * [http://forum.nokia.com/info/sw.nokia.com/id/0b51461e-5f77-40f4-b755-7915ad4d0e31/MIDP_Bluetooth_RFCOMM_Example_v1_0_en.zip.html Nokia Bluetooth RFCOMM and L2CAP Examples]
      * [http://forum.nokia.com/info/sw.nokia.com/id/125b7ff5-f2dd-4441-8cfe-59e23c006373/MIDP_Bluetooth_API_Developers_Guide_v2_0_en.pdf.html Nokia Bluetooth API Developer's Guide v2.0]
      * [http://www.jsr82.com/  JSR-82 Samples]
@@ -29,12 +28,12 @@
  !BlueCove is not Bluetooth Protocol Stack! !BlueCove is Java JSR-82 interface for following Bluetooth Profiles:
     * SDAP - Service Discovery Application Profile
     * RFCOMM - Serial Cable Emulation Protocol
-    * L2CAP (next version) - Logical Link Control and Adaptation Protocol
+    * L2CAP - Logical Link Control and Adaptation Protocol
     * OBEX - Generic Object Exchange Profile (GOEP) profile on top of RFCOMM and TCP
 
 * Are there any books on Java and Bluetooth?
 
-    * Bluetooth Application Programming with the Java APIs, by C Bala Kumar, Paul Kline, Tim Thompson 
+    * Bluetooth Application Programming with the Java APIs, by C Bala Kumar, Paul Kline, Tim Thompson
       [http://books.elsevier.com/us//mk/us/subindex.asp?maintarget=companions/defaultindividual.asp&isbn=1558609342&country=United%2BStates&srccode=&ref=&subcode=&head=&pdf=&basiccode=&txtSearch=&SearchField=&operator=&order=&community=mk Companion Website]  [http://books.elsevier.com/companions/1558609342/software/bluetooth_application_programming_with_the_java_apis_-_application_source_code.zip Source Code]
 
     * Bluetooth for Java, by Bruce Hopkins and Ranjith Antony
