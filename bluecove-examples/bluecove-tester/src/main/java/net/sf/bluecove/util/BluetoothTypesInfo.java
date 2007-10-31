@@ -36,15 +36,15 @@ import net.sf.bluecove.Consts;
 public abstract class BluetoothTypesInfo {
 
 	public static final String NULL = "{null}";
-	
+
 	public static final String PROTOCOL_SCHEME_L2CAP = "btl2cap";
-	
+
 	public static final String PROTOCOL_SCHEME_RFCOMM = "btspp";
-	
+
 	public static final String PROTOCOL_SCHEME_BT_OBEX = "btgoep";
-	
+
 	public static final String PROTOCOL_SCHEME_TCP_OBEX = "tcpobex";
-	
+
 	public static String extractBluetoothAddress(String serverURL) {
 		int start = serverURL.indexOf("//");
 		if (start == -1) {
@@ -57,15 +57,15 @@ public abstract class BluetoothTypesInfo {
 		}
 		return serverURL.substring(start, end);
 	}
-	
+
 	public static boolean isRFCOMM(String serverURL) {
 		return ((serverURL != null) && (serverURL.startsWith(PROTOCOL_SCHEME_RFCOMM)));
 	}
-	
+
 	public static boolean isL2CAP(String serverURL) {
 		return ((serverURL != null) && (serverURL.startsWith(PROTOCOL_SCHEME_L2CAP)));
 	}
-	
+
 	public static class UUIDConsts {
 
 		private static String SHORT_BASE = "00001000800000805F9B34FB";
@@ -75,7 +75,7 @@ public abstract class BluetoothTypesInfo {
 		private static void addName(String uuid, String name) {
 			uuidNames.put(uuid.toUpperCase(), name);
 		}
-		
+
 		private static void addName(int uuid, String name) {
 			addName(new UUID(uuid).toString(), name);
 		}
@@ -148,20 +148,20 @@ public abstract class BluetoothTypesInfo {
 			addName(0x1300, "ESDP_UPNP_IP_PAN");
 			addName(0x1301, "ESDP_UPNP_IP_LAP");
 			addName(0x1302, "ESDP_UPNP_L2CAP");
-			
+
 			addName(Consts.RESPONDER_SHORT_UUID, "BlueCoveT RFCOMM short");
 			addName(Consts.RESPONDER_LONG_UUID, "BlueCoveT RFCOMM long");
-			
+
 			addName(Consts.RESPONDER_SHORT_UUID_L2CAP, "BlueCoveT L2CAP short");
 			addName(Consts.RESPONDER_LONG_UUID_L2CAP, "BlueCoveT L2CAP long");
-			
+
 			addName(Consts.RESPONDER_LONG_UUID_OBEX, "BlueCoveT OBEX");
-			
+
 			addName("3B9FA89520078C303355AAA694238F07", "JSR-82 TCK L2CAP AGENT");
 			addName("2000000031b811d88698000874b33fc0", "JSR-82 TCK RFCOMM AGENT");
 			addName("3000000031b811d88698000874b33fc0", "JSR-82 TCK BTGOEP AGENT");
 			addName("4000000031b811d88698000874b33fc0", "JSR-82 OBEX TCK AGENT");
-			
+
 		}
 
 		public static String getName(UUID uuid) {
@@ -169,7 +169,7 @@ public abstract class BluetoothTypesInfo {
 				return null;
 			}
 			String str = uuid.toString().toUpperCase();
-			String name = (String)uuidNames.get(str);
+			String name = (String) uuidNames.get(str);
 			if (name != null) {
 				return name;
 			}
@@ -180,16 +180,16 @@ public abstract class BluetoothTypesInfo {
 			}
 			return null;
 		}
-		
+
 		public static UUID getUUID(String uuidValue) {
 			if (uuidValue == null) {
 				return null;
 			}
-			String uuidValueUpper = uuidValue.toUpperCase(); 
+			String uuidValueUpper = uuidValue.toUpperCase();
 			if (uuidNames.contains(uuidValueUpper)) {
 				for (Enumeration iter = uuidNames.keys(); iter.hasMoreElements();) {
 					String uuidValueKey = (String) iter.nextElement();
-					String name = (String)uuidNames.get(uuidValueKey);
+					String name = (String) uuidNames.get(uuidValueKey);
 					if ((name != null) && (uuidValueUpper.equals(name))) {
 						return new UUID(uuidValueKey, false);
 					}
@@ -199,7 +199,7 @@ public abstract class BluetoothTypesInfo {
 			if (uuidValue.startsWith("0x")) {
 				uuidValue = uuidValue.substring(2);
 			}
-			if (uuidValue.length() <=8) {
+			if (uuidValue.length() <= 8) {
 				uuid = new UUID(uuidValue, true);
 			} else {
 				uuid = new UUID(uuidValue, false);
@@ -226,7 +226,7 @@ public abstract class BluetoothTypesInfo {
 		CollectionUtils.sort(sorted);
 		StringBuffer buf = new StringBuffer();
 		for (Enumeration en = sorted.elements(); en.hasMoreElements();) {
-			int id = ((Integer)en.nextElement()).intValue();
+			int id = ((Integer) en.nextElement()).intValue();
 			buf.append(toHexString(id));
 			buf.append(" ");
 			buf.append(toStringServiceAttributeID(id));
@@ -324,35 +324,128 @@ public abstract class BluetoothTypesInfo {
 
 	public static String toStringDataElementType(int type) {
 		switch (type) {
-		case DataElement.NULL: return "NULL";
-		case DataElement.U_INT_1: return "U_INT_1";
-		case DataElement.U_INT_2: return "U_INT_2";
-		case DataElement.U_INT_4: return "U_INT_4";
-		case DataElement.U_INT_8: return "U_INT_8";
-		case DataElement.U_INT_16: return "U_INT_16";
-		case DataElement.INT_1: return "INT_1";
-		case DataElement.INT_2: return "INT_2";
-		case DataElement.INT_4: return "INT_4";
-		case DataElement.INT_8: return "INT_8";
-		case DataElement.INT_16: return "INT_16";
-		case DataElement.URL: return "URL";
-		case DataElement.STRING: return "STRING";
-		case DataElement.UUID: return "UUID";
-		case DataElement.DATSEQ: return "DATSEQ";
-		case DataElement.BOOL: return "BOOL";
-		case DataElement.DATALT: return "DATALT";
-		default: return "Unknown" + type;
+		case DataElement.NULL:
+			return "NULL";
+		case DataElement.U_INT_1:
+			return "U_INT_1";
+		case DataElement.U_INT_2:
+			return "U_INT_2";
+		case DataElement.U_INT_4:
+			return "U_INT_4";
+		case DataElement.U_INT_8:
+			return "U_INT_8";
+		case DataElement.U_INT_16:
+			return "U_INT_16";
+		case DataElement.INT_1:
+			return "INT_1";
+		case DataElement.INT_2:
+			return "INT_2";
+		case DataElement.INT_4:
+			return "INT_4";
+		case DataElement.INT_8:
+			return "INT_8";
+		case DataElement.INT_16:
+			return "INT_16";
+		case DataElement.URL:
+			return "URL";
+		case DataElement.STRING:
+			return "STRING";
+		case DataElement.UUID:
+			return "UUID";
+		case DataElement.DATSEQ:
+			return "DATSEQ";
+		case DataElement.BOOL:
+			return "BOOL";
+		case DataElement.DATALT:
+			return "DATALT";
+		default:
+			return "Unknown" + type;
 		}
 	}
 
 	public static String toStringObexResponseCodes(int code) {
 		switch (code) {
-		case 0x90: return "OBEX_RESPONSE_CONTINUE";
-		case ResponseCodes.OBEX_HTTP_OK: return "OBEX_HTTP_OK";
-		default: return "Unknown " + toHexString(code);
+		case 0x90:
+			return "OBEX_RESPONSE_CONTINUE";
+		case ResponseCodes.OBEX_HTTP_OK:
+			return "OBEX_HTTP_OK";
+		case ResponseCodes.OBEX_HTTP_CREATED:
+			return "OBEX_HTTP_CREATED";
+		case ResponseCodes.OBEX_HTTP_ACCEPTED:
+			return "OBEX_HTTP_ACCEPTED";
+		case ResponseCodes.OBEX_HTTP_NOT_AUTHORITATIVE:
+			return "OBEX_HTTP_NOT_AUTHORITATIVE";
+		case ResponseCodes.OBEX_HTTP_NO_CONTENT:
+			return "OBEX_HTTP_NO_CONTENT";
+		case ResponseCodes.OBEX_HTTP_RESET:
+			return "OBEX_HTTP_RESET";
+		case ResponseCodes.OBEX_HTTP_PARTIAL:
+			return "OBEX_HTTP_PARTIAL";
+		case ResponseCodes.OBEX_HTTP_MULT_CHOICE:
+			return "OBEX_HTTP_MULT_CHOICE";
+		case ResponseCodes.OBEX_HTTP_MOVED_PERM:
+			return "OBEX_HTTP_MOVED_PERM";
+		case ResponseCodes.OBEX_HTTP_MOVED_TEMP:
+			return "OBEX_HTTP_MOVED_TEMP";
+		case ResponseCodes.OBEX_HTTP_SEE_OTHER:
+			return "OBEX_HTTP_SEE_OTHER";
+		case ResponseCodes.OBEX_HTTP_NOT_MODIFIED:
+			return "OBEX_HTTP_NOT_MODIFIED";
+		case ResponseCodes.OBEX_HTTP_USE_PROXY:
+			return "OBEX_HTTP_USE_PROXY";
+		case ResponseCodes.OBEX_HTTP_BAD_REQUEST:
+			return "OBEX_HTTP_BAD_REQUEST";
+		case ResponseCodes.OBEX_HTTP_UNAUTHORIZED:
+			return "OBEX_HTTP_UNAUTHORIZED";
+		case ResponseCodes.OBEX_HTTP_PAYMENT_REQUIRED:
+			return "OBEX_HTTP_PAYMENT_REQUIRED";
+		case ResponseCodes.OBEX_HTTP_FORBIDDEN:
+			return "OBEX_HTTP_FORBIDDEN";
+		case ResponseCodes.OBEX_HTTP_NOT_FOUND:
+			return "OBEX_HTTP_NOT_FOUND";
+		case ResponseCodes.OBEX_HTTP_BAD_METHOD:
+			return "OBEX_HTTP_BAD_METHOD";
+		case ResponseCodes.OBEX_HTTP_NOT_ACCEPTABLE:
+			return "OBEX_HTTP_NOT_ACCEPTABLE";
+		case ResponseCodes.OBEX_HTTP_PROXY_AUTH:
+			return "OBEX_HTTP_PROXY_AUTH";
+		case ResponseCodes.OBEX_HTTP_TIMEOUT:
+			return "OBEX_HTTP_TIMEOUT";
+		case ResponseCodes.OBEX_HTTP_CONFLICT:
+			return "OBEX_HTTP_CONFLICT";
+		case ResponseCodes.OBEX_HTTP_GONE:
+			return "OBEX_HTTP_GONE";
+		case ResponseCodes.OBEX_HTTP_LENGTH_REQUIRED:
+			return "OBEX_HTTP_LENGTH_REQUIRED";
+		case ResponseCodes.OBEX_HTTP_PRECON_FAILED:
+			return "OBEX_HTTP_PRECON_FAILED";
+		case ResponseCodes.OBEX_HTTP_ENTITY_TOO_LARGE:
+			return "OBEX_HTTP_ENTITY_TOO_LARGE";
+		case ResponseCodes.OBEX_HTTP_REQ_TOO_LARGE:
+			return "OBEX_HTTP_REQ_TOO_LARGE";
+		case ResponseCodes.OBEX_HTTP_UNSUPPORTED_TYPE:
+			return "OBEX_HTTP_UNSUPPORTED_TYPE";
+		case ResponseCodes.OBEX_HTTP_INTERNAL_ERROR:
+			return "OBEX_HTTP_INTERNAL_ERROR";
+		case ResponseCodes.OBEX_HTTP_NOT_IMPLEMENTED:
+			return "OBEX_HTTP_NOT_IMPLEMENTED";
+		case ResponseCodes.OBEX_HTTP_BAD_GATEWAY:
+			return "OBEX_HTTP_BAD_GATEWAY";
+		case ResponseCodes.OBEX_HTTP_UNAVAILABLE:
+			return "OBEX_HTTP_UNAVAILABLE";
+		case ResponseCodes.OBEX_HTTP_GATEWAY_TIMEOUT:
+			return "OBEX_HTTP_GATEWAY_TIMEOUT";
+		case ResponseCodes.OBEX_HTTP_VERSION:
+			return "OBEX_HTTP_VERSION";
+		case ResponseCodes.OBEX_DATABASE_FULL:
+			return "OBEX_DATABASE_FULL";
+		case ResponseCodes.OBEX_DATABASE_LOCKED:
+			return "OBEX_DATABASE_LOCKED";
+		default:
+			return "Unknown " + toHexString(code);
 		}
 	}
-	
+
 	public static String toHexStringSigned(long l) {
 		if (l >= 0) {
 			return toHexString(l);
@@ -360,19 +453,19 @@ public abstract class BluetoothTypesInfo {
 			return "-" + toHexString(-l);
 		}
 	}
-	
+
 	public static String toHexString(long l) {
 		if (l > 0xffffffffl) {
-			String lo = Integer.toHexString((int)l);
+			String lo = Integer.toHexString((int) l);
 			while (lo.length() < 8) {
 				lo = "0" + lo;
 			}
-			return "0x" + Integer.toHexString((int)(l >> 32)) + lo;
+			return "0x" + Integer.toHexString((int) (l >> 32)) + lo;
 		} else {
-			return "0x" + Integer.toHexString((int)l);
+			return "0x" + Integer.toHexString((int) l);
 		}
 	}
-	
+
 	public static String toHexString(int i) {
 		String s = Integer.toHexString(i);
 		s = s.toUpperCase();
@@ -424,7 +517,7 @@ public abstract class BluetoothTypesInfo {
 			buf.append(" ").append(d.getValue());
 			break;
 		case DataElement.UUID:
-			buf.append(" ").append(toString((UUID)d.getValue()));
+			buf.append(" ").append(toString((UUID) d.getValue()));
 			break;
 		case DataElement.U_INT_8:
 		case DataElement.U_INT_16:
@@ -440,7 +533,7 @@ public abstract class BluetoothTypesInfo {
 		case DataElement.DATSEQ:
 			buf.append(" {\n");
 			for (Enumeration e = (Enumeration) (d.getValue()); e.hasMoreElements();) {
-				buf.append(toString((DataElement)e.nextElement(), ident + "  ")).append("\n");
+				buf.append(toString((DataElement) e.nextElement(), ident + "  ")).append("\n");
 			}
 			buf.append(ident).append("}");
 			break;
@@ -460,13 +553,13 @@ public abstract class BluetoothTypesInfo {
 		}
 		return buf.toString();
 	}
-	
+
 	public static String toString(DeviceClass dc) {
-		return DeviceClassConsts.toString(dc); 
+		return DeviceClassConsts.toString(dc);
 	}
-	
+
 	public static class DeviceClassConsts {
-		
+
 		/*
 		 * service classes
 		 */
@@ -630,7 +723,6 @@ public abstract class BluetoothTypesInfo {
 		public static final int IMAGING_MINOR_SCANNER_MASK = 0x40;
 
 		public static final int IMAGING_MINOR_PRINTER_MASK = 0x80;
-
 
 		private static boolean append(StringBuffer buf, String str, boolean comma) {
 			if (comma) {
@@ -823,8 +915,7 @@ public abstract class BluetoothTypesInfo {
 
 				int minor = dc.getMinorDeviceClass();
 
-				switch (minor
-						& (PERIPHERAL_MINOR_KEYBOARD_MASK | PERIPHERAL_MINOR_POINTER_MASK)) {
+				switch (minor & (PERIPHERAL_MINOR_KEYBOARD_MASK | PERIPHERAL_MINOR_POINTER_MASK)) {
 				case 0:
 					buf.append("/()");
 					break;
@@ -899,9 +990,9 @@ public abstract class BluetoothTypesInfo {
 			buf.append("/(");
 
 			boolean comma = false;
-			
+
 			int record = dc.getServiceClasses();
-			
+
 			if ((record & LIMITED_DISCOVERY_SERVICE) != 0)
 				comma = append(buf, "Limited Discovery", comma);
 			if ((record & POSITIONING_SERVICE) != 0)

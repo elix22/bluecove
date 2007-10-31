@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove.awt;
 
 import java.io.IOException;
@@ -35,42 +35,44 @@ import net.sf.bluecove.OBEXTestAuthenticator;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.IOUtils;
 
-public class ObexClientConnectionThread extends Thread  {
+public class ObexClientConnectionThread extends Thread {
 
 	private String serverURL;
-	
+
 	private String name;
-	
+
 	private String text;
-	
+
 	boolean isPut;
-	
+
 	boolean isRunning = false;
-	
+
+	boolean timeouts;
+
 	String status;
-	
+
 	private boolean stoped = false;
-	
+
 	private ClientSession clientSession;
-	
+
 	private static int count = 0;
-	
+
 	public ObexClientConnectionThread(String serverURL, String name, String text, boolean isPut) {
 		this.serverURL = serverURL;
 		this.name = name;
 		this.text = text;
 		this.isPut = isPut;
-		count ++;
+		count++;
 	}
-	
+
 	public void run() {
-		final boolean isUserIdRequired = true; 
+		final boolean isUserIdRequired = true;
 		final boolean isFullAccess = true;
-		
+
 		isRunning = true;
 		try {
 			status = "Connecting...";
-			clientSession = (ClientSession) Connector.open(serverURL);
+			clientSession = (ClientSession) Connector.open(serverURL, Connector.READ_WRITE, timeouts);
 			if (stoped) {
 				return;
 			}
@@ -83,8 +85,8 @@ public class ObexClientConnectionThread extends Thread  {
 				hsConnect.createAuthenticationChallenge("OBEX-Con-Auth-Test", isUserIdRequired, isFullAccess);
 			}
 			HeaderSet hsConnectReply = clientSession.connect(hsConnect);
-			Logger.debug("connect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsConnectReply.getResponseCode()));
-
+			Logger.debug("connect responseCode "
+					+ BluetoothTypesInfo.toStringObexResponseCodes(hsConnectReply.getResponseCode()));
 
 			HeaderSet hsOperation = clientSession.createHeaderSet();
 			hsOperation.setHeader(HeaderSet.NAME, name);
@@ -104,15 +106,15 @@ public class ObexClientConnectionThread extends Thread  {
 				OutputStream os = po.openOutputStream();
 				os.write(data);
 				os.close();
-			
+
 				Logger.debug("put responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
-			
+
 				HeaderSet receivedHeaders = po.getReceivedHeaders();
-				String description = (String)receivedHeaders.getHeader(HeaderSet.DESCRIPTION);
+				String description = (String) receivedHeaders.getHeader(HeaderSet.DESCRIPTION);
 				if (description != null) {
 					Logger.debug("Description " + description);
 				}
-				
+
 				po.close();
 			} else {
 				status = "Getting";
@@ -131,23 +133,24 @@ public class ObexClientConnectionThread extends Thread  {
 					Logger.debug("got:" + buf);
 				}
 				is.close();
-			
+
 				Logger.debug("get responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(po.getResponseCode()));
-			
+
 				HeaderSet receivedHeaders = po.getReceivedHeaders();
-				String description = (String)receivedHeaders.getHeader(HeaderSet.DESCRIPTION);
+				String description = (String) receivedHeaders.getHeader(HeaderSet.DESCRIPTION);
 				if (description != null) {
 					Logger.debug("Description " + description);
 				}
-				
+
 				po.close();
 			}
-			
-			HeaderSet hsd =  clientSession.disconnect(null);
-			Logger.debug("disconnect responseCode " + BluetoothTypesInfo.toStringObexResponseCodes(hsd.getResponseCode()));
-			
+
+			HeaderSet hsd = clientSession.disconnect(null);
+			Logger.debug("disconnect responseCode "
+					+ BluetoothTypesInfo.toStringObexResponseCodes(hsd.getResponseCode()));
+
 			status = "Finished";
-			
+
 		} catch (IOException e) {
 			status = "Communication error " + e.toString();
 			Logger.error("Communication error", e);
@@ -163,7 +166,7 @@ public class ObexClientConnectionThread extends Thread  {
 			}
 		}
 	}
-	
+
 	public void shutdown() {
 		stoped = true;
 		if (clientSession != null) {

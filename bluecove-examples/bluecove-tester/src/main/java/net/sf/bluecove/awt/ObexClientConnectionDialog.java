@@ -17,11 +17,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove.awt;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -42,23 +43,25 @@ import net.sf.bluecove.Configuration;
 public class ObexClientConnectionDialog extends Dialog {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final String configObexConnectionURL = "obexConnectionURL";
-	
-	Button btnCancel, btnPut, btnGet, btnDisconnect; 
-	
-	TextField tfURL; 
-	
+
+	Button btnCancel, btnPut, btnGet, btnDisconnect;
+
+	TextField tfURL;
+
 	TextField tfName;
-	
+
 	TextField tfData;
-	
+
+	Checkbox cbTimeout;
+
 	Label status;
-	
+
 	ObexClientConnectionThread thread;
-	
+
 	Timer monitorTimer;
-	
+
 	private class ObexConnectionMonitor extends TimerTask {
 
 		public void run() {
@@ -77,17 +80,17 @@ public class ObexClientConnectionDialog extends Dialog {
 			}
 		}
 	}
-	
+
 	public ObexClientConnectionDialog(Frame owner) {
 		super(owner, "OBEX Client", false);
-		
+
 		GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
 
 		Panel panelItems = new BorderPanel(gridbag);
 		this.add(panelItems, BorderLayout.NORTH);
-		
+
 		Label l = new Label("URL:");
 		panelItems.add(l);
 		panelItems.add(tfURL = new TextField("", 25));
@@ -95,12 +98,11 @@ public class ObexClientConnectionDialog extends Dialog {
 		gridbag.setConstraints(l, c);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfURL, c);
-		
-		
+
 		if (Configuration.storage != null) {
 			tfURL.setText(Configuration.storage.retriveData(configObexConnectionURL));
 		}
-		
+
 		Label l2 = new Label("Data:");
 		panelItems.add(l2);
 		panelItems.add(tfData = new TextField("Test Obex Message " + new Date().toString()));
@@ -108,7 +110,7 @@ public class ObexClientConnectionDialog extends Dialog {
 		gridbag.setConstraints(l2, c);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfData, c);
-		
+
 		Label l3 = new Label("Name:");
 		panelItems.add(l3);
 		panelItems.add(tfName = new TextField("test.txt"));
@@ -116,17 +118,25 @@ public class ObexClientConnectionDialog extends Dialog {
 		gridbag.setConstraints(l3, c);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfName, c);
-		
-		Label l4 = new Label("Status:");
+
+		Label l4 = new Label("Timeouts:");
 		panelItems.add(l4);
+		panelItems.add(cbTimeout = new Checkbox());
 		c.gridwidth = 1;
 		gridbag.setConstraints(l4, c);
-		
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		gridbag.setConstraints(cbTimeout, c);
+
+		Label ls = new Label("Status:");
+		panelItems.add(ls);
+		c.gridwidth = 1;
+		gridbag.setConstraints(ls, c);
+
 		status = new Label("Idle");
 		panelItems.add(status);
 		c.gridwidth = 2;
 		gridbag.setConstraints(status, c);
-		
+
 		Panel panelBtns = new Panel();
 		this.add(panelBtns, BorderLayout.SOUTH);
 
@@ -136,14 +146,14 @@ public class ObexClientConnectionDialog extends Dialog {
 				send(true);
 			}
 		});
-		
+
 		panelBtns.add(btnGet = new Button("Get"));
 		btnGet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				send(false);
 			}
 		});
-		
+
 		panelBtns.add(btnDisconnect = new Button("Disconnect"));
 		btnDisconnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -151,14 +161,14 @@ public class ObexClientConnectionDialog extends Dialog {
 			}
 		});
 		btnDisconnect.setEnabled(false);
-		
+
 		panelBtns.add(btnCancel = new Button("Cancel"));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				onClose();
 			}
 		});
-		
+
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				onClose();
@@ -166,14 +176,14 @@ public class ObexClientConnectionDialog extends Dialog {
 		});
 		this.pack();
 		OkCancelDialog.centerParent(this);
-		
+
 		try {
 			monitorTimer = new Timer();
 			monitorTimer.schedule(new ObexConnectionMonitor(), 1000, 700);
 		} catch (Throwable java11) {
 		}
 	}
-	
+
 	protected void send(boolean isPut) {
 		if (thread != null) {
 			thread.shutdown();
@@ -183,13 +193,14 @@ public class ObexClientConnectionDialog extends Dialog {
 			Configuration.storage.storeData(configObexConnectionURL, tfURL.getText());
 		}
 		thread = new ObexClientConnectionThread(tfURL.getText(), tfName.getText(), tfData.getText(), isPut);
+		thread.timeouts = cbTimeout.getState();
 		thread.setDaemon(true);
 		thread.start();
 		btnDisconnect.setEnabled(true);
 		btnPut.setEnabled(false);
 		btnGet.setEnabled(false);
 	}
-	
+
 	public void shutdown() {
 		if (thread != null) {
 			thread.shutdown();
