@@ -12,3 +12,9 @@
 || [http://www.avelink.com/products/java_solutions/jsr-82.asp  aveLink ] || Commercial ||
 || [http://www.javabluetoothstack.com/ ElectricBlue] || Commercial ||
 || [https://bluesock.dev.java.net/ Bluesock] || Common Public License ||
+
+
+= Related Open Source projects =
+
+    * [http://lightblue.sourceforge.net/ LightBlue] a cross-platform Python Bluetooth API for Mac OS X, GNU/Linux and Nokia's Python
+    * [http://org.csail.mit.edu/pybluez/ PyBluez] is an effort to create python wrappers around system Bluetooth resources GNU/Linux and Windows XP (Microsoft and Widcomm Bluetooth stacks)
