@@ -31,12 +31,12 @@ import net.sf.bluecove.util.StringUtils;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class TestResponderCommon {
-	
+
 	public static int receiveMTU_max = L2CAPConnection.DEFAULT_MTU;
-	
+
 	public static void printProperty(String property) {
 		String val = LocalDevice.getProperty(property);
 		if (val != null) {
@@ -49,7 +49,7 @@ public class TestResponderCommon {
 		if (!Configuration.initializeLocalDevice) {
 			return;
 		}
-		
+
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
@@ -67,23 +67,24 @@ public class TestResponderCommon {
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
 		if (StringUtils.isStringSet(bluecoveVersion)) {
 			Configuration.isBlueCove = true;
-			
+
 			Logger.info("bluecove:" + bluecoveVersion);
 			Logger.info("stack:" + LocalDevice.getProperty("bluecove.stack"));
-			
+
 			Assert.assertNotNull("BT Address is null", localDevice.getBluetoothAddress());
 			if (!Configuration.windowsCE) {
 				Assert.assertNotNull("BT Name is null", localDevice.getFriendlyName());
 			}
 
-			
+			Logger.info("stack version:" + LocalDevice.getProperty("bluecove.stack.version"));
 			Logger.info("radio manufacturer:" + LocalDevice.getProperty("bluecove.radio.manufacturer"));
 			Logger.info("radio version:" + LocalDevice.getProperty("bluecove.radio.version"));
 
-			Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice.getProperty("bluecove.stack"));
-			Configuration.supportL2CAP = Configuration.stackWIDCOMM; 
+			Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice
+					.getProperty("bluecove.stack"));
+			Configuration.supportL2CAP = Configuration.stackWIDCOMM;
 		}
-		
+
 		String receiveMTUstr = LocalDevice.getProperty("bluetooth.l2cap.receiveMTU.max");
 		if (receiveMTUstr != null) {
 			int max = Integer.valueOf(receiveMTUstr).intValue();
@@ -92,8 +93,8 @@ public class TestResponderCommon {
 			}
 		}
 	}
-	
-	 public static boolean isWhiteDevice(String bluetoothAddress) {
+
+	public static boolean isWhiteDevice(String bluetoothAddress) {
 		String addr = bluetoothAddress.toUpperCase();
 		return (Configuration.testDeviceNames.get(addr) != null);
 	}
@@ -113,6 +114,5 @@ public class TestResponderCommon {
 		String addr = bluetoothAddress.toUpperCase();
 		return (String) Configuration.testDeviceNames.get(addr);
 	}
-
 
 }
