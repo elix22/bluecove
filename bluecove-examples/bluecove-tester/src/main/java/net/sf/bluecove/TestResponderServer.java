@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove;
 
 import java.io.InputStream;
@@ -44,68 +44,68 @@ import net.sf.bluecove.util.TimeStatistic;
 import net.sf.bluecove.util.TimeUtils;
 
 public class TestResponderServer implements CanShutdown, Runnable {
-	
-	public static int countSuccess = 0; 
-	
-	public static TimeStatistic allServerDuration = new TimeStatistic(); 
-	
+
+	public static int countSuccess = 0;
+
+	public static TimeStatistic allServerDuration = new TimeStatistic();
+
 	public static FailureLog failure = new FailureLog("Server failure");
-	
+
 	public static int countConnection = 0;
-	
+
 	public static int countRunningConnections = 0;
-	
+
 	public static int concurrentConnectionsMax = 0;
-	
+
 	public Thread thread;
-	
+
 	private long lastActivityTime;
-	
+
 	private boolean stoped = false;
-	
+
 	boolean isRunning = false;
-	
+
 	public static boolean discoverable = false;
-	
+
 	public static long discoverableStartTime = 0;
-	
+
 	public static long connectorOpenTime = 0;
-	
+
 	private StreamConnectionNotifier serverConnection;
-	
+
 	private TestTimeOutMonitor monitorServer;
-	
+
 	private TestResponderServerL2CAP responderL2CAPServerThread = null;
-	
+
 	private TestResponderServerOBEX responderOBEXServer = null;
-	
+
 	private Vector concurrentConnectionThreads = new Vector();
-	
+
 	public static CountStatistic concurrentStatistic = new CountStatistic();
-	
-	public static TimeStatistic connectionDuration = new TimeStatistic(); 
-	
+
+	public static TimeStatistic connectionDuration = new TimeStatistic();
+
 	private class ServerConnectionTread extends Thread {
-		
+
 		long connectionStartTime;
-		
+
 		int concurrentCount = 0;
-		
+
 		ConnectionHolderStream c = new ConnectionHolderStream();
-		
+
 		boolean isRunning = true;
-		
+
 		ServerConnectionTread(StreamConnection conn) {
-			//CLDC_1_0 super("ServerConnectionTread" + (++countConnection));
+			// CLDC_1_0 super("ServerConnectionTread" + (++countConnection));
 			++countConnection;
-			
+
 			c.conn = conn;
 			connectionStartTime = System.currentTimeMillis();
 			synchronized (concurrentConnectionThreads) {
 				concurrentConnectionThreads.addElement(this);
 			}
 		}
-		
+
 		private void concurrentNotify() {
 			synchronized (concurrentConnectionThreads) {
 				int concurNow = concurrentConnectionThreads.size();
@@ -119,13 +119,13 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 			}
 		}
-		
+
 		private void setConcurrentCount(int concurNow) {
 			if (concurrentCount < concurNow) {
 				concurrentCount = concurNow;
 			}
 		}
-		
+
 		private void runEcho(InputStream is, char firstChar) {
 			int receivedCount = 1;
 			StringBuffer buf = new StringBuffer();
@@ -134,23 +134,23 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			boolean cBufHasBinary = false;
 			buf.append(firstChar);
 			cBuf[cBufIdx] = firstChar;
-			cBufIdx ++;
+			cBufIdx++;
 			try {
 				c.os = c.conn.openOutputStream();
 				c.os.write(firstChar);
 				OutputStream os = c.os;
 				int i;
 				while ((i = is.read()) != -1) {
-					receivedCount ++;
+					receivedCount++;
 					c.os.write(i);
-					char c = (char)i;
+					char c = (char) i;
 					cBuf[cBufIdx] = c;
-					cBufIdx ++;
+					cBufIdx++;
 					if ((c == '\n') || (cBufIdx > 40)) {
 						if (cBufHasBinary) {
 							buf.append(" [");
-							for(int k = 0; k < cBufIdx; k ++) {
-								buf.append(Integer.toHexString(cBuf[k])).append(' ');	
+							for (int k = 0; k < cBufIdx; k++) {
+								buf.append(Integer.toHexString(cBuf[k])).append(' ');
 							}
 							buf.append("]");
 						}
@@ -175,21 +175,21 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				Logger.debug("echo received " + receivedCount);
 			}
 		}
-		
+
 		public void run() {
 			int testType = 0;
 			TestStatus testStatus = new TestStatus();
 			TestTimeOutMonitor monitorConnection = null;
 			try {
 				c.is = c.conn.openInputStream();
-				
-				countRunningConnections ++;
+
+				countRunningConnections++;
 				concurrentNotify();
 				if (concurrentConnectionsMax < countRunningConnections) {
 					concurrentConnectionsMax = countRunningConnections;
 					Logger.info("now connected:" + countRunningConnections);
 				}
-				
+
 				int isTest = c.is.read();
 				if (isTest == -1) {
 					Logger.debug("EOF recived");
@@ -197,7 +197,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 				if (isTest != Consts.SEND_TEST_START) {
 					Logger.debug("not a test client connected, will echo");
-					runEcho(c.is, (char)isTest);
+					runEcho(c.is, (char) isTest);
 					return;
 				}
 				testType = c.is.read();
@@ -231,9 +231,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 			} catch (Throwable e) {
 				if (!stoped) {
-					failure.addFailure("test " + testType  + " " + testStatus.getName(), e);
+					failure.addFailure("test " + testType + " " + testStatus.getName(), e);
 				}
-				Logger.error("Test# " + testType  + " " + testStatus.getName() + " error", e);
+				Logger.error("Test# " + testType + " " + testStatus.getName() + " error", e);
 			} finally {
 				if (monitorConnection != null) {
 					monitorConnection.finish();
@@ -241,10 +241,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				synchronized (concurrentConnectionThreads) {
 					concurrentConnectionThreads.removeElement(this);
 				}
-				countRunningConnections --;
+				countRunningConnections--;
 				concurrentStatistic.add(concurrentCount);
 				connectionDuration.add(TimeUtils.since(connectionStartTime));
-				
+
 				IOUtils.closeQuietly(c.is);
 				IOUtils.closeQuietly(c.os);
 				IOUtils.closeQuietly(c.conn);
@@ -255,13 +255,13 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			Logger.info("*Test Success:" + countSuccess + " Failure:" + failure.countFailure);
 		}
-		
+
 	}
-	
+
 	public TestResponderServer() throws BluetoothStateException {
 		TestResponderCommon.startLocalDevice();
 	}
-	
+
 	public void run() {
 		stoped = false;
 		isRunning = true;
@@ -271,17 +271,17 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
-			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE) || (Configuration.testServerForceDiscoverable)) {
+			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE)
+					|| (Configuration.testServerForceDiscoverable)) {
 				if (!setDiscoverable()) {
 					return;
 				}
 			}
-			
+
 			if (Configuration.testRFCOMM.booleanValue()) {
-				serverConnection = (StreamConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_RFCOMM + "://localhost:"
-						+ Configuration.blueCoveUUID() 
-						+ ";name=" + Consts.RESPONDER_SERVERNAME + "_rf"
-						+ Configuration.serverURLParams());
+				serverConnection = (StreamConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_RFCOMM
+						+ "://localhost:" + Configuration.blueCoveUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
+						+ "_rf" + Configuration.serverURLParams());
 
 				connectorOpenTime = System.currentTimeMillis();
 				Logger.info("ResponderServer started " + TimeUtils.timeNowToString());
@@ -308,7 +308,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					}
 				}
 			}
-			
+
 			if (Configuration.supportL2CAP) {
 				if (Configuration.testL2CAP.booleanValue()) {
 					responderL2CAPServerThread = TestResponderServerL2CAP.startServer();
@@ -316,8 +316,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			} else {
 				Logger.info("No L2CAP support");
 			}
-			responderOBEXServer = TestResponderServerOBEX.startServer();
-			
+			try {
+				responderOBEXServer = TestResponderServerOBEX.startServer();
+			} catch (Throwable noObex) {
+				Logger.error("OBEX Service ", noObex);
+			}
+
 			if (Configuration.testRFCOMM.booleanValue()) {
 				boolean showServiceRecordOnce = true;
 				while ((Configuration.testRFCOMM.booleanValue()) && (!stoped)) {
@@ -373,12 +377,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			monitorServer.finish();
 		}
 	}
-	
+
 	public boolean isRunning() {
 		return isRunning || ((responderL2CAPServerThread != null) && responderL2CAPServerThread.isRunning())
-		|| ((responderOBEXServer != null) && (responderOBEXServer.isRunning()));
+				|| ((responderOBEXServer != null) && (responderOBEXServer.isRunning()));
 	}
-	
+
 	public static long avgServerDurationSec() {
 		return allServerDuration.avgSec();
 	}
@@ -386,12 +390,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public boolean hasRunningConnections() {
 		return (countRunningConnections > 0);
 	}
-	
+
 	public long lastActivityTime() {
 		return lastActivityTime;
-		
+
 	}
-	
+
 	public static void clear() {
 		countSuccess = 0;
 		countConnection = 0;
@@ -399,9 +403,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		allServerDuration.clear();
 		failure.clear();
 		concurrentStatistic.clear();
-		connectionDuration.clear(); 
+		connectionDuration.clear();
 	}
-	
+
 	private void closeServer() {
 		if (serverConnection != null) {
 			synchronized (this) {
@@ -425,7 +429,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			responderOBEXServer.closeServer();
 			responderOBEXServer = null;
 		}
-		
+
 		setNotDiscoverable();
 	}
 
@@ -442,7 +446,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			return false;
 		}
 	}
-	
+
 	public static void setNotDiscoverable() {
 		try {
 			allServerDuration.add(TimeUtils.since(discoverableStartTime));
@@ -454,7 +458,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			Logger.error("Stop server error", e);
 		}
 	}
-	
+
 	public void shutdown() {
 		Logger.info("shutdownServer");
 		stoped = true;
@@ -463,7 +467,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		}
 		closeServer();
 	}
-	
+
 	public void updateServiceRecord() {
 		if (serverConnection == null) {
 			return;
@@ -478,83 +482,83 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			Logger.error("updateServiceRecord", e);
 		}
 	}
-	
+
 	static void updateVariableServiceRecord(ServiceRecord record) {
-//		long data;
-//		
-//		Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(new Date());
-//        data = 1 + calendar.get(Calendar.MINUTE);
-//        
-//		record.setAttributeValue(Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID,
-//		        new DataElement(DataElement.U_INT_4, data));
+		// long data;
+		//		
+		// Calendar calendar = Calendar.getInstance();
+		// calendar.setTime(new Date());
+		// data = 1 + calendar.get(Calendar.MINUTE);
+		//        
+		// record.setAttributeValue(Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID,
+		// new DataElement(DataElement.U_INT_4, data));
 	}
-	
-    static void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
-        String id = "";
-    	try {
+
+	static void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
+		String id = "";
+		try {
 			if (Configuration.testAllServiceAttributes.booleanValue()) {
 				id = "all";
 				ServiceRecordTester.addAllTestServiceAttributes(record);
 				return;
 			}
 
-    		id = "pub";
+			id = "pub";
 			buildServiceRecordPub(record);
 			id = "int";
-			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID,
-			        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_INT_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE));
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, new DataElement(
+					Consts.TEST_SERVICE_ATTRIBUTE_INT_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_INT_VALUE));
 			id = "long";
-			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID,
-			        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_LONG_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_LONG_VALUE));
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID, new DataElement(
+					Consts.TEST_SERVICE_ATTRIBUTE_LONG_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_LONG_VALUE));
 			if (!Configuration.testIgnoreNotWorkingServiceAttributes.booleanValue()) {
 				id = "str";
 				record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_STR_ID, new DataElement(DataElement.STRING,
 						Consts.TEST_SERVICE_ATTRIBUTE_STR_VALUE));
 			}
 			id = "url";
-			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_URL_ID,
-			        new DataElement(DataElement.URL, Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE));
-			
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_URL_ID, new DataElement(DataElement.URL,
+					Consts.TEST_SERVICE_ATTRIBUTE_URL_VALUE));
+
 			id = "bytes";
-			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID,
-			        new DataElement(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE));
-			
+			record.setAttributeValue(Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID, new DataElement(
+					Consts.TEST_SERVICE_ATTRIBUTE_BYTES_TYPE, Consts.TEST_SERVICE_ATTRIBUTE_BYTES_VALUE));
+
 			id = "variable";
 			updateVariableServiceRecord(record);
-			
+
 			id = "info";
-			record.setAttributeValue(Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO,
-					new DataElement(DataElement.URL, ServiceRecordTester.getBTSystemInfo()));
-			
+			record.setAttributeValue(Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO, new DataElement(DataElement.URL,
+					ServiceRecordTester.getBTSystemInfo()));
+
 			id = "update";
-			//LocalDevice.getLocalDevice().updateRecord(record);
-			
+			// LocalDevice.getLocalDevice().updateRecord(record);
+
 		} catch (Throwable e) {
 			Logger.error("ServiceRecord " + id, e);
 		}
-    }
-    
-    static void setAttributeValue(ServiceRecord record, int attrID, DataElement attrValue) {
-        try {
-            if (!record.setAttributeValue(attrID, attrValue)) {
-                Logger.error("SrvReg attrID=" + attrID);
-            }
-        } catch (Exception e) {
-            Logger.error("SrvReg attrID=" + attrID, e);
-        }
-    }
-    
-    static void buildServiceRecordPub(ServiceRecord record) throws ServiceRegistrationException {
-        final short UUID_PUBLICBROWSE_GROUP = 0x1002;
-        final short ATTR_BROWSE_GRP_LIST = 0x0005;
-        // Add the service to the 'Public Browse Group'
-        DataElement browseClassIDList = new DataElement(DataElement.DATSEQ);
-        UUID browseClassUUID = new UUID(UUID_PUBLICBROWSE_GROUP);
-        browseClassIDList.addElement(new DataElement(DataElement.UUID, browseClassUUID));
-        setAttributeValue(record, ATTR_BROWSE_GRP_LIST, browseClassIDList);
-    }
-    
+	}
+
+	static void setAttributeValue(ServiceRecord record, int attrID, DataElement attrValue) {
+		try {
+			if (!record.setAttributeValue(attrID, attrValue)) {
+				Logger.error("SrvReg attrID=" + attrID);
+			}
+		} catch (Exception e) {
+			Logger.error("SrvReg attrID=" + attrID, e);
+		}
+	}
+
+	static void buildServiceRecordPub(ServiceRecord record) throws ServiceRegistrationException {
+		final short UUID_PUBLICBROWSE_GROUP = 0x1002;
+		final short ATTR_BROWSE_GRP_LIST = 0x0005;
+		// Add the service to the 'Public Browse Group'
+		DataElement browseClassIDList = new DataElement(DataElement.DATSEQ);
+		UUID browseClassUUID = new UUID(UUID_PUBLICBROWSE_GROUP);
+		browseClassIDList.addElement(new DataElement(DataElement.UUID, browseClassUUID));
+		setAttributeValue(record, ATTR_BROWSE_GRP_LIST, browseClassIDList);
+	}
+
 	public static void main(String[] args) {
 		JavaSECommon.initOnce();
 		try {
@@ -569,6 +573,5 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			System.exit(1);
 		}
 	}
-
 
 }
