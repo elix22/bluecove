@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove.awt;
 
 import java.awt.BorderLayout;
@@ -42,38 +42,40 @@ import net.sf.bluecove.util.Storage;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class ClientConnectionDialog extends Dialog {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final String configConnectionURL = "connectionURL";
-	
-	Button btnConnect, btnDisconnect, btnCancel, btnSend; 
-	
-	TextField tfURL; 
-	
+
+	Button btnConnect, btnDisconnect, btnCancel, btnSend;
+
+	TextField tfURL;
+
 	TextField tfData;
-	
+
 	Choice choiceDataSendType;
-	
+
 	Choice choiceDataReceiveType;
-	
+
 	Label status;
-	
+
 	Timer monitorTimer;
-	
+
 	ClientConnectionThread thread;
-	
+
+	boolean inSendLoop = false;
+
 	private class ConnectionMonitor extends TimerTask {
 
 		boolean wasConnected = false;
-		
+
 		boolean wasStarted = false;
-		
+
 		int connectingCount = 0;
-		
+
 		public void run() {
 			if (thread == null) {
 				if (wasConnected || wasStarted) {
@@ -91,38 +93,38 @@ public class ClientConnectionDialog extends Dialog {
 				}
 				wasConnected = true;
 				if (thread.receivedCount == 0) {
-					status.setText("Connected");	
+					status.setText("Connected");
 				} else {
 					status.setText("Received " + thread.receivedCount);
 				}
 			} else {
 				wasStarted = true;
 				if (thread.isConnecting) {
-					StringBuffer progress = new StringBuffer("Connecting ");  
+					StringBuffer progress = new StringBuffer("Connecting ");
 					for (int i = 0; i <= connectingCount; i++) {
 						progress.append('.');
 					}
 					status.setText(progress.toString());
-					connectingCount ++;
+					connectingCount++;
 				} else {
 					status.setText("Disconnected");
 					connectingCount = 0;
 				}
 			}
 		}
-		
+
 	}
-	
+
 	public ClientConnectionDialog(Frame owner) {
 		super(owner, "Client Connection", false);
-		
+
 		GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
 
 		Panel panelItems = new BorderPanel(gridbag);
 		this.add(panelItems, BorderLayout.NORTH);
-		
+
 		Label l = new Label("URL:");
 		panelItems.add(l);
 		panelItems.add(tfURL = new TextField("", 25));
@@ -130,8 +132,7 @@ public class ClientConnectionDialog extends Dialog {
 		gridbag.setConstraints(l, c);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfURL, c);
-		
-		
+
 		if (Configuration.storage != null) {
 			String url = Configuration.storage.retriveData(configConnectionURL);
 			if (url == null) {
@@ -139,7 +140,7 @@ public class ClientConnectionDialog extends Dialog {
 			}
 			tfURL.setText(url);
 		}
-		
+
 		Label l2 = new Label("Data:");
 		panelItems.add(l2);
 		panelItems.add(tfData = new TextField());
@@ -147,12 +148,12 @@ public class ClientConnectionDialog extends Dialog {
 		gridbag.setConstraints(l2, c);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfData, c);
-		
+
 		Label l3 = new Label("");
 		panelItems.add(l3);
 		c.gridwidth = 1;
 		gridbag.setConstraints(l3, c);
-		
+
 		panelItems.add(btnSend = new Button("Send"));
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -162,44 +163,46 @@ public class ClientConnectionDialog extends Dialog {
 		btnSend.setEnabled(false);
 		c.gridwidth = 1;
 		gridbag.setConstraints(btnSend, c);
-		
+
 		choiceDataSendType = new Choice();
 		choiceDataSendType.add("as String.getBytes()+CR");
 		choiceDataSendType.add("as String.getBytes()");
 		choiceDataSendType.add("as parseByte(text)");
-		//choiceDataType.add("as byte list");
+		choiceDataSendType.add("Continuously");
+		// choiceDataType.add("as byte list");
+
 		panelItems.add(choiceDataSendType);
 		c.gridwidth = 1;
 		gridbag.setConstraints(choiceDataSendType, c);
-		
+
 		Label l3r = new Label("  Receive:");
 		panelItems.add(l3r);
 		c.gridwidth = 1;
 		gridbag.setConstraints(l3r, c);
-		
+
 		choiceDataReceiveType = new Choice();
 		choiceDataReceiveType.add("as Chars");
-		//choiceDataType.add("as byte list");
+		// choiceDataType.add("as byte list");
+		// choiceDataReceiveType.add("as Echo");
 		panelItems.add(choiceDataReceiveType);
 		c.gridwidth = 1;
 		gridbag.setConstraints(choiceDataReceiveType, c);
-		
+
 		Label l3x = new Label("");
 		panelItems.add(l3x);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(l3x, c);
 
-		
 		Label l4 = new Label("Status:");
 		panelItems.add(l4);
 		c.gridwidth = 1;
 		gridbag.setConstraints(l4, c);
-		
+
 		status = new Label("Idle");
 		panelItems.add(status);
 		c.gridwidth = 2;
 		gridbag.setConstraints(status, c);
-		
+
 		Panel panelBtns = new Panel();
 		this.add(panelBtns, BorderLayout.SOUTH);
 
@@ -209,7 +212,7 @@ public class ClientConnectionDialog extends Dialog {
 				connect();
 			}
 		});
-		
+
 		panelBtns.add(btnDisconnect = new Button("Disconnect"));
 		btnDisconnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -217,14 +220,14 @@ public class ClientConnectionDialog extends Dialog {
 			}
 		});
 		btnDisconnect.setEnabled(false);
-		
+
 		panelBtns.add(btnCancel = new Button("Cancel"));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				onClose();
 			}
 		});
-		
+
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				onClose();
@@ -232,14 +235,14 @@ public class ClientConnectionDialog extends Dialog {
 		});
 		this.pack();
 		OkCancelDialog.centerParent(this);
-		
+
 		try {
 			monitorTimer = new Timer();
 			monitorTimer.schedule(new ConnectionMonitor(), 1000, 1000);
 		} catch (Throwable java11) {
 		}
 	}
-	
+
 	protected void connect() {
 		if (thread != null) {
 			thread.shutdown();
@@ -254,23 +257,40 @@ public class ClientConnectionDialog extends Dialog {
 		btnDisconnect.setEnabled(true);
 		btnConnect.setEnabled(false);
 	}
-	
+
 	protected void send() {
+		inSendLoop = false;
 		if (thread != null) {
-			String text = tfData.getText();
-			int type = choiceDataSendType.getSelectedIndex();
-			byte data[];
-			switch (type) {
-				case 0: data = (text + "\n").getBytes(); break;
-				case 1: data = text.getBytes(); break;
-				case 2: data = new byte[]{Byte.parseByte(text)}; break;
+			do {
+				String text = tfData.getText();
+				int type = choiceDataSendType.getSelectedIndex();
+				byte data[];
+				switch (type) {
+				case 3: // Continuously
+					inSendLoop = true;
+				case 0:
+					data = (text + "\n").getBytes();
+					break;
+				case 1:
+					data = text.getBytes();
+					break;
+				case 2:
+					data = new byte[] { Byte.parseByte(text) };
+					break;
 				default:
-					data = new byte[]{0};
-			}
-			thread.send(data);
+					data = new byte[] { 0 };
+				}
+				thread.send(data);
+				if (inSendLoop) {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+					}
+				}
+			} while (inSendLoop);
 		}
 	}
-	
+
 	public void shutdown() {
 		if (thread != null) {
 			thread.shutdown();
