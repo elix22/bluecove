@@ -76,17 +76,17 @@ Bluetooth Stack
 
 Native Library location
 
-  # By default Native Library is extracted from from jar to temporary directory `${java.io.tmpdir}/bluecove_${user.name}_N` and loaded from this location.
-  # If you wish to load library (.dll) from another location add this system property `-Dbluecove.native.path=/your/path`.
-  # If you wish to load library from default location in path e.g. `%SystemRoot%\system32` or any other location in %PATH% use `-Dbluecove.native.resource=false`
+  * By default Native Library is extracted from from jar to temporary directory `${java.io.tmpdir}/bluecove_${user.name}_N` and loaded from this location.
+  * If you wish to load library (.dll) from another location add this system property `-Dbluecove.native.path=/your/path`.
+  * If you wish to load library from default location in path e.g. `%SystemRoot%\system32` or any other location in %PATH% use `-Dbluecove.native.resource=false`
 
 IBM J9 Personal Profile
 
     To run !BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
 
     Tested on
-        # !WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
-        # !WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+        * !WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+        * !WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
 
 IBM J9 MIDP 2.0 Profile
     # Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory
@@ -95,7 +95,7 @@ IBM J9 MIDP 2.0 Profile
     # -Dmicroedition.connection.pkgs=com.intel.bluetooth is optonal if you place bluecove.jar to ext directory (Since v2.0.2)
 
     Tested on
-        # !WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
+        * !WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
 
 Debug
 
@@ -111,12 +111,12 @@ Configuration options
 
     Timeouts, to enable timeouts use javax.microedition.io.Connector.open(String,int, true);
 
-        # `bluecove.obex.timeout` The amount of time in milliseconds for which the implementation will
+        * `bluecove.obex.timeout` The amount of time in milliseconds for which the implementation will
 	            attempt to successfully transmit a packet before it throws
 	            InterruptedIOException. Defaults to 2 minutes. (Since v2.0.2)
-        # `bluecove.connect.timeout` The amount of time in milliseconds for which the implementation will
+        * `bluecove.connect.timeout` The amount of time in milliseconds for which the implementation will
 	        attempt to establish connection RFCOMM or L2CAP before it throws
-	        BluetoothConnectionException. Defaults to 2 minutes. WIDCOMM only. (Since v2.0.2)
+	        !BluetoothConnectionException. Defaults to 2 minutes. WIDCOMM only. (Since v2.0.2)
 
 == Compilation ==
 
