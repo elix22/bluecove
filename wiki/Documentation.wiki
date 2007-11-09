@@ -107,7 +107,16 @@ Debug
 
 Configuration options
 
-    System property `bluecove.obex.timeout` time in milliseconds defaults to 2 minutes. (Since v2.0.2)
+    System properties:
+
+    Timeouts, to enable timeouts use javax.microedition.io.Connector.open(String,int, true);
+
+        # `bluecove.obex.timeout` The amount of time in milliseconds for which the implementation will
+	            attempt to successfully transmit a packet before it throws
+	            InterruptedIOException. Defaults to 2 minutes. (Since v2.0.2)
+        # `bluecove.connect.timeout` The amount of time in milliseconds for which the implementation will
+	        attempt to establish connection RFCOMM or L2CAP before it throws
+	        BluetoothConnectionException. Defaults to 2 minutes. WIDCOMM only. (Since v2.0.2)
 
 == Compilation ==
 
