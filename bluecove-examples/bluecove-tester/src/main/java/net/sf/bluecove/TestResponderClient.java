@@ -852,6 +852,9 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 						|| (Configuration.clientContinuousDiscovery && (connectURL == null))
 						|| (!Configuration.clientTestConnections)) {
 					if (!bluetoothInquirer.runDeviceInquiry()) {
+						if (stoped) {
+							break;
+						}
 						startTry++;
 						try {
 							Thread.sleep(Configuration.clientSleepOnDeviceInquiryError);
