@@ -5,8 +5,13 @@ Vlad Skarzhevskyy
 2) Professional XP SP2  - desktop
       Microsoft Bluetooth stack for USB
       Broadcom Bluetooth stack v4.0.1.2900 for USN
-2) Linux FC-6
+      Toshiba Bluetooth stack 5.10.12
+3) Linux FC-6
       BlueZ
+4) OS X 10.4.8 Intel  - desktop
+      TRUST Bluetooth 2.0 EDR USB Adapter BT-2210Tp
+      BlueSoleil BS001 Dongle (Class I 100 Metres)
+
 
 WIN-CE
 1)  Motorola MPx220, Windows Mobile 2003 Phone Edition
@@ -17,8 +22,10 @@ WIN-CE
 BT radios
     2 x Microsoft Wireless Transceiver for Bluetooth 2.0
     TRUST Bluetooth 2.0 EDR USB Adapter BT-2210Tp
+    BlueSoleil BS001 Dongle (Class I 100 Metres)
     ES-388 Bluetooth USB Adapter  (fake item, Device has illegal Bluetooth addr 11:11:11:11:11:11)
     D-Link DBT-120 USB Bluetooth Adapter
+    Toshiba Bluetooth V2.0 EDR USB Adapter PA3455U-1BTM
 
 JSR-082 Phones:
     2 x Nokia 6230,
