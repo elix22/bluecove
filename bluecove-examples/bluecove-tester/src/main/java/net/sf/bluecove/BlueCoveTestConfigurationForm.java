@@ -80,6 +80,7 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 		addConfig("discoverDevicesComputers", Configuration.discoverDevicesComputers);
 		addConfig("discoverDevicesPhones", Configuration.discoverDevicesPhones);
 		addConfig("getDeviceFriendlyName", Configuration.discoveryGetDeviceFriendlyName);
+		addConfig("listedDevicesOnly", Configuration.listedDevicesOnly);
 		// addConfig("discoveryUUID");
 
 		// addConfig("useShortUUID");

@@ -20,6 +20,8 @@
  */
 package net.sf.bluecove;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 
 import javax.bluetooth.ServiceRecord;
@@ -27,7 +29,9 @@ import javax.bluetooth.UUID;
 
 import net.sf.bluecove.util.BooleanVar;
 import net.sf.bluecove.util.CLDCStub;
+import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.IntVar;
+import net.sf.bluecove.util.J2MEStringTokenizer;
 import net.sf.bluecove.util.Storage;
 
 /**
@@ -35,7 +39,6 @@ import net.sf.bluecove.util.Storage;
  * This define different client and server work patterns to identify problem in
  * native code.
  * 
- * TODO Create an editable Form for this Configuarion settings.
  * 
  * @author vlads
  * 
@@ -57,7 +60,7 @@ public class Configuration {
 	/**
 	 * Limit connections to precompiled list of test devices.
 	 */
-	public static boolean discoverOnlyTestDevices = false;
+	public static BooleanVar listedDevicesOnly = new BooleanVar(false);
 
 	/**
 	 * This may hung forever on some Nokia devices.
@@ -67,6 +70,10 @@ public class Configuration {
 	public static UUID discoveryUUID = new UUID(0x0100); // L2CAP
 
 	public static Hashtable testDeviceNames = null;
+
+	public static Hashtable ignoreDevices = null;
+
+	public static Hashtable useDevices = null;
 
 	public static boolean serverAcceptWhileConnected = false;
 
@@ -182,54 +189,14 @@ public class Configuration {
 
 	static {
 		testDeviceNames = new Hashtable();
+		ignoreDevices = new Hashtable();
+		useDevices = new Hashtable();
+		loadNames(testDeviceNames, "bluecove.device.names.txt");
+		loadNames(ignoreDevices, "bluecove.device.ignore.txt");
+		loadNames(useDevices, "bluecove.device.use.txt");
 
-		boolean testOnlyOneDevice = false;
-		if (testOnlyOneDevice) {
-			discoverOnlyTestDevices = true;
-			// testDeviceNames.put("000D3AA5E36C", "Lapt MS");
-			testDeviceNames.put("0020E027CE32", "Lapt WC");
-			// testDeviceNames.put("0050F2E8D4A6", "Desk MS");
-			// testDeviceNames.put("000B0D4AECDE", "Desk WC");
-			// testDeviceNames.put("0019639C4007", "SE K790(r)");
-			// testDeviceNames.put("001A8AD8979B", "Samsung D807 An");
-			// testDeviceNames.put("00123755AE71", "N 6265i (t)");
-			testDeviceNames.put("0015E96A02DE", "D-Link");
-		} else {
-
-			// This is the list of my test devices with names for My convenience
-			testDeviceNames.put("00E003506231", "Nokia D1");
-			testDeviceNames.put("00E0035046C1", "Nokia D2");
-			testDeviceNames.put("0015A8DDF300", "Moto M1 v360");
-			testDeviceNames.put("0050F2E8D4A6", "Desk MS");
-			testDeviceNames.put("000D3AA5E36C", "Lapt MS");
-			testDeviceNames.put("0020E027CE32", "Lapt WC");
-			testDeviceNames.put("000B0D4AECDE", "Desk WC");
-			testDeviceNames.put("0015E96A02DE", "D-Link");
-
-			testDeviceNames.put("0017841C5A8F", "Moto L7");
-			testDeviceNames.put("00123755AE71", "N 6265i (t)");
-			testDeviceNames.put("0013706C93D3", "N 6682 (r)");
-			testDeviceNames.put("0017005354DB", "M i870 (t)");
-			testDeviceNames.put("001700F07CF2", "M i605 (t)");
-
-			testDeviceNames.put("001813184E8B", "SE W810i (r-ml)");
-
-			testDeviceNames.put("001ADBBFCA67", "Mi880(t-b)");
-			testDeviceNames.put("0019639C4007", "SE K790(r)");
-			testDeviceNames.put("001ADBBFCEED", "Mi880(t-m)");
-			testDeviceNames.put("001A8AD8979B", "Samsung D807 An");
-
-			testDeviceNames.put("00149ABD52E7", "M V551 A");
-			testDeviceNames.put("00149ABD538D", "M V551 N");
-			testDeviceNames.put("0007E05387E5", "Palm");
-			testDeviceNames.put("0010C65C08A3", "AximX30");
-			testDeviceNames.put("00022B001234", "MPx220");
-
-			if (deviceClassFilter.booleanValue()) {
-				testDeviceNames.put("000B0D1796FC", "GPS");
-				testDeviceNames.put("000D3AA4F7F9", "My Keyboard");
-				testDeviceNames.put("0050F2E7EDC8", "My Mouse 1");
-			}
+		if ((ignoreDevices.size() != 0) || (useDevices.size() != 0)) {
+			listedDevicesOnly.setValue(true);
 		}
 
 		String sysName = System.getProperty("os.name");
@@ -246,6 +213,44 @@ public class Configuration {
 			} else if (sysName.indexOf("linux") != -1) {
 				linux = true;
 			}
+		}
+	}
+
+	public static boolean isWhiteDevice(String bluetoothAddress) {
+		String addr = bluetoothAddress.toUpperCase();
+		if (useDevices.get(addr) != null) {
+			return true;
+		}
+		if (ignoreDevices.get(addr) != null) {
+			return false;
+		}
+		return (testDeviceNames.get(addr) != null);
+	}
+
+	private static void loadNames(Hashtable deviceNames, String resourceName) {
+		InputStream inputstream = Configuration.class.getResourceAsStream("/" + resourceName);
+		if (inputstream == null) {
+			return;
+		}
+		StringBuffer b = new StringBuffer();
+		try {
+			byte[] buf = new byte[1024];
+			int i = 0;
+			while ((i = inputstream.read(buf)) != -1) {
+				b.append(new String(buf, 0, i));
+			}
+		} catch (IOException e) {
+			return;
+		} finally {
+			IOUtils.closeQuietly(inputstream);
+		}
+		J2MEStringTokenizer st = new J2MEStringTokenizer(b.toString(), "\n");
+		while (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			if (s.startsWith("#")) {
+				continue;
+			}
+			int idx = s.indexOf(',');
 		}
 	}
 

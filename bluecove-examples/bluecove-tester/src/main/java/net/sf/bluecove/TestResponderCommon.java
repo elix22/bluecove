@@ -94,11 +94,6 @@ public class TestResponderCommon {
 		}
 	}
 
-	public static boolean isWhiteDevice(String bluetoothAddress) {
-		String addr = bluetoothAddress.toUpperCase();
-		return (Configuration.testDeviceNames.get(addr) != null);
-	}
-
 	public static String niceDeviceName(String bluetoothAddress) {
 		String w = getWhiteDeviceName(bluetoothAddress);
 		if (w == null) {

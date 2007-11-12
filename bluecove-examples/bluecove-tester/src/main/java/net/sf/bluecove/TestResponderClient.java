@@ -315,7 +315,8 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			if (stoped) {
 				return;
 			}
-			if (Configuration.discoverOnlyTestDevices && !isWhiteDevice(remoteDevice.getBluetoothAddress())) {
+			if (Configuration.listedDevicesOnly.booleanValue()
+					&& !Configuration.isWhiteDevice(remoteDevice.getBluetoothAddress())) {
 				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " "
 						+ BluetoothTypesInfo.toString(cod));
 				return;
@@ -342,7 +343,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			}
 			RemoteDeviceInfo.deviceFound(remoteDevice);
 			Logger.debug("deviceDiscovered " + niceDeviceName(remoteDevice.getBluetoothAddress()) + name + " "
-					+ BluetoothTypesInfo.toString(cod));
+					+ remoteDevice.getBluetoothAddress() + " " + BluetoothTypesInfo.toString(cod));
 		}
 
 		private boolean startServicesSearch() {
