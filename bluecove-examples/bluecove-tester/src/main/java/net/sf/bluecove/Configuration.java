@@ -220,8 +220,9 @@ public class Configuration {
 		String addr = bluetoothAddress.toUpperCase();
 		if (useDevices.get(addr) != null) {
 			return true;
-		}
-		if (ignoreDevices.get(addr) != null) {
+		} else if (useDevices.size() > 0) {
+			return false;
+		} else if (ignoreDevices.get(addr) != null) {
 			return false;
 		}
 		return (testDeviceNames.get(addr) != null);
@@ -246,11 +247,16 @@ public class Configuration {
 		}
 		J2MEStringTokenizer st = new J2MEStringTokenizer(b.toString(), "\n");
 		while (st.hasMoreTokens()) {
-			String s = st.nextToken();
-			if (s.startsWith("#")) {
+			String s = st.nextToken().trim();
+			if (s.startsWith("#") || s.length() == 0) {
 				continue;
 			}
 			int idx = s.indexOf(',');
+			if ((idx == -1) || (idx == s.length())) {
+				deviceNames.put(s, s);
+			} else {
+				deviceNames.put(s.substring(0, idx), s.substring(idx + 1));
+			}
 		}
 	}
 
