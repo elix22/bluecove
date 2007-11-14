@@ -57,56 +57,56 @@
 || Motorola || i880 ||
 || Motorola || ic902 ||
 || ||  ||
-|| Nokia || 2630
-|| Nokia || 2660
-|| Nokia || 2760
-|| Nokia || 2865
-|| Nokia || 2865i
-|| Nokia || 3109
-|| Nokia || 3110 Classic
+|| Nokia || 2630 ||
+|| Nokia || 2660 ||
+|| Nokia || 2760 ||
+|| Nokia || 2865 ||
+|| Nokia || 2865i ||
+|| Nokia || 3109 ||
+|| Nokia || 3110 Classic ||
 || Nokia || 3230 ||
-|| Nokia || 3250
-|| Nokia || 3500
-|| Nokia || 5200
-|| Nokia || 5300
-|| Nokia || 5500
-|| Nokia || 5610
-|| Nokia || 5700
+|| Nokia || 3250 ||
+|| Nokia || 3500 ||
+|| Nokia || 5200 ||
+|| Nokia || 5300 ||
+|| Nokia || 5500 ||
+|| Nokia || 5610 ||
+|| Nokia || 5700 ||
 || Nokia || 6021 ||
-|| Nokia || 6085
-|| Nokia || 6086
-|| Nokia || 6103
+|| Nokia || 6085 ||
+|| Nokia || 6086 ||
+|| Nokia || 6103 ||
 || Nokia || 6110 Navigator ||
-|| Nokia || 6111
-|| Nokia || 6120
-|| Nokia || 6121
-|| Nokia || 6125
-|| Nokia || 6126
-|| Nokia || 6131
-|| Nokia || 6133
-|| Nokia || 6136
-|| Nokia || 6151
+|| Nokia || 6111 ||
+|| Nokia || 6120 ||
+|| Nokia || 6121 ||
+|| Nokia || 6125 ||
+|| Nokia || 6126 ||
+|| Nokia || 6131 ||
+|| Nokia || 6133 ||
+|| Nokia || 6136 ||
+|| Nokia || 6151 ||
 || Nokia || 6155 ||
 || Nokia || 6230 ||
 || Nokia || 6230i ||
-|| Nokia || 6233
-|| Nokia || 6234
+|| Nokia || 6233 ||
+|| Nokia || 6234 ||
 || Nokia || 6255 ||
 || Nokia || 6260 ||
 || Nokia || 6265 ||
 || Nokia || 6265i ||
-|| Nokia || 6267
+|| Nokia || 6267 ||
 || Nokia || 6270 ||
-|| Nokia || 6275
-|| Nokia || 6275i
+|| Nokia || 6275 ||
+|| Nokia || 6275i ||
 || Nokia || 6280 ||
-|| Nokia || 6282
-|| Nokia || 6288
-|| Nokia || 6290
-|| Nokia || 6300
-|| Nokia || 6301
-|| Nokia || 6500
-|| Nokia || 6555
+|| Nokia || 6282 ||
+|| Nokia || 6288 ||
+|| Nokia || 6290 ||
+|| Nokia || 6300 ||
+|| Nokia || 6301 ||
+|| Nokia || 6500 ||
+|| Nokia || 6555 ||
 || Nokia || 6600 ||
 || Nokia || 6611 ||
 || Nokia || 6620 ||
@@ -115,15 +115,15 @@
 || Nokia || 6680 ||
 || Nokia || 6681 ||
 || Nokia || 6682DP2 ||
-|| Nokia || 7370
-|| Nokia || 7373
-|| Nokia || 7390
-|| Nokia || 7500 Prism
+|| Nokia || 7370 ||
+|| Nokia || 7373 ||
+|| Nokia || 7390 ||
+|| Nokia || 7500 Prism ||
 || Nokia || 7610 ||
 || Nokia || 7700 ||
 || Nokia || 7710 ||
-|| Nokia || 7900 Prism
-|| Nokia || 8600 Luna
+|| Nokia || 7900 Prism ||
+|| Nokia || 8600 Luna ||
 || Nokia || 8800 ||
 || Nokia || 8801 ||
 || Nokia || 9300 ||
@@ -136,7 +136,7 @@
 || Nokia || E62 ||
 || Nokia || E65 ||
 || Nokia || E70 ||
-|| Nokia || E90 Communicator
+|| Nokia || E90 Communicator ||
 || Nokia || N70 ||
 || Nokia || N71 ||
 || Nokia || N72 ||
