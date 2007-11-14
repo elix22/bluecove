@@ -6,35 +6,57 @@
   The list compiled based on publicly available resources
 
 || *Vendor* || *Model* ||
+|| Motorola || A780 ||
+|| Motorola || A845 ||
+|| Motorola || A910 ||
 || Motorola || A1000 ||
+|| Motorola || E770 ||
 || Motorola || E1000 ||
 || Motorola || E1070 ||
 || Motorola || MOTOQ q9 ||
 || Motorola || MOTOMING A1200 ||
 || Motorola || FOMA M1000 ||
 || Motorola || L6i ||
-|| Motorola || SLVR L7 ||
+|| Motorola || MOTOSLVR/SLVR L7 ||
+|| Motorola || MOTOSLVR L7i/L7e ||
+|| Motorola || MOTOSLVR L9/L72 ||
 || Motorola || PEBL/V6 ||
-|| Motorola || V360/V365 ||
+|| Motorola || PEBL U3 ||
+|| Motorola || PEBL U6 ||
 || Motorola || RAZR V3x ||
+|| Motorola || MOTORAZR V3 (CLDC1.1) ||
 || Motorola || MOTORAZR V3i ||
 || Motorola || MOTORAZR V3t ||
+|| Motorola || MOTORAZR V3x ||
+|| Motorola || MOTORAZR V3xx ||
+|| Motorola || MOTORAZR V9 ||
+|| Motorola || MOTORAZR maxx V6 ||
+|| Motorola || MOTOROKR K1 ||
+|| Motorola || MOTOROKR K3 ||
 || Motorola || MOTOROKR E1 ||
 || Motorola || MOTOROKR E2 ||
 || Motorola || MOTOROKR E6 ||
+|| Motorola || MOTOROKR U9 ||
 || Motorola || MOTORIZR Z3 ||
 || Motorola || MOTORIZR Z8 ||
 || Motorola || E770 ||
+|| Motorola || T280i ||
 || Motorola || V1100 ||
+|| Motorola || V197 ||
+|| Motorola || V360/V365 ||
 || Motorola || V361 ||
+|| Motorola || V400 ||
 || Motorola || V8 ||
 || Motorola || C975 ||
+|| Motorola || i516 ||
 || Motorola || i580 ||
 || Motorola || i605 ||
-|| Motorola || i516 ||
+|| Motorola || i615 ||
 || Motorola || i870 ||
-|| Motorola || i880 ||
 || Motorola || i875 ||
+|| Motorola || i880 ||
+|| Motorola || ic902 ||
+
 || ||  ||
 || Nokia || 3230 ||
 || Nokia || 6021 ||
@@ -99,13 +121,22 @@
 || Siemens || SX1 ||
 || Siemens || SXG75 ||
 || ||  ||
+
 || Sony-Ericsson || D750 ||
 || Sony-Ericsson || K320 ||
 || Sony-Ericsson || K510 ||
+|| Sony-Ericsson || K550 (NOT K550im)||
 || Sony-Ericsson || K600 ||
 || Sony-Ericsson || K608 ||
+|| Sony-Ericsson || K610 ||
+|| Sony-Ericsson || K630 ||
+|| Sony-Ericsson || K666 ||
 || Sony-Ericsson || K750 ||
+|| Sony-Ericsson || K770 ||
 || Sony-Ericsson || K790 ||
+|| Sony-Ericsson || K800 ||
+|| Sony-Ericsson || K810 ||
+|| Sony-Ericsson || K850 ||
 || Sony-Ericsson || P900 ||
 || Sony-Ericsson || P908 ||
 || Sony-Ericsson || P910 ||
@@ -113,22 +144,33 @@
 || Sony-Ericsson || P910c ||
 || Sony-Ericsson || P910i ||
 || Sony-Ericsson || P990 ||
+|| Sony-Ericsson || S500 ||
+|| Sony-Ericsson || T650 ||
 || Sony-Ericsson || V600 ||
+|| Sony-Ericsson || V640 ||
 || Sony-Ericsson || W300 ||
 || Sony-Ericsson || W550 ||
+|| Sony-Ericsson || W580 ||
 || Sony-Ericsson || W600 ||
 || Sony-Ericsson || W610 ||
+|| Sony-Ericsson || W660 ||
 || Sony-Ericsson || W710 ||
 || Sony-Ericsson || W800 ||
 || Sony-Ericsson || W810 ||
 || Sony-Ericsson || W830 ||
 || Sony-Ericsson || W850 ||
+|| Sony-Ericsson || W880 ||
+|| Sony-Ericsson || W890 ||
 || Sony-Ericsson || W900 ||
+|| Sony-Ericsson || W910 ||
 || Sony-Ericsson || W950 ||
 || Sony-Ericsson || V600i ||
 || Sony-Ericsson || Z520 ||
+|| Sony-Ericsson || Z610 ||
+|| Sony-Ericsson || Z750 ||
 || Sony-Ericsson || Z710 ||
 || Sony-Ericsson || X710 ||
+|| || Sony-Ericsson JP-5, JP-6, JP-7 and JP-8 phones support JSR 82 ||
 || ||  ||
 || BenQ || P30 ||
 || BenQ || P31 ||
@@ -144,6 +186,9 @@ Other web resources for the Java support on different devices:
     * [http://developers.sun.com/techtopics/mobility/device/device Sun's J2ME Phone List]
     * [http://www.j2mepolish.org/devices/devices-btapi.html j2mepolish Bluetooth (JSR-82) Supported Devices]
     * [http://www.forum.nokia.com/ Specs for Nokia Phones]
+    * [http://developer.sonyericsson.com/site/global/products/phonegallery/p_phonegallery.jsp Specs for Sony-Ericsson Phones]
+    * [http://developer.samsungmobile.com/ Specs for Samsung  Phones]
+    * [http://developer.motorola.com/products/handsets/ Motorola handsets]
 
 
 
