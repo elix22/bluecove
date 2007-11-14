@@ -56,7 +56,6 @@
 || Motorola || i875 ||
 || Motorola || i880 ||
 || Motorola || ic902 ||
-
 || ||  ||
 || Nokia || 3230 ||
 || Nokia || 6021 ||
@@ -121,7 +120,6 @@
 || Siemens || SX1 ||
 || Siemens || SXG75 ||
 || ||  ||
-
 || Sony-Ericsson || D750 ||
 || Sony-Ericsson || K320 ||
 || Sony-Ericsson || K510 ||
