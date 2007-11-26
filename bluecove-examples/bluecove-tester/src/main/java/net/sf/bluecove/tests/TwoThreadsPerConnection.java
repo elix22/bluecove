@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove.tests;
 
 import java.io.IOException;
@@ -32,39 +32,39 @@ import net.sf.bluecove.ConnectionHolderStream;
 import net.sf.bluecove.util.TimeUtils;
 
 /**
- * Test two directional Stream.
- * Create Second Thread to Write to connection.
- * Main Test thread will read data sent by connected party.
- * Test is symmetrical in regards to client and server.
+ * Test two directional Stream. Create Second Thread to Write to connection.
+ * Main Test thread will read data sent by connected party. Test is symmetrical
+ * in regards to client and server.
+ * 
  * @author vlads
- *
+ * 
  */
 public class TwoThreadsPerConnection {
 
 	private static final int DATA_SIZE = 8 * 1024;
-	
+
 	private int arraySize;
-	
+
 	private boolean synchronize;
-	
+
 	private int iterations;
-	
+
 	private int bytesTotal;
-	
+
 	private int sentCount = 0;
-	
+
 	private int receivedCount = 0;
-	
+
 	private boolean stoped = false;
-	
+
 	private class WriteTread extends Thread {
-		
+
 		OutputStream os;
-		
+
 		boolean isRunning;
-		
+
 		boolean sendFinishedSuccessfully = false;
-		
+
 		public void run() {
 			try {
 				isRunning = true;
@@ -76,7 +76,7 @@ public class TwoThreadsPerConnection {
 				isRunning = false;
 			}
 		}
-		
+
 	}
 
 	WriteTread startSender(OutputStream os) {
@@ -95,28 +95,28 @@ public class TwoThreadsPerConnection {
 			}
 		}
 	}
-	
+
 	void sendingData(OutputStream os) throws IOException {
 		long start = System.currentTimeMillis();
-		long reported = start; 
+		long reported = start;
 		int k = 0;
-		for(int i = 1; (!stoped) && i <= iterations; i++) {
+		for (int i = 1; (!stoped) && i <= iterations; i++) {
 			if (arraySize == 1) {
-				os.write((byte)i);
+				os.write((byte) i);
 				if (i % 64 == 0) {
 					os.flush();
 				}
 			} else {
 				byte[] data = new byte[arraySize];
-				for(int j = 0; j < arraySize; j ++, k ++) {
-					data[j] = (byte)k;
+				for (int j = 0; j < arraySize; j++, k++) {
+					data[j] = (byte) k;
 				}
 				os.write(data);
 				if (i % 2 == 0) {
 					os.flush();
 				}
 			}
-			sentCount +=arraySize;
+			sentCount += arraySize;
 			if ((i % 100 == 0) && (TimeUtils.since(reported) > 10000)) {
 				Logger.debug("sent " + sentCount + " bytes in " + TimeUtils.secSince(start));
 				reported = System.currentTimeMillis();
@@ -135,8 +135,8 @@ public class TwoThreadsPerConnection {
 		for (int i = 1; i <= iterations; i++) {
 			try {
 				if (arraySize == 1) {
-					byte got = (byte)is.read();
-					Assert.assertEquals("byte read [" + i + "]", (byte) i, got);
+					byte got = (byte) is.read();
+					Assert.assertEquals("sent " + sentCount + " bytes; read byte[" + i + "]", (byte) i, got);
 					receivedCount++;
 				} else {
 					byte[] data = new byte[arraySize];
@@ -150,8 +150,8 @@ public class TwoThreadsPerConnection {
 						len -= rcvd;
 						read_off += rcvd;
 					}
-					for(int j = 0; j < arraySize; j ++, k ++) {
-						Assert.assertEquals("byte read [" + k + "]", (byte)k, data[j]);
+					for (int j = 0; j < arraySize; j++, k++) {
+						Assert.assertEquals("sent " + sentCount + " bytes; read byte[" + k + "]", (byte) k, data[j]);
 					}
 					receivedCount += arraySize;
 				}
@@ -162,7 +162,7 @@ public class TwoThreadsPerConnection {
 			c.active();
 		}
 	}
-	
+
 	public static void start(ConnectionHolderStream c, int arraySize, boolean synchronize) throws IOException {
 		TwoThreadsPerConnection worker = new TwoThreadsPerConnection();
 		worker.synchronize = synchronize;
@@ -174,7 +174,7 @@ public class TwoThreadsPerConnection {
 			worker.iterations = DATA_SIZE / arraySize;
 			worker.bytesTotal = worker.iterations * arraySize;
 		}
-		
+
 		WriteTread sender = worker.startSender(c.os);
 		try {
 			worker.readingData(c.is, c);
@@ -192,6 +192,6 @@ public class TwoThreadsPerConnection {
 		Assert.assertTrue("sendFinishedSuccessfully", sender.sendFinishedSuccessfully);
 		c.os.write(CommunicationData.aKnowndPositiveByte);
 		Assert.assertEquals("end conformation", CommunicationData.aKnowndPositiveByte, c.is.read());
-		
+
 	}
 }
