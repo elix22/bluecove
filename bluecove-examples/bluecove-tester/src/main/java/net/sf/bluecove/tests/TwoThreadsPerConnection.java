@@ -118,7 +118,8 @@ public class TwoThreadsPerConnection {
 			}
 			sentCount += arraySize;
 			if ((i % 100 == 0) && (TimeUtils.since(reported) > 10000)) {
-				Logger.debug("sent " + sentCount + " bytes in " + TimeUtils.secSince(start));
+				Logger.debug("sent " + sentCount + "; received " + receivedCount + " bytes in "
+						+ TimeUtils.secSince(start));
 				reported = System.currentTimeMillis();
 			}
 			if (synchronize) {
