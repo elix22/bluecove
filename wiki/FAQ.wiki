@@ -33,10 +33,11 @@
 
 * Are there any books on Java and Bluetooth?
 
-    * Bluetooth Application Programming with the Java APIs, by C Bala Kumar, Paul Kline, Tim Thompson
-      [http://books.elsevier.com/us/mk/us/subindex.asp?maintarget=companions/defaultindividual.asp&isbn=1558609342&country=United%2BStates&srccode=&ref=&subcode=&head=&pdf=&basiccode=&txtSearch=&SearchField=&operator=&order=&community=mk Companion Website]  [http://books.elsevier.com/companions/1558609342/software/bluetooth_application_programming_with_the_java_apis_-_application_source_code.zip Source Code]
+    * Bluetooth Application Programming with the Java APIs, by C Bala Kumar, Paul Kline, Tim Thompson, ISBN-10: 1558609342, ISBN-13: 978-1558609341
+      2008 edition: ISBN-10: 0123743427, ISBN-13: 978-0123743428
+      [http://books.elsevier.com/companions/9781558609341 Companion Website]  [http://books.elsevier.com/companions/1558609342/software/bluetooth_application_programming_with_the_java_apis_-_application_source_code.zip Source Code]
 
-    * Bluetooth for Java, by Bruce Hopkins and Ranjith Antony
+    * Bluetooth for Java, by Bruce Hopkins and Ranjith Antony, ISBN-10: 1590590783, ISBN-13: 978-1590590782
         [http://www.javabluetooth.com/index.html Companion Website]    [http://www.javabluetooth.com/jb_source.zip Source Code]
 
     * Bluetooth Essentials for Programmers, by Albert Huang and Larry Rudolph, ISBN-13: 9780521703758
