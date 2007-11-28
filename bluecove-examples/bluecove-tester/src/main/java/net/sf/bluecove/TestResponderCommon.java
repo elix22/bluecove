@@ -82,7 +82,7 @@ public class TestResponderCommon {
 
 			Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice
 					.getProperty("bluecove.stack"));
-			Configuration.supportL2CAP = Configuration.stackWIDCOMM;
+			Configuration.supportL2CAP = Configuration.stackWIDCOMM || Configuration.macOSx;
 		}
 
 		String receiveMTUstr = LocalDevice.getProperty("bluetooth.l2cap.receiveMTU.max");
