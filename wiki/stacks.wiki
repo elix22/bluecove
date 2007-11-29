@@ -93,6 +93,8 @@ This does not happen when we used dongle bought from [http://bluesoleil.com blue
 
 == OS X ==
 
+http://images.apple.com/downloads/images/mac+universal20070611.gif
+
 === Requirements ===
 
     *  PowerPC- or Intel-based Mac OS X 10.4 (Bluetooth v1.2) or late
