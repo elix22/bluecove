@@ -19,14 +19,14 @@ currently maintained by volunteers. The LGPL license allow to link and distribut
   * WIDCOMM (Broadcom) BTW Stack software version 1.4.2.10 SP5 or above
   * !BlueSoleil version 1.6.0 or above
   * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
-  * PowerPC- or Intel-based Mac OS X 10.4 (Bluetooth v1.2) or late
+  * PowerPC- or Intel-based Mac OS X 10.4 (Bluetooth v1.2) or late (Since v2.0.2)
   * A Bluetooth device supported by the WIDCOMM, !BlueSoleil or Microsoft bluetooth stack
   * Java 1.1 or newer for the binary execution, Java 1.4 or newer to compile.
   * Another Bluetooth device to communicate with. See [http://code.google.com/p/bluecove/wiki/phones Complete list of the JSR-82 compliant phones]
 
 == Limitations ==
 
-L2CAP support available only on WIDCOMM Stack since !BlueCove version 2.0.1.
+L2CAP support available only on WIDCOMM Stack and Mac OS X since !BlueCove version 2.0.2.
 
 Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
 !BlueCove also only supports RFCOMM connections on this stack. The operating system support is
@@ -35,8 +35,6 @@ stack is not available on other operating systems.
 
 If someone writes code to support another stack and/or operating system, it will be considered for
 inclusion. TOSHIBA on Win32 and BlueZ are wellcome!
-
-In spring there was an attempt to make OS X port by Eric Wagner. The code is avalable in SVN.
 
 For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
 
