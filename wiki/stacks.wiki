@@ -25,7 +25,9 @@
 
    Use `LocalDevice.getProperty("bluecove.stack")` to find out what stack is used.
 
-== WIDCOMM (Broadcom) ==
+== Broadcom (WIDCOMM) ==
+
+http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/broadcom_logo.png
 
     This stack is most stable stack from one supported by !BlueCove
     Supported RFCOMM and L2CAP (since !BlueCove v2.0.1)
@@ -49,6 +51,8 @@
 
 == Winsock (Microsoft) ==
 
+http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/win.png
+
 === Requirements ===
 
     * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
@@ -63,6 +67,8 @@
     * L2CAP not supported
 
 == !BlueSoleil (IVT Corporation) ==
+
+http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/bluesoleil_logo.png
 
     We don't recommend the use of this stack for the begginers in JSR-82. There are too many limitations that may be very confusing.
     Also our experience show that you may need to frequently reboot your Windows.
@@ -93,7 +99,7 @@ This does not happen when we used dongle bought from [http://bluesoleil.com blue
 
 == OS X ==
 
-http://images.apple.com/downloads/images/mac+universal20070611.gif
+http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/mac_universal.png
 
 === Requirements ===
 
