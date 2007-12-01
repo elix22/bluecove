@@ -583,7 +583,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 						conn = Connector.open(serverURL + urlArgs);
 					} catch (IOException e) {
 						connectionOpenTry++;
-						if (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry) {
+						if ((stoped) || (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry)) {
 							throw e;
 						}
 						Logger.debug(logPrefix + "Connector error", e);
