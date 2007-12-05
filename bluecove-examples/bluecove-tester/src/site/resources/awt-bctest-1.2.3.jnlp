@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
   spec="1.0+"
-  codebase="http://bluecove.sourceforge.net/bluecove-examples/bluecove-tester"
+  codebase="http://www.bluecove.org/bluecove-examples/bluecove-tester"
   href="awt-bctest-1.2.3.jnlp">
   <information>
     <title>bluecove-tester 1.2.3</title>
     <vendor>BlueCove; Vlad Skarzhevskyy</vendor>
-    <homepage href="http://code.google.com/p/bluecove/"/>
+    <homepage href="http://www.bluecove.org/"/>
     <description>bluecove-tester</description>
     <description kind="short">bluecove-tester with BlueCove 1.2.3</description>
     <icon href="icon.png"/>

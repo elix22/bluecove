@@ -45,13 +45,13 @@ BlueCove OBEX Push J2ME application installer Web Start
 For JAR URL:
     http://wintermute.de/wap/extended/5ud0ku.jar
 BlueCove OBEX Push Web Start URL:
-    http://bluecove.sourceforge.net/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp
+    http://www.bluecove.org/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp
 ---
 
   HTML text on your page:
 
 ---
-    <a href="http://bluecove.sourceforge.net/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp">Install it now</a>
+    <a href="http://www.bluecove.org/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp">Install it now</a>
 ---
 
-  {{{http://bluecove.sourceforge.net/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp}Try it yourself first}}
+  {{{http://www.bluecove.org/bluecove-examples/obex-install/push/wintermute.de/wap/extended/5ud0ku.jnlp}Try it yourself first}}

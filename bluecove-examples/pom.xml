@@ -23,7 +23,7 @@
 
     <description>BlueCove examples demos and Web Start</description>
 
-    <url>http://bluecove.sourceforge.net/bluecove-examples/</url>
+    <url>http://www.bluecove.org/bluecove-examples/</url>
 
     <organization>
         <name>BlueCove Team</name>
@@ -222,8 +222,8 @@
                                     <tasks>
                                         <replace dir="${project.build.directory}/site">
                                             <include name="*.jnlp"></include>
-                                            <replacetoken><![CDATA[http://bluecove.sourceforge.net/bluecove-examples]]></replacetoken>
-                                            <replacevalue><![CDATA[http://snapshot-bluecove.pyx4j.com/bluecove-examples]]></replacevalue>
+                                            <replacetoken><![CDATA[http://www.bluecove.org/bluecove-examples]]></replacetoken>
+                                            <replacevalue><![CDATA[http://snapshot.bluecove.org/bluecove-examples]]></replacevalue>
                                         </replace>
                                     </tasks>
                                 </configuration>

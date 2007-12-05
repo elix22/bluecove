@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
   spec="1.0+"
-  codebase="http://bluecove.sourceforge.net/bluecove-examples/bluecove-webstart"
+  codebase="http://www.bluecove.org/bluecove-examples/bluecove-webstart"
   href="$outputFile">
   <information>
     <title>MicroEmulator</title>
     <vendor>BlueCove; Vlad Skarzhevskyy</vendor>
-    <homepage href="http://code.google.com/p/bluecove/"/>
+    <homepage href="http://www.bluecove.org/"/>
     <description>MicroEmulator</description>
     <description kind="short">MicroEmulator with BlueCove</description>
     <icon href="icon.png"/>
