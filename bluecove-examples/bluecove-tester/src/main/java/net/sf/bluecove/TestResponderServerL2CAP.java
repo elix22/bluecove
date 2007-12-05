@@ -39,34 +39,33 @@ import net.sf.bluecove.util.TimeUtils;
 public class TestResponderServerL2CAP extends Thread {
 
 	private L2CAPConnectionNotifier serverConnection;
-	
+
 	private boolean isStoped = false;
-	
+
 	private boolean isRunning = false;
-	
+
 	private TestResponderServerL2CAP() {
-		
+
 	}
-	
+
 	public static TestResponderServerL2CAP startServer() {
 		TestResponderServerL2CAP srv = new TestResponderServerL2CAP();
 		srv.start();
 		return srv;
 	}
-	
+
 	public boolean isRunning() {
 		return isRunning;
 	}
-	
+
 	public void run() {
 		isStoped = false;
 		try {
-			serverConnection =  (L2CAPConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_L2CAP + "://localhost:"
-					+ Configuration.blueCoveL2CAPUUID()
-					+ ";name=" + Consts.RESPONDER_SERVERNAME + "_l2"
-					+ Configuration.serverURLParams()
-					+ ";TransmitMTU=" + TestResponderCommon.receiveMTU_max
-					+ ";ReceiveMTU=" + TestResponderCommon.receiveMTU_max);
+			serverConnection = (L2CAPConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_L2CAP
+					+ "://localhost:" + Configuration.blueCoveL2CAPUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
+					+ "_l2" + (Configuration.useShortUUID ? "s" : "") + Configuration.serverURLParams()
+					+ ";TransmitMTU=" + TestResponderCommon.receiveMTU_max + ";ReceiveMTU="
+					+ TestResponderCommon.receiveMTU_max);
 			if (Configuration.testServiceAttributes.booleanValue()) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 				if (record == null) {
@@ -104,7 +103,7 @@ public class TestResponderServerL2CAP extends Thread {
 					if (isStoped) {
 						return;
 					}
-					errorCount ++;
+					errorCount++;
 					Logger.error("acceptAndOpen ", e);
 					continue;
 				}
@@ -119,29 +118,29 @@ public class TestResponderServerL2CAP extends Thread {
 			isRunning = false;
 		}
 	}
-	
+
 	void receive(L2CAPConnection channel) {
 		try {
 			int receiveLengthMax = channel.getReceiveMTU();
-            byte[] buffer = new byte[receiveLengthMax];
+			byte[] buffer = new byte[receiveLengthMax];
 
-            int receivedLength = channel.receive(buffer);
-		
-            if (receivedLength == 0) {
-            	Logger.debug("a zero length L2CAP packet is received");
-            } else {
-            	Logger.debug("received L2CAP packet", buffer, 0, receivedLength);
-            	processData(channel, buffer, receivedLength);
-            }
-            
+			int receivedLength = channel.receive(buffer);
+
+			if (receivedLength == 0) {
+				Logger.debug("a zero length L2CAP packet is received");
+			} else {
+				Logger.debug("received L2CAP packet", buffer, 0, receivedLength);
+				processData(channel, buffer, receivedLength);
+			}
+
 		} catch (Throwable e) {
 			if (isStoped) {
 				return;
 			}
 			Logger.error("L2CAP receive", e);
-		} 
+		}
 	}
-	
+
 	private void processData(L2CAPConnection channel, byte[] buffer, int receivedLength) throws IOException {
 		if ((receivedLength < 3) || (buffer[0] != Consts.SEND_TEST_START)) {
 			Logger.debug("not a test client connected, will echo");
@@ -151,34 +150,34 @@ public class TestResponderServerL2CAP extends Thread {
 		int testType = buffer[1];
 		TestStatus testStatus = new TestStatus(testType);
 		ConnectionHolderL2CAP c = new ConnectionHolderL2CAP(channel);
-		
-		TestTimeOutMonitor monitorConnection = new TestTimeOutMonitor("test" + testType, c, Configuration.serverTestTimeOutSec);
-		
-		
+
+		TestTimeOutMonitor monitorConnection = new TestTimeOutMonitor("test" + testType, c,
+				Configuration.serverTestTimeOutSec);
+
 		byte[] initialData = new byte[receivedLength - CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN];
-		System.arraycopy(buffer, CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN, initialData, 0, receivedLength - CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN);
-		
+		System.arraycopy(buffer, CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN, initialData, 0, receivedLength
+				- CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN);
+
 		try {
 			CommunicationTesterL2CAP.runTest(testType, true, c, initialData, testStatus);
-			
+
 			TestResponderServer.countSuccess++;
-			
+
 			Logger.debug("Test# " + testType + " " + testStatus.getName() + " ok");
 		} catch (Throwable e) {
 			if (!isStoped) {
-				TestResponderServer.failure.addFailure("test " + testType  + " " + testStatus.getName(), e);
+				TestResponderServer.failure.addFailure("test " + testType + " " + testStatus.getName(), e);
 			}
-			Logger.error("Test# " + testType  + " " + testStatus.getName() + " error", e);			
+			Logger.error("Test# " + testType + " " + testStatus.getName() + " error", e);
 		} finally {
 			monitorConnection.finish();
 		}
 	}
-	
+
 	private void runEcho(L2CAPConnection channel, byte[] buffer, int receivedLength) throws IOException {
 		echo(channel, buffer, receivedLength);
-		mainLoop:
-		while (true) {
-			while (!channel.ready()){
+		mainLoop: while (true) {
+			while (!channel.ready()) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -191,7 +190,7 @@ public class TestResponderServerL2CAP extends Thread {
 			echo(channel, data, length);
 		}
 	}
-	
+
 	private void echo(L2CAPConnection channel, byte[] buffer, int receivedLength) throws IOException {
 		boolean cBufHasBinary = false;
 		int messageLength = receivedLength;
@@ -222,7 +221,7 @@ public class TestResponderServerL2CAP extends Thread {
 		}
 		buf.append(" (").append(receivedLength).append(")");
 		Logger.debug("|" + buf.toString());
-		
+
 		byte[] reply = new byte[receivedLength];
 		if (receivedLength != 0) {
 			System.arraycopy(buffer, 0, reply, 0, receivedLength);
@@ -240,8 +239,8 @@ public class TestResponderServerL2CAP extends Thread {
 			Logger.error("L2CAP Server stop error", e);
 		}
 	}
-	
-	void closeServer()  {
+
+	void closeServer() {
 		isStoped = true;
 		close();
 	}
