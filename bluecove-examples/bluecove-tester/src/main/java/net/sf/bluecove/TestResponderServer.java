@@ -316,10 +316,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			} else {
 				Logger.info("No L2CAP support");
 			}
-			try {
-				responderOBEXServer = TestResponderServerOBEX.startServer();
-			} catch (Throwable noObex) {
-				Logger.error("OBEX Service ", noObex);
+			if (Configuration.testRFCOMM.booleanValue()) {
+				try {
+					responderOBEXServer = TestResponderServerOBEX.startServer();
+				} catch (Throwable noObex) {
+					Logger.error("OBEX Service ", noObex);
+				}
 			}
 
 			if (Configuration.testRFCOMM.booleanValue()) {
