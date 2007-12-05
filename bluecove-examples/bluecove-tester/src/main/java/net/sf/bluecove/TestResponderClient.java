@@ -580,7 +580,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				int connectionOpenTry = 0;
 				while ((conn == null) && (!stoped)) {
 					try {
-						conn = Connector.open(serverURL + urlArgs);
+						conn = Connector.open(serverURL + urlArgs, Connector.READ_WRITE, true);
 					} catch (IOException e) {
 						connectionOpenTry++;
 						if ((stoped) || (connectionOpenTry > CommunicationTester.clientConnectionOpenRetry)) {
