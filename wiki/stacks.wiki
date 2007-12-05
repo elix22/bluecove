@@ -108,3 +108,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/m
 === JSR-82 Limitations ===
 
     * `LocalDevice.setDiscoverable(...)` not supported.
+    * Dynamic assignment of PSM for L2CAP service does not work. 1001 is assigned all the time. Use btl2cap://localhost:uuid;name=test;bluecovepsm=1003
+    * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8 are not properly publshed by service on OS X 10.4
+    * `ServiceRecord` attributes of `DataElement` type BOOL published as U_INT_1
+    * `ServiceRecord` attributes of `DataElement` type URL published as STRING
