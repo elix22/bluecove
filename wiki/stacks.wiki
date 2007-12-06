@@ -7,7 +7,7 @@
 
    Support for Mac OS X added in !BlueCove version 2.0.2.
 
-   To determine which Bluetooth stack is installed on your Windows XP [http://bluecove.sourceforge.net/bluecove-examples/bluetooth-stack.html see this page]
+   To determine which Bluetooth stack is installed on your Windows XP [http://www.bluecove.org/bluecove-examples/bluetooth-stack.html see this page]
 
    [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile]
 

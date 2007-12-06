@@ -3,7 +3,7 @@
 
 * How to determine which Bluetooth stack is installed on my Windows?
 
-  [http://bluecove.sourceforge.net/bluecove-examples/bluetooth-stack.html see this page]
+  [http://www.bluecove.org/bluecove-examples/bluetooth-stack.html see this page]
 
 * Where can I get help or support?
 
@@ -16,7 +16,7 @@
 
     !BlueCove is JSR-82, All JSR-82 API Documentation apply. See  [http://java.sun.com/javame/reference/apis/jsr082/ Java APIs for Bluetooth Wireless Technology]
 
-    [http://bluecove.sourceforge.net/apidocs/index.html BlueCove Java docs]. For application it is not recommended to use any classes or API other than defined in JSR-82.
+    [http://www.bluecove.org/apidocs/index.html BlueCove Java docs]. For application it is not recommended to use any classes or API other than defined in JSR-82.
 
     Also these links may be useful
      * [http://forum.nokia.com/info/sw.nokia.com/id/0b51461e-5f77-40f4-b755-7915ad4d0e31/MIDP_Bluetooth_RFCOMM_Example_v1_0_en.zip.html Nokia Bluetooth RFCOMM and L2CAP Examples]
