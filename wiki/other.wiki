@@ -4,7 +4,7 @@
 = The list below contains JSR-82 implementations in Java Standard Edition  =
 
 || *Name* || *License* || *OS* ||
-|| [http://sourceforge.net/projects/bluecove/ BlueCove] || LGPL || WinXP, Win Mobile ||
+|| [http://sourceforge.net/projects/bluecove/ BlueCove] || LGPL || Win XP, Win Mobile, OS X ||
 || [http://www.avetana-gmbh.de/avetana-gmbh/produkte/jsr82.eng.xml avetana JSR-82 implementation] || Commercial || Win XP, Win Mobile, OS X, Linux ||
 || [http://sourceforge.net/projects/avetanabt/ AvetanaBluetooth] || Open Source || Linux ||
 || [http://www.rococosoft.com/blue_dk.html Impronto Developer Kit] || Commercial; Free for Non Commercial Use || Linux ||
