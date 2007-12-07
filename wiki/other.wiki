@@ -14,6 +14,11 @@
 || [https://bluesock.dev.java.net/ Bluesock] || Common Public License || Win XP||
 
 
+= Linux Bluetooth projects =
+
+    * [http://jbluez.sourceforge.net/ JBlueZ] exposes the Bluetooth functionality provided by the BlueZ to J2SE
+    * [http://dbus.freedesktop.org/doc/dbus-java/ Java D-Bus binding] enables you to use BlueZ D-Bus interface
+
 = Related Open Source projects =
 
     * [http://lightblue.sourceforge.net/ LightBlue] a cross-platform Python Bluetooth API for Mac OS X, GNU/Linux and Nokia's Python
