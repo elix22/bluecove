@@ -1,7 +1,7 @@
 Vlad Skarzhevskyy
 1) Professional XP SP2 - Laptop HP ZT3380US, Integrated Cambridge Silicon Radio
       Microsoft Bluetooth stack for USB
-      Broadcom Bluetooth stack v5.0.1.2800 for integrated Radio
+      Broadcom Bluetooth stack v3.0.1.905 for HP
 2) Professional XP SP2  - desktop
       Microsoft Bluetooth stack for USB
       Broadcom Bluetooth stack v4.0.1.2900 for USN
@@ -26,6 +26,7 @@ BT radios
     ES-388 Bluetooth USB Adapter  (fake item, Device has illegal Bluetooth addr 11:11:11:11:11:11)
     D-Link DBT-120 USB Bluetooth Adapter
     Toshiba Bluetooth V2.0 EDR USB Adapter PA3455U-1BTM
+    Motorola Bluetooth USB PC850
 
 JSR-082 Phones:
     2 x Nokia 6230,
