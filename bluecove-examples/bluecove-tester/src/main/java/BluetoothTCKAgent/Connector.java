@@ -24,10 +24,7 @@ import java.io.IOException;
 
 import javax.bluetooth.BluetoothConnectionException;
 import javax.microedition.io.Connection;
-
-import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
-import net.sf.bluecove.TestResponderCommon;
 
 /**
  * Small hack to enable connection retry while working on other implementations.
@@ -45,22 +42,12 @@ public class Connector {
 
 	public static final int READ_WRITE = javax.microedition.io.Connector.READ_WRITE;
 
-	static {
-		try {
-			TestResponderCommon.startLocalDevice();
-		} catch (Throwable ignor) {
-		}
-	}
-
 	public static Connection open(String name, int mode, boolean timeouts) throws IOException {
 		return javax.microedition.io.Connector.open(name, mode, timeouts);
 	}
 
 	public static Connection open(String name, int mode) throws IOException {
-		int retryMax = 0;
-		if (!Configuration.isBlueCove) {
-			retryMax = 3;
-		}
+		int retryMax = 3;
 		int retry = 0;
 		while (true) {
 			try {
