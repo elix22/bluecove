@@ -438,8 +438,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	public static boolean setDiscoverable() {
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
-			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
-			Logger.debug("Set Discoverable");
+			boolean rc = localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+			if (!rc) {
+				Logger.error("Set Discoverable " + rc);
+			} else {
+				Logger.debug("Set Discoverable " + rc);
+			}
 			discoverable = true;
 			discoverableStartTime = System.currentTimeMillis();
 			return true;
