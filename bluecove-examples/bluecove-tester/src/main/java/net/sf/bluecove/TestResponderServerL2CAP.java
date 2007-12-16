@@ -105,10 +105,17 @@ public class TestResponderServerL2CAP extends Thread {
 		try {
 			int errorCount = 0;
 			isRunning = true;
+			boolean showServiceRecordOnce = true;
 			while (!isStoped) {
 				L2CAPConnection channel;
 				try {
 					Logger.info("Accepting L2CAP connections");
+					if (showServiceRecordOnce) {
+						Logger.debug("Url:"
+								+ LocalDevice.getLocalDevice().getRecord(serverConnection).getConnectionURL(
+										ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
+						showServiceRecordOnce = false;
+					}
 					channel = serverConnection.acceptAndOpen();
 				} catch (InterruptedIOException e) {
 					isStoped = true;

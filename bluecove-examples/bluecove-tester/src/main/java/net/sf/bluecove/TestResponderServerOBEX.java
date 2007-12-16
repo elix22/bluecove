@@ -75,9 +75,8 @@ public class TestResponderServerOBEX implements Runnable {
 						.open(BluetoothTypesInfo.PROTOCOL_SCHEME_TCP_OBEX + "://");
 			} else {
 				serverConnection = (SessionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_BT_OBEX
-						+ "://localhost:" + Configuration.blueCoveOBEXUUID() 
-						+ ";name=" + Consts.RESPONDER_SERVERNAME + "_ox" 
-						+ Configuration.serverURLParams());
+						+ "://localhost:" + Configuration.blueCoveOBEXUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
+						+ "_ox" + Configuration.serverURLParams());
 				if (Configuration.testServiceAttributes.booleanValue()) {
 					ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 					if (record == null) {
@@ -101,13 +100,20 @@ public class TestResponderServerOBEX implements Runnable {
 
 		try {
 			int errorCount = 0;
-			int count  = 0;
+			int count = 0;
 			isRunning = true;
+			boolean showServiceRecordOnce = true;
 			while (!isStoped) {
 				RequestHandler handler = new RequestHandler();
 				try {
-					count ++;
+					count++;
 					Logger.info("Accepting OBEX connections");
+					if (showServiceRecordOnce) {
+						Logger.debug("Url:"
+								+ LocalDevice.getLocalDevice().getRecord(serverConnection).getConnectionURL(
+										ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
+						showServiceRecordOnce = false;
+					}
 					if (Configuration.authenticateOBEX.getValue() != 0) {
 						handler.auth = new OBEXTestAuthenticator("server" + count);
 						handler.connectionAccepted(serverConnection.acceptAndOpen(handler, handler.auth));
@@ -153,12 +159,13 @@ public class TestResponderServerOBEX implements Runnable {
 		close();
 	}
 
-	/*  We testing on Java 1.1 and Timer is not important
+	/*
+	 * We testing on Java 1.1 and Timer is not important
 	 */
 	private class NoTimeWrapper {
-		
+
 		Object timer;
-		
+
 		NoTimeWrapper() {
 			try {
 				timer = new Timer();
@@ -166,7 +173,7 @@ public class TestResponderServerOBEX implements Runnable {
 				Logger.warn("OBEX Server has no timer");
 			}
 		}
-		
+
 		void schedule(final RequestHandler handler) {
 			if (timer != null) {
 				((Timer) timer).schedule(new TimerTask() {
@@ -176,24 +183,24 @@ public class TestResponderServerOBEX implements Runnable {
 				}, 1000 * 30);
 			}
 		}
-		
+
 		void cancel() {
 			if (timer != null) {
 				((Timer) timer).cancel();
 			}
 		}
 	}
-	
+
 	private class RequestHandler extends ServerRequestHandler {
 
-		OBEXTestAuthenticator auth; 
-		
+		OBEXTestAuthenticator auth;
+
 		NoTimeWrapper notConnectedTimer = new NoTimeWrapper();
-		
+
 		boolean isConnected = false;
 
 		Connection cconn;
-		
+
 		RemoteDevice remoteDevice;
 
 		void connectionAccepted(Connection cconn) {
@@ -210,8 +217,8 @@ public class TestResponderServerOBEX implements Runnable {
 			if (!isConnected) {
 				notConnectedTimer.schedule(this);
 			}
-		}	
-		
+		}
+
 		void notConnectedClose() {
 			if (!isConnected) {
 				Logger.debug("OBEX connection timeout");
@@ -258,7 +265,7 @@ public class TestResponderServerOBEX implements Runnable {
 					sendHeaders.setHeader(HeaderSet.DESCRIPTION, name);
 					op.sendHeaders(sendHeaders);
 				}
-				
+
 				InputStream is = op.openInputStream();
 
 				StringBuffer buf = new StringBuffer();
@@ -294,7 +301,7 @@ public class TestResponderServerOBEX implements Runnable {
 			try {
 				HeaderSet hs = op.getReceivedHeaders();
 				String name = (String) hs.getHeader(HeaderSet.NAME);
-				
+
 				if (name != null) {
 					message += "\nYou ask for [" + name + "]";
 				}
@@ -318,7 +325,7 @@ public class TestResponderServerOBEX implements Runnable {
 				Logger.debug("OBEX onGet ends");
 			}
 		}
-		
+
 		public void onAuthenticationFailure(byte[] userName) {
 			Logger.debug("OBEX AuthFailure " + new String(userName));
 		}
