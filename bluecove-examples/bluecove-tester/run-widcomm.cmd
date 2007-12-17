@@ -6,7 +6,7 @@ SET STACK=widcomm
 title %STACK%-tester
 
 set JVM_ARGS=
-rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.connect.timeout=10000
+set JVM_ARGS=%JVM_ARGS% -Dbluecove.connect.timeout=10000
 
 set BLUECOVE_PROJECT=%~dp0..\..\bluecove
 

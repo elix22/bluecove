@@ -9,5 +9,5 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.sf.bluecove.awt.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="bluecove-tester"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dbluecove.stack=widcomm"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dbluecove.stack=widcomm&#13;&#10;-Dbluecove.connect.timeout=10000"/>
 </launchConfiguration>
