@@ -69,7 +69,10 @@ public class TestResponderServerOBEX implements Runnable {
 
 	public void run() {
 		isStoped = false;
+		boolean deviceServiceClassesUpdated = false;
+		LocalDevice localDevice;
 		try {
+			localDevice = LocalDevice.getLocalDevice();
 			if (Configuration.testServerOBEX_TCP) {
 				serverConnection = (SessionNotifier) Connector
 						.open(BluetoothTypesInfo.PROTOCOL_SCHEME_TCP_OBEX + "://");
@@ -78,11 +81,19 @@ public class TestResponderServerOBEX implements Runnable {
 						+ "://localhost:" + Configuration.blueCoveOBEXUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
 						+ "_ox" + Configuration.serverURLParams());
 				if (Configuration.testServiceAttributes.booleanValue()) {
-					ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
+					ServiceRecord record = localDevice.getRecord(serverConnection);
 					if (record == null) {
 						Logger.warn("Bluetooth ServiceRecord is null");
 					} else {
 						TestResponderServer.buildServiceRecord(record);
+
+						try {
+							record.setDeviceServiceClasses(BluetoothTypesInfo.DeviceClassConsts.INFORMATION_SERVICE);
+							deviceServiceClassesUpdated = true;
+						} catch (Throwable e) {
+							Logger.error("setDeviceServiceClasses", e);
+						}
+
 						try {
 							LocalDevice.getLocalDevice().updateRecord(record);
 							Logger.debug("OBEX ServiceRecord updated");
@@ -98,6 +109,10 @@ public class TestResponderServerOBEX implements Runnable {
 			return;
 		}
 
+		if (deviceServiceClassesUpdated) {
+			Logger.info("DeviceClass:" + BluetoothTypesInfo.toString(localDevice.getDeviceClass()));
+		}
+
 		try {
 			int errorCount = 0;
 			int count = 0;
@@ -110,7 +125,7 @@ public class TestResponderServerOBEX implements Runnable {
 					Logger.info("Accepting OBEX connections");
 					if (showServiceRecordOnce) {
 						Logger.debug("Url:"
-								+ LocalDevice.getLocalDevice().getRecord(serverConnection).getConnectionURL(
+								+ localDevice.getRecord(serverConnection).getConnectionURL(
 										ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
 						showServiceRecordOnce = false;
 					}
