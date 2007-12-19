@@ -255,7 +255,7 @@ public class Configuration {
 			if ((idx == -1) || (idx == s.length())) {
 				deviceNames.put(s, s);
 			} else {
-				deviceNames.put(s.substring(0, idx), s.substring(idx + 1));
+				deviceNames.put(s.substring(0, idx).trim(), s.substring(idx + 1).trim());
 			}
 		}
 	}
