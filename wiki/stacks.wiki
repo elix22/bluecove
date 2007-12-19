@@ -76,7 +76,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/b
 
 === Requirements ===
 
-    * !BlueSoleil version 1.6.0 or above
+    * !BlueSoleil version 1.6.0, 2.3 or 3.2.2.8. !BlueSoleil version 5.0.5 not supported.
 
 === JSR-82 Limitations ===
 
