@@ -277,5 +277,5 @@ Other web resources for the Java support on different devices:
     * [http://developer.sonyericsson.com/site/global/products/phonegallery/p_phonegallery.jsp Specs for Sony-Ericsson Phones]
     * [http://developer.samsungmobile.com/ Specs for Samsung  Phones]
     * [http://developer.motorola.com/products/handsets/ Motorola handsets]
-
+    * [http://www.club-java.com/TastePhone/J2ME/MIDP_Benchmark.jsp TastePhone results]
 
