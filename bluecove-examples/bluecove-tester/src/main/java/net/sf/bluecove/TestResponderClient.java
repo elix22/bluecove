@@ -181,11 +181,13 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 						Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO };
 			} else {
 				attrIDs = new int[] {
+						0x0009, // BluetoothProfileDescriptorList
 						0x0100, // Service name
 						Consts.TEST_SERVICE_ATTRIBUTE_INT_ID, Consts.TEST_SERVICE_ATTRIBUTE_STR_ID,
 						Consts.TEST_SERVICE_ATTRIBUTE_URL_ID, Consts.TEST_SERVICE_ATTRIBUTE_LONG_ID,
 						Consts.TEST_SERVICE_ATTRIBUTE_BYTES_ID, Consts.VARIABLE_SERVICE_ATTRIBUTE_BYTES_ID,
-						Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO };
+						Consts.SERVICE_ATTRIBUTE_BYTES_SERVER_INFO, 0x0303, // SupportedFormatList
+				};
 			}
 		}
 
