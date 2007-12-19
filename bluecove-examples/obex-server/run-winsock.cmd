@@ -6,7 +6,7 @@ SET STACK=winsock
 title %STACK%-obex
 
 rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
-JVM_ARGS=%JVM_ARGS% -Dbluecove.obex.mtu=40000
+set JVM_ARGS=%JVM_ARGS% -Dbluecove.obex.mtu=40000
 
 java -Dbluecove.stack=%STACK% %JVM_ARGS% -jar target\obex-server-%VERSION%-app.jar
 if errorlevel 1 (
