@@ -21,7 +21,7 @@ WIN-CE
 
 BT radios
     2 x Microsoft Wireless Transceiver for Bluetooth 2.0
-    TRUST Bluetooth 2.0 EDR USB Adapter BT-2210Tp
+    2 x TRUST Bluetooth 2.0 EDR USB Adapter BT-2210Tp
     BlueSoleil BS001 Dongle (Class I 100 Metres)
     ES-388 Bluetooth USB Adapter  (fake item, Device has illegal Bluetooth addr 11:11:11:11:11:11)
     D-Link DBT-120 USB Bluetooth Adapter
@@ -35,17 +35,3 @@ JSR-082 Phones:
 
 
 ----------------------------------------------------------------------------------------------------------
-Hakan Lager
-
-1) Professional XP 5.0.1.2600 SP2 Missing: MSVCr80, BTFUNC, MSJAVA WBAPI
-2) Professional XP 5.0.1.2600  SP2 Missing: MSVCR80, BTFUNC, MSJAVA, WBAPI
-3) Home XP         5.0.1.2600 SP2 Missing: BTFUNC, EFSADU, MSJAVA, WBTAPI
-4) Professional XP 5.0.1.2600 SP2 Missing: BTFUNC, MSJAVA, WBTAPI
-
-JSR-082 Phones:
-     SE Z800, SE W800i,  Nokia N95
-
-BT radios
-1) Belkin dongle F8T003 v2
-2) Trust dongle BT-1300TP
-3) Embedded BT radio in Fujutsi Amilo named "Hp" (Computer #3 in the list)
