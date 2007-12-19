@@ -28,8 +28,10 @@ import java.io.InterruptedIOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.bluetooth.DataElement;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
+import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
@@ -41,7 +43,7 @@ import javax.obex.SessionNotifier;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class OBEXServer implements Runnable {
 
@@ -50,15 +52,15 @@ public class OBEXServer implements Runnable {
 	private boolean isStoped = false;
 
 	private boolean isRunning = false;
-	
+
 	public final UUID OBEX_OBJECT_PUSH = new UUID(0x1105);
-	
+
 	public static final String SERVER_NAME = "OBEX Object Push";
-	
+
 	private OBEXServer() {
-		
+
 	}
-	
+
 	public static OBEXServer startServer() {
 		OBEXServer srv = new OBEXServer();
 		Thread thread = new Thread(srv);
@@ -75,17 +77,20 @@ public class OBEXServer implements Runnable {
 		}
 		return srv;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run() {
 		isStoped = false;
+		LocalDevice localDevice;
 		try {
-			LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.GIAC);
-			serverConnection = (SessionNotifier) Connector.open(
-						"btgoep://localhost:" + OBEX_OBJECT_PUSH 
-						+ ";name=" + SERVER_NAME);
+			localDevice = LocalDevice.getLocalDevice();
+			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+			serverConnection = (SessionNotifier) Connector.open("btgoep://localhost:" + OBEX_OBJECT_PUSH + ";name="
+					+ SERVER_NAME);
 		} catch (Throwable e) {
 			Logger.error("OBEX Server start error", e);
 			isStoped = true;
@@ -93,19 +98,33 @@ public class OBEXServer implements Runnable {
 		}
 
 		try {
+			ServiceRecord record = localDevice.getRecord(serverConnection);
+			DataElement supportedFormatList = new DataElement(DataElement.DATSEQ);
+			// any type of object.
+			supportedFormatList.addElement(new DataElement(DataElement.U_INT_1, 0xFF));
+			record.setAttributeValue(0x0303, supportedFormatList);
+			localDevice.updateRecord(record);
+		} catch (Throwable e) {
+			Logger.error("Updating SDP", e);
+		}
+
+		try {
 			int errorCount = 0;
-			int count  = 0;
+			int count = 0;
 			isRunning = true;
 			while (!isStoped) {
 				RequestHandler handler = new RequestHandler();
 				try {
-					count ++;
+					count++;
 					Logger.debug("Accepting OBEX connections");
 					handler.connectionAccepted(serverConnection.acceptAndOpen(handler));
 				} catch (InterruptedIOException e) {
 					isStoped = true;
 					break;
 				} catch (Throwable e) {
+					if ("Stack closed".equals(e.getMessage())) {
+						isStoped = true;
+					}
 					if (isStoped) {
 						return;
 					}
@@ -133,7 +152,7 @@ public class OBEXServer implements Runnable {
 			Logger.error("OBEX Server stop error", e);
 		}
 	}
-	
+
 	private static File homePath() {
 		String path = "bluetooth";
 		boolean isWindows = false;
@@ -147,7 +166,7 @@ public class OBEXServer implements Runnable {
 		}
 		File dir;
 		try {
-			dir =  new File(System.getProperty("user.home"), path);
+			dir = new File(System.getProperty("user.home"), path);
 			if (!dir.exists()) {
 				if (!dir.mkdirs()) {
 					throw new SecurityException();
@@ -171,15 +190,15 @@ public class OBEXServer implements Runnable {
 		}
 		return dir;
 	}
-	
+
 	private class RequestHandler extends ServerRequestHandler {
 
 		Timer notConnectedTimer = new Timer();
-		
+
 		boolean isConnected = false;
 
 		Connection cconn;
-		
+
 		void connectionAccepted(Connection cconn) {
 			Logger.debug("Received OBEX connection");
 			this.cconn = cconn;
@@ -190,8 +209,8 @@ public class OBEXServer implements Runnable {
 					}
 				}, 1000 * 30);
 			}
-		}	
-		
+		}
+
 		void notConnectedClose() {
 			if (!isConnected) {
 				Logger.debug("OBEX connection timeout");
@@ -262,9 +281,9 @@ public class OBEXServer implements Runnable {
 			try {
 				HeaderSet hs = op.getReceivedHeaders();
 				String name = (String) hs.getHeader(HeaderSet.NAME);
-				
+
 				return ResponseCodes.OBEX_HTTP_NOT_IMPLEMENTED;
-				
+
 			} catch (IOException e) {
 				Logger.error("OBEX Server onGet error", e);
 				return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
@@ -272,7 +291,7 @@ public class OBEXServer implements Runnable {
 				Logger.debug("OBEX onGet ends");
 			}
 		}
-		
+
 		public void onAuthenticationFailure(byte[] userName) {
 			Logger.debug("OBEX AuthFailure " + new String(userName));
 		}
