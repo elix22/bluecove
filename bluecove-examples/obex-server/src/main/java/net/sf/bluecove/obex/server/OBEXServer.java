@@ -43,7 +43,7 @@ import javax.obex.SessionNotifier;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class OBEXServer implements Runnable {
 
@@ -80,7 +80,7 @@ public class OBEXServer implements Runnable {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run() {
@@ -101,15 +101,34 @@ public class OBEXServer implements Runnable {
 
 		try {
 			ServiceRecord record = localDevice.getRecord(serverConnection);
+
+			final int OBJECT_TRANSFER_SERVICE = 0x100000;
+
+			try {
+				record.setDeviceServiceClasses(OBJECT_TRANSFER_SERVICE);
+			} catch (Throwable e) {
+				Logger.debug("setDeviceServiceClasses", e);
+			}
+
+			DataElement bluetoothProfileDescriptorList = new DataElement(DataElement.DATSEQ);
+			DataElement obbexPushProfileDescriptor = new DataElement(DataElement.DATSEQ);
+			obbexPushProfileDescriptor.addElement(new DataElement(DataElement.UUID, OBEX_OBJECT_PUSH));
+			obbexPushProfileDescriptor.addElement(new DataElement(DataElement.U_INT_2, 0x100));
+			bluetoothProfileDescriptorList.addElement(obbexPushProfileDescriptor);
+			record.setAttributeValue(0x0009, bluetoothProfileDescriptorList);
+
+			final short ATTR_SUPPORTED_FORMAT_LIST_LIST = 0x0303;
 			DataElement supportedFormatList = new DataElement(DataElement.DATSEQ);
 			// any type of object.
 			supportedFormatList.addElement(new DataElement(DataElement.U_INT_1, 0xFF));
-			record.setAttributeValue(0x0303, supportedFormatList);
+			record.setAttributeValue(ATTR_SUPPORTED_FORMAT_LIST_LIST, supportedFormatList);
 
-			DataElement bluetoothProfileDescriptorList = new DataElement(DataElement.DATSEQ);
-			bluetoothProfileDescriptorList.addElement(new DataElement(DataElement.UUID, OBEX_OBJECT_PUSH));
-			bluetoothProfileDescriptorList.addElement(new DataElement(DataElement.U_INT_2, 0x100));
-			//record.setAttributeValue(0x0009, bluetoothProfileDescriptorList);
+			final short UUID_PUBLICBROWSE_GROUP = 0x1002;
+			final short ATTR_BROWSE_GRP_LIST = 0x0005;
+			DataElement browseClassIDList = new DataElement(DataElement.DATSEQ);
+			UUID browseClassUUID = new UUID(UUID_PUBLICBROWSE_GROUP);
+			browseClassIDList.addElement(new DataElement(DataElement.UUID, browseClassUUID));
+			record.setAttributeValue(ATTR_BROWSE_GRP_LIST, browseClassIDList);
 
 			localDevice.updateRecord(record);
 		} catch (Throwable e) {
