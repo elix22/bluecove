@@ -22,31 +22,35 @@ package net.sf.bluecove.obex.server;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class Logger {
 
 	static void debug(String message) {
 		System.out.println(message);
 	}
-	
+
 	static void debug(String message, Object o) {
 		System.out.println(message + " " + o);
 	}
-	
+
 	static void debug(String message, Throwable e) {
 		System.out.println(message + " " + e.getMessage());
 		e.printStackTrace();
 	}
-	
+
 	static void debug(Throwable e) {
 		System.out.println(e.getMessage());
 		e.printStackTrace();
 	}
-	
+
+	static void error(String message) {
+		System.out.println(message);
+	}
+
 	static void error(String message, Throwable e) {
 		System.out.println(message + " " + e.getMessage());
 		e.printStackTrace();
 	}
-	
+
 }

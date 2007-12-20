@@ -1,7 +1,7 @@
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2007 Vlad Skarzhevskyy
- * 
+ *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -43,7 +43,7 @@ import javax.obex.SessionNotifier;
 
 /**
  * @author vlads
- * 
+ *
  */
 public class OBEXServer implements Runnable {
 
@@ -80,7 +80,7 @@ public class OBEXServer implements Runnable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run() {
@@ -88,7 +88,9 @@ public class OBEXServer implements Runnable {
 		LocalDevice localDevice;
 		try {
 			localDevice = LocalDevice.getLocalDevice();
-			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+			if (!localDevice.setDiscoverable(DiscoveryAgent.GIAC)) {
+				Logger.error("Fail to set LocalDevice Discoverable");
+			}
 			serverConnection = (SessionNotifier) Connector.open("btgoep://localhost:" + OBEX_OBJECT_PUSH + ";name="
 					+ SERVER_NAME);
 		} catch (Throwable e) {
@@ -103,6 +105,12 @@ public class OBEXServer implements Runnable {
 			// any type of object.
 			supportedFormatList.addElement(new DataElement(DataElement.U_INT_1, 0xFF));
 			record.setAttributeValue(0x0303, supportedFormatList);
+
+			DataElement bluetoothProfileDescriptorList = new DataElement(DataElement.DATSEQ);
+			bluetoothProfileDescriptorList.addElement(new DataElement(DataElement.UUID, OBEX_OBJECT_PUSH));
+			bluetoothProfileDescriptorList.addElement(new DataElement(DataElement.U_INT_2, 0x100));
+			//record.setAttributeValue(0x0009, bluetoothProfileDescriptorList);
+
 			localDevice.updateRecord(record);
 		} catch (Throwable e) {
 			Logger.error("Updating SDP", e);
@@ -256,7 +264,6 @@ public class OBEXServer implements Runnable {
 				FileOutputStream out = new FileOutputStream(f);
 				InputStream is = op.openInputStream();
 
-				StringBuffer buf = new StringBuffer();
 				while (!isStoped) {
 					int data = is.read();
 					if (data == -1) {
