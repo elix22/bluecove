@@ -77,15 +77,15 @@ Server failure 0
    You can start two Java Web Start applications and see how they communicate if you have two different Bluetooth Stacks. e.g. Winsock (Microsoft) and WIDCOMM (Broadcom).
    More information on {{{http://code.google.com/p/bluecove/wiki/stacks}BlueCove supported stacks here}}
 
-        * <<<{{{awt-bctest-winsock.jnlp}\u00bbStart with Microsoft Winsock}}>>>
+        * <<<{{{./awt-bctest-winsock.jnlp}\u00bbStart with Microsoft Winsock}}>>>
 
-        * <<<{{{awt-bctest-widcomm.jnlp}\u00bbStart with Broadcom WIDCOMM}}>>>
+        * <<<{{{./awt-bctest-widcomm.jnlp}\u00bbStart with Broadcom WIDCOMM}}>>>
 
-        * <<<{{{awt-bctest-bluesoleil.jnlp}\u00bbStart with IVT BlueSoleil}}>>>
+        * <<<{{{./awt-bctest-bluesoleil.jnlp}\u00bbStart with IVT BlueSoleil}}>>>
 
         * Web Start with {{{#previous} previous releases of BlueCove}}
 
-    If for some reason Java Web Start is not working for you. Try downloading this {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
+    If for some reason Java Web Start is not working for you. Try downloading this {{{./bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
 
     Run it like this:
 
@@ -105,7 +105,7 @@ java -cp avetanaBluetooth.jar;bluecove-tester-app.jar net.sf.bluecove.awt.Main
 java -cp avetanaBluetooth.jar:bluecove-tester-app.jar net.sf.bluecove.awt.Main
 ---
 
-    You can download the {{{bluecove-tester.jar}bluecove-tester.jar}} application jar and run it without BlueCove JSR-82 in calsspath.
+    You can download the {{{./bluecove-tester.jar}bluecove-tester.jar}} application jar and run it without BlueCove JSR-82 in calsspath.
 
 ---
 java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecove.awt.Main
@@ -116,9 +116,9 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
 
 * This is the test {MIDlet}. It can run on a {{{http://code.google.com/p/bluecove/wiki/phones} cell phone with JSR-82}}
 
-    * {{{bctest.jar}bctest.jar}}
+    * {{{./bctest.jar}bctest.jar}}
 
-    * {{{bctest.jad}bctest.jad}}
+    * {{{./bctest.jad}bctest.jad}}
 
     []
 
