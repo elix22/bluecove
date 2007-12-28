@@ -1,7 +1,7 @@
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
- * 
+ *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -30,9 +30,9 @@ import net.sf.bluecove.Logger;
  * Small hack to enable connection retry while working on other implementations.
  * This will improve test stability and make them reproducible without tweaks in
  * timeouts.
- * 
+ *
  * @author vlads
- * 
+ *
  */
 public class Connector {
 
@@ -69,6 +69,6 @@ public class Connector {
 	}
 
 	public static Connection open(String name) throws IOException {
-		return javax.microedition.io.Connector.open(name);
+		return open(name, Connector.READ_WRITE);
 	}
 }
