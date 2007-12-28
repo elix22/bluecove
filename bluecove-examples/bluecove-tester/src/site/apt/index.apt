@@ -72,7 +72,7 @@ Server failure 0
 
    You can start Java Web Start with MIDlet application and see how it communicates with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart MIDlet now}}>>>.
 
-   Also AWT test application can be used in Java Web Start. <<<{{{awt-bctest.jnlp}\u00bbStart application now}}>>>.
+   Also AWT test application can be used in Java Web Start. <<<{{{./awt-bctest.jnlp}\u00bbStart application now}}>>>.
 
    You can start two Java Web Start applications and see how they communicate if you have two different Bluetooth Stacks. e.g. Winsock (Microsoft) and WIDCOMM (Broadcom).
    More information on {{{http://code.google.com/p/bluecove/wiki/stacks}BlueCove supported stacks here}}
@@ -154,7 +154,7 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
 
    {{{http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html}Mysaifu JVM}} - An open-source (GPL v.2 license) Java VM is used during tests.
 
-   The same AWT {{{bluecove-tester-app.jar}bluecove-tester-app.jar}} application that you just run on Windows can be uploaded to your mobile and started there.
+   The same AWT {{{./bluecove-tester-app.jar}bluecove-tester-app.jar}} application that you just run on Windows can be uploaded to your mobile and started there.
 
    Start application like this:
 
@@ -168,8 +168,8 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
 
 * Web Start with {previous} releases of BlueCove
 
-        * <<<{{{awt-bctest-1.2.3.jnlp}\u00bbStart with Microsoft Winsock v 1.2.3}}>>>
+        * <<<{{{./awt-bctest-1.2.3.jnlp}\u00bbStart with Microsoft Winsock v 1.2.3}}>>>
 
-        * <<<{{{awt-bctest-2.0.0.jnlp}\u00bbStart with BlueCove v 2.0.0}}>>>
+        * <<<{{{./awt-bctest-2.0.0.jnlp}\u00bbStart with BlueCove v 2.0.0}}>>>
 
-        * <<<{{{awt-bctest-2.0.1.jnlp}\u00bbStart with BlueCove v 2.0.1}}>>>
+        * <<<{{{./awt-bctest-2.0.1.jnlp}\u00bbStart with BlueCove v 2.0.1}}>>>

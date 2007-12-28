@@ -19,11 +19,11 @@ BlueCove examples project
 
 * BlueCove Tests on windows
 
-    You can help us to make BlueCove better or understand how we are testing it look {{{bluecove-tester}here}}.
+    You can help us to make BlueCove better or understand how we are testing it look {{{./bluecove-tester}here}}.
 
 * BlueCove OBEX Push J2ME application installer
 
-    This application will install MIDlets on your mobile phone using Bluetooth. Details {{{obex-install}here}}.
+    This application will install MIDlets on your mobile phone using Bluetooth. Details {{{./obex-install}here}}.
 
 * Short JSR-82 usage examples
 

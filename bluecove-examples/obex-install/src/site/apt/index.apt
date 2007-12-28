@@ -8,7 +8,7 @@
 
 BlueCove OBEX Push J2ME application installer Web Start
 
-    To start application click this link {{{push.jnlp}Java Web Start}}.
+    To start application click this link {{{./push.jnlp}Java Web Start}}.
 
     You can Drag and Drop .jar files or http jar links to running application to install it on your OBEX Bluetooth enabled mobile device (phone).
 
@@ -19,9 +19,9 @@ BlueCove OBEX Push J2ME application installer Web Start
 *---------------------------+-----------+
 | Drag and Drop .jar link   | Web Start |
 *---------------------------+-----------+
-| {{{http://wintermute.de/wap/extended/5ud0ku.jar}A Sudoku Game}}  |  <<<{{{push/wintermute.de/wap/extended/5ud0ku.jnlp}\u00bbInstall}}>>>
+| {{{http://wintermute.de/wap/extended/5ud0ku.jar}A Sudoku Game}}  |  <<<{{{./push/wintermute.de/wap/extended/5ud0ku.jnlp}\u00bbInstall}}>>>
 *---------------------------+-----------+
-| {{{http://www.mgmaps.com/mgmaps.jar}Mobile GMaps}} | <<<{{{push/wap.mgmaps.com/mgmaps.jnlp}\u00bbInstall}}>>>.
+| {{{http://www.mgmaps.com/mgmaps.jar}Mobile GMaps}} | <<<{{{./push/wap.mgmaps.com/mgmaps.jnlp}\u00bbInstall}}>>>
 *---------------------------+-----------+
 
 * Using obex-install in command line
@@ -30,7 +30,7 @@ BlueCove OBEX Push J2ME application installer Web Start
     java -jar bluecove-obex-install-mini.jar yourApp.jar
 ---
 
-    {{{bluecove-obex-install-mini.jar}Download application jar}}
+    {{{./bluecove-obex-install-mini.jar}Download application jar}}
 
     If you want to use obex-install as part of your maven build see {{{http://pyx4me.com/snapshot/pyx4me/pyx4me-maven-plugins/obex-maven-plugin/}obex-maven-plugin}}
 

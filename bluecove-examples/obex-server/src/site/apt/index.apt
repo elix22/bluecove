@@ -8,7 +8,7 @@
 
 BlueCove OBEX Push Server application Web Start
 
-    To start application click this link {{{server.jnlp}Java Web Start}}.
+    To start application click this link {{{./server.jnlp}Java Web Start}}.
 
     The OBEX server accept any file types and store them in <"My Documents/Bluetooth Exchange Folder"> on Windows and <"$home/bluetooth"> on Linux.
 

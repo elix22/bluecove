@@ -8,6 +8,6 @@
 
 BlueCove MicroEmulator Web Start
 
-    To start {{{http://www.microemu.org/}MicroEmulator}} application click this link << {{{demo.jnlp}Java Web Start}} >>.
+    To start {{{http://www.microemu.org/}MicroEmulator}} application click this link << {{{./demo.jnlp}Java Web Start}} >>.
 
     You can Drag and Drop .jad files or links to running MicroEmulator application.
