@@ -2,27 +2,27 @@
  *  $HeadURL$
  *
  *
- *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved. 
+ *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved.
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *        
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *  
- *  
+ *
+ *
  *  Revision History:
  *
  *  Date             Author                   Comment
  *  ---------------------------------------------------------------------------------
- *  Oct 15,2006      Motorola, Inc.           Initial creation        
+ *  Oct 15,2006      Motorola, Inc.           Initial creation
  *
  */
 
@@ -36,7 +36,7 @@ import javax.bluetooth.L2CAPConnection;
 import javax.bluetooth.L2CAPConnectionNotifier;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
-import javax.microedition.io.Connector;
+import BluetoothTCKAgent.Connector;
 
 public class L2CAPThread extends Thread {
 
@@ -122,9 +122,9 @@ public class L2CAPThread extends Thread {
 
                     if (timeout < 10) {
                         bytes_read = channel.receive(buffer);
-                        System.out.println("L2CAPThread.run(): Channel ReceiveMTU: " + 
+                        System.out.println("L2CAPThread.run(): Channel ReceiveMTU: " +
                                 channel.getReceiveMTU());
-                        System.out.println("L2CAPThread.run(): Bytes Read: " + 
+                        System.out.println("L2CAPThread.run(): Bytes Read: " +
                                 bytes_read);
                     }
                 } catch (Exception e) {
@@ -228,10 +228,10 @@ public class L2CAPThread extends Thread {
                         System.out.println("L2CAPThread: Error closing"
                                 + " existing connection.");
                     }
-                    
+
                     sdClass = TCKAgentUtil.getServiceClass(btAddress);
                     System.out.println("L2CAPThread: Retrieved the service " +
-                            "classes for " + btAddress + " : " + 
+                            "classes for " + btAddress + " : " +
                             Integer.toString(sdClass, 16));
 
                     if (sdClass == -1) {
@@ -269,15 +269,15 @@ public class L2CAPThread extends Thread {
                     }
 
                     String url = data.substring(0, space);
-                    System.out.println("L2CAPThread.run(): URL \"" + 
+                    System.out.println("L2CAPThread.run(): URL \"" +
                             url + "\"");
-                    
+
                     String uuid = data.substring(space + 1);
-                    System.out.println("L2CAPThread.run(): UUID \"" + 
+                    System.out.println("L2CAPThread.run(): UUID \"" +
                             uuid + "\"");
-                    
+
                     btAddress = url.substring(0, 12);
-                    System.out.println("L2CAPThread.run(): BTADDRESS: \"" + 
+                    System.out.println("L2CAPThread.run(): BTADDRESS: \"" +
                             btAddress + "\"");
                     command = "CLOSE";
 
@@ -291,7 +291,7 @@ public class L2CAPThread extends Thread {
 
                     UUID uuids[] = { new UUID(uuid, false) };
                     System.out.println("L2CAPThread: Searching for services " +
-                            "with uuid \"" + uuid + "\" on device " + 
+                            "with uuid \"" + uuid + "\" on device " +
                             btAddress);
                     ServiceRecord records[] = TCKAgentUtil.getServiceRecords(
                             btAddress, uuids);
@@ -299,7 +299,7 @@ public class L2CAPThread extends Thread {
                     if (records == null || records.length == 0 ) {
                         System.out.println("L2CAPThread: Unable to retreive " +
                                 "Service records for the service with uuid \"" +
-                                uuid + "\" ,running on device \"" + btAddress + 
+                                uuid + "\" ,running on device \"" + btAddress +
                                 "\" .");
                     } else {
                         System.out.println("L2CAPThread: Retreived a service " +
@@ -313,16 +313,16 @@ public class L2CAPThread extends Thread {
                             recordHandle = (int)elem.getLong();
                         }
                     }
-                    
-                    msg = Integer.toString(recordHandle); 
-                    System.out.println("L2CAPThread.run(): Retreived handle " + 
+
+                    msg = Integer.toString(recordHandle);
+                    System.out.println("L2CAPThread.run(): Retreived handle " +
                             recordHandle);
                     url = "btl2cap://" + url
                             + ";authenticate=false;encrypt=false;master=false"
                             + ";ReceiveMTU=58;TransmitMTU=58";
                     try {
                         helperchannel = (L2CAPConnection) Connector.open(url);
-                        System.out.println("L2CAPThread.run(): Sending msg " + 
+                        System.out.println("L2CAPThread.run(): Sending msg " +
                                 "\"" + msg + "\"");
                         helperchannel.send(msg.getBytes());
                         TCKAgentUtil.pause(TCKAgentUtil.SHORT);

@@ -2,27 +2,27 @@
  *  $HeadURL$
  *
  *
- *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved. 
+ *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved.
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *        
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *  
- *  
+ *
+ *
  *  Revision History:
  *
  *  Date             Author                   Comment
  *  ---------------------------------------------------------------------------------
- *  Oct 15,2006      Motorola, Inc.           Initial creation        
+ *  Oct 15,2006      Motorola, Inc.           Initial creation
  *
  */
 
@@ -31,6 +31,7 @@ package BluetoothTCKAgent;
 
 import java.io.*;
 import javax.bluetooth.*;
+import BluetoothTCKAgent.Connector;
 import javax.microedition.io.*;
 
 public class RFCOMMThread extends Thread {

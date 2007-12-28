@@ -2,27 +2,27 @@
  *  $HeadURL$
  *
  *
- *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved. 
+ *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved.
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *        
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *  
- *  
+ *
+ *
  *  Revision History:
  *
  *  Date             Author                   Comment
  *  ---------------------------------------------------------------------------------
- *  Oct 15,2006      Motorola, Inc.           Initial creation        
+ *  Oct 15,2006      Motorola, Inc.           Initial creation
  *
  */
 
@@ -31,6 +31,7 @@ package BluetoothTCKAgent;
 
 import java.io.*;
 
+import BluetoothTCKAgent.Connector;
 import javax.microedition.io.*;
 import javax.obex.*;
 
@@ -40,12 +41,12 @@ import javax.obex.*;
  * This class tests the OBEX server side operations.
  */
 public class GOEPThread extends Thread {
-    
+
     protected boolean canRun = true;
     SessionNotifier server = null;
     Connection session = null;
     RequestHandlerImpl handler;
-    
+
     public GOEPThread(String str) {
         super(str);
         System.out.println("GOEPThread: Starting GOEP Service");
@@ -62,23 +63,23 @@ public class GOEPThread extends Thread {
 
         handler = new RequestHandlerImpl();
     }
-    
-    public void run() {       
-        while (canRun) {            
+
+    public void run() {
+        while (canRun) {
             try {
-                System.out.println("GOEPThread: Waiting for Client" + 
+                System.out.println("GOEPThread: Waiting for Client" +
                                     " to Connect");
                 session = server.acceptAndOpen(handler);
-                System.out.println("GOEPThread: Client made " + 
+                System.out.println("GOEPThread: Client made " +
                                                     "a Connection");
                 TCKAgentUtil.pause(TCKAgentUtil.MEDIUM);
                 System.out.println("GOEPThread: closing session");
-                session.close();                
+                session.close();
             } catch (InterruptedIOException e) {
             	System.out.println("GOEPThread:TCK Interrupted");
             	return;
             } catch (Exception e) {
-                System.out.println("GOEPThread: Error occured when " + 
+                System.out.println("GOEPThread: Error occured when " +
                                    "connecting with client: " + e);
                 if ("Stack closed".equals(e.getMessage())) {
                 	return;
@@ -90,10 +91,10 @@ public class GOEPThread extends Thread {
             }
             canRun = true;
         } // while(canRun)
-    } //run()    
-    
+    } //run()
+
     class RequestHandlerImpl extends ServerRequestHandler {
-        
+
         public RequestHandlerImpl() {
             super();
 
@@ -101,11 +102,11 @@ public class GOEPThread extends Thread {
 
         public int onConnect(HeaderSet headers, HeaderSet reply) {
             String testName = null;
-           
+
             try {
                 testName = (String)headers.getHeader(HeaderSet.NAME);
             } catch (IOException e) {
-                System.out.println("GOEPThread: Error occured when " + 
+                System.out.println("GOEPThread: Error occured when " +
                                     "decoding client message");
             }
 
@@ -126,7 +127,7 @@ public class GOEPThread extends Thread {
         }
 
         public void onDisconnect(HeaderSet headers, HeaderSet reply) {
-            System.out.println("GOEPThread: Client requested to " + 
+            System.out.println("GOEPThread: Client requested to " +
                                 "disconnect. Disconnecting.");
 
             return;
