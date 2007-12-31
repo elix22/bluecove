@@ -30,19 +30,17 @@ import javax.obex.HeaderSet;
 import javax.obex.Operation;
 import javax.obex.ResponseCodes;
 
-
 /**
  * @author vlads
- *
+ * 
  */
 public class ObexBluetoothClient {
 
 	private Main mainInstance;
-	
-	private String fileName;
-	
-	private byte[] data;
 
+	private String fileName;
+
+	private byte[] data;
 
 	public ObexBluetoothClient(Main mainInstance, String fileName, byte[] data) {
 		super();
@@ -50,11 +48,11 @@ public class ObexBluetoothClient {
 		this.fileName = fileName;
 		this.data = data;
 	}
-	
+
 	public boolean obexPut(String serverURL) {
 		ClientSession clientSession = null;
 		try {
-			//System.setProperty("bluecove.debug", "true");
+			// System.setProperty("bluecove.debug", "true");
 			Logger.debug("Connecting", serverURL);
 			mainInstance.setStatus("Connecting ...");
 			clientSession = (ClientSession) Connector.open(serverURL);
@@ -69,7 +67,7 @@ public class ObexBluetoothClient {
 				hsOperation.setHeader(HeaderSet.TYPE, type);
 			}
 			hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
-			
+
 			mainInstance.progressBar.setMaximum(data.length);
 			mainInstance.setProgressValue(0);
 
@@ -77,7 +75,7 @@ public class ObexBluetoothClient {
 			Operation po = clientSession.put(hsOperation);
 
 			OutputStream os = po.openOutputStream();
-			
+
 			ByteArrayInputStream is = new ByteArrayInputStream(data);
 			byte[] buffer = new byte[0xFF];
 			int i = is.read(buffer);
@@ -90,26 +88,26 @@ public class ObexBluetoothClient {
 			}
 			os.flush();
 			os.close();
-			
-			//log.debug("put responseCode " + po.getResponseCode());
-			
+
+			// log.debug("put responseCode " + po.getResponseCode());
+
 			po.close();
-			HeaderSet hsDisconnect =  clientSession.disconnect(null);
-			//log.debug("disconnect responseCode " + hs.getResponseCode());
-			
+			HeaderSet hsDisconnect = clientSession.disconnect(null);
+			// log.debug("disconnect responseCode " + hs.getResponseCode());
+
 			if (hsDisconnect.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
 				mainInstance.setStatus("Finished successfully");
 				return true;
 			} else {
 				return false;
 			}
-			
+
 		} catch (IOException e) {
-			Main.debug(e);
+			Logger.error(e);
 			mainInstance.setStatus("Communication error " + e.getMessage());
 			return false;
 		} catch (Throwable e) {
-			Main.debug(e);
+			Logger.error(e);
 			mainInstance.setStatus("Error " + e.getMessage());
 			return false;
 		} finally {
@@ -123,6 +121,5 @@ public class ObexBluetoothClient {
 			mainInstance.setProgressValue(0);
 		}
 	}
-	
-	
+
 }

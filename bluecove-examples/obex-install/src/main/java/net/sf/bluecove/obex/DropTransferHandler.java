@@ -114,7 +114,7 @@ public class DropTransferHandler extends TransferHandler {
 					List fileList = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
 					if (fileList.get(0) instanceof File) {
 						File f = (File) fileList.get(0);
-						mainInstance.downloadJar(getCanonicalFileURL(f));
+						mainInstance.downloadFile(getCanonicalFileURL(f));
 						for(int fi = 1; fi < fileList.size(); fi ++) {
 							f = (File) fileList.get(fi);
 							mainInstance.queueFile(getCanonicalFileURL(f));	
@@ -143,7 +143,7 @@ public class DropTransferHandler extends TransferHandler {
             	if (data instanceof String) {
                 	Logger.debug("importing", transferFlavors[i]);
                 	String path = getPathString((String) data);
-                	mainInstance.downloadJar(path);
+                	mainInstance.downloadFile(path);
           			return true;
               	}
             }
@@ -160,7 +160,7 @@ public class DropTransferHandler extends TransferHandler {
 				if (data instanceof String) {
 					Logger.debug("importing", transferFlavors[i]);
 					String path = getPathString((String) data);
-					mainInstance.downloadJar(path);
+					mainInstance.downloadFile(path);
 					return true;
 				}
 			}
@@ -177,7 +177,7 @@ public class DropTransferHandler extends TransferHandler {
         		try {
 					URL jadUrl = (URL)t.getTransferData(transferFlavors[i]);
 					String urlString = jadUrl.toExternalForm();
-					mainInstance.downloadJar(urlString);
+					mainInstance.downloadFile(urlString);
 				} catch (UnsupportedFlavorException e) {
 					Logger.debug(e);
 				} catch (IOException e) {

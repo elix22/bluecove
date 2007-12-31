@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
@@ -57,90 +58,89 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
-
 /**
  * @author vlads
- *
+ * 
  */
 public class Main extends JFrame implements ActionListener {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private static final int BLUETOOTH_DISCOVERY_STD_SEC = 11;
-	
+
 	private JLabel iconLabel;
-	
+
 	private String status;
-	
+
 	JProgressBar progressBar;
-	
+
 	private ImageIcon btIcon;
-	
+
 	private ImageIcon transferIcon;
-	
+
 	private ImageIcon searchIcon;
-	
+
 	private ImageIcon downloadIcon;
-	
+
 	private JComboBox cbDevices;
-	
+
 	private JButton btFindDevice;
-	
+
 	private JButton btSend;
-	 
+
 	private JButton btCancel;
-	
+
 	private BluetoothInquirer bluetoothInquirer;
-	
-	private Hashtable devices = new Hashtable(); 
-	
+
+	private Hashtable devices = new Hashtable();
+
 	private JFileChooser fileChooser;
-	
+
 	private String fileName;
-	
+
 	private byte[] data;
 
 	private List queue = new Vector();
-	
+
 	protected Main() {
 		super("BlueCove OBEX Push");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		Image btImage = Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png"));
 		btIcon = new ImageIcon(btImage);
 		transferIcon = new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/transfer.png"))));
 		searchIcon = new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/search.png"))));
 		downloadIcon = new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/download.png"))));
-		
+
 		this.setIconImage(btImage);
-		
-		JPanel contentPane = (JPanel)this.getContentPane();
+
+		JPanel contentPane = (JPanel) this.getContentPane();
 		contentPane.setLayout(new BorderLayout(10, 10));
-		contentPane.setBorder(new EmptyBorder(10,10,10,10));
+		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 		contentPane.setTransferHandler(new DropTransferHandler(this));
-		
+
 		contentPane.addMouseListener(new MouseDoubleClickListener());
-		
+
 		JPanel progressPanel = new JPanel();
 		progressPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		
+
 		iconLabel = new JLabel();
 		iconLabel.setIcon(btIcon);
 		c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1.0;
+		c.weightx = 1.0;
 		progressPanel.add(iconLabel, c);
-		
+
 		progressBar = new JProgressBar(0, 100);
-        progressBar.setValue(0);
-        progressBar.setStringPainted(true);
-        
-        c.fill = GridBagConstraints.HORIZONTAL;
+		progressBar.setValue(0);
+		progressBar.setStringPainted(true);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth = GridBagConstraints.REMAINDER;
-        progressPanel.add(progressBar, c);
-        
-	    getContentPane().add(progressPanel, BorderLayout.NORTH);
-	    
+		progressPanel.add(progressBar, c);
+
+		getContentPane().add(progressPanel, BorderLayout.NORTH);
+
 		JPanel optionsPanel = new JPanel();
 
 		JLabel deviceLabel = new JLabel("Send to:");
@@ -151,25 +151,25 @@ public class Main extends JFrame implements ActionListener {
 		optionsPanel.add(cbDevices);
 		optionsPanel.add(btFindDevice = new JButton("Find"));
 		btFindDevice.addActionListener(this);
-		
-	    getContentPane().add(optionsPanel, BorderLayout.CENTER);
 
-	    JPanel actionPanel = new JPanel();
-	    actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.LINE_AXIS));
-	    actionPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
-	    actionPanel.add(Box.createHorizontalGlue());
-	    actionPanel.add(btSend = new JButton("Send"));
-	    btSend.addActionListener(this);
-	    actionPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-	    actionPanel.add(btCancel = new JButton("Cancel"));
-	    btCancel.addActionListener(this);
+		getContentPane().add(optionsPanel, BorderLayout.CENTER);
 
-    	contentPane.add(actionPanel, BorderLayout.SOUTH);
-	    btSend.setEnabled(false);
-	    String selected = Persistence.loadDevices(devices);
-	    updateDevices(selected);
+		JPanel actionPanel = new JPanel();
+		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.LINE_AXIS));
+		actionPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+		actionPanel.add(Box.createHorizontalGlue());
+		actionPanel.add(btSend = new JButton("Send"));
+		btSend.addActionListener(this);
+		actionPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+		actionPanel.add(btCancel = new JButton("Cancel"));
+		btCancel.addActionListener(this);
+
+		contentPane.add(actionPanel, BorderLayout.SOUTH);
+		btSend.setEnabled(false);
+		String selected = Persistence.loadDevices(devices);
+		updateDevices(selected);
 	}
-	
+
 	private static void createAndShowGUI(final String[] args) {
 		final Main app = new Main();
 		app.pack();
@@ -179,13 +179,13 @@ public class Main extends JFrame implements ActionListener {
 			public void run() {
 				if (app.initializeBlueCove()) {
 					if (args.length != 0) {
-						app.downloadJar(args[0]);
+						app.downloadFile(args[0]);
 					}
 				}
 			}
 		});
 	}
-	
+
 	public static void main(final String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -198,12 +198,12 @@ public class Main extends JFrame implements ActionListener {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(((screenSize.width - this.getWidth()) / 2), ((screenSize.height - this.getHeight()) / 2));
 	}
-	
+
 	protected void setStatus(final String message) {
 		status = message;
 		progressBar.setString(message);
 	}
-	
+
 	void setProgressValue(int n) {
 		progressBar.setValue(n);
 		SwingUtilities.invokeLater(new Runnable() {
@@ -212,7 +212,7 @@ public class Main extends JFrame implements ActionListener {
 			}
 		});
 	}
-	
+
 	protected void disabledBluetooth() {
 		btFindDevice.setEnabled(false);
 		cbDevices.setEnabled(false);
@@ -220,7 +220,7 @@ public class Main extends JFrame implements ActionListener {
 		btSend.setEnabled(false);
 		iconLabel.setIcon(new ImageIcon((Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/bt-off.png")))));
 	}
-	
+
 	protected boolean initializeBlueCove() {
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
@@ -231,15 +231,10 @@ public class Main extends JFrame implements ActionListener {
 			setStatus("BlueCove Ready");
 			return true;
 		} catch (Throwable e) {
-			debug(e);
+			Logger.error(e);
 			disabledBluetooth();
 			return false;
 		}
-	}
-	
-	static void debug(Throwable e) {
-		System.out.println(e.getMessage());
-		e.printStackTrace();
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -252,11 +247,11 @@ public class Main extends JFrame implements ActionListener {
 			obexSend();
 		}
 	}
-	
+
 	private class MouseDoubleClickListener implements MouseListener {
 
 		private long firstClick = 0;
-		
+
 		public void mouseClicked(MouseEvent e) {
 			long now = System.currentTimeMillis();
 			if ((firstClick != 0) && (firstClick - now < 1000)) {
@@ -264,7 +259,7 @@ public class Main extends JFrame implements ActionListener {
 			} else {
 				firstClick = now;
 			}
-			
+
 		}
 
 		public void mouseEntered(MouseEvent e) {
@@ -277,10 +272,10 @@ public class Main extends JFrame implements ActionListener {
 
 		public void mousePressed(MouseEvent e) {
 		}
-		
+
 		public void mouseReleased(MouseEvent e) {
 		}
-		
+
 	}
 
 	public void fireDoubleClick() {
@@ -292,23 +287,22 @@ public class Main extends JFrame implements ActionListener {
 		int returnVal = fileChooser.showOpenDialog(Main.this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			Persistence.setProperty("recentDirectory", fileChooser.getCurrentDirectory().getAbsolutePath());
-			downloadJar(DropTransferHandler.getCanonicalFileURL(fileChooser.getSelectedFile()));
+			downloadFile(DropTransferHandler.getCanonicalFileURL(fileChooser.getSelectedFile()));
 			saveConfig();
 		}
-		
+
 	}
-	
+
 	private void selectNextFile() {
 		if (queue.size() > 0) {
-			String url = (String)queue.remove(0);
-			downloadJar(url);
+			String url = (String) queue.remove(0);
+			downloadFile(url);
 		}
 	}
-	
+
 	public void queueFile(String url) {
 		queue.add(url);
 	}
-	
 
 	private void saveConfig() {
 		Persistence.storeDevices(devices, getSelectedDeviceAddress());
@@ -316,17 +310,18 @@ public class Main extends JFrame implements ActionListener {
 
 	private class DiscoveryTimerListener implements ActionListener {
 		int seconds = 0;
+
 		public void actionPerformed(ActionEvent e) {
 			if (seconds < BLUETOOTH_DISCOVERY_STD_SEC) {
-				seconds ++;
+				seconds++;
 				setProgressValue(seconds);
 			}
 		}
 	}
-	
+
 	private void addDevice(String btAddress, String name, String obexUrl) {
-		String key = btAddress.toLowerCase(); 
-		DeviceInfo di = (DeviceInfo)devices.get(key);
+		String key = btAddress.toLowerCase();
+		DeviceInfo di = (DeviceInfo) devices.get(key);
 		if (di == null) {
 			di = new DeviceInfo();
 		}
@@ -337,7 +332,7 @@ public class Main extends JFrame implements ActionListener {
 		} else if (btAddress.equals(di.name)) {
 			di.name = name;
 		}
-		di.obexUrl = obexUrl; 
+		di.obexUrl = obexUrl;
 		di.obexServiceFound = true;
 		devices.put(key, di);
 	}
@@ -351,10 +346,10 @@ public class Main extends JFrame implements ActionListener {
 		} else {
 			for (Enumeration i = devices.keys(); i.hasMoreElements();) {
 				String addr = (String) i.nextElement();
-				DeviceInfo di = (DeviceInfo)devices.get(addr);
+				DeviceInfo di = (DeviceInfo) devices.get(addr);
 				cbDevices.addItem(di);
 				if ((selected != null) && (selected.equals(di.btAddress))) {
-					cbDevices.setSelectedItem(di); 
+					cbDevices.setSelectedItem(di);
 				}
 			}
 			cbDevices.setEnabled(true);
@@ -381,19 +376,19 @@ public class Main extends JFrame implements ActionListener {
 						}
 					}
 					timer.stop();
-					//setStatus("Bluetooth discovery finished");
-					
+					// setStatus("Bluetooth discovery finished");
+
 					setProgressValue(0);
 					int idx = 0;
 					progressBar.setMaximum(bluetoothInquirer.devices.size());
 					for (Iterator iter = bluetoothInquirer.devices.iterator(); iter.hasNext();) {
 						RemoteDevice dev = (RemoteDevice) iter.next();
 						String obexUrl = bluetoothInquirer.findOBEX(dev.getBluetoothAddress());
-						if (obexUrl != null){
+						if (obexUrl != null) {
 							Logger.debug("found obex url", obexUrl);
 							addDevice(dev.getBluetoothAddress(), BluetoothInquirer.getFriendlyName(dev), obexUrl);
 						}
-						idx ++;
+						idx++;
 						setProgressValue(idx);
 					}
 					setProgressValue(0);
@@ -407,17 +402,17 @@ public class Main extends JFrame implements ActionListener {
 		};
 		t.start();
 	}
-	
+
 	private String blueSoleilFindOBEX(String btAddress, String obexUrl) {
 		if ("bluesoleil".equals(LocalDevice.getProperty("bluecove.stack"))) {
 			RemoteDevice dev = new RemoteDeviceExt(btAddress);
 			String foundObexUrl = bluetoothInquirer.findOBEX(dev.getBluetoothAddress());
-			if (foundObexUrl != null){
+			if (foundObexUrl != null) {
 				Logger.debug("found", btAddress);
 				addDevice(dev.getBluetoothAddress(), BluetoothInquirer.getFriendlyName(dev), foundObexUrl);
 			}
 			return foundObexUrl;
-		} 
+		}
 		return obexUrl;
 	}
 
@@ -426,9 +421,9 @@ public class Main extends JFrame implements ActionListener {
 		if ((o == null) || !(o instanceof DeviceInfo)) {
 			return null;
 		}
-		return (DeviceInfo)o;
+		return (DeviceInfo) o;
 	}
-	
+
 	private String getSelectedDeviceAddress() {
 		DeviceInfo d = getSelectedDevice();
 		if (d == null) {
@@ -436,7 +431,7 @@ public class Main extends JFrame implements ActionListener {
 		}
 		return d.btAddress;
 	}
-	
+
 	private void obexSend() {
 		if (fileName == null) {
 			setStatus("No file selected");
@@ -452,11 +447,11 @@ public class Main extends JFrame implements ActionListener {
 			public void run() {
 				btSend.setEnabled(false);
 				iconLabel.setIcon(transferIcon);
-				String obexUrl = d.obexUrl; 
+				String obexUrl = d.obexUrl;
 				if (!d.obexServiceFound) {
 					obexUrl = blueSoleilFindOBEX(d.btAddress, obexUrl);
 				}
-				if ( obexUrl != null) {
+				if (obexUrl != null) {
 					if (o.obexPut(obexUrl)) {
 						selectNextFile();
 					}
@@ -482,14 +477,24 @@ public class Main extends JFrame implements ActionListener {
 		}
 		return filePath.substring(idx + 1);
 	}
-	
-	void downloadJar(final String filePath) {
+
+	void downloadFile(final String filePath) {
 		Thread t = new Thread() {
 			public void run() {
+				InputStream is = null;
 				try {
 					iconLabel.setIcon(downloadIcon);
-					URL url = new URL(filePath);
-					InputStream is = url.openConnection().getInputStream();  
+					String path = filePath;
+					String inputFileName;
+					File file = new File(filePath);
+					if (file.exists()) {
+						is = new FileInputStream(file);
+						inputFileName = file.getName();
+					} else {
+						URL url = new URL(path);
+						is = url.openConnection().getInputStream();
+						inputFileName = url.getFile();
+					}
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					byte[] buffer = new byte[0xFF];
 					int i = is.read(buffer);
@@ -497,22 +502,23 @@ public class Main extends JFrame implements ActionListener {
 					while (i != -1) {
 						bos.write(buffer, 0, i);
 						done += i;
-						//setProgressValue(done);
+						// setProgressValue(done);
 						i = is.read(buffer);
 					}
 					data = bos.toByteArray();
-					fileName = simpleFileName(url.getFile());
-					setStatus((data.length/1024) +"k " + fileName);
+					fileName = simpleFileName(inputFileName);
+					setStatus((data.length / 1024) + "k " + fileName);
 				} catch (Throwable e) {
-					debug(e);
-					setStatus("Download error " +  e.getMessage());
+					Logger.error(e);
+					setStatus("Download error " + e.getMessage());
 				} finally {
+					IOUtils.closeQuietly(is);
 					iconLabel.setIcon(btIcon);
 				}
 			}
 		};
 		t.start();
-		
+
 	}
 
 	private void shutdown() {
