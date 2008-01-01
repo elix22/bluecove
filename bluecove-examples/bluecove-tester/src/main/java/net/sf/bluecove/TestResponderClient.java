@@ -439,6 +439,27 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			return true;
 		}
 
+		void populateAllservicesAttributes(ServiceRecord servRecord) {
+			int lastId = 0xffff;
+			for (int j = 0; j <= lastId; j += sdAttrRetrievableMax) {
+				int max = sdAttrRetrievableMax;
+				if (j + max > lastId) {
+					max = lastId - j;
+				}
+				int[] shortAttrSet = new int[max];
+				int id = j;
+				for (int n = 0; n < max; n++, id++) {
+					shortAttrSet[n] = id;
+				}
+				try {
+					servRecord.populateRecord(shortAttrSet);
+				} catch (IOException e) {
+					Logger.error("Cannot populateRecord " + j, e);
+					break;
+				}
+			}
+		}
+
 		public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
 			if (stoped) {
 				return;
@@ -449,6 +470,9 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				String url = servRecord[i].getConnectionURL(Configuration.getRequiredSecurity(), false);
 				Logger.info("*found server " + url);
 				if (discoveryOnce) {
+					if (Configuration.testAllServiceAttributes.booleanValue() && (sdAttrRetrievableMax != 0)) {
+						// populateAllservicesAttributes(servRecord[i]);
+					}
 					Logger.debug("ServiceRecord " + (i + 1) + "/" + servRecord.length + "\n"
 							+ BluetoothTypesInfo.toString(servRecord[i]));
 				}
