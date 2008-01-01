@@ -36,7 +36,7 @@ import net.sf.bluecove.util.StringUtils;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class ClientConnectionThread extends Thread {
 
@@ -52,13 +52,19 @@ public class ClientConnectionThread extends Thread {
 
 	boolean isConnecting = false;
 
-	int receivedCount = 0;
+	long receivedCount = 0;
+
+	long receivedPacketsCount = 0;
 
 	boolean rfcomm;
 
 	public static final int interpretDataChars = 0;
 
 	int interpretData = 0;
+
+	int dataReceiveType;
+
+	long reported;
 
 	ClientConnectionThread(String serverURL) {
 		super("ClientConnectionThread" + (++connectionCount));
@@ -125,16 +131,9 @@ public class ClientConnectionThread extends Thread {
 					int receiveMTU = lc.channel.getReceiveMTU();
 					byte[] data = new byte[receiveMTU];
 					int length = lc.channel.receive(data);
-					int messageLength = length; 
-					if ((length > 0) && (data[length - 1] == '\n')) {
-						messageLength = length-1;
-					}
-					StringBuffer buf = new StringBuffer();
-					if (messageLength != 0) {
-						buf.append(StringUtils.toBinaryText(new StringBuffer(new String(data, 0, messageLength))));
-					}
-					buf.append(" (").append(length).append(")");
-					Logger.debug("cc:" + buf.toString());
+					receivedCount += length;
+					receivedPacketsCount++;
+					printdataReceivedL2CAP(data, length);
 				}
 			}
 		} catch (IOException e) {
@@ -151,12 +150,40 @@ public class ClientConnectionThread extends Thread {
 		}
 	}
 
+	private void printdataReceivedL2CAP(byte[] data, int length) {
+		switch (dataReceiveType) {
+		case 0:
+			int messageLength = length;
+			if ((length > 0) && (data[length - 1] == '\n')) {
+				messageLength = length - 1;
+			}
+			StringBuffer buf = new StringBuffer();
+			if (messageLength != 0) {
+				buf.append(StringUtils.toBinaryText(new StringBuffer(new String(data, 0, messageLength))));
+			}
+			buf.append(" (").append(length).append(")");
+			Logger.debug("cc:" + buf.toString());
+			break;
+		case 1:
+			long now = System.currentTimeMillis();
+			if (now - reported > 5 * 1000) {
+				Logger.debug("Received " + receivedPacketsCount + " packet(s), " + receivedCount + " bytes");
+				reported = now;
+			}
+		}
+
+	}
+
 	public void shutdown() {
 		stoped = true;
 		if (c != null) {
 			c.shutdown();
 		}
 		c = null;
+	}
+
+	public void updateDataReceiveType(int type) {
+		dataReceiveType = type;
 	}
 
 	public void send(final byte data[]) {

@@ -32,12 +32,17 @@ import java.awt.Panel;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Enumeration;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import net.sf.bluecove.Configuration;
+import net.sf.bluecove.util.J2MEStringTokenizer;
 import net.sf.bluecove.util.Storage;
 
 /**
@@ -182,11 +187,18 @@ public class ClientConnectionDialog extends Dialog {
 
 		choiceDataReceiveType = new Choice();
 		choiceDataReceiveType.add("as Chars");
+		choiceDataReceiveType.add("stats only");
 		// choiceDataType.add("as byte list");
 		// choiceDataReceiveType.add("as Echo");
 		panelItems.add(choiceDataReceiveType);
 		c.gridwidth = 1;
 		gridbag.setConstraints(choiceDataReceiveType, c);
+
+		choiceDataReceiveType.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				updateDataReceiveType();
+			}
+		});
 
 		Label l3x = new Label("");
 		panelItems.add(l3x);
@@ -256,6 +268,13 @@ public class ClientConnectionDialog extends Dialog {
 		thread.start();
 		btnDisconnect.setEnabled(true);
 		btnConnect.setEnabled(false);
+		updateDataReceiveType();
+	}
+
+	protected void updateDataReceiveType() {
+		if (thread != null) {
+			thread.updateDataReceiveType(choiceDataReceiveType.getSelectedIndex());
+		}
 	}
 
 	protected void send() {
@@ -275,7 +294,17 @@ public class ClientConnectionDialog extends Dialog {
 					data = text.getBytes();
 					break;
 				case 2:
-					data = new byte[] { Byte.parseByte(text) };
+					J2MEStringTokenizer st = new J2MEStringTokenizer(text, ",");
+					Vector bts = new Vector();
+					while (st.hasMoreTokens()) {
+						bts.addElement(st.nextToken().trim());
+					}
+					data = new byte[bts.size()];
+					int j = 0;
+					for (Enumeration en = bts.elements(); en.hasMoreElements();) {
+						data[j] = Byte.parseByte((String) en.nextElement());
+						j++;
+					}
 					break;
 				default:
 					data = new byte[] { 0 };

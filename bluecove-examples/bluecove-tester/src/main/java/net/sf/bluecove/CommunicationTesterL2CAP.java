@@ -28,22 +28,23 @@ import junit.framework.Assert;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class CommunicationTesterL2CAP extends CommunicationData {
 
 	public static final int INITIAL_DATA_PREFIX_LEN = 2;
-	
+
 	private static byte[] startPrefix(int testType, byte[] data) {
 		byte[] dataToSend = new byte[data.length + INITIAL_DATA_PREFIX_LEN];
 		dataToSend[0] = Consts.SEND_TEST_START;
-		dataToSend[1] = (byte)testType;
+		dataToSend[1] = (byte) testType;
 		System.arraycopy(data, 0, dataToSend, INITIAL_DATA_PREFIX_LEN, data.length);
 		Logger.debug("send L2CAP packet", dataToSend);
 		return dataToSend;
 	}
-	
-	public static void runTest(int testType, boolean server, ConnectionHolderL2CAP c, byte[] initialData, TestStatus testStatus) throws IOException {
+
+	public static void runTest(int testType, boolean server, ConnectionHolderL2CAP c, byte[] initialData,
+			TestStatus testStatus) throws IOException {
 		switch (testType) {
 		case 1:
 			testStatus.setName("l2byteAray");
@@ -51,7 +52,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				c.channel.send(startPrefix(testType, byteAray));
 			} else {
 				Assert.assertEquals("byteAray.len", byteAray.length, initialData.length);
-				for(int i = 0; i < byteAray.length; i++) {
+				for (int i = 0; i < byteAray.length; i++) {
 					Assert.assertEquals("byte[" + i + "]", byteAray[i], initialData[i]);
 				}
 			}
@@ -72,8 +73,11 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				maxMTUSend(testType, c);
 			}
 			break;
+		case 100:
+			traficGenerator(c, initialData);
+			break;
 		default:
-			Assert.fail("Invalid test#" + testType);				
+			Assert.fail("Invalid test#" + testType);
 		}
 
 	}
@@ -90,7 +94,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		try {
 			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
 				byte[] data = new byte[i];
-				data[0] = (byte)i;
+				data[0] = (byte) i;
 				for (int j = 1; j < data.length; j++) {
 					data[j] = (byte) (j + aKnowndNegativeByte);
 				}
@@ -106,12 +110,12 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				byte[] dataRecived = new byte[receiveMTU];
 				int lengthdataRecived = c.channel.receive(dataRecived);
 				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
-				Assert.assertEquals("sequence", (byte)i, dataRecived[0]);
+				Assert.assertEquals("sequence", (byte) i, dataRecived[0]);
 				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
 				for (int j = 1; j < lengthdataRecived; j++) {
 					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndPositiveByte), dataRecived[j]);
 				}
-				sequenceRecivedCount ++;
+				sequenceRecivedCount++;
 			}
 		} finally {
 			if (sequenceSentCount != sequenceSize) {
@@ -122,7 +126,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 			}
 		}
 	}
-	
+
 	private static void sequenceRecive(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
 		Assert.assertEquals("initialData.len", 1, initialData.length);
 		final int sequenceSize = initialData[0];
@@ -130,7 +134,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		int transmitMTU = c.channel.getTransmitMTU();
 		Assert.assertTrue("ReceiveMTU " + receiveMTU, sequenceSize <= receiveMTU);
 		Assert.assertTrue("TransmitMTU " + transmitMTU, sequenceSize <= transmitMTU);
-		
+
 		int sequenceRecivedCount = 0;
 		int sequenceSentCount = 0;
 		try {
@@ -145,110 +149,15 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				byte[] dataRecived = new byte[receiveMTU];
 				int lengthdataRecived = c.channel.receive(dataRecived);
 				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
-				Assert.assertEquals("sequence", (byte)i, dataRecived[0]);
+				Assert.assertEquals("sequence", (byte) i, dataRecived[0]);
 				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
 				for (int j = 1; j < lengthdataRecived; j++) {
 					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndNegativeByte), dataRecived[j]);
 				}
-				sequenceRecivedCount ++;
-				
+				sequenceRecivedCount++;
+
 				byte[] data = new byte[i];
-				data[0] = (byte)i;
-				for (int j = 1; j < data.length; j++) {
-					data[j] = (byte) (j + aKnowndPositiveByte);
-				}
-				c.channel.send(data);
-				sequenceSentCount++;
-			}
-		} finally {
-			if (sequenceRecivedCount != sequenceSize) {
-				Logger.debug("Recived only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
-			}
-			if (sequenceSentCount != sequenceSize) {
-				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
-			}
-		}
-	}
-	
-	private static void maxMTUSend(int testType, ConnectionHolderL2CAP c) throws IOException {
-		int receiveMTU = c.channel.getReceiveMTU();
-		int transmitMTU = c.channel.getTransmitMTU();
-		if (transmitMTU < receiveMTU) {
-			receiveMTU = transmitMTU; 
-		}
-		final int sequenceSize = 10;
-		c.channel.send(startPrefix(testType, new byte[] { sequenceSize, IOUtils.hiByte(receiveMTU), IOUtils.loByte(receiveMTU) }));
-		
-		int sequenceRecivedCount = 0;
-		int sequenceSentCount = 0;
-		try {
-			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
-				byte[] data = new byte[receiveMTU];
-				data[0] = (byte)i;
-				for (int j = 1; j < data.length; j++) {
-					data[j] = (byte) (j + aKnowndNegativeByte);
-				}
-				c.channel.send(data);
-				sequenceSentCount++;
-				while (!c.channel.ready()) {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						break mainLoop;
-					}
-				}
-				byte[] dataRecived = new byte[receiveMTU];
-				int lengthdataRecived = c.channel.receive(dataRecived);
-				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
-				Assert.assertEquals("sequence", (byte)i, dataRecived[0]);
-				Assert.assertEquals("lengthdataRecived", receiveMTU, lengthdataRecived);
-				for (int j = 1; j < lengthdataRecived; j++) {
-					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndPositiveByte), dataRecived[j]);
-				}
-				sequenceRecivedCount ++;
-			}
-		} finally {
-			if (sequenceSentCount != sequenceSize) {
-				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
-			}
-			if (sequenceRecivedCount != sequenceSize) {
-				Logger.debug("Recived only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
-			}
-		}
-	}
-	
-	private static void maxMTURecive(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
-		Assert.assertEquals("initialData.len", 3, initialData.length);
-		final int sequenceSize = initialData[0];
-		int clientMTU = IOUtils.bytesToShort(initialData[1], initialData[2]);
-		int receiveMTU = c.channel.getReceiveMTU();
-		int transmitMTU = c.channel.getTransmitMTU();
-		Assert.assertTrue("ReceiveMTU " + receiveMTU, clientMTU <= receiveMTU);
-		Assert.assertTrue("TransmitMTU " + transmitMTU, clientMTU <= transmitMTU);
-		
-		int sequenceRecivedCount = 0;
-		int sequenceSentCount = 0;
-		try {
-			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
-				while (!c.channel.ready()) {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						break mainLoop;
-					}
-				}
-				byte[] dataRecived = new byte[receiveMTU];
-				int lengthdataRecived = c.channel.receive(dataRecived);
-				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
-				Assert.assertEquals("sequence", (byte)i, dataRecived[0]);
-				Assert.assertEquals("lengthdataRecived", clientMTU, lengthdataRecived);
-				for (int j = 1; j < lengthdataRecived; j++) {
-					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndNegativeByte), dataRecived[j]);
-				}
-				sequenceRecivedCount ++;
-				
-				byte[] data = new byte[clientMTU];
-				data[0] = (byte)i;
+				data[0] = (byte) i;
 				for (int j = 1; j < data.length; j++) {
 					data[j] = (byte) (j + aKnowndPositiveByte);
 				}
@@ -265,5 +174,128 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		}
 	}
 
+	private static void maxMTUSend(int testType, ConnectionHolderL2CAP c) throws IOException {
+		int receiveMTU = c.channel.getReceiveMTU();
+		int transmitMTU = c.channel.getTransmitMTU();
+		if (transmitMTU < receiveMTU) {
+			receiveMTU = transmitMTU;
+		}
+		final int sequenceSize = 10;
+		c.channel.send(startPrefix(testType, new byte[] { sequenceSize, IOUtils.hiByte(receiveMTU),
+				IOUtils.loByte(receiveMTU) }));
+
+		int sequenceRecivedCount = 0;
+		int sequenceSentCount = 0;
+		try {
+			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
+				byte[] data = new byte[receiveMTU];
+				data[0] = (byte) i;
+				for (int j = 1; j < data.length; j++) {
+					data[j] = (byte) (j + aKnowndNegativeByte);
+				}
+				c.channel.send(data);
+				sequenceSentCount++;
+				while (!c.channel.ready()) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break mainLoop;
+					}
+				}
+				byte[] dataRecived = new byte[receiveMTU];
+				int lengthdataRecived = c.channel.receive(dataRecived);
+				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
+				Assert.assertEquals("sequence", (byte) i, dataRecived[0]);
+				Assert.assertEquals("lengthdataRecived", receiveMTU, lengthdataRecived);
+				for (int j = 1; j < lengthdataRecived; j++) {
+					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndPositiveByte), dataRecived[j]);
+				}
+				sequenceRecivedCount++;
+			}
+		} finally {
+			if (sequenceSentCount != sequenceSize) {
+				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
+			}
+			if (sequenceRecivedCount != sequenceSize) {
+				Logger.debug("Recived only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
+			}
+		}
+	}
+
+	private static void maxMTURecive(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+		Assert.assertEquals("initialData.len", 3, initialData.length);
+		final int sequenceSize = initialData[0];
+		int clientMTU = IOUtils.bytesToShort(initialData[1], initialData[2]);
+		int receiveMTU = c.channel.getReceiveMTU();
+		int transmitMTU = c.channel.getTransmitMTU();
+		Assert.assertTrue("ReceiveMTU " + receiveMTU, clientMTU <= receiveMTU);
+		Assert.assertTrue("TransmitMTU " + transmitMTU, clientMTU <= transmitMTU);
+
+		int sequenceRecivedCount = 0;
+		int sequenceSentCount = 0;
+		try {
+			mainLoop: for (int i = 1; i <= sequenceSize; i++) {
+				while (!c.channel.ready()) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break mainLoop;
+					}
+				}
+				byte[] dataRecived = new byte[receiveMTU];
+				int lengthdataRecived = c.channel.receive(dataRecived);
+				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
+				Assert.assertEquals("sequence", (byte) i, dataRecived[0]);
+				Assert.assertEquals("lengthdataRecived", clientMTU, lengthdataRecived);
+				for (int j = 1; j < lengthdataRecived; j++) {
+					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndNegativeByte), dataRecived[j]);
+				}
+				sequenceRecivedCount++;
+
+				byte[] data = new byte[clientMTU];
+				data[0] = (byte) i;
+				for (int j = 1; j < data.length; j++) {
+					data[j] = (byte) (j + aKnowndPositiveByte);
+				}
+				c.channel.send(data);
+				sequenceSentCount++;
+			}
+		} finally {
+			if (sequenceRecivedCount != sequenceSize) {
+				Logger.debug("Recived only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
+			}
+			if (sequenceSentCount != sequenceSize) {
+				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
+			}
+		}
+	}
+
+	private static void traficGenerator(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+		final int sequenceSize = 77;
+		int sequenceSentCount = 0;
+		long reported = System.currentTimeMillis();
+		try {
+			mainLoop: do {
+				byte[] data = new byte[sequenceSize];
+				for (int i = 1; i < sequenceSize; i++) {
+					data[i] = (byte) i;
+				}
+				c.channel.send(data);
+				sequenceSentCount++;
+				long now = System.currentTimeMillis();
+				if (now - reported > 5 * 1000) {
+					Logger.debug("Sent " + sequenceSentCount + " packet(s)");
+					reported = now;
+				}
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					break mainLoop;
+				}
+			} while (true);
+		} finally {
+			Logger.debug("Total " + sequenceSentCount + " packet(s)");
+		}
+	}
 
 }
