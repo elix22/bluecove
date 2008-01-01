@@ -282,6 +282,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				}
 				c.channel.send(data);
 				sequenceSentCount++;
+				c.active();
 				long now = System.currentTimeMillis();
 				if (now - reported > 5 * 1000) {
 					Logger.debug("Sent " + sequenceSentCount + " packet(s)");
