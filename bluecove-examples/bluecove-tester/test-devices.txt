@@ -25,6 +25,7 @@ BT radios
     BlueSoleil BS001 Dongle (Class I 100 Metres)
     ES-388 Bluetooth USB Adapter  (fake item, Device has illegal Bluetooth addr 11:11:11:11:11:11)
     D-Link DBT-120 USB Bluetooth Adapter
+    Linksys Bluetooth USB Adapter USBBT100
     Toshiba Bluetooth V2.0 EDR USB Adapter PA3455U-1BTM
     Motorola Bluetooth USB PC850
 
