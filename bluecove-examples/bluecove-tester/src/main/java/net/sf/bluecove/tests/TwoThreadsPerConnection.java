@@ -59,7 +59,7 @@ public class TwoThreadsPerConnection {
 
 	private class WriteTread extends Thread {
 
-		OutputStream os;
+		ConnectionHolderStream c;
 
 		boolean isRunning;
 
@@ -68,7 +68,7 @@ public class TwoThreadsPerConnection {
 		public void run() {
 			try {
 				isRunning = true;
-				sendingData(os);
+				sendingData(c.os, c);
 				sendFinishedSuccessfully = true;
 			} catch (IOException e) {
 				Logger.error("Sending", e);
@@ -79,9 +79,9 @@ public class TwoThreadsPerConnection {
 
 	}
 
-	WriteTread startSender(OutputStream os) {
+	WriteTread startSender(ConnectionHolderStream c) {
 		WriteTread t = new WriteTread();
-		t.os = os;
+		t.c = c;
 		t.start();
 		return t;
 	}
@@ -96,7 +96,7 @@ public class TwoThreadsPerConnection {
 		}
 	}
 
-	void sendingData(OutputStream os) throws IOException {
+	void sendingData(OutputStream os, ConnectionHolderStream c) throws IOException {
 		long start = System.currentTimeMillis();
 		long reported = start;
 		int k = 0;
@@ -125,6 +125,7 @@ public class TwoThreadsPerConnection {
 			if (synchronize) {
 				equalizeWrite();
 			}
+			c.active();
 		}
 		if (!stoped) {
 			Logger.debug("speed " + TimeUtils.bps(sentCount, start));
@@ -176,7 +177,7 @@ public class TwoThreadsPerConnection {
 			worker.bytesTotal = worker.iterations * arraySize;
 		}
 
-		WriteTread sender = worker.startSender(c.os);
+		WriteTread sender = worker.startSender(c);
 		try {
 			worker.readingData(c.is, c);
 			try {
