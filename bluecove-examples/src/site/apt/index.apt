@@ -9,7 +9,7 @@ BlueCove examples project
 
     To start BlueCove with {{{http://www.microemu.org/}MicroEmulator}} click this link << {{{bluecove-webstart/demo.jnlp}Java Web Start}} >>.
 
-    This will start J2ME Emulator with JSR-82 spport.
+    This will start J2ME Emulator with JSR-82 support.
 
     You can Drag and Drop .jad files or links to running MicroEmulator application.
 
@@ -29,7 +29,7 @@ BlueCove examples project
 
     BlueCove provides an implementation of the JSR 82. Applications should use API defined in JSR-82.
 
-    We created a short (50 lines of code each) examples for you to get started with JSR-82 application development:
+    We created short (50 lines of code each) examples for you to get started with JSR-82 application development:
 
     * {{{../apidocs/overview-summary.html#DeviceDiscovery}Remote Device Discovery}}
 
