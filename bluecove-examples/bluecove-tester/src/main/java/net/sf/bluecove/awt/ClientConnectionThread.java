@@ -171,8 +171,13 @@ public class ClientConnectionThread extends Thread {
 			long now = System.currentTimeMillis();
 			if (now - reported > 5 * 1000) {
 				int size = (int) (receivedCount - reportedSize);
-				Logger.debug("Received " + receivedPacketsCount + " packet(s), " + receivedCount + " bytes "
-						+ TimeUtils.bps(size, reported));
+				reportedSize = receivedCount;
+				if (rfcomm) {
+
+				} else {
+					Logger.debug("Received " + receivedPacketsCount + " packet(s), " + receivedCount + " bytes "
+							+ TimeUtils.bps(size, reported));
+				}
 				reported = now;
 			}
 		}
