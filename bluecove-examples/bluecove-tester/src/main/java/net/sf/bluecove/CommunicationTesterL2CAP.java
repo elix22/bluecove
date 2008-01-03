@@ -23,6 +23,7 @@ package net.sf.bluecove;
 import java.io.IOException;
 
 import net.sf.bluecove.util.IOUtils;
+import net.sf.bluecove.util.TimeUtils;
 
 import junit.framework.Assert;
 
@@ -271,8 +272,17 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 	}
 
 	private static void traficGenerator(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
-		final int sequenceSize = 77;
-		int sequenceSentCount = 0;
+		int sequenceSleep = 100;
+		int sequenceSize = 77;
+		if (initialData.length > 1) {
+			sequenceSleep = initialData[0] * 10;
+		}
+		if (initialData.length > 2) {
+			sequenceSize = initialData[1];
+		}
+
+		long sequenceSentCount = 0;
+		int reportedSize = 0;
 		long reported = System.currentTimeMillis();
 		try {
 			mainLoop: do {
@@ -282,21 +292,24 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				}
 				c.channel.send(data);
 				sequenceSentCount++;
+				reportedSize += sequenceSize;
 				c.active();
 				long now = System.currentTimeMillis();
 				if (now - reported > 5 * 1000) {
-					Logger.debug("Sent " + sequenceSentCount + " packet(s)");
+					Logger.debug("Sent " + sequenceSentCount + " packet(s) " + TimeUtils.bps(reportedSize, reported));
 					reported = now;
+					reportedSize = 0;
 				}
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					break mainLoop;
+				if (sequenceSleep > 0) {
+					try {
+						Thread.sleep(sequenceSleep);
+					} catch (InterruptedException e) {
+						break mainLoop;
+					}
 				}
 			} while (true);
 		} finally {
 			Logger.debug("Total " + sequenceSentCount + " packet(s)");
 		}
 	}
-
 }

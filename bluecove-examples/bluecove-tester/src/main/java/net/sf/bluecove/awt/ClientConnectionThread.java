@@ -33,6 +33,7 @@ import net.sf.bluecove.Logger;
 import net.sf.bluecove.ConnectionHolderStream;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.StringUtils;
+import net.sf.bluecove.util.TimeUtils;
 
 /**
  * @author vlads
@@ -53,6 +54,8 @@ public class ClientConnectionThread extends Thread {
 	boolean isConnecting = false;
 
 	long receivedCount = 0;
+
+	long reportedSize = 0;
 
 	long receivedPacketsCount = 0;
 
@@ -167,7 +170,9 @@ public class ClientConnectionThread extends Thread {
 		case 1:
 			long now = System.currentTimeMillis();
 			if (now - reported > 5 * 1000) {
-				Logger.debug("Received " + receivedPacketsCount + " packet(s), " + receivedCount + " bytes");
+				int size = (int) (receivedCount - reportedSize);
+				Logger.debug("Received " + receivedPacketsCount + " packet(s), " + receivedCount + " bytes "
+						+ TimeUtils.bps(size, reported));
 				reported = now;
 			}
 		}
