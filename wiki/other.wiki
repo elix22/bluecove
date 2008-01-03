@@ -8,8 +8,8 @@
 || [http://www.avetana-gmbh.de/avetana-gmbh/produkte/jsr82.eng.xml avetana JSR-82 implementation] || Commercial || Win XP, Win Mobile, OS X, Linux ||
 || [http://sourceforge.net/projects/avetanabt/ AvetanaBluetooth] || Open Source || Linux ||
 || [http://www.rococosoft.com/blue_dk.html Impronto Developer Kit] || Commercial; Free for Non Commercial Use || Linux ||
-|| [http://www.javabluetooth.org/ javabluetooth.org] || GPL || javax.comm ||
 || [http://www.avelink.com/products/java_solutions/jsr-82.asp  aveLink ] || Commercial ||Win-32, Linux, Win Mobile ||
+|| [http://www.javabluetooth.org/ javabluetooth.org] || GPL || javax.comm ||
 || [http://www.javabluetoothstack.com/ ElectricBlue] || Commercial || Win XP ||
 || [https://bluesock.dev.java.net/ Bluesock] || Common Public License || Win XP||
 
@@ -21,5 +21,6 @@
 
 = Related Open Source projects =
 
+    * [http://www.control.lth.se/%7Ejohane/harald/ Harald] A Bluetooth stack in Java, requires the JavaComm package.
     * [http://lightblue.sourceforge.net/ LightBlue] a cross-platform Python Bluetooth API for Mac OS X, GNU/Linux and Nokia's Python
     * [http://org.csail.mit.edu/pybluez/ PyBluez] is an effort to create python wrappers around system Bluetooth resources GNU/Linux and Windows XP (Microsoft and Widcomm Bluetooth stacks)
