@@ -76,12 +76,28 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 			}
 			break;
 		case TRAFIC_GENERATOR_WRITE:
-			traficGeneratorWrite(c, initialData);
+			testStatus.setName("l2genW");
+			if (server) {
+				traficGeneratorWrite(c, initialData);
+			} else {
+				traficGeneratorClientInit(c, testType);
+				traficGeneratorRead(c, initialData);
+			}
 			break;
 		case TRAFIC_GENERATOR_READ:
-			traficGeneratorRead(c, initialData);
+			testStatus.setName("l2genR");
+			if (server) {
+				traficGeneratorRead(c, initialData);
+			} else {
+				traficGeneratorClientInit(c, testType);
+				traficGeneratorWrite(c, initialData);
+			}
 			break;
 		case TRAFIC_GENERATOR_READ_WRITE:
+			testStatus.setName("l2genRW");
+			if (!server) {
+				traficGeneratorClientInit(c, testType);
+			}
 			traficGeneratorReadStart(c, initialData);
 			traficGeneratorWrite(c, initialData);
 			break;
@@ -281,17 +297,25 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		}
 	}
 
+	private static void traficGeneratorClientInit(ConnectionHolderL2CAP c, int testType) throws IOException {
+		byte sequenceSleep = 2;
+		byte sequenceSize = 77;
+		c.channel.send(startPrefix(testType, new byte[] { sequenceSleep, sequenceSize }));
+	}
+
 	private static void traficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
 		int sequenceSleep = 100;
 		final int sequenceSizeMin = 16;
 		int sequenceSize = 77;
-		if (initialData.length > 1) {
-			sequenceSleep = initialData[0] * 10;
-		}
-		if (initialData.length > 2) {
-			sequenceSize = initialData[1];
-			if (sequenceSize < sequenceSizeMin) {
-				sequenceSize = sequenceSizeMin;
+		if (initialData != null) {
+			if (initialData.length > 1) {
+				sequenceSleep = initialData[0] * 10;
+			}
+			if (initialData.length > 2) {
+				sequenceSize = initialData[1];
+				if (sequenceSize < sequenceSizeMin) {
+					sequenceSize = sequenceSizeMin;
+				}
 			}
 		}
 
@@ -349,6 +373,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		long sequenceOutOfOrderCount = 0;
 		TimeStatistic delay = new TimeStatistic();
 		long reported = System.currentTimeMillis();
+		long receiveTimeLast = 0;
 		try {
 			int receiveMTU = c.channel.getReceiveMTU();
 			mainLoop: do {
@@ -378,23 +403,23 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 					sequenceOutOfOrderCount++;
 				}
 
-				if (sendTime != 0) {
-					delay.add(sendTime - receiveTime);
+				if (receiveTimeLast != 0) {
+					delay.add(receiveTimeLast - receiveTime);
+					receiveTimeLast = receiveTime;
 				}
 
-				long now = System.currentTimeMillis();
+				long now = receiveTime;
 				if (now - reported > 5 * 1000) {
-					Logger.debug("Received " + sequenceRecivedCount + " packet(s)");
-					Logger.debug("Misplaced " + sequenceOutOfOrderCount + " packet(s)");
-					Logger.debug("avg delay " + delay.avg() + " msec");
+					Logger.debug("Received " + sequenceRecivedCount + "/" + sequenceOutOfOrderCount + "(er) packet(s) "
+							+ delay.avg() + " msec");
 					reported = now;
 				}
 
 			} while (true);
 		} finally {
-			Logger.debug("Received " + sequenceRecivedCount + " packet(s)");
+			Logger.debug("Received  " + sequenceRecivedCount + " packet(s)");
 			Logger.debug("Misplaced " + sequenceOutOfOrderCount + " packet(s)");
-			Logger.debug("avg delay " + delay.avg() + " msec");
+			Logger.debug(" avg interval " + delay.avg() + " msec");
 		}
 	}
 

@@ -947,6 +947,14 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		if (Configuration.cldcStub != null) {
 			Configuration.cldcStub.interruptThread(thread);
 		}
+		Vector concurrentConnectionsCopy = new Vector();
+		for (Enumeration iter = concurrentConnections.elements(); iter.hasMoreElements();) {
+			concurrentConnectionsCopy.addElement(iter.nextElement());
+		}
+		for (Enumeration iter = concurrentConnectionsCopy.elements(); iter.hasMoreElements();) {
+			ConnectionHolder t = (ConnectionHolder) iter.nextElement();
+			t.shutdown();
+		}
 	}
 
 	public static void main(String[] args) {
