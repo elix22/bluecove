@@ -23,6 +23,7 @@ package net.sf.bluecove;
 import java.io.IOException;
 
 import net.sf.bluecove.util.IOUtils;
+import net.sf.bluecove.util.TimeStatistic;
 import net.sf.bluecove.util.TimeUtils;
 
 import junit.framework.Assert;
@@ -74,8 +75,15 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				maxMTUSend(testType, c);
 			}
 			break;
-		case 100:
-			traficGenerator(c, initialData);
+		case TRAFIC_GENERATOR_WRITE:
+			traficGeneratorWrite(c, initialData);
+			break;
+		case TRAFIC_GENERATOR_READ:
+			traficGeneratorRead(c, initialData);
+			break;
+		case TRAFIC_GENERATOR_READ_WRITE:
+			traficGeneratorReadStart(c, initialData);
+			traficGeneratorWrite(c, initialData);
 			break;
 		default:
 			Assert.fail("Invalid test#" + testType);
@@ -243,13 +251,15 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 						break mainLoop;
 					}
 				}
-				byte[] dataRecived = new byte[receiveMTU];
-				int lengthdataRecived = c.channel.receive(dataRecived);
-				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
-				Assert.assertEquals("sequence", (byte) i, dataRecived[0]);
-				Assert.assertEquals("lengthdataRecived", clientMTU, lengthdataRecived);
-				for (int j = 1; j < lengthdataRecived; j++) {
-					Assert.assertEquals("recived, byte [" + j + "]", (byte) (j + aKnowndNegativeByte), dataRecived[j]);
+				byte[] dataReceived = new byte[receiveMTU];
+				int lengthdataReceived = c.channel.receive(dataReceived);
+				Assert.assertTrue("lengthdataReceived", lengthdataReceived >= 1);
+				Assert.assertEquals("sequence", (byte) i, dataReceived[0]);
+				Assert.assertEquals("lengthdataReceived", clientMTU, lengthdataReceived);
+				for (int j = 1; j < lengthdataReceived; j++) {
+					Assert
+							.assertEquals("received, byte [" + j + "]", (byte) (j + aKnowndNegativeByte),
+									dataReceived[j]);
 				}
 				sequenceRecivedCount++;
 
@@ -263,7 +273,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 			}
 		} finally {
 			if (sequenceRecivedCount != sequenceSize) {
-				Logger.debug("Recived only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
+				Logger.debug("Received only " + sequenceRecivedCount + " packet(s) from " + sequenceSize);
 			}
 			if (sequenceSentCount != sequenceSize) {
 				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
@@ -271,14 +281,18 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		}
 	}
 
-	private static void traficGenerator(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+	private static void traficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
 		int sequenceSleep = 100;
+		final int sequenceSizeMin = 16;
 		int sequenceSize = 77;
 		if (initialData.length > 1) {
 			sequenceSleep = initialData[0] * 10;
 		}
 		if (initialData.length > 2) {
 			sequenceSize = initialData[1];
+			if (sequenceSize < sequenceSizeMin) {
+				sequenceSize = sequenceSizeMin;
+			}
 		}
 
 		long sequenceSentCount = 0;
@@ -290,6 +304,9 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				for (int i = 1; i < sequenceSize; i++) {
 					data[i] = (byte) i;
 				}
+				IOUtils.long2Bytes(sequenceSentCount, 8, data, 0);
+				long sendTime = System.currentTimeMillis();
+				IOUtils.long2Bytes(sendTime, 8, data, 8);
 				c.channel.send(data);
 				sequenceSentCount++;
 				reportedSize += sequenceSize;
@@ -312,4 +329,73 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 			Logger.debug("Total " + sequenceSentCount + " packet(s)");
 		}
 	}
+
+	private static void traficGeneratorReadStart(final ConnectionHolderL2CAP c, final byte[] initialData) {
+		Thread t = new Thread() {
+			public void run() {
+				try {
+					traficGeneratorRead(c, initialData);
+				} catch (IOException e) {
+					Logger.error("reader", e);
+				}
+			}
+		};
+		t.start();
+	}
+
+	private static void traficGeneratorRead(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+		long sequenceRecivedCount = 0;
+		long sequenceRecivedNumberLast = -1;
+		long sequenceOutOfOrderCount = 0;
+		TimeStatistic delay = new TimeStatistic();
+		long reported = System.currentTimeMillis();
+		try {
+			int receiveMTU = c.channel.getReceiveMTU();
+			mainLoop: do {
+				while (!c.channel.ready()) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break mainLoop;
+					}
+				}
+				byte[] dataReceived = new byte[receiveMTU];
+				int lengthdataReceived = c.channel.receive(dataReceived);
+				c.active();
+				long receiveTime = System.currentTimeMillis();
+				sequenceRecivedCount++;
+				long sendTime = 0;
+
+				if (lengthdataReceived > 8) {
+					long sequenceRecivedNumber = IOUtils.bytes2Long(dataReceived, 0, 8);
+					if (sequenceRecivedNumberLast + 1 != sequenceRecivedNumber) {
+						sequenceOutOfOrderCount++;
+					} else if (lengthdataReceived > 18) {
+						sendTime = IOUtils.bytes2Long(dataReceived, 8, 8);
+					}
+					sequenceRecivedNumberLast = sequenceRecivedNumber;
+				} else {
+					sequenceOutOfOrderCount++;
+				}
+
+				if (sendTime != 0) {
+					delay.add(sendTime - receiveTime);
+				}
+
+				long now = System.currentTimeMillis();
+				if (now - reported > 5 * 1000) {
+					Logger.debug("Received " + sequenceRecivedCount + " packet(s)");
+					Logger.debug("Misplaced " + sequenceOutOfOrderCount + " packet(s)");
+					Logger.debug("avg delay " + delay.avg() + " msec");
+					reported = now;
+				}
+
+			} while (true);
+		} finally {
+			Logger.debug("Received " + sequenceRecivedCount + " packet(s)");
+			Logger.debug("Misplaced " + sequenceOutOfOrderCount + " packet(s)");
+			Logger.debug("avg delay " + delay.avg() + " msec");
+		}
+	}
+
 }
