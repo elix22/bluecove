@@ -69,6 +69,8 @@ public class Configuration {
 
 	public static UUID discoveryUUID = new UUID(0x0100); // L2CAP
 
+	// public static UUID discoveryUUID = Consts.uuidL2CAPLong;
+
 	public static Hashtable testDeviceNames = null;
 
 	public static Hashtable ignoreDevices = null;

@@ -480,6 +480,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 					// Bogus service Record
 					continue;
 				}
+				RemoteDeviceInfo.saveServiceURL(servRecord[i]);
 
 				boolean isBlueCoveTestService;
 

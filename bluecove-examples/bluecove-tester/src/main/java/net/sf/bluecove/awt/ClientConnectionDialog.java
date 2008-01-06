@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Choice;
 import java.awt.Dialog;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -58,6 +59,8 @@ public class ClientConnectionDialog extends Dialog {
 	Button btnConnect, btnDisconnect, btnCancel, btnSend;
 
 	TextField tfURL;
+
+	Choice choiceAllURLs;
 
 	TextField tfData;
 
@@ -145,6 +148,25 @@ public class ClientConnectionDialog extends Dialog {
 			}
 			tfURL.setText(url);
 		}
+
+		Label l1 = new Label("Discovered:");
+		panelItems.add(l1);
+		choiceAllURLs = new Choice();
+		c.gridwidth = 1;
+		gridbag.setConstraints(l1, c);
+		panelItems.add(choiceAllURLs);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		gridbag.setConstraints(choiceAllURLs, c);
+
+		Font logFont = new Font("Monospaced", Font.PLAIN, Configuration.screenSizeSmall ? 9 : 12);
+		choiceAllURLs.setFont(logFont);
+
+		ServiceRecords.populateChoice(choiceAllURLs);
+		choiceAllURLs.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				selectURL();
+			}
+		});
 
 		Label l2 = new Label("Data:");
 		panelItems.add(l2);
@@ -274,6 +296,13 @@ public class ClientConnectionDialog extends Dialog {
 	protected void updateDataReceiveType() {
 		if (thread != null) {
 			thread.updateDataReceiveType(choiceDataReceiveType.getSelectedIndex());
+		}
+	}
+
+	protected void selectURL() {
+		String url = ServiceRecords.getChoiceURL(choiceAllURLs);
+		if (url != null) {
+			tfURL.setText(url);
 		}
 	}
 
