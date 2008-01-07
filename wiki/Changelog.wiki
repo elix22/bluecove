@@ -1,7 +1,7 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
-= 2.0.2 to be released 2007-12-?? =
+= 2.0.2 released 2008-01-07 =
 
     2007-12-09
     * WIDCOMM RFCOMM Service accept multiple connections
