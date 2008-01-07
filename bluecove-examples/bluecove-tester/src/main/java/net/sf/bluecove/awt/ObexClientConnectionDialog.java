@@ -23,7 +23,9 @@ package net.sf.bluecove.awt;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Checkbox;
+import java.awt.Choice;
 import java.awt.Dialog;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,6 +34,8 @@ import java.awt.Panel;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Date;
@@ -49,6 +53,8 @@ public class ObexClientConnectionDialog extends Dialog {
 	Button btnCancel, btnPut, btnGet, btnDisconnect;
 
 	TextField tfURL;
+
+	Choice choiceAllURLs;
 
 	TextField tfName;
 
@@ -102,6 +108,25 @@ public class ObexClientConnectionDialog extends Dialog {
 		if (Configuration.storage != null) {
 			tfURL.setText(Configuration.storage.retriveData(configObexConnectionURL));
 		}
+
+		Label l1 = new Label("Discovered:");
+		panelItems.add(l1);
+		choiceAllURLs = new Choice();
+		c.gridwidth = 1;
+		gridbag.setConstraints(l1, c);
+		panelItems.add(choiceAllURLs);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		gridbag.setConstraints(choiceAllURLs, c);
+
+		Font logFont = new Font("Monospaced", Font.PLAIN, Configuration.screenSizeSmall ? 9 : 12);
+		choiceAllURLs.setFont(logFont);
+
+		ServiceRecords.populateChoice(choiceAllURLs, true);
+		choiceAllURLs.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				selectURL();
+			}
+		});
 
 		Label l2 = new Label("Data:");
 		panelItems.add(l2);
@@ -181,6 +206,13 @@ public class ObexClientConnectionDialog extends Dialog {
 			monitorTimer = new Timer();
 			monitorTimer.schedule(new ObexConnectionMonitor(), 1000, 700);
 		} catch (Throwable java11) {
+		}
+	}
+
+	protected void selectURL() {
+		String url = ServiceRecords.getChoiceURL(choiceAllURLs);
+		if (url != null) {
+			tfURL.setText(url);
 		}
 	}
 

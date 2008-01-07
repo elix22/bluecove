@@ -24,13 +24,13 @@ package net.sf.bluecove.util;
 import java.util.Vector;
 
 public class CollectionUtils {
-	
+
 	public static interface IsComparable {
-		 
+
 		public int compareTo(Object o);
-		 
+
 	}
-	
+
 	public static void sort(Vector v) {
 		quickSort(v, 0, v.size() - 1);
 	}
@@ -49,9 +49,11 @@ public class CollectionUtils {
 
 	private static int compare(Object o1, Object o2) {
 		if (o1 instanceof Long) {
-			return compareLong(((Long)o1).longValue(), ((Long)o2).longValue());
-		} if (o1 instanceof Integer) {
-			return compareLong(((Integer)o1).longValue(), ((Integer)o2).longValue());
+			return compareLong(((Long) o1).longValue(), ((Long) o2).longValue());
+		} else if (o1 instanceof Integer) {
+			return compareLong(((Integer) o1).longValue(), ((Integer) o2).longValue());
+		} else if (o1 instanceof String) {
+			return ((String) o1).compareTo((String) o2);
 		}
 		return ((IsComparable) o1).compareTo(o2);
 	}

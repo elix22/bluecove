@@ -161,7 +161,7 @@ public class ClientConnectionDialog extends Dialog {
 		Font logFont = new Font("Monospaced", Font.PLAIN, Configuration.screenSizeSmall ? 9 : 12);
 		choiceAllURLs.setFont(logFont);
 
-		ServiceRecords.populateChoice(choiceAllURLs);
+		ServiceRecords.populateChoice(choiceAllURLs, false);
 		choiceAllURLs.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				selectURL();

@@ -22,6 +22,7 @@ package net.sf.bluecove.awt;
 
 import java.awt.Choice;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import javax.bluetooth.DataElement;
 import javax.bluetooth.ServiceRecord;
@@ -29,6 +30,7 @@ import javax.bluetooth.UUID;
 
 import net.sf.bluecove.RemoteDeviceInfo;
 import net.sf.bluecove.TestResponderCommon;
+import net.sf.bluecove.util.CollectionUtils;
 import net.sf.bluecove.util.BluetoothTypesInfo.UUIDConsts;
 
 /**
@@ -37,9 +39,17 @@ import net.sf.bluecove.util.BluetoothTypesInfo.UUIDConsts;
  */
 public class ServiceRecords {
 
-	public static void populateChoice(Choice choice) {
+	public static void populateChoice(Choice choice, boolean obex) {
+		Vector sorted = new Vector();
 		for (Enumeration en = RemoteDeviceInfo.services.keys(); en.hasMoreElements();) {
 			String url = (String) en.nextElement();
+			if (url.startsWith("btgoep")) {
+				if (!obex) {
+					continue;
+				}
+			} else if (obex) {
+				continue;
+			}
 			int k = url.indexOf(';');
 			if (k == -1) {
 				continue;
@@ -51,7 +61,11 @@ public class ServiceRecords {
 			}
 			info += " " + TestResponderCommon.niceDeviceName(serviceRecord.getHostDevice().getBluetoothAddress());
 			info += " " + UUIDName(serviceRecord);
-			choice.add(info);
+			sorted.addElement(info);
+		}
+		CollectionUtils.sort(sorted);
+		for (Enumeration en = sorted.elements(); en.hasMoreElements();) {
+			choice.add((String) en.nextElement());
 		}
 	}
 
@@ -65,7 +79,7 @@ public class ServiceRecords {
 	}
 
 	public static String UUIDName(ServiceRecord serviceRecord) {
-		DataElement d = serviceRecord.getAttributeValue(1);
+		DataElement d = serviceRecord.getAttributeValue(0x001);
 		if ((d == null) || (d.getDataType() != DataElement.DATSEQ)) {
 			return "n/a";
 		}

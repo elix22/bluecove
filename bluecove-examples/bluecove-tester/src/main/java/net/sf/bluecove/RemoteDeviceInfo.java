@@ -69,6 +69,7 @@ public class RemoteDeviceInfo {
 
 	public static synchronized void clear() {
 		devices = new Hashtable();
+		services = new Hashtable();
 		allServiceSearch.clear();
 		deviceInquiryDuration.clear();
 	}
