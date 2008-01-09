@@ -1,0 +1,98 @@
+~~ @version $Revision$ ($Author$) $Date$
+~~ See this file format http://maven.apache.org/guides/mini/guide-apt-format.html
+
+                                    ------------------
+                                    BlueCove JSR-82 project
+                                    ------------------
+
+BlueCove
+
+    BlueCove is a Java library for Bluetooth (JSR-82 implementation) that currently interfaces with the Mac OS X, WIDCOMM, BlueSoleil and Microsoft Bluetooth stack found in Windows XP SP2 or Windows Vista
+    and WIDCOMM and Microsoft Bluetooth stack on Windows Mobile.
+
+    BlueCove can be used in Java Standard Edition (J2SE) 1.1 or newer.
+
+    BlueCove has been tested on following JVM:
+
+    * {{{http://harmony.apache.org/}Apache Harmony - Open Source Java SE}} 5.0M4 on Win XP 32 bit
+
+    * SUN Java 1.1.8 on Windows XP/X86
+
+    * SUN Java 2 Platform Standard Edition 1.4.2 on Windows XP/X86
+
+    * SUN Java 2 Platform Standard Edition 5.0 on Windows XP/X86
+
+    * SUN Java 2 Platform Standard Edition 6.0 on Windows XP/X86 and Windows Vista
+
+    * WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 on Windows XP/X86
+
+    * WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 on Windows XP/X86
+
+    * WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 on Windows XP/X86
+
+    * {{{http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html}Mysaifu JVM}} - An open-source (GPL v.2 license) Java VM on Windows Mobile 2003 Second Edition.
+
+    * Java for Mac OS X 10.4, Release 5 on PowerPC and Intel processors
+
+    []
+
+
+    BlueCove provides JSR-82 Java interface for following Bluetooth Profiles:
+
+    * SDAP - Service Discovery Application Profile
+
+    * RFCOMM - Serial Cable Emulation Protocol
+
+    * L2CAP - Logical Link Control and Adaptation Protocol
+
+    * OBEX - Generic Object Exchange Profile (GOEP) profile on top of RFCOMM and TCP
+
+    []
+
+
+* BlueCove Documentation
+
+    {{{http://code.google.com/p/bluecove/wiki/Documentation}BlueCove Installation and configuration instructions}}
+
+    API-Documentation for BlueCove {{{apidocs/index.html}Java docs}}. For application it is not recommended to use any classes or API other than defined in JSR-82.
+
+    Main project website {{{http://bluecove.googlecode.com}http://bluecove.googlecode.com}}
+
+[bluecove-examples/images/stack-diagram.png] JSR-82 and Bluetooth stack diagram
+
+* BlueCove Tests on windows
+
+    You can help us to make BlueCove better or understand how we are testing it look {{{bluecove-examples/bluecove-tester}here}}.
+
+    JSR 82 TCK test results {{{tck/index.html}here}}.
+
+* BlueCove examples
+
+    * BlueCove OBEX Push J2ME application installer {{{bluecove-examples/obex-install}here}}.
+
+    * MIDlet application {{{http://www.mgmaps.com/}Mobile GMaps}} created by Cristian Streng will connect to GPS receiver over bluetooth. <<<{{{bluecove-examples/bluecove-webstart/open/wap.mgmaps.com/mgmaps.jnlp}\u00bbStart now}}>>>.
+
+ BlueCove provides an implementation of the JSR 82. Applications should use {{{apidocs/index.html}API defined in JSR-82}}.
+You may find many examples on the {{{http://www.google.com/search?q=JSR+82+tutorial}internet}} describing the usage of JSR 82.
+
+ We created short (50 lines of code each) examples for you to get started with JSR-82 application development:
+
+    * {{{apidocs/overview-summary.html#DeviceDiscovery}Remote Device Discovery}}
+
+    * {{{apidocs/overview-summary.html#ServicesSearch}Services Search}}
+
+    * {{{apidocs/overview-summary.html#OBEXPutClient}OBEX Put Client}}
+
+    * {{{apidocs/overview-summary.html#OBEXPutServer}OBEX Put Server}}
+
+    []
+
+* Legal
+
+  BlueCove is licensed under {{{http://www.gnu.org/licenses/lgpl.html}GNU Lesser General Public License}}.
+The LGPL license allows linking and distributing commercial software with BlueCove.
+
+  For various technical and legal reasons, BlueCove library is not legally referred to as an implementation of {{{http://jcp.org/en/jsr/detail?id=82}JSR-82}}.
+In order to legally refer to a piece of software as a JSR, it must pass the {{{https://opensource.motorola.com/sf/sfmain/do/viewProject/projects.jsr82}JSR-82 TCK}}
+or {{{http://java.sun.com/scholarship/}Sun TCK}}. Current BlueCove JSR-82 TCK compatibility status can be found {{{tck/index.html}here}}.
+Mainly there are some missing APIs in native stacks to implement full TCK compatibility.
