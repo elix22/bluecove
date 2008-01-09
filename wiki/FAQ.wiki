@@ -7,10 +7,11 @@
 
 * Where can I get help or support?
 
-  [http://groups.google.com/group/bluecove-users/ Discussions and Questions here @ Goolge Groups: bluecove-users]
+  [http://groups.google.com/group/bluecove-users/ Discussions questions and support here @ Goolge Groups: bluecove-users]
 
   [http://code.google.com/p/bluecove/issues/list Defects (bugs) should be submitted here @ Issues]
 
+  We also offer [http://sourceforge.net/services/project_services.php?project_id=114020 Paid Services and technical support for the project]
 
 * Where can I find API-Documentation of the !BlueCove Library?
 
