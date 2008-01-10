@@ -86,7 +86,7 @@
 
     <properties>
         <me2Version>2.0.2-SNAPSHOT</me2Version>
-        <pyx4meVersion>2.0.2-SNAPSHOT</pyx4meVersion>
+        <pyx4meVersion>2.0.2</pyx4meVersion>
     </properties>
 
     <modules>
