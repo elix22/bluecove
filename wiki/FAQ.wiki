@@ -57,3 +57,7 @@
 * Can I make a non-'open source' modification to !BlueCove LGPL library?
 
     No. You should redistribute your modified version of library under the LGPL or GPL.
+
+* Допомога
+
+   Мы свои, пишите, поможем.
