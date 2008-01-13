@@ -68,7 +68,7 @@ Server failure 0
 ---
 
 
-* {Start} BlueCove on Windows
+* {Start} BlueCove tester Web Start
 
    You can start Java Web Start with MIDlet application and see how it communicates with application running on another computer or cell phone. <<<{{{../bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart MIDlet now}}>>>.
 
