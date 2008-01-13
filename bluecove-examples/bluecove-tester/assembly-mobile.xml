@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <assembly>
     <!-- @version $Revision$ ($Author$) $Date$ -->
-    <id>phone</id>
+    <id>mobile</id>
     <formats>
         <format>jar</format>
     </formats>
@@ -35,10 +35,6 @@
             <directory>target/classes</directory>
             <outputDirectory></outputDirectory>
             <excludes>
-                <exclude>BluetoothTCKAgent/*.*</exclude>
-                <exclude>OBEXTCKAgent/*.*</exclude>
-                <exclude>BluetoothTCKAgent</exclude>
-                <exclude>OBEXTCKAgent</exclude>
                 <exclude>net/sf/bluecove/BlueCoveTest*.*</exclude>
             </excludes>
         </fileSet>

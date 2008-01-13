@@ -154,12 +154,14 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
 
    {{{http://www2s.biglobe.ne.jp/~dat/java/project/jvm/index_en.html}Mysaifu JVM}} - An open-source (GPL v.2 license) Java VM is used during tests.
 
-   The same AWT {{{./bluecove-tester-app.jar}bluecove-tester-app.jar}} application that you just run on Windows can be uploaded to your mobile and started there.
+   The same AWT {{{./bluecove-tester-mobile.jar}bluecove-tester-mobile.jar}} or {{{./bluecove-tester-phone.jar}bluecove-tester-phone.jar}} application that you just run on Windows can be uploaded to your mobile and started there.
+
+   Those jars been made smaller to exclude Max OS X code.
 
    Start application like this:
 
 ---
-"\Storage Card\Mysaifu JVM\jre\bin\jvm.exe" -jar "\bluecove\bluecove-tester-app.jar"
+"\Storage Card\Mysaifu JVM\jre\bin\jvm.exe" -jar "\bluecove\bluecove-tester-mobile.jar"
 ---
 
     We tried IBM's J9 VM  and NSICOM's CrEme JVM and BlueCove works there.

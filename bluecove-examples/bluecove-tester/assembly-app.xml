@@ -9,6 +9,11 @@
     <dependencySets>
         <dependencySet>
             <unpack>true</unpack>
+            <unpackOptions>
+                <excludes>
+                    <exclude>META-INF/**</exclude>
+                </excludes>
+            </unpackOptions>
             <outputDirectory></outputDirectory>
             <outputFileNameMapping></outputFileNameMapping>
             <includes>
@@ -22,6 +27,9 @@
         <fileSet>
             <directory>target/classes</directory>
             <outputDirectory></outputDirectory>
+            <excludes>
+                <exclude>net/sf/bluecove/BlueCoveTest*.*</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 </assembly>
