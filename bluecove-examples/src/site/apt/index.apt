@@ -17,13 +17,17 @@ BlueCove examples project
 
     * {{{bluecove-tester/bctest.jad}bluecove test application JAD}}. <<<{{{bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart now}}>>>.
 
-* BlueCove Tests on windows
+* BlueCove Tests
 
     You can help us to make BlueCove better or understand how we are testing it look {{{./bluecove-tester}here}}.
 
 * BlueCove OBEX Push J2ME application installer
 
     This application will install MIDlets on your mobile phone using Bluetooth. Details {{{./obex-install}here}}.
+
+* BlueCove OBEX Push Server application Web Start
+
+    The OBEX server accept any file types and store them on local computer. Details {{{./obex-server}here}}.
 
 * Short JSR-82 usage examples
 
