@@ -176,6 +176,8 @@ java -cp avetanaBluetooth.jar;bluecove-tester.jar;junit-3.8.1.jar net.sf.bluecov
 
         * <<<{{{./awt-bctest-2.0.1.jnlp}\u00bbStart with BlueCove v 2.0.1}}>>>
 
+        * <<<{{{./awt-bctest-2.0.2.jnlp}\u00bbStart with BlueCove v 2.0.2}}>>>
+
 * BlueCove test lab
 
 [testing-bluecove-small.jpg] bluecove test lab}
