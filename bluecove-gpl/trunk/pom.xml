@@ -142,6 +142,7 @@
                             <goal>link</goal>
                         </goals>
                         <configuration>
+                            <javahOS>linux</javahOS>
                             <sources>
                                 <source>
                                     <directory>${native.source.dir}</directory>
@@ -163,7 +164,7 @@
                                 <!-- additional system include path -->
                                 <!--
                                 <source>
-                                    <directory>...</directory>
+                                    <directory></directory>
                                     <dependencyAnalysisParticipation>false</dependencyAnalysisParticipation>
                                 </source>
                                 -->
