@@ -1,7 +1,24 @@
-#include "BluetoothStackBlueZ.h"
-#include "DiscoveryListener.h"
+/**
+ * BlueCove BlueZ module - Java library for Bluetooth on Linux
+ *  Copyright (C) 2008 Mina Shokry
+ *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @version $Id$
+ */
 #include "BlueCoveBlueZ.h"
-#include "DataElement.h"
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
@@ -21,7 +38,7 @@ void populateServiceRecord(JNIEnv *env,jobject serviceRecord,sdp_record_t* sdpRe
 {
 	jclass serviceRecordImplClass=env->GetObjectClass(serviceRecord);
 	jmethodID populateAttributeValueID=env->GetMethodID(serviceRecordImplClass,"populateAttributeValue","(ILjavax/bluetooth/DataElement;)V");
-	
+
 	for(;attributeList;attributeList=attributeList->next)
 	{
 		jint attributeID=*(uint16_t*)attributeList->data;
@@ -53,7 +70,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 		case SDP_DATA_NIL:
 		{
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(I)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_NULL);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_NULL);
 			break;
 		}
 		//-----------------------------------------//
@@ -69,49 +86,49 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 		{
 			jlong value=(jlong)data->val.uint8;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(IJ)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_U_INT_1,value);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_U_INT_1,value);
 			break;
 		}
 		case SDP_UINT16:
 		{
 			jlong value=(jlong)data->val.uint16;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(IJ)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_U_INT_2,value);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_U_INT_2,value);
 			break;
 		}
 		case SDP_UINT32:
 		{
 			jlong value=(jlong)data->val.uint32;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(IJ)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_U_INT_4,value);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_U_INT_4,value);
 			break;
 		}
 		case SDP_INT8:
 		{
 			jlong value=(jlong)data->val.int8;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(IJ)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_INT_1,value);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_INT_1,value);
 			break;
 		}
 		case SDP_INT16:
 		{
 			jlong value=(jlong)data->val.int16;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(IJ)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_U_INT_2,value);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_U_INT_2,value);
 			break;
 		}
 		case SDP_INT32:
 		{
 			jlong value=(jlong)data->val.int32;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(IJ)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_INT_4,value);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_INT_4,value);
 			break;
 		}
 		case SDP_INT64:
 		{
 			jlong value=(jlong)data->val.int64;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(IJ)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_INT_8,value);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_INT_8,value);
 			break;
 		}
 		//-----------------------------------------//
@@ -123,7 +140,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 			jbyteArray byteArray=env->NewByteArray(sizeof(value));
 			env->SetByteArrayRegion(byteArray,0,sizeof(value),bytes);
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(ILjava/lang/Object;)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_U_INT_8,byteArray);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_U_INT_8,byteArray);
 			break;
 		}
 		case SDP_UINT128:
@@ -134,7 +151,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 			jbyteArray byteArray=env->NewByteArray(sizeof(value));
 			env->SetByteArrayRegion(byteArray,0,sizeof(value),bytes);
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(ILjava/lang/Object;)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_U_INT_16,byteArray);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_U_INT_16,byteArray);
 			break;
 		}
 		case SDP_INT128:
@@ -145,7 +162,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 			jbyteArray byteArray=env->NewByteArray(sizeof(value));
 			env->SetByteArrayRegion(byteArray,0,sizeof(value),bytes);
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(ILjava/lang/Object;)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_INT_16,byteArray);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_INT_16,byteArray);
 			break;
 		}
 		//-----------------------------------------//
@@ -172,7 +189,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 		{
 			jobject javaUUID=createJavaUUID(env,data->val.uuid);
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(ILjava/lang/Object;)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_UUID,javaUUID);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_UUID,javaUUID);
 			break;
 		}
 		//-----------------------------------------//
@@ -183,7 +200,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 		{
 			sdp_data_t *newData=data->val.dataseq;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(I)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_DATSEQ);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_DATSEQ);
 			jmethodID addElementID=env->GetMethodID(dataElementClass,"addElement","(Ljavax/bluetooth/DataElement;)V");
 			for(;newData;newData=newData->next)
 			{
@@ -199,7 +216,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 		{
 			sdp_data_t *newData=data->val.dataseq;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(I)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_DATALT);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_DATALT);
 			jmethodID addElementID=env->GetMethodID(dataElementClass,"addElement","(Ljavax/bluetooth/DataElement;)V");
 			for(;newData;newData=newData->next)
 			{
@@ -212,7 +229,7 @@ jobject createDataElement(JNIEnv *env,sdp_data_t *data)
 		{
 			cout<<"strange data type "<<(int)data->dtd<<endl;
 			constructorID=env->GetMethodID(dataElementClass,"<init>","(I)V");
-			dataElement=env->NewObject(dataElementClass,constructorID,javax_bluetooth_DataElement_NULL);
+			dataElement=env->NewObject(dataElementClass,constructorID,DATA_ELEMENT_TYPE_NULL);
 			break;
 		}
 	}

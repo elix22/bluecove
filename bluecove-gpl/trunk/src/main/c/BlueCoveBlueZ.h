@@ -1,4 +1,4 @@
-// 
+//
 // File:   BlueCoveBlueZ.h
 // Author: mina
 //
@@ -8,8 +8,9 @@
 #ifndef _BLUECOVEBLUEZ_H
 #define	_BLUECOVEBLUEZ_H
 
-#include "BluetoothStackBlueZ.h"
-#include "DiscoveryListener.h"
+#include "com_intel_bluetooth_BluetoothStackBlueZ.h"
+#include "com_intel_bluetooth_BluetoothStackBlueZConsts.h"
+//#include "DiscoveryListener.h"
 #include "BlueCoveBlueZ.h"
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
@@ -28,6 +29,34 @@ jobject createDataElement(JNIEnv* env,sdp_data_t* data);
 void reverseArray(jbyte* array,int length);
 uuid_t getUuidFromJavaUUID(JNIEnv *env,jobject javaUUID);
 jobject createJavaUUID(JNIEnv *env,uuid_t uuid);
+
+#define INQUIRY_COMPLETED com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_COMPLETED
+#define INQUIRY_TERMINATED com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_TERMINATED
+#define INQUIRY_ERROR com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_ERROR
+
+#define SERVICE_SEARCH_COMPLETED com_intel_bluetooth_BluetoothStackBlueZConsts_SERVICE_SEARCH_COMPLETED
+#define SERVICE_SEARCH_TERMINATED com_intel_bluetooth_BluetoothStackBlueZConsts_SERVICE_SEARCH_TERMINATED
+#define SERVICE_SEARCH_ERROR com_intel_bluetooth_BluetoothStackBlueZConsts_SERVICE_SEARCH_ERROR
+#define SERVICE_SEARCH_NO_RECORDS com_intel_bluetooth_BluetoothStackBlueZConsts_SERVICE_SEARCH_NO_RECORDS
+#define SERVICE_SEARCH_DEVICE_NOT_REACHABLE com_intel_bluetooth_BluetoothStackBlueZConsts_SERVICE_SEARCH_DEVICE_NOT_REACHABLE
+
+#define DATA_ELEMENT_TYPE_NULL com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_NULL
+#define DATA_ELEMENT_TYPE_U_INT_1 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_U_INT_1
+#define DATA_ELEMENT_TYPE_U_INT_2 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_U_INT_2
+#define DATA_ELEMENT_TYPE_U_INT_4 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_U_INT_4
+#define DATA_ELEMENT_TYPE_U_INT_8 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_U_INT_8
+#define DATA_ELEMENT_TYPE_U_INT_16 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_U_INT_16
+#define DATA_ELEMENT_TYPE_INT_1 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_1
+#define DATA_ELEMENT_TYPE_INT_2 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_2
+#define DATA_ELEMENT_TYPE_INT_4 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_4
+#define DATA_ELEMENT_TYPE_INT_8 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_8
+#define DATA_ELEMENT_TYPE_INT_16 com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_8
+#define DATA_ELEMENT_TYPE_URL com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_URL
+#define DATA_ELEMENT_TYPE_UUID com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_UUID
+#define DATA_ELEMENT_TYPE_BOOL com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_BOOL
+#define DATA_ELEMENT_TYPE_STRING com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_STRING
+#define DATA_ELEMENT_TYPE_DATSEQ com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_DATSEQ
+#define DATA_ELEMENT_TYPE_DATALT com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_DATALT
 
 #endif	/* _BLUECOVEBLUEZ_H */
 
