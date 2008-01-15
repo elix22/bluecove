@@ -1,0 +1,26 @@
+~~ @version $Revision$ ($Author$) $Date$
+~~ See this file format http://maven.apache.org/guides/mini/guide-apt-format.html
+
+                                    ------------------
+                                    BlueCove Linux module
+                                    ------------------
+
+BlueCove Linux module
+
+   BlueCove-gpl is additional module for BlueCove to support bluecove in Linux.
+This module distributed as different jar because of the License differences.
+
+  Compiled version of the native code (shared library) is included in distribution.
+
+   N.B. This is experimental module.
+
+* Usage
+
+---
+java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:yourApp.jar org.your.app.Main
+---
+
+* Legal
+
+  BlueCove-gpl is licensed under {{{http://www.gnu.org/licenses/gpl.html}GNU General Public License}}.
+
