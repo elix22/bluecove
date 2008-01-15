@@ -173,6 +173,7 @@
                                 <source>
                                     <directory>${native.source.dir}</directory>
                                     <fileNames>
+                                        <fileName>common.cc</fileName>
                                         <fileName>BlueCoveBlueZ.cc</fileName>
                                         <fileName>BlueCoveBlueZ_LocalDevice.cc</fileName>
                                         <fileName>BlueCoveBlueZ_Discovery.cc</fileName>

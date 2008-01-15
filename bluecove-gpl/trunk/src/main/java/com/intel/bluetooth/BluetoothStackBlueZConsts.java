@@ -22,6 +22,7 @@ package com.intel.bluetooth;
 
 import javax.bluetooth.DataElement;
 import javax.bluetooth.DiscoveryListener;
+import javax.bluetooth.BluetoothConnectionException;
 
 /**
  * @author vlads
@@ -80,4 +81,16 @@ abstract class BluetoothStackBlueZConsts {
 	static final int DataElement_DATSEQ = DataElement.DATSEQ;
 
 	static final int DataElement_DATALT = DataElement.DATALT;
+
+	static final int CONNECTION_ERROR_UNKNOWN_PSM = BluetoothConnectionException.UNKNOWN_PSM;
+
+	static final int CONNECTION_ERROR_SECURITY_BLOCK = BluetoothConnectionException.SECURITY_BLOCK;
+
+	static final int CONNECTION_ERROR_NO_RESOURCES = BluetoothConnectionException.NO_RESOURCES;
+
+	static final int CONNECTION_ERROR_FAILED_NOINFO = BluetoothConnectionException.FAILED_NOINFO;
+
+	static final int CONNECTION_ERROR_TIMEOUT = BluetoothConnectionException.TIMEOUT;
+
+	static final int CONNECTION_ERROR_UNACCEPTABLE_PARAMS = BluetoothConnectionException.UNACCEPTABLE_PARAMS;
 }
