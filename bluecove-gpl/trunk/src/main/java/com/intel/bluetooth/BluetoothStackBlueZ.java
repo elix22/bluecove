@@ -35,6 +35,8 @@ import javax.bluetooth.UUID;
 
 class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, SearchServicesRunnable {
 
+	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.nativeLibraryVersionExpected;
+
 	private int deviceID;
 
 	private int deviceDescriptor;
@@ -62,7 +64,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// Used mainly in Unit Tests
 	static {
-		NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_BLUEZ);
+		NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_BLUEZ, BluetoothStackBlueZ.class);
 	}
 
 	BluetoothStackBlueZ() {
@@ -74,8 +76,14 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return BlueCoveImpl.STACK_BLUEZ;
 	}
 
-	public int getLibraryVersion() {
-		return 2000200;
+	public native int getLibraryVersionNative();
+
+	public int getLibraryVersion() throws BluetoothStateException {
+		int version = getLibraryVersionNative();
+		if (version != NATIVE_LIBRARY_VERSION) {
+			throw new BluetoothStateException("BlueCove native library version mismatch");
+		}
+		return version;
 	}
 
 	public int detectBluetoothStack() {

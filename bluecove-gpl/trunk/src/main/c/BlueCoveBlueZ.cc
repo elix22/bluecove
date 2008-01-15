@@ -29,6 +29,11 @@
 #include <iostream>
 using namespace std;
 
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLibraryVersionNative
+  (JNIEnv *, jobject) {
+    return com_intel_bluetooth_BluetoothStackBlueZ_NATIVE_LIBRARY_VERSION;
+}
+
 int deviceClassBytesToInt(uint8_t* deviceClass)
 {
 	return ((deviceClass[2] & 0xff)<<16)|((deviceClass[1] & 0xff)<<8)|(deviceClass[0] & 0xff);
