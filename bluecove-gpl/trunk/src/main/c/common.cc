@@ -19,7 +19,7 @@
  * Author: vlads
  * Created on Java 15, 2008, extracted from bluecove code
  *
- * @version $Id: BlueCoveBlueZ_Discovery.cc 1525 2008-01-14 22:18:27Z skarzhevskyy $
+ * @version $Id$
  */
 
 #include "common.h"
