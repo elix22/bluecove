@@ -1,0 +1,26 @@
+ @version $Revision$ ($Author$) $Date$
+
+* Build
+
+   The project is a module for bluecove project.
+
+   We are using maven2 to download main bluecove.jar and build this project.
+
+   To create Eclipse projects run:
+     mvn eclipse:clean eclipse:eclipse -DdownloadSources=true
+
+   To run build without tests:
+     mvn -Dmaven.test.skip=true
+
+   To run build without building native code:
+     mvn -Dnative.build.skip=true
+
+* Native Library Compilation Requirements
+
+    - GCC compiler (4.1 or newer)
+    - Java SE Development Kit 1.4 or newer
+    - Linux Bluetooth protocol stack (BlueZ)
+    - Development librararies for Bluetooth applications (package bluez-libs-devel 3.9 or newer)
+    - GNU autotools (autoconf 2.61 or newer)
+
+    The native library are build during maven build.
