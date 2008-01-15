@@ -170,7 +170,7 @@
                                 -->
                             </sources>
                             <linkerStartOptions>
-                                <linkerStartOption>-shared</linkerStartOption>
+                                <linkerStartOption>-shared -lbluetooth -lstdc++</linkerStartOption>
                             </linkerStartOptions>
                         </configuration>
                     </execution>
