@@ -28,6 +28,13 @@
         </dependency>
 
         <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove-gpl</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.microemu</groupId>
             <artifactId>microemulator</artifactId>
             <version>${me2Version}</version>
@@ -127,7 +134,7 @@
                     <appendClassifier>false</appendClassifier>
                     <jarfile>${mainjarname}</jarfile>
                     <jadfile>${mainjarname}</jadfile>
-                    <!--proguardInclude>${basedir}/proguard.conf</proguardInclude-->
+                   <!--proguardInclude>${basedir}/proguard.conf</proguardInclude-->
                     <proguardInclude></proguardInclude>
                     <proguardOptions>
                         <options>
@@ -168,6 +175,11 @@
                             <groupId>net.sf.bluecove</groupId>
                             <artifactId>bluecove</artifactId>
                             <filter>!javax/microedition/io/**,!com/intel/bluetooth/**</filter>
+                        </dependency>
+                        <dependency>
+                            <groupId>net.sf.bluecove</groupId>
+                            <artifactId>bluecove-gpl</artifactId>
+                            <exclude>true</exclude>
                         </dependency>
                         <dependency>
                             <groupId>com.pyx4me</groupId>
