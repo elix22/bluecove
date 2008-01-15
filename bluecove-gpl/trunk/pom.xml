@@ -40,11 +40,37 @@
 		<url>http://code.google.com/p/bluecove/issues/list</url>
 	</issueManagement>
 
+    <mailingLists>
+        <mailingList>
+            <name>bluecove-users</name>
+            <post>bluecove-users@googlegroups.com</post>
+            <archive>http://groups.google.com/group/bluecove-users</archive>
+        </mailingList>
+        <mailingList>
+            <name>bluecove-developers</name>
+            <post>bluecove-developers@googlegroups.com</post>
+            <archive>http://groups.google.com/group/bluecove-developers</archive>
+        </mailingList>
+    </mailingLists>
+
+    <ciManagement>
+        <system>Cruisecontrol</system>
+        <url>https://pyx4j.com/cruisecontrol/</url>
+    </ciManagement>
+
     <distributionManagement>
         <site>
             <id>test-pyx4j-site</id>
             <url>file:///home/apache/bluecove/bluecove-gpl</url>
         </site>
+        <repository>
+            <id>pyx4j.com-file-release</id>
+            <url>file:///home/apache/pyx4j/maven2-release</url>
+        </repository>
+        <snapshotRepository>
+            <id>pyx4j.com-file-development</id>
+            <url>file:///home/apache/pyx4j/maven2</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <repositories>
@@ -55,7 +81,7 @@
                 <enabled>true</enabled>
             </snapshots>
             <releases>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </releases>
         </repository>
     </repositories>
