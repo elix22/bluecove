@@ -32,7 +32,56 @@ const char* cBluetoothStateException = "javax/bluetooth/BluetoothStateException"
 const char* cBluetoothConnectionException = "javax/bluetooth/BluetoothConnectionException";
 const char* cServiceRegistrationException = "javax/bluetooth/ServiceRegistrationException";
 
-// Error handling
+// --- Debug
+
+bool nativeDebugCallbackEnabled = false;
+static jclass nativeDebugListenerClass;
+static jmethodID nativeDebugMethod = NULL;
+
+void enableNativeDebug(JNIEnv *env, jobject loggerClass, jboolean on) {
+	if (on) {
+		if (nativeDebugCallbackEnabled) {
+			return;
+		}
+		nativeDebugListenerClass = (jclass)env->NewGlobalRef(loggerClass);
+		if (nativeDebugListenerClass != NULL) {
+			nativeDebugMethod = env->GetStaticMethodID(nativeDebugListenerClass, "nativeDebugCallback", "(Ljava/lang/String;ILjava/lang/String;)V");
+			if (nativeDebugMethod != NULL) {
+				nativeDebugCallbackEnabled = true;
+				debug("nativeDebugCallback ON");
+			}
+		}
+	} else {
+		nativeDebugCallbackEnabled = false;
+	}
+}
+
+void callDebugListener(JNIEnv *env, const char* fileName, int lineN, const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	{
+		if ((env != NULL) && (nativeDebugCallbackEnabled)) {
+			char msg[1064];
+			vsnprintf(msg, 1064, fmt, ap);
+			env->CallStaticVoidMethod(nativeDebugListenerClass, nativeDebugMethod, env->NewStringUTF(fileName), lineN, env->NewStringUTF(msg));
+		}
+	}
+	va_end(ap);
+}
+
+void ndebug(const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	if (nativeDebugCallbackEnabled) {
+	    fprintf(stdout, "NATIVE:");
+        vfprintf(stdout, fmt, ap);
+        fprintf(stdout, "\n");
+        fflush(stdout);
+    }
+    va_end(ap);
+}
+
+// --- Error handling
 
 void vthrowException(JNIEnv *env, const char *name, const char *fmt, va_list ap) {
 	char msg[1064];
@@ -41,7 +90,7 @@ void vthrowException(JNIEnv *env, const char *name, const char *fmt, va_list ap)
 		return;
 	}
 	if (env->ExceptionCheck()) {
-		//debugss("ERROR: can't throw second exception %s(%s)", name, msg);
+		debug("ERROR: can't throw second exception %s(%s)", name, msg);
 		return;
 	}
 	jclass cls = env->FindClass(name);
@@ -51,7 +100,7 @@ void vthrowException(JNIEnv *env, const char *name, const char *fmt, va_list ap)
         /* free the local ref */
         env->DeleteLocalRef(cls);
 	} else {
-	    //debugs("Can't find Exception %s", name);
+	    debug("Can't find Exception %s", name);
 		env->FatalError(name);
 	}
 
@@ -103,7 +152,7 @@ void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, 
 		return;
 	}
 	if (env->ExceptionCheck()) {
-		//debugss("ERROR: can't throw second exception %s(%s)", cBluetoothConnectionException, msg);
+		debug("ERROR: can't throw second exception %s(%s)", cBluetoothConnectionException, msg);
 		va_end(ap);
 		return;
 	}
@@ -131,7 +180,7 @@ void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, 
 	va_end(ap);
 }
 
-// Interaction with java classes
+// --- Interaction with java classes
 
 bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer) {
 	jclass peerClass = env->GetObjectClass(peer);

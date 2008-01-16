@@ -27,6 +27,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDev
 (JNIEnv *env, jobject thisObject) {
 	int dev_id = hci_get_route(NULL);
 	if (dev_id < 0) {
+	    debug("hci_get_route : %i", dev_id);
 	    throwBluetoothStateException(env, "Bluetooth Device is not available");
 	    return 0;
 	} else {
@@ -38,6 +39,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeOpenDe
 (JNIEnv *env, jobject thisObject, jint deviceID) {
 	int deviceDescriptor = hci_open_dev(deviceID);
 	if (deviceDescriptor < 0) {
+	    debug("hci_open_dev : %i", deviceDescriptor);
 		throwBluetoothStateException(env, "HCI device open failed");
 		return 0;
 	}

@@ -27,7 +27,19 @@
 
 #include <jni.h>
 
-// Error handling
+// --- Debug
+
+void enableNativeDebug(JNIEnv * env, jobject loggerClass, jboolean on);
+
+void callDebugListener(JNIEnv *env, const char* fileName, int lineN, const char *fmt, ...);
+
+// This can be used in JNI functions. The message would be sent to java code
+#define debug(...) callDebugListener(env, __FILE__, __LINE__, __VA_ARGS__);
+
+// This will use stdout and can be used in native function callbacks
+void ndebug(const char *fmt, ...);
+
+// --- Error handling
 
 void throwException(JNIEnv *env, const char *name, const char *fmt, ...);
 
@@ -41,7 +53,7 @@ void throwBluetoothStateException(JNIEnv *env, const char *fmt, ...);
 
 void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, ...);
 
-// Interaction with java classes
+// --- Interaction with java classes
 
 bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer);
 

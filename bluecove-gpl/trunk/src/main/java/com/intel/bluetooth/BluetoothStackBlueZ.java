@@ -94,9 +94,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		nativeCloseDevice(deviceDescriptor);
 	}
 
-	public void enableNativeDebug(Class nativeDebugCallback, boolean on) {
-		// I need more details on what this method should exactly do.
-	}
+	public native void enableNativeDebug(Class nativeDebugCallback, boolean on);
 
 	/*
 	 * (non-Javadoc)
