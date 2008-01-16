@@ -34,9 +34,23 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLibraryVe
     return com_intel_bluetooth_BluetoothStackBlueZ_NATIVE_LIBRARY_VERSION;
 }
 
-int deviceClassBytesToInt(uint8_t* deviceClass)
-{
+int deviceClassBytesToInt(uint8_t* deviceClass) {
 	return ((deviceClass[2] & 0xff)<<16)|((deviceClass[1] & 0xff)<<8)|(deviceClass[0] & 0xff);
+}
+
+jlong deviceAddrToLong(bdaddr_t* address) {
+	jlong addressLong = 0;
+	for (int i = sizeof(address->b) - 1; i >= 0; i--) {
+	    addressLong = (addressLong << 8) | address->b[i];
+	}
+	return addressLong;
+}
+
+void longToDeviceAddr(jlong addr, bdaddr_t* address) {
+	for(int i = 0; i < sizeof(address->b); i++) {
+	    address->b[i] = (uint8_t)(addr & 0xFF);
+	    addr >>= 8;
+	}
 }
 
 void populateServiceRecord(JNIEnv *env,jobject serviceRecord,sdp_record_t* sdpRecord,sdp_list_t* attributeList)

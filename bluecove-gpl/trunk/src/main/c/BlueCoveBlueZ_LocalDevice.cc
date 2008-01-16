@@ -95,23 +95,3 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetLoc
 	return (lap[0] & 0xff) | ((lap[1] & 0xff) << 8) | ((lap[2] & 0xff) << 16);
 }
 
-JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetRemoteDeviceName(JNIEnv *env, jobject thisObject, jint dd, jstring addressString)
-{
-	jboolean copy=JNI_FALSE;
-	const char* addressChars=env->GetStringUTFChars(addressString,&copy);
-	bdaddr_t address;
-	str2ba(addressChars,&address);
-	char name[DEVICE_NAME_MAX_SIZE];
-	int error=hci_read_remote_name(dd,&address,sizeof(name),name,TIMEOUT);
-	if(error<0)
-	{
-		char message[]="Can not get remote device name with address ";
-		char* messageWithAddress=new char[sizeof(message)+17];
-		strcpy(messageWithAddress,message);
-		strcat(messageWithAddress,addressChars);
-		env->ThrowNew(env->FindClass("java/io/IOException"),messageWithAddress);
-//		delete[] message;
-		return NULL;
-	}
-	return env->NewStringUTF(name);
-}

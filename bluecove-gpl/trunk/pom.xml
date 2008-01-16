@@ -198,6 +198,8 @@
                             </sources>
                             <linkerStartOptions>
                                 <linkerStartOption>-shared -lbluetooth -lstdc++</linkerStartOption>
+                                <!--linkerStartOption>-static-libgcc</linkerStartOption-->
+                                <linkerStartOption>-nodefaultlibs</linkerStartOption>
                             </linkerStartOptions>
                         </configuration>
                     </execution>

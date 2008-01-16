@@ -41,6 +41,9 @@ const int DEVICE_NAME_MAX_SIZE=248;
 
 int deviceClassBytesToInt(uint8_t* deviceClass);
 
+jlong deviceAddrToLong(bdaddr_t* address);
+void longToDeviceAddr(jlong addr, bdaddr_t* address);
+
 void populateServiceRecord(JNIEnv* env,jobject serviceRecrod,sdp_record_t* sdpRecord,sdp_list_t* attributeList);
 jobject createDataElement(JNIEnv* env,sdp_data_t* data);
 void reverseArray(jbyte* array,int length);

@@ -21,10 +21,10 @@
 package com.intel.bluetooth;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
+
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryListener;
@@ -45,22 +45,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private DiscoveryListener discoveryListener;
 
-	private Vector/* <ReportedDevice> */discoveredDevices;
+	private Vector/* <RemoteDevice> */discoveredDevices;
 
-	private boolean inquiryCanceled = false;
-
-	private static class ReportedDevice {
-		RemoteDevice remoteDevice;
-
-		DeviceClass deviceClass;
-	}
-
-	ReportedDevice createReportedDevice(String deviceName, long address, int deviceClassRecord) {
-		ReportedDevice reportedDevice = new ReportedDevice();
-		reportedDevice.remoteDevice = RemoteDeviceHelper.createRemoteDevice(this, address, deviceName, false);
-		reportedDevice.deviceClass = new DeviceClass(deviceClassRecord);
-		return reportedDevice;
-	}
+	private boolean deviceInquiryCanceled = false;
 
 	// Used mainly in Unit Tests
 	static {
@@ -178,17 +165,6 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return true;
 	}
 
-	private native String nativeGetRemoteDeviceName(int deviceDescriptor, String address) throws IOException;
-
-	public String getRemoteDeviceFriendlyName(long address) throws IOException {
-		String addressLong = Long.toHexString(address).toUpperCase();
-		StringBuffer addressStringBuffer = new StringBuffer("000000000000".substring(addressLong.length())
-				+ addressLong);
-		for (int i = 2; i < addressStringBuffer.length() - 1; i += 2)
-			addressStringBuffer.insert(i++, ":");
-		return nativeGetRemoteDeviceName(deviceDescriptor, addressStringBuffer.toString());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -201,34 +177,27 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	// --- Device Inquiry
 
 	public boolean startInquiry(int accessCode, DiscoveryListener listener) throws BluetoothStateException {
-		if (discoveryListener != null)
+		if (discoveryListener != null) {
 			throw new BluetoothStateException("Another inquiry already running");
+		}
 		discoveryListener = listener;
-		discoveredDevices = new Vector/* <ReportedDevice> */();
+		discoveredDevices = new Vector();
+		deviceInquiryCanceled = false;
 		return DeviceInquiryThread.startInquiry(this, accessCode, listener);
 	}
 
-	private native int nativeRunDeviceInquiry(int deviceID, int deviceDescriptor, int len, int accessCode,
-			Vector/* <ReportedDevice> */discoveredDevices);
+	private native int runDeviceInquiryImpl(DeviceInquiryThread startedNotify, int deviceID, int deviceDescriptor,
+			int accessCode, int inquiryLength, int maxResponses, DiscoveryListener listener)
+			throws BluetoothStateException;
 
 	public int runDeviceInquiry(DeviceInquiryThread startedNotify, int accessCode, DiscoveryListener listener)
 			throws BluetoothStateException {
 		try {
-			startedNotify.deviceInquiryStartedCallback();
-			int discType = nativeRunDeviceInquiry(deviceID, deviceDescriptor, 8, accessCode, discoveredDevices);
-			if (inquiryCanceled) {
-				discType = DiscoveryListener.INQUIRY_TERMINATED;
-				inquiryCanceled = false;
-			} else if (discType == DiscoveryListener.INQUIRY_COMPLETED) {
-				for (Enumeration en = discoveredDevices.elements(); en.hasMoreElements();) {
-					ReportedDevice device = (ReportedDevice) en.nextElement();
-					listener.deviceDiscovered(device.remoteDevice, device.deviceClass);
-				}
+			int discType = runDeviceInquiryImpl(startedNotify, deviceID, deviceDescriptor, accessCode, 8, 20, listener);
+			if (deviceInquiryCanceled) {
+				return DiscoveryListener.INQUIRY_TERMINATED;
 			}
 			return discType;
-		} catch (Exception e) {
-			// e.printStackTrace();
-			return DiscoveryListener.INQUIRY_ERROR;
 		} finally {
 			discoveryListener = null;
 			discoveredDevices = null;
@@ -237,20 +206,32 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public void deviceDiscoveredCallback(DiscoveryListener listener, long deviceAddr, int deviceClass,
 			String deviceName, boolean paired) {
-		throw new UnsupportedOperationException("deviceDiscoveredCallback : Not Implemented...");
+		RemoteDevice remoteDevice = RemoteDeviceHelper.createRemoteDevice(this, deviceAddr, deviceName, paired);
+		if (deviceInquiryCanceled || (discoveryListener == null) || (discoveredDevices == null)
+				|| (discoveredDevices.contains(remoteDevice))) {
+			return;
+		}
+		discoveredDevices.addElement(remoteDevice);
+		DeviceClass cod = new DeviceClass(deviceClass);
+		DebugLog.debug("deviceDiscoveredCallback address", remoteDevice.getBluetoothAddress());
+		DebugLog.debug("deviceDiscoveredCallback deviceClass", cod);
+		listener.deviceDiscovered(remoteDevice, cod);
 	}
+
+	private native boolean deviceInquiryCancelImpl(int deviceDescriptor);
 
 	public boolean cancelInquiry(DiscoveryListener listener) {
 		if (discoveryListener != null && discoveryListener == listener) {
-			try {
-				Runtime runtime = Runtime.getRuntime();
-				runtime.exec("hcitool cmd 0x01 0x0002");
-				return inquiryCanceled = true;
-			} catch (IOException ex) {
-				return false;
-			}
+			deviceInquiryCanceled = true;
+			return deviceInquiryCancelImpl(deviceDescriptor);
 		}
 		return false;
+	}
+
+	private native String getRemoteDeviceFriendlyNameImpl(int deviceDescriptor, long remoteAddress) throws IOException;
+
+	public String getRemoteDeviceFriendlyName(long address) throws IOException {
+		return getRemoteDeviceFriendlyNameImpl(deviceDescriptor, address);
 	}
 
 	// --- Service search
