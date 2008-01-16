@@ -127,6 +127,13 @@ void throwIOException(JNIEnv *env, const char *fmt, ...) {
 	va_end(ap);
 }
 
+void throwInterruptedIOException(JNIEnv *env, const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	vthrowException(env, cInterruptedIOException, fmt, ap);
+	va_end(ap);
+}
+
 void throwServiceRegistrationException(JNIEnv *env, const char *fmt, ...) {
     va_list ap;
 	va_start(ap, fmt);
@@ -195,7 +202,7 @@ bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer) {
 		return true;
 	}
 	if (env->CallBooleanMethod(peer, aMethod)) {
-		throwException(env, cInterruptedIOException, "thread interrupted");
+		throwInterruptedIOException(env, "thread interrupted");
 		return true;
 	}
 	return env->ExceptionCheck();

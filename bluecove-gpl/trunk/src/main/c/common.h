@@ -42,15 +42,11 @@ void ndebug(const char *fmt, ...);
 // --- Error handling
 
 void throwException(JNIEnv *env, const char *name, const char *fmt, ...);
-
 void throwRuntimeException(JNIEnv *env, const char *fmt, ...);
-
 void throwIOException(JNIEnv *env, const char *fmt, ...);
-
+void throwInterruptedIOException(JNIEnv *env, const char *fmt, ...);
 void throwServiceRegistrationException(JNIEnv *env, const char *fmt, ...);
-
 void throwBluetoothStateException(JNIEnv *env, const char *fmt, ...);
-
 void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, ...);
 
 // --- Interaction with java classes
