@@ -85,10 +85,10 @@ void ndebug(const char *fmt, ...) {
 
 void vthrowException(JNIEnv *env, const char *name, const char *fmt, va_list ap) {
 	char msg[1064];
-	vsnprintf(msg, 1064, fmt, ap);
     if (env == NULL) {
 		return;
 	}
+    vsnprintf(msg, 1064, fmt, ap);
 	if (env->ExceptionCheck()) {
 		debug("ERROR: can't throw second exception %s(%s)", name, msg);
 		return;
@@ -144,13 +144,14 @@ void throwBluetoothStateException(JNIEnv *env, const char *fmt, ...) {
 void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, ...) {
     va_list ap;
 	va_start(ap, fmt);
-	char msg[1064];
-	vsnprintf(msg, 1064, fmt, ap);
 
+	char msg[1064];
 	if (env == NULL) {
 	    va_end(ap);
 		return;
 	}
+	vsnprintf(msg, 1064, fmt, ap);
+
 	if (env->ExceptionCheck()) {
 		debug("ERROR: can't throw second exception %s(%s)", cBluetoothConnectionException, msg);
 		va_end(ap);
