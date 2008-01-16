@@ -57,7 +57,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	BluetoothStackBlueZ() {
 	}
 
-	// ---------------------- Library initialization ----------------------
+	// --- Library initialization
 
 	public String getStackID() {
 		return BlueCoveImpl.STACK_BLUEZ;
@@ -74,14 +74,14 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	}
 
 	public int detectBluetoothStack() {
-		return 1 << 5;
+		return BlueCoveImpl.BLUECOVE_STACK_DETECT_BLUEZ;
 	}
 
-	private native int nativeGetDeviceID();
+	private native int nativeGetDeviceID() throws BluetoothStateException;
 
-	private native int nativeOpenDevice(int deviceID);
+	private native int nativeOpenDevice(int deviceID) throws BluetoothStateException;
 
-	public void initialize() {
+	public void initialize() throws BluetoothStateException {
 		deviceID = nativeGetDeviceID();
 		deviceDescriptor = nativeOpenDevice(deviceID);
 		propertiesMap = new TreeMap/* <String,String> */();
@@ -116,23 +116,22 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return FEATURE_SERVICE_ATTRIBUTES | FEATURE_L2CAP;
 	}
 
-	// ---------------------- LocalDevice ----------------------
+	// --- LocalDevice
 
-	private native String nativeGetDeviceBluetoothAddress(int deviceDescriptor);
+	private native long getLocalDeviceBluetoothAddressImpl(int deviceDescriptor) throws BluetoothStateException;
 
 	public String getLocalDeviceBluetoothAddress() throws BluetoothStateException {
-		String address = nativeGetDeviceBluetoothAddress(deviceDescriptor);
-		StringBuffer addressStringBuffer = new StringBuffer(address);
-		int index;
-		while ((index = addressStringBuffer.indexOf(":")) != -1)
-			addressStringBuffer.delete(index, index + 1);
-		return addressStringBuffer.toString();
+		return RemoteDeviceHelper.getBluetoothAddress(getLocalDeviceBluetoothAddressImpl(deviceDescriptor));
 	}
 
 	private native int nativeGetDeviceClass(int deviceDescriptor);
 
 	public DeviceClass getLocalDeviceClass() {
 		int record = nativeGetDeviceClass(deviceDescriptor);
+		if (record == 0xff000000) {
+			// could not be determined
+			return null;
+		}
 		return new DeviceClass(record);
 	}
 
@@ -143,7 +142,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	}
 
 	public boolean isLocalDevicePowerOn() {
-		return (deviceDescriptor = nativeOpenDevice(deviceID)) >= 0;
+		// Have no idea how turn on and off device on BlueZ, as well to how to
+		// detect this condition.
+		return true;
 	}
 
 	public String getLocalDeviceProperty(String property) {
@@ -160,8 +161,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public boolean setLocalDeviceDiscoverable(int mode) throws BluetoothStateException {
 		int error = nativeSetLocalDeviceDiscoverable(deviceDescriptor, mode);
-		if (error != 0)
+		if (error != 0) {
 			throw new BluetoothStateException("Unable to change discovery mode. It may be because you aren't root");
+		}
 		return true;
 	}
 

@@ -23,73 +23,86 @@
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceID(JNIEnv *env, jobject thisObject)
-{
-	return hci_get_route(NULL);
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceID
+(JNIEnv *env, jobject thisObject) {
+	int dev_id = hci_get_route(NULL);
+	if (dev_id < 0) {
+	    throwBluetoothStateException(env, "Bluetooth Device is not available");
+	    return 0;
+	} else {
+	    return dev_id;
+    }
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeOpenDevice(JNIEnv *env, jobject thisObject, jint deviceID)
-{
-	return hci_open_dev(deviceID);
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeOpenDevice
+(JNIEnv *env, jobject thisObject, jint deviceID) {
+	int deviceDescriptor = hci_open_dev(deviceID);
+	if (deviceDescriptor < 0) {
+		throwBluetoothStateException(env, "HCI device open failed");
+		return 0;
+	}
+	return deviceDescriptor;
 }
 
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeCloseDevice(JNIEnv *env, jobject thisObject, jint dd)
-{
-	hci_close_dev(dd);
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeCloseDevice
+(JNIEnv *env, jobject thisObject, jint deviceDescriptor) {
+	hci_close_dev(deviceDescriptor);
 }
 
-JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceBluetoothAddress(JNIEnv *env, jobject thisObject, jint dd)
-{
-	char* addressChars=new char[17];
+JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLocalDeviceBluetoothAddressImpl
+(JNIEnv *env, jobject, jint deviceDescriptor) {
 	bdaddr_t address;
-	int error=hci_read_bd_addr(dd,&address,TIMEOUT);
-	ba2str(&address,addressChars);
-	jstring addressString=env->NewStringUTF(addressChars);
-	delete[] addressChars;
-	return addressString;
+	int error = hci_read_bd_addr(deviceDescriptor, &address, TIMEOUT);
+	if (error != 0) {
+	    switch (error) {
+        case HCI_HARDWARE_FAILURE:
+            throwBluetoothStateException(env, "Bluetooth Device is not available");
+	    default:
+	        throwBluetoothStateException(env, "Bluetooth Device is not ready. %d", error);
+        }
+	    return 0;
+	}
+	return deviceAddrToLong(&address);
 }
 
-JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceName(JNIEnv *env, jobject thisObject, jint dd)
-{
-	char* name=new char[DEVICE_NAME_MAX_SIZE];
-	jstring nameString=NULL;
-	if(!hci_local_name(dd,100,name,TIMEOUT))
-		nameString=env->NewStringUTF(name);
+JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceName
+(JNIEnv *env, jobject thisObject, jint deviceDescriptor) {
+	char* name = new char[DEVICE_NAME_MAX_SIZE];
+	jstring nameString = NULL;
+	if (!hci_local_name(deviceDescriptor, 100, name, TIMEOUT)) {
+		nameString = env->NewStringUTF(name);
+	}
 	delete[] name;
 	return nameString;
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceClass(JNIEnv *env, jobject thisObject, jint dd)
-{
-//	I am not 100% sure this implementation is correct but I believe it is.
-//	it works with me.
-//	the used test is to retrieve the local device class and then discover my device from another device
-//	and compare the device class got from both.
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceClass
+(JNIEnv *env, jobject thisObject, jint deviceDescriptor) {
 	uint8_t deviceClass[3];
-	int record=0;
-	if(!hci_read_class_of_dev(dd,deviceClass,TIMEOUT))
-		record=deviceClassBytesToInt(deviceClass);
-	return record;
+	if (!hci_read_class_of_dev(deviceDescriptor, deviceClass, TIMEOUT)) {
+		return deviceClassBytesToInt(deviceClass);
+	} else {
+	    return 0xff000000;
+	}
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeSetLocalDeviceDiscoverable(JNIEnv *env, jobject thisObject, jint dd, jint mode)
-{
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeSetLocalDeviceDiscoverable
+(JNIEnv *env, jobject thisObject, jint deviceDescriptor, jint mode) {
 	uint8_t lap[3];
-	lap[0]=mode & 0xff;
-	lap[1]=(mode & 0xff00)>>8;
-	lap[2]=(mode & 0xff0000)>>16;
-	return hci_write_current_iac_lap(dd,1,lap,TIMEOUT);
+	lap[0] = mode & 0xff;
+	lap[1] = (mode & 0xff00)>>8;
+	lap[2] = (mode & 0xff0000)>>16;
+	return hci_write_current_iac_lap(deviceDescriptor, 1, lap, TIMEOUT);
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetLocalDeviceDiscoverable(JNIEnv *env, jobject thisObject, jint dd)
-{
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetLocalDeviceDiscoverable
+(JNIEnv *env, jobject thisObject, jint deviceDescriptor) {
 	uint8_t lap[3];
 	uint8_t num_iac;
-	int error=hci_read_current_iac_lap(dd,&num_iac,lap,TIMEOUT);
-	if(error<0 || num_iac>1)
-//	I don't know why to check for num_iac to be less than or equal to one but avetana to this.
-	{
-		env->ThrowNew(env->FindClass("java/lang/RuntimeException"),"Unable to retrieve the local discovery mode. It may be because you are not root");
+	int error = hci_read_current_iac_lap(deviceDescriptor,&num_iac,lap,TIMEOUT);
+    //M.S.	I don't know why to check for num_iac to be less than or equal to one but avetana to this.
+	if ((error < 0) || (num_iac > 1)) {
+		throwRuntimeException(env, "Unable to retrieve the local discovery mode. It may be because you are not root");
 		return 0;
 	}
 	return (lap[0] & 0xff) | ((lap[1] & 0xff) << 8) | ((lap[2] & 0xff) << 16);
