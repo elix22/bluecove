@@ -18,3 +18,4 @@
  *
  * @version $Id$
  */
+#define CPP__FILE "BlueCoveBlueZ_L2CAP.cc"

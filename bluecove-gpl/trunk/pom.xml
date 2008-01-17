@@ -207,8 +207,9 @@
                                 -->
                             </sources>
                             <linkerStartOptions>
-                                <linkerStartOption>-shared -lbluetooth -lstdc++</linkerStartOption>
-                                <!--linkerStartOption>-static-libgcc</linkerStartOption-->
+                                <linkerStartOption>-shared</linkerStartOption>
+                                <linkerStartOption>-lbluetooth</linkerStartOption>
+                                <linkerStartOption>-lstdc++</linkerStartOption>
                                 <linkerStartOption>-nodefaultlibs</linkerStartOption>
                             </linkerStartOptions>
                         </configuration>

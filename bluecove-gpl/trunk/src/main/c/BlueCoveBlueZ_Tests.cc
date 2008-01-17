@@ -18,8 +18,9 @@
  *
  * @version $Id$
  */
-#include "BlueCoveBlueZ.h"
+#define CPP__FILE "BlueCoveBlueZ_Tests.cc"
 
+#include "BlueCoveBlueZ.h"
 #include "com_intel_bluetooth_BluetoothStackBlueZNativeTests.h"
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_testThrowException

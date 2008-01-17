@@ -31,24 +31,25 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 #include <jni.h>
+#include <malloc.h>
 
 #include "com_intel_bluetooth_BluetoothStackBlueZ.h"
 #include "com_intel_bluetooth_BluetoothStackBlueZConsts.h"
 #include "common.h"
 
-const int TIMEOUT=5000;
-const int DEVICE_NAME_MAX_SIZE=248;
+const int LOCALDEVICE_ACCESS_TIMEOUT = 5000;
+const int READ_REMOTE_NAME_TIMEOUT = 5000;
+const int DEVICE_NAME_MAX_SIZE = 248;
 
 int deviceClassBytesToInt(uint8_t* deviceClass);
 
 jlong deviceAddrToLong(bdaddr_t* address);
 void longToDeviceAddr(jlong addr, bdaddr_t* address);
 
-void populateServiceRecord(JNIEnv* env,jobject serviceRecrod,sdp_record_t* sdpRecord,sdp_list_t* attributeList);
-jobject createDataElement(JNIEnv* env,sdp_data_t* data);
 void reverseArray(jbyte* array,int length);
-uuid_t getUuidFromJavaUUID(JNIEnv *env,jobject javaUUID);
-jobject createJavaUUID(JNIEnv *env,uuid_t uuid);
+
+void convertUUIDByteArryaToUUID(JNIEnv *env, jbyteArray byteArray, uuid_t* uuid);
+void convertUUIDBytesToUUID(jbyte *bytes, uuid_t* uuid);
 
 #define INQUIRY_COMPLETED  com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_COMPLETED
 #define INQUIRY_TERMINATED com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_TERMINATED

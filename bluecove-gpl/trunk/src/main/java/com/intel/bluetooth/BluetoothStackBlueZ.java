@@ -45,6 +45,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private DiscoveryListener discoveryListener;
 
+	// Prevent the device from been discovered twice
 	private Vector/* <RemoteDevice> */discoveredDevices;
 
 	private boolean deviceInquiryCanceled = false;
@@ -236,14 +237,41 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// --- Service search
 
-	private native long[] nativeSearchServices(UUID[] uuids, long remoteDeviceAddress) throws SearchServicesException;
+	public int searchServices(int[] attrSet, UUID[] uuidSet, RemoteDevice device, DiscoveryListener listener)
+			throws BluetoothStateException {
+		return SearchServicesThread.startSearchServices(this, attrSet, uuidSet, device, listener);
+	}
 
-	public int runSearchServices(SearchServicesThread startedNotify, int[] attrSet, UUID[] uuidSet,
-			RemoteDevice device, DiscoveryListener listener) throws BluetoothStateException {
-		startedNotify.searchServicesStartedCallback();
-		long[] handles;
+	private native int runSearchServicesImpl(SearchServicesThread sst, byte[][] uuidValues, long remoteDeviceAddress)
+			throws SearchServicesException;
+
+	public int runSearchServices(SearchServicesThread sst, int[] attrSet, UUID[] uuidSet, RemoteDevice device,
+			DiscoveryListener listener) throws BluetoothStateException {
+		sst.searchServicesStartedCallback();
 		try {
-			handles = nativeSearchServices(uuidSet, RemoteDeviceHelper.getAddress(device));
+			byte[][] uuidValues = new byte[uuidSet.length][];
+			for (int i = 0; i < uuidSet.length; i++) {
+				uuidValues[i] = Utils.UUIDToByteArray(uuidSet[i]);
+			}
+			int respCode = runSearchServicesImpl(sst, uuidValues, RemoteDeviceHelper.getAddress(device));
+			if ((respCode != DiscoveryListener.SERVICE_SEARCH_ERROR) && (sst.isTerminated())) {
+				return DiscoveryListener.SERVICE_SEARCH_TERMINATED;
+			} else if (respCode == DiscoveryListener.SERVICE_SEARCH_COMPLETED) {
+				Vector records = sst.getServicesRecords();
+				if (records.size() != 0) {
+					DebugLog.debug("SearchServices finished", sst.getTransID());
+					ServiceRecord[] servRecordArray = (ServiceRecord[]) Utils.vector2toArray(records,
+							new ServiceRecord[records.size()]);
+					listener.servicesDiscovered(sst.getTransID(), servRecordArray);
+				}
+				if (records.size() != 0) {
+					return DiscoveryListener.SERVICE_SEARCH_COMPLETED;
+				} else {
+					return DiscoveryListener.SERVICE_SEARCH_NO_RECORDS;
+				}
+			} else {
+				return respCode;
+			}
 		} catch (SearchServicesDeviceNotReachableException e) {
 			return DiscoveryListener.SERVICE_SEARCH_DEVICE_NOT_REACHABLE;
 		} catch (SearchServicesTerminatedException e) {
@@ -251,53 +279,36 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		} catch (SearchServicesException e) {
 			return DiscoveryListener.SERVICE_SEARCH_ERROR;
 		}
-		if (handles == null)
-			return DiscoveryListener.SERVICE_SEARCH_ERROR;
-		else if (handles.length > 0) {
-			ServiceRecord[] records = new ServiceRecordImpl[handles.length];
-			boolean hasError = false;
-			for (int i = 0; i < handles.length; i++) {
-				records[i] = new ServiceRecordImpl(this, device, handles[i]);
-				try {
-					records[i].populateRecord(new int[] { 0x0000, 0x0001, 0x0002, 0x0003, 0x0004 });
-					if (attrSet != null)
-						// crash here
-						records[i].populateRecord(attrSet);
-				} catch (Exception e) {
-					System.out.println("\t\texception");
-					e.printStackTrace();
-					DebugLog.debug("populateRecord error", e);
-					hasError = true;
-				}
-				if (startedNotify.isTerminated())
-					return DiscoveryListener.SERVICE_SEARCH_TERMINATED;
-			}
-			listener.servicesDiscovered(startedNotify.getTransID(), records);
-			if (hasError)
-				return DiscoveryListener.SERVICE_SEARCH_ERROR;
-			else
-				return DiscoveryListener.SERVICE_SEARCH_COMPLETED;
-		} else
-			return DiscoveryListener.SERVICE_SEARCH_NO_RECORDS;
 	}
 
-	public int searchServices(int[] attrSet, UUID[] uuidSet, RemoteDevice device, DiscoveryListener listener)
-			throws BluetoothStateException {
-		return SearchServicesThread.startSearchServices(this, attrSet, uuidSet, device, listener);
-	}
-
-	public boolean cancelServiceSearch(int transID) {
-		// I didn't find a way to stop service search yet.
+	public boolean serviceDiscoveredCallback(SearchServicesThread sst, long handle, long sdpSession) {
+		if (sst.isTerminated()) {
+			return true;
+		}
+		ServiceRecordImpl servRecord = new ServiceRecordImpl(this, sst.getDevice(), handle);
+		int[] attrIDs = sst.getAttrSet();
+		long remoteDeviceAddress = RemoteDeviceHelper.getAddress(sst.getDevice());
+		populateServiceRecordAttributeValuesImpl(remoteDeviceAddress, sdpSession, handle, attrIDs, servRecord);
+		sst.addServicesRecords(servRecord);
 		return false;
 	}
 
-	private native boolean nativePopulateServiceRecordAttributeValues(long remoteDeviceAddress, long handle,
-			int[] attrIDs, ServiceRecordImpl serviceRecord);
+	public boolean cancelServiceSearch(int transID) {
+		SearchServicesThread sst = SearchServicesThread.getServiceSearchThread(transID);
+		if (sst != null) {
+			return sst.setTerminated();
+		} else {
+			return false;
+		}
+	}
+
+	private native boolean populateServiceRecordAttributeValuesImpl(long remoteDeviceAddress, long sdpSession,
+			long handle, int[] attrIDs, ServiceRecordImpl serviceRecord);
 
 	public boolean populateServicesRecordAttributeValues(ServiceRecordImpl serviceRecord, int[] attrIDs)
 			throws IOException {
 		long remoteDeviceAddress = RemoteDeviceHelper.getAddress(serviceRecord.getHostDevice());
-		return nativePopulateServiceRecordAttributeValues(remoteDeviceAddress, serviceRecord.getHandle(), attrIDs,
+		return populateServiceRecordAttributeValuesImpl(remoteDeviceAddress, 0, serviceRecord.getHandle(), attrIDs,
 				serviceRecord);
 	}
 

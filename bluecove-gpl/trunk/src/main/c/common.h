@@ -28,13 +28,25 @@
 #include <jni.h>
 
 // --- Debug
+#define STD_DEBUG
+#define EXT_DEBUG
 
 void enableNativeDebug(JNIEnv * env, jobject loggerClass, jboolean on);
 
 void callDebugListener(JNIEnv *env, const char* fileName, int lineN, const char *fmt, ...);
 
+#ifdef STD_DEBUG
 // This can be used in JNI functions. The message would be sent to java code
-#define debug(...) callDebugListener(env, __FILE__, __LINE__, __VA_ARGS__);
+#define debug(...) callDebugListener(env, CPP__FILE, __LINE__, __VA_ARGS__);
+#else
+#define debug(...)
+#endif
+
+#ifdef EXT_DEBUG
+#define Edebug(...) callDebugListener(env, CPP__FILE, __LINE__, __VA_ARGS__);
+#else
+#define Edebug(...)
+#endif
 
 // This will use stdout and can be used in native function callbacks
 void ndebug(const char *fmt, ...);

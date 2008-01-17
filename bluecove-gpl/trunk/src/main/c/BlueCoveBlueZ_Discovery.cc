@@ -18,6 +18,8 @@
  *
  * @version $Id$
  */
+#define CPP__FILE "BlueCoveBlueZ_Discovery.cc"
+
 #include "BlueCoveBlueZ.h"
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
@@ -33,7 +35,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runDeviceInq
 		return INQUIRY_ERROR;
 	}
 	int max_rsp = maxResponses;
-	inquiry_info *ii = new inquiry_info[max_rsp];
+	inquiry_info *ii = NULL;
 	int num_rsp = hci_inquiry(deviceID, inquiryLength, max_rsp, NULL, &ii, accessCode);
 	int rc = INQUIRY_COMPLETED;
 	if (num_rsp < 0) {
@@ -55,7 +57,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runDeviceInq
 		    }
 		}
 	}
-	delete ii;
+	free(ii);
 	return rc;
 }
 
@@ -70,7 +72,7 @@ JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getRemote
 	bdaddr_t address;
     longToDeviceAddr(remoteAddress, &address);
 	char name[DEVICE_NAME_MAX_SIZE];
-	int error = hci_read_remote_name(deviceDescriptor, &address, sizeof(name), name, TIMEOUT);
+	int error = hci_read_remote_name(deviceDescriptor, &address, sizeof(name), name, READ_REMOTE_NAME_TIMEOUT);
 	if (error < 0) {
 		throwIOException(env, "Can not get remote device name");
 		return NULL;

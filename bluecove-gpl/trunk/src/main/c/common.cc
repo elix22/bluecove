@@ -21,6 +21,7 @@
  *
  * @version $Id$
  */
+#define CPP__FILE "common.cc"
 
 #include "common.h"
 #include <stdio.h>
