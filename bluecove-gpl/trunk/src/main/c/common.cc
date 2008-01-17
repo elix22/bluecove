@@ -90,7 +90,7 @@ void vthrowException(JNIEnv *env, const char *name, const char *fmt, va_list ap)
 	}
     vsnprintf(msg, 1064, fmt, ap);
 	if (env->ExceptionCheck()) {
-		debug("ERROR: can't throw second exception %s(%s)", name, msg);
+		ndebug("ERROR: can't throw second exception %s(%s)", name, msg);
 		return;
 	}
 	jclass cls = env->FindClass(name);

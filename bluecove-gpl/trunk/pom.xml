@@ -121,6 +121,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
     <properties>
@@ -157,6 +165,7 @@
                             <classNames>
                                 <className>com.intel.bluetooth.BluetoothStackBlueZ</className>
                                 <className>com.intel.bluetooth.BluetoothStackBlueZConsts</className>
+                                <className>com.intel.bluetooth.BluetoothStackBlueZNativeTests</className>
                             </classNames>
                         </configuration>
                     </execution>
@@ -183,6 +192,7 @@
                                         <fileName>BlueCoveBlueZ_RFCOMMServer.cc</fileName>
                                         <fileName>BlueCoveBlueZ_L2CAP.cc</fileName>
                                         <fileName>BlueCoveBlueZ_L2CAPServer.cc</fileName>
+                                        <fileName>BlueCoveBlueZ_Tests.cc</fileName>
                                     </fileNames>
                                 </source>
                                 <source>
