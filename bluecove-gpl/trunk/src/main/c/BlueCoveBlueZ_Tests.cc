@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @version $Id: BlueCoveBlueZ.cc 1562 2008-01-16 18:31:25Z skarzhevskyy $
+ * @version $Id$
  */
 #include "BlueCoveBlueZ.h"
 
