@@ -281,7 +281,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		}
 	}
 
-	public boolean serviceDiscoveredCallback(SearchServicesThread sst, long handle, long sdpSession) {
+	public boolean serviceDiscoveredCallback(SearchServicesThread sst, long sdpSession, long handle) {
 		if (sst.isTerminated()) {
 			return true;
 		}

@@ -101,48 +101,55 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 	    debug("sdp_service_search_req error %i", error);
 		return SERVICE_SEARCH_ERROR;
 	}
+	jlong sdpSession = (jlong)data.session;
+    Edebug("runSearchServicesImpl session %p %li", data.session, sdpSession);
 
 	// Notify java about found services
+	int serviceCount = 0;
 	sdp_list_t* handle = data.rsp_list;
 	for(; handle; handle = handle->next) {
 		uint32_t record = *(uint32_t*)handle->data;
-		jboolean isTerminated = env->CallBooleanMethod(peer, serviceDiscoveredCallback, searchServicesThread, (jlong)record, (jlong)(data.session));
+		jlong recordHandle = record;
+		Edebug("runSearchServicesImpl serviceRecordHandle %li", recordHandle);
+		jboolean isTerminated = env->CallBooleanMethod(peer, serviceDiscoveredCallback, searchServicesThread, sdpSession, recordHandle);
         if (env->ExceptionCheck()) {
             return SERVICE_SEARCH_ERROR;
         } else if (isTerminated) {
             return SERVICE_SEARCH_TERMINATED;
         }
+        serviceCount ++;
 	}
+	debug("runSearchServicesImpl found %i", serviceCount);
 	return SERVICE_SEARCH_COMPLETED;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_populateServiceRecordAttributeValuesImpl
-  (JNIEnv *env, jobject, jlong remoteDeviceAddressLong, jlong sdpSession, jlong handle, jintArray attrIDs, jobject serviceRecord) {
-
+  (JNIEnv *env, jobject peer, jlong remoteDeviceAddressLong, jlong sdpSession, jlong handle, jintArray attrIDs, jobject serviceRecord) {
 	SDPQueryData data;
-	sdp_session_t* session = NULL;
-	if (sdpSession == 0) {
-	    session = (sdp_session_t*) sdpSession;
+	sdp_session_t* session = (sdp_session_t*)sdpSession;
+	if (session != NULL) {
+	    debug("populateServiceRecordAttributeValuesImpl connected %p, recordHandle %li", session, handle);
 	} else {
+	    debug("populateServiceRecordAttributeValuesImpl connects, recordHandle %li", handle);
 	    bdaddr_t remoteAddress;
 	    longToDeviceAddr(remoteDeviceAddressLong, &remoteAddress);
 	    session = sdp_connect(BDADDR_ANY, &remoteAddress, SDP_RETRY_IF_BUSY);
 	    if (session == NULL) {
+	        debug("populateServiceRecordAttributeValuesImpl can't connect");
 	        return JNI_FALSE;
 	    }
 	    // Close session on exit
 	    data.session = session;
     }
-//	cout<<"1"<<endl;
 
 	sdp_list_t *attr_list = NULL;
 	jboolean isCopy = JNI_FALSE;
-	jint* ids = env->GetIntArrayElements(attrIDs,&isCopy);
-	for(int i=0; i < env->GetArrayLength(attrIDs); i++) {
+	jint* ids = env->GetIntArrayElements(attrIDs, &isCopy);
+	for(int i = 0; i < env->GetArrayLength(attrIDs); i++) {
 		uint16_t* id = (uint16_t*)malloc(sizeof(uint16_t));
 		*id=(uint16_t)ids[i];
 //		cout<<"id:"<<ids[i]<<"\t"<<*id<<endl;
-		attr_list=sdp_list_append(attr_list,id);
+		attr_list = sdp_list_append(attr_list,id);
 	}
 //	cout<<"2"<<endl;
 //	sdp_list_t* atrli=attr_list;
@@ -155,21 +162,15 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_populate
 //	}
 //	cout<<endl<<endl;
 
-	sdp_record_t *sdpRecord = sdp_service_attr_req(session,(uint32_t)handle,SDP_ATTR_REQ_INDIVIDUAL,attr_list);
+	sdp_record_t *sdpRecord = sdp_service_attr_req(session, (uint32_t)handle, SDP_ATTR_REQ_INDIVIDUAL, attr_list);
 	if (!sdpRecord) {
         debug("sdp_service_attr_req return error");
-		sdp_list_free(attr_list,NULL);
+		sdp_list_free(attr_list, free);
 		return JNI_FALSE;
 	}
-//	cout<<"3"<<endl;
 	populateServiceRecord(env, serviceRecord, sdpRecord, attr_list);
-	//cout<<"attributes populated"<<endl;
-
-//	cout<<"4"<<endl;
 	sdp_record_free(sdpRecord);
-	sdp_list_free(attr_list, NULL);
-
-//	cout<<"5"<<endl<<endl;
+	sdp_list_free(attr_list, free);
 	return JNI_TRUE;
 }
 
@@ -261,7 +262,7 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		{
 			jlong value = (jlong)data->val.int16;
 			constructorID = env->GetMethodID(dataElementClass, "<init>", "(IJ)V");
-			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_U_INT_2, value);
+			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_2, value);
 			break;
 		}
 		case SDP_INT32:
@@ -315,7 +316,6 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			dataElement=env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_16, byteArray);
 			break;
 		}
-		//-----------------------------------------//
 		case SDP_URL_STR_UNSPEC:
 		case SDP_URL_STR8:
 		case SDP_URL_STR16:
@@ -340,7 +340,6 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_STRING, string);
 			break;
 		}
-		//-----------------------------------------//
 		case SDP_UUID_UNSPEC:
 		case SDP_UUID16:
 		case SDP_UUID32:
@@ -356,7 +355,6 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_UUID, javaUUID);
 			break;
 		}
-		//-----------------------------------------//
 		case SDP_SEQ_UNSPEC:
 		case SDP_SEQ8:
 		case SDP_SEQ16:
@@ -401,7 +399,7 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		}
 		default:
 		{
-			//cout<<"strange data type "<<(int)data->dtd<<endl;
+		    debug("strange data type 0x%x", data->dtd);
 			constructorID = env->GetMethodID(dataElementClass, "<init>", "(I)V");
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_NULL);
 			break;
@@ -418,19 +416,26 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 
 void populateServiceRecord(JNIEnv *env, jobject serviceRecord, sdp_record_t* sdpRecord, sdp_list_t* attributeList) {
 	jclass serviceRecordImplClass = env->GetObjectClass(serviceRecord);
+	debug("populateServiceRecord");
 	jmethodID populateAttributeValueID = env->GetMethodID(serviceRecordImplClass, "populateAttributeValue", "(ILjavax/bluetooth/DataElement;)V");
+	int attrCount = 0;
 	for(; attributeList; attributeList = attributeList->next) {
 		jint attributeID=*(uint16_t*)attributeList->data;
 		sdp_data_t *data = sdp_data_get(sdpRecord, (uint16_t)attributeID);
 		if (data) {
 			jobject dataElement = createDataElement(env, data);
-			if (dataElement != NULL) {
-			    env->CallVoidMethod(serviceRecord, populateAttributeValueID, attributeID, dataElement);
-		    }
-		    if (env->ExceptionCheck()) {
+			if (env->ExceptionCheck()) {
 		        break;
 		    }
+			if (dataElement != NULL) {
+			    env->CallVoidMethod(serviceRecord, populateAttributeValueID, attributeID, dataElement);
+			    if (env->ExceptionCheck()) {
+		            break;
+		        }
+		    }
+		    attrCount ++;
 		}
 	}
+	Edebug("attrCount %i", attrCount);
 }
 
