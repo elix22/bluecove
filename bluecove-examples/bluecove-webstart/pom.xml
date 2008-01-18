@@ -47,6 +47,12 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove-gpl</artifactId>
+            <version>${version}</version>
+        </dependency>
+
     </dependencies>
 
     <properties>
