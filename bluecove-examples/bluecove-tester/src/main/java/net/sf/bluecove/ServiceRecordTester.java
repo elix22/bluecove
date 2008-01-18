@@ -393,11 +393,21 @@ public class ServiceRecordTester {
 
 	private static void buildAllTestServiceAttributes() {
 		try {
-			if (false) {
+
+			final boolean testIntTypes = true;
+			final boolean testSimpleSequence = true;
+
+			final boolean extraTestNULL = false;
+			final boolean extraTestInt = false;
+			final boolean extraTestInt16 = false;
+			final boolean extraTestUUIDTypes = false;
+			final boolean extraTestComplextSequence = false;
+
+			if (extraTestNULL) {
 				allTestServiceAttributes.addElement(new DataElement(DataElement.NULL));
 			}
 
-			if (true) {
+			if (testIntTypes) {
 				// Just some arbitrary number the same on client and server.
 				allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_1, 0xBC));
 				allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_2, 0xABCD));
@@ -408,7 +418,7 @@ public class ServiceRecordTester {
 				allTestServiceAttributes.addElement(new DataElement(DataElement.INT_8, -0x7F893012AB39FB72l));
 			}
 
-			if (false) {
+			if (extraTestInt16) {
 				allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_8, new byte[] { 1, -2, 3, 4, -5,
 						6, 7, -8 }));
 				allTestServiceAttributes.addElement(new DataElement(DataElement.INT_16, new byte[] { 11, -22, 33, 44,
@@ -418,8 +428,7 @@ public class ServiceRecordTester {
 			}
 
 			// There are limit on number of attributes we can test on WIDCOMM
-			boolean extraIntTests = false;
-			if (extraIntTests) {
+			if (extraTestInt) {
 				allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_1, 0));
 
 				allTestServiceAttributes.addElement(new DataElement(DataElement.U_INT_2, 0));
@@ -442,7 +451,16 @@ public class ServiceRecordTester {
 			allTestServiceAttributes.addElement(new DataElement(DataElement.UUID, new UUID(
 					"E10C0FE1121111A11111161911110003", false)));
 
-			if (true) {
+			if (extraTestUUIDTypes) {
+				allTestServiceAttributes.addElement(new DataElement(DataElement.UUID, new UUID(
+						"0000110500001000800000805f9b34fb", false)));
+				allTestServiceAttributes.addElement(new DataElement(DataElement.UUID, new UUID(0x1105)));
+				allTestServiceAttributes.addElement(new DataElement(DataElement.UUID, new UUID(0x21301107)));
+				allTestServiceAttributes.addElement(new DataElement(DataElement.UUID, new UUID(
+						"2130110800001000800000805f9b34fb", false)));
+			}
+
+			if (testSimpleSequence) {
 				allTestServiceAttributes.addElement(new DataElement(DataElement.STRING, "BlueCove-2007"));
 				allTestServiceAttributes
 						.addElement(new DataElement(DataElement.STRING, CommunicationData.stringUTFData));
@@ -453,7 +471,7 @@ public class ServiceRecordTester {
 				allTestServiceAttributes.addElement(new DataElement(true));
 			}
 
-			if (false) {
+			if (extraTestComplextSequence) {
 				DataElement seq2 = new DataElement(DataElement.DATSEQ);
 				DataElement seq21 = new DataElement(DataElement.DATSEQ);
 				seq21.addElement(new DataElement(DataElement.STRING, "BlueCove-seq2.1"));
