@@ -314,15 +314,15 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// --- Client RFCOMM connections
 
+	private native long connectionRfOpenClientConnectionImpl(int deviceDescriptor, long address, int channel,
+			boolean authenticate, boolean encrypt, int timeout) throws IOException;
+
 	public long connectionRfOpenClientConnection(BluetoothConnectionParams params) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		return connectionRfOpenClientConnectionImpl(deviceDescriptor, params.address, params.channel,
+				params.authenticate, params.encrypt, params.timeout);
 	}
 
-	public void connectionRfCloseClientConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
+	public native void connectionRfCloseClientConnection(long handle) throws IOException;
 
 	public int getSecurityOpt(long handle, int expected) throws IOException {
 		return expected;
@@ -358,40 +358,19 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// --- Shared Client and Server RFCOMM connections
 
-	public void connectionRfFlush(long handle) throws IOException {
-		// TODO Auto-generated method stub
+	public native int connectionRfRead(long handle) throws IOException;
 
-	}
+	public native int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException;
 
-	public int connectionRfRead(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native int connectionRfReadAvailable(long handle) throws IOException;
 
-	public int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native void connectionRfWrite(long handle, int b) throws IOException;
 
-	public int connectionRfReadAvailable(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException;
 
-	public void connectionRfWrite(long handle, int b) throws IOException {
-		// TODO Auto-generated method stub
+	public native void connectionRfFlush(long handle) throws IOException;
 
-	}
-
-	public void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public long getConnectionRfRemoteAddress(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native long getConnectionRfRemoteAddress(long handle) throws IOException;
 
 	// --- Client and Server L2CAP connections
 
