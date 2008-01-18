@@ -52,7 +52,7 @@ abstract class BluetoothStackBlueZConsts {
 
 	static final int DataElement_U_INT_1 = DataElement.U_INT_1;
 
-	static final int DataElement_U_INT_2 = DataElement.NULL;
+	static final int DataElement_U_INT_2 = DataElement.U_INT_2;
 
 	static final int DataElement_U_INT_4 = DataElement.U_INT_4;
 

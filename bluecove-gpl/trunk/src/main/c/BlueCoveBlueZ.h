@@ -71,7 +71,7 @@ void convertUUIDBytesToUUID(jbyte *bytes, uuid_t* uuid);
 #define DATA_ELEMENT_TYPE_INT_2    com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_2
 #define DATA_ELEMENT_TYPE_INT_4    com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_4
 #define DATA_ELEMENT_TYPE_INT_8    com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_8
-#define DATA_ELEMENT_TYPE_INT_16   com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_8
+#define DATA_ELEMENT_TYPE_INT_16   com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_INT_16
 #define DATA_ELEMENT_TYPE_URL      com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_URL
 #define DATA_ELEMENT_TYPE_UUID     com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_UUID
 #define DATA_ELEMENT_TYPE_BOOL     com_intel_bluetooth_BluetoothStackBlueZConsts_DataElement_BOOL
