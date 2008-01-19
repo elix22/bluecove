@@ -26,6 +26,7 @@ import java.io.InterruptedIOException;
 import javax.bluetooth.L2CAPConnection;
 import javax.bluetooth.L2CAPConnectionNotifier;
 import javax.bluetooth.LocalDevice;
+import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.microedition.io.Connector;
 
@@ -204,6 +205,16 @@ public class TestResponderServerL2CAP extends Thread {
 	}
 
 	private void runEcho(L2CAPConnection channel, byte[] buffer, int receivedLength) throws IOException {
+		RemoteDevice device = RemoteDevice.getRemoteDevice(channel);
+		boolean authorized = false;
+		try {
+			authorized = device.isAuthorized(channel);
+		} catch (Throwable blucoveIgnoe) {
+		}
+		Logger.debug("connected:" + device.getBluetoothAddress() + (device.isAuthenticated() ? " Auth" : "")
+				+ (authorized ? " Authz" : "") + (device.isEncrypted() ? " Encr" : ""));
+		Logger.debug("ReceiveMTU=" + channel.getReceiveMTU() + " TransmitMTU=" + channel.getTransmitMTU());
+
 		echo(channel, buffer, receivedLength);
 		mainLoop: while (true) {
 			while (!channel.ready()) {
