@@ -376,6 +376,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// --- Client and Server L2CAP connections
 
+	private native long l2OpenClientConnectionImpl(int deviceDescriptor, long address, int channel,
+			boolean authenticate, boolean encrypt, int receiveMTU, int transmitMTU, int timeout) throws IOException;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -384,8 +387,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		return l2OpenClientConnectionImpl(deviceDescriptor, params.address, params.channel, params.authenticate,
+				params.encrypt, receiveMTU, transmitMTU, params.timeout);
 	}
 
 	/*
@@ -393,9 +396,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2CloseClientConnection(long)
 	 */
-	public void l2CloseClientConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-	}
+	public native void l2CloseClientConnection(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -456,67 +457,47 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2Ready(long)
 	 */
-	public boolean l2Ready(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	public native boolean l2Ready(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2receive(long, byte[])
 	 */
-	public int l2Receive(long handle, byte[] inBuf) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native int l2Receive(long handle, byte[] inBuf) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2send(long, byte[])
 	 */
-	public void l2Send(long handle, byte[] data) throws IOException {
-		// TODO Auto-generated method stub
-	}
+	public native void l2Send(long handle, byte[] data) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2GetReceiveMTU(long)
 	 */
-	public int l2GetReceiveMTU(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native int l2GetReceiveMTU(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2GetTransmitMTU(long)
 	 */
-	public int l2GetTransmitMTU(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native int l2GetTransmitMTU(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2RemoteAddress(long)
 	 */
-	public long l2RemoteAddress(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native long l2RemoteAddress(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2GetSecurityOpt(long, int)
 	 */
-	public int l2GetSecurityOpt(long handle, int expected) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native int l2GetSecurityOpt(long handle, int expected) throws IOException;
 }
