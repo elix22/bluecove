@@ -7,6 +7,8 @@
 the Mac OS X, WIDCOMM, !BlueSoleil and Microsoft Bluetooth stack. Originally developed by Intel Research and
 currently maintained by volunteers. The LGPL license allow to link and distribute commercial software with !BlueCove.
 
+Support for BlueZ is added in !BlueCove version 2.0.3 as additional [http://www.gnu.org/licenses/gpl.html GNU General Public License] module `bluecove-gpl`.
+
 [http://bluecove.wiki.sourceforge.net/ BlueCove public contirbutions Wiki]
 [http://www.rococosoft.com/weblog/archives/2007/07/another_cool_project_using_jsr.html Blog about Blue Cove]
 
@@ -20,6 +22,7 @@ currently maintained by volunteers. The LGPL license allow to link and distribut
   * !BlueSoleil version 1.6.0 or above
   * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
   * PowerPC- or Intel-based Mac OS X 10.4 (Bluetooth v1.2) or late (Since v2.0.2)
+  * Linux with BlueZ Bluetooth stack
   * A Bluetooth device supported by the WIDCOMM, !BlueSoleil or Microsoft bluetooth stack
   * Java 1.1 or newer for the binary execution, Java 1.4 or newer to compile.
   * Another Bluetooth device to communicate with. See [http://code.google.com/p/bluecove/wiki/phones Complete list of the JSR-82 compliant phones]
@@ -44,6 +47,8 @@ We hope you enjoy using !BlueCove. Please note that this is an open-source effor
 If you feel the code could use new features or fixes, or the documentation can be improved, please get involved and lend us a hand!
 The !BlueCove [http://groups.google.com/group/bluecove-developers developers community] welcomes your participation.
 
+    Keep in mind that Linux BlueZ support module is licensed under GNU General Public License
+
 == Not Implemented functionality ===
 
   * `RemoteDevice` authenticate, authorize and encrypt Not implemented
@@ -54,6 +59,7 @@ Installation of the binary (already compiled) version of !BlueCove is as follows
 
   # [http://code.google.com/p/bluecove/downloads/list Download] !BlueCove binary release
   # Add `bluecove.jar` to your classpath
+  # Also add `bluecove-gpl.jar` to your classpath if you are running application on Linux
 
 For maven2 users see [maven2 Using maven2 to build application or MIDlet]
 

@@ -7,6 +7,8 @@
 
    Support for Mac OS X added in !BlueCove version 2.0.2.
 
+   Support for Linux BlueZ added in !BlueCove version 2.0.3 as additional GPL licensed module.
+
    To determine which Bluetooth stack is installed on your Windows XP [http://www.bluecove.org/bluecove-examples/bluetooth-stack.html see this page]
 
    [http://code.google.com/p/bluecove/wiki/WindowsMobile Windows Mobile]
@@ -94,7 +96,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/b
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
     * `DiscoveryAgent.searchServices(.. UUID[] uuidSet, ..)`  only ONE UUID is used during search, the last one in array.
     * You need to run `DiscoveryAgent.searchServices()` with UUID of your service before you can make connection to it using `Connector.open(url);`
-    * Client `Connector.open()` use GUID of the discovered service. Only one would be selected
+   * Client `Connector.open()` use GUID of the discovered service. Only one would be selected
     * Server can't close incoming connection. It will wait until connection is closed remotely. (Our implementation should be changed to restart Service(Server) each time connection is closed to fix this)
     * `searchServices` can't distinguish the service type (RFCOMM or OBEX). To solve this following UUIDs are always discoved as obex (btgoep://) connections
         * IR_MC_SYNC (0x1104), OBEX_OBJECT_PUSH (0x1105), OBEX_FILE_TRANSFER (0x1106), IR_MC_SYNC_COMMAND (0x1107), IMG_RESPONDER (0x111B)
@@ -120,3 +122,17 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/m
     * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8 are not properly publshed by service on OS X 10.4
     * `ServiceRecord` attributes of `DataElement` type BOOL published as U_INT_1
     * `ServiceRecord` attributes of `DataElement` type URL published as STRING
+
+== Linux BlueZ ==
+
+http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/linux.png
+
+*N.B.* Support for BlueZ is added in !BlueCove version 2.0.3 as additional [http://www.gnu.org/licenses/gpl.html GNU General Public License] module `bluecove-gpl`.
+
+=== Requirements ===
+
+    *  TBD
+
+=== JSR-82 Limitations ===
+
+    * TDB
