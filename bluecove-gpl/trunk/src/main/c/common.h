@@ -27,16 +27,6 @@
 
 #include <jni.h>
 
-#ifndef BLUECOVE_BUILD
-#define BLUECOVE_BUILD 0
-#endif
-
-#ifndef BLUECOVE_VERSION
-#define BLUECOVE_VERSION 20003
-#endif
-
-jint blueCoveVersion();
-
 // --- Debug
 #define STD_DEBUG
 #define EXT_DEBUG

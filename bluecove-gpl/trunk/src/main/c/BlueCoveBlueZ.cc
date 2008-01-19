@@ -30,7 +30,7 @@
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLibraryVersionNative
   (JNIEnv *, jobject) {
-    return blueCoveVersion();
+    return com_intel_bluetooth_BluetoothStackBlueZ_NATIVE_LIBRARY_VERSION;
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_enableNativeDebug

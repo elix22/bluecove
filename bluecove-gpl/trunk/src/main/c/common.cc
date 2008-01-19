@@ -33,10 +33,6 @@ const char* cBluetoothStateException = "javax/bluetooth/BluetoothStateException"
 const char* cBluetoothConnectionException = "javax/bluetooth/BluetoothConnectionException";
 const char* cServiceRegistrationException = "javax/bluetooth/ServiceRegistrationException";
 
-jint blueCoveVersion() {
-	return BLUECOVE_VERSION * 100 + BLUECOVE_BUILD;
-}
-
 // --- Debug
 
 bool nativeDebugCallbackEnabled = false;
