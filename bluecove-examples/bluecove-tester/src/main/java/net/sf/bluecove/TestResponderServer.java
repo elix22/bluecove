@@ -138,8 +138,13 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			cBufIdx++;
 			try {
 				RemoteDevice device = RemoteDevice.getRemoteDevice(c.conn);
-				Logger.debug("connected:" + device.getBluetoothAddress() + " Auth:" + device.isAuthenticated()
-						+ "  Authz:" + device.isAuthorized(c.conn) + " Encr:" + device.isEncrypted());
+				boolean authorized = false;
+				try {
+					authorized = device.isAuthorized(c.conn);
+				} catch (Throwable blucoveIgnoe) {
+				}
+				Logger.debug("connected:" + device.getBluetoothAddress() + (device.isAuthenticated() ? " Auth" : "")
+						+ (authorized ? " Authz" : "") + (device.isEncrypted() ? " Encr" : ""));
 
 				c.os = c.conn.openOutputStream();
 				c.os.write(firstChar);
