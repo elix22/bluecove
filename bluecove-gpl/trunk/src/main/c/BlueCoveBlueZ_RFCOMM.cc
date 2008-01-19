@@ -28,7 +28,7 @@
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfOpenClientConnectionImpl
   (JNIEnv* env, jobject, jint deviceDescriptor, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint timeout) {
-
+    debug("RFCOMM connect, channel %d", channel);
     // allocate socket
     int handle = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
     if (handle < 0) {
@@ -37,7 +37,18 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionR
     }
 
     //TODO setsockopt
-    //TODO bind local address
+    //bind local address
+    sockaddr_rc localAddr;
+    localAddr.rc_family = AF_BLUETOOTH;
+    localAddr.rc_channel = 0;
+    // TODO use deviceDescriptor to get local address for selected device
+    bacpy(&localAddr.rc_bdaddr, BDADDR_ANY);
+
+    if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
+		throwIOException(env, "Failed to  bind socket. [%d] %s", errno, strerror(errno));
+		close(handle);
+		return 0;
+	}
 
     sockaddr_rc remoteAddr;
     remoteAddr.rc_family = AF_BLUETOOTH;
@@ -45,17 +56,22 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionR
 	remoteAddr.rc_channel = channel;
 
     // connect to server
-    if (!connect(handle, (sockaddr*)&remoteAddr, sizeof(remoteAddr))) {
+    if (connect(handle, (sockaddr*)&remoteAddr, sizeof(remoteAddr)) != 0) {
         throwIOException(env, "Failed to connect. [%d] %s", errno, strerror(errno));
         close(handle);
         return 0;
     }
-
+    debug("RFCOMM connected, handle %li", handle);
     return handle;
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfCloseClientConnection
   (JNIEnv* env, jobject, jlong handle) {
+    debug("RFCOMM disconnect, handle %li", handle);
+    // Closing channel, further sends and receives will be disallowed.
+    if (shutdown(handle, SHUT_RDWR) < 0) {
+        debug("shutdown failed. [%d] %s", errno, strerror(errno));
+    }
     if (close(handle) < 0) {
         throwIOException(env, "Failed to close socket. [%d] %s", errno, strerror(errno));
     }
@@ -77,8 +93,30 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfRead__J_3BII
-  (JNIEnv* env, jobject, jlong handle, jbyteArray, jint, jint) {
-    return -1;
+  (JNIEnv* env, jobject peer, jlong handle, jbyteArray b, jint off, jint len ) {
+    jbyte *bytes = env->GetByteArrayElements(b, 0);
+	int done = 0;
+	while (done < len) {
+		int count = recv(handle, (char *)(bytes + off + done), len - done, 0);
+		if (count < 0) {
+			throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
+			done = 0;
+			break;
+		} else if (count == 0) {
+			debug("Connection closed");
+			if (done == 0) {
+				// See InputStream.read();
+				done = -1;
+			}
+			break;
+		}
+		done += count;
+		if (isCurrentThreadInterrupted(env, peer)) {
+			break;
+		}
+	}
+	env->ReleaseByteArrayElements(b, bytes, 0);
+	return done;
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfReadAvailable
@@ -95,7 +133,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfWrite__J_3BII
-  (JNIEnv* env, jobject, jlong handle, jbyteArray b, jint off, jint len) {
+  (JNIEnv* env, jobject peer, jlong handle, jbyteArray b, jint off, jint len) {
 
     jbyte *bytes = env->GetByteArrayElements(b, 0);
 	int done = 0;
@@ -103,6 +141,9 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 		int count = send(handle, (char *)(bytes + off + done), len - done, 0);
 		if (count < 0) {
 			throwIOException(env, "Failed to write. [%d] %s", errno, strerror(errno));
+			break;
+		}
+		if (isCurrentThreadInterrupted(env, peer)) {
 			break;
 		}
 		done += count;
