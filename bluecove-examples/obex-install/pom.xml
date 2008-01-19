@@ -25,6 +25,12 @@
             <artifactId>bluecove</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove-gpl</artifactId>
+            <version>${version}</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
