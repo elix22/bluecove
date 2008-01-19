@@ -324,8 +324,10 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public native void connectionRfCloseClientConnection(long handle) throws IOException;
 
-	public int getSecurityOpt(long handle, int expected) throws IOException {
-		return expected;
+	public native int rfGetSecurityOptImpl(long handle) throws IOException;
+
+	public int rfGetSecurityOpt(long handle, int expected) throws IOException {
+		return rfGetSecurityOptImpl(handle);
 	}
 
 	// --- Server RFCOMM connections
@@ -504,6 +506,16 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * @see com.intel.bluetooth.BluetoothStack#l2RemoteAddress(long)
 	 */
 	public long l2RemoteAddress(long handle) throws IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#l2GetSecurityOpt(long, int)
+	 */
+	public int l2GetSecurityOpt(long handle, int expected) throws IOException {
 		// TODO Auto-generated method stub
 		return 0;
 	}

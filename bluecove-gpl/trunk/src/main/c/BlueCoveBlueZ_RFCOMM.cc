@@ -25,10 +25,19 @@
 
 #include <unistd.h>
 #include <errno.h>
+#include <sys/poll.h>
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfOpenClientConnectionImpl
   (JNIEnv* env, jobject, jint deviceDescriptor, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint timeout) {
     debug("RFCOMM connect, channel %d", channel);
+
+    sockaddr_rc localAddr;
+	int error = hci_read_bd_addr(deviceDescriptor, &localAddr.rc_bdaddr, LOCALDEVICE_ACCESS_TIMEOUT);
+	if (error != 0) {
+        throwBluetoothStateException(env, "Bluetooth Device is not ready. %d", error);
+	    return 0;
+	}
+
     // allocate socket
     int handle = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
     if (handle < 0) {
@@ -36,19 +45,48 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionR
         return 0;
     }
 
-    //TODO setsockopt
     //bind local address
-    sockaddr_rc localAddr;
     localAddr.rc_family = AF_BLUETOOTH;
     localAddr.rc_channel = 0;
-    // TODO use deviceDescriptor to get local address for selected device
-    bacpy(&localAddr.rc_bdaddr, BDADDR_ANY);
+    //We used deviceDescriptor to get local address for selected device
+    //bacpy(&localAddr.rc_bdaddr, BDADDR_ANY);
 
     if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
 		throwIOException(env, "Failed to  bind socket. [%d] %s", errno, strerror(errno));
 		close(handle);
 		return 0;
 	}
+
+    // TODO verify how this works, I think device needs to paird before this can be setup.
+    // Set link security options
+    if (encrypt || authenticate) {
+		int socket_opt = 0;
+		socklen_t len = sizeof(socket_opt);
+        if (getsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, &len) < 0) {
+            throwIOException(env, "Failed to read RFCOMM link mode. [%d] %s", errno, strerror(errno));
+            close(handle);
+            return 0;
+        }
+		//if (master) {
+		//	socket_opt |= RFCOMM_LM_MASTER;
+		//}
+		if (authenticate) {
+			socket_opt |= RFCOMM_LM_AUTH;
+			debug("RFCOMM set authenticate");
+		}
+		if (encrypt) {
+			socket_opt |= RFCOMM_LM_ENCRYPT;
+		}
+		//if (socket_opt != 0) {
+		//	socket_opt |= RFCOMM_LM_SECURE;
+		//}
+
+		if ((socket_opt != 0) && setsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, sizeof(socket_opt)) < 0) {
+			throwIOException(env, "Failed to set RFCOMM link mode. [%d] %s", errno, strerror(errno));
+            close(handle);
+            return 0;
+		}
+    }
 
     sockaddr_rc remoteAddr;
     remoteAddr.rc_family = AF_BLUETOOTH;
@@ -75,6 +113,26 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
     if (close(handle) < 0) {
         throwIOException(env, "Failed to close socket. [%d] %s", errno, strerror(errno));
     }
+}
+
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfGetSecurityOptImpl
+  (JNIEnv *env, jobject, jlong handle) {
+    int socket_opt = 0;
+    socklen_t len = sizeof(socket_opt);
+    if (getsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, &len) < 0) {
+        throwIOException(env, "Failed to get RFCOMM link mode. [%d] %s", errno, strerror(errno));
+        return 0;
+    }
+    bool encrypted = socket_opt &  (RFCOMM_LM_ENCRYPT | RFCOMM_LM_SECURE);
+    bool authenticated = socket_opt & RFCOMM_LM_AUTH;
+    if (authenticated) {
+		return NOAUTHENTICATE_NOENCRYPT;
+	}
+	if (encrypted) {
+		return AUTHENTICATE_ENCRYPT;
+	} else {
+		return AUTHENTICATE_NOENCRYPT;
+	}
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfRead__J
@@ -121,6 +179,18 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfReadAvailable
   (JNIEnv* env, jobject, jlong handle) {
+    pollfd fds;
+    int timeout = 10; // milliseconds
+    fds.fd = handle;
+	fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
+	fds.revents = 0;
+	if (poll(&fds, 1, timeout) > 0) {
+	    if (fds.revents & POLLIN) {
+	        return 1;
+	    } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
+	        throwIOException(env, "Stream socket peer closed connection");
+	    }
+	}
     return 0;
 }
 

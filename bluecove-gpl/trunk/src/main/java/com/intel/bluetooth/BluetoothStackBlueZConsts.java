@@ -23,6 +23,7 @@ package com.intel.bluetooth;
 import javax.bluetooth.DataElement;
 import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.BluetoothConnectionException;
+import javax.bluetooth.ServiceRecord;
 
 /**
  * @author vlads
@@ -47,6 +48,12 @@ abstract class BluetoothStackBlueZConsts {
 	static final int SERVICE_SEARCH_NO_RECORDS = DiscoveryListener.SERVICE_SEARCH_NO_RECORDS;
 
 	static final int SERVICE_SEARCH_DEVICE_NOT_REACHABLE = DiscoveryListener.SERVICE_SEARCH_DEVICE_NOT_REACHABLE;
+
+	static final int NOAUTHENTICATE_NOENCRYPT = ServiceRecord.NOAUTHENTICATE_NOENCRYPT;
+
+	static final int AUTHENTICATE_NOENCRYPT = ServiceRecord.AUTHENTICATE_NOENCRYPT;
+
+	static final int AUTHENTICATE_ENCRYPT = ServiceRecord.AUTHENTICATE_ENCRYPT;
 
 	static final int DataElement_NULL = DataElement.NULL;
 
