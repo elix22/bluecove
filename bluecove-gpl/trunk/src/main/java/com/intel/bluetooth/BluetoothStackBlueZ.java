@@ -35,7 +35,7 @@ import javax.bluetooth.UUID;
 
 class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, SearchServicesRunnable {
 
-	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.nativeLibraryVersionExpected;
+	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.getNativeLibraryVersion();
 
 	private int deviceID;
 
