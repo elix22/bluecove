@@ -83,14 +83,25 @@ public class ServiceRecords {
 		if ((d == null) || (d.getDataType() != DataElement.DATSEQ)) {
 			return "n/a";
 		}
-		DataElement uuid = null;
+		final UUID SERIAL_PORT_UUID = new UUID(0x1101);
+		UUID uuid = null;
 		Enumeration en = (Enumeration) (d.getValue());
 		while (en.hasMoreElements()) {
-			uuid = (DataElement) en.nextElement();
+			DataElement el = (DataElement) en.nextElement();
+			if (el.getDataType() != DataElement.UUID) {
+				continue;
+			}
+			UUID u = (UUID) el.getValue();
+			if (u != null) {
+				if ((uuid != null) && (u.equals(SERIAL_PORT_UUID))) {
+					continue;
+				}
+				uuid = u;
+			}
 		}
 		if (uuid == null) {
 			return "n/a";
 		}
-		return UUIDConsts.getName((UUID) uuid.getValue());
+		return UUIDConsts.getName(uuid);
 	}
 }
