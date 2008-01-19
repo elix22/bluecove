@@ -29,6 +29,7 @@ import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DataElement;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
+import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.ServiceRegistrationException;
 import javax.bluetooth.UUID;
@@ -136,6 +137,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			cBuf[cBufIdx] = firstChar;
 			cBufIdx++;
 			try {
+				RemoteDevice device = RemoteDevice.getRemoteDevice(c.conn);
+				Logger.debug("connected:" + device.getBluetoothAddress() + " Auth:" + device.isAuthenticated()
+						+ " Encr:" + device.isEncrypted());
+
 				c.os = c.conn.openOutputStream();
 				c.os.write(firstChar);
 				OutputStream os = c.os;
