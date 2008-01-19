@@ -21,6 +21,7 @@
   <resources>
     <j2se version="1.4+"/>
     <jar href="bluecove-obex-install-mini.jar"/>
+    <!--property name="bluecove.debug" value="true" /-->
   </resources>
 
   <application-desc main-class="net.sf.bluecove.obex.Main">
