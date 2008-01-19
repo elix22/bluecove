@@ -29,7 +29,7 @@
             <groupId>net.sf.bluecove</groupId>
             <artifactId>bluecove-gpl</artifactId>
             <version>${version}</version>
-            <scope>runtime</scope>
+            <!-- TODO scope>runtime</scope-->
         </dependency>
     </dependencies>
 
@@ -91,6 +91,9 @@
                             <inclusion>
                                 <groupId>net.sf.bluecove</groupId><artifactId>bluecove</artifactId>
                                 <filter>!**_ce.dll</filter>
+                            </inclusion>
+                            <inclusion>
+                                <groupId>net.sf.bluecove</groupId><artifactId>bluecove-gpl</artifactId>
                             </inclusion>
                         </inclusions>
                     </assembly>
