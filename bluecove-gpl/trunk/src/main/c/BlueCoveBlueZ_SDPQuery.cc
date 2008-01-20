@@ -66,7 +66,6 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 
 	jmethodID serviceDiscoveredCallback = getGetMethodID(env, peerClass, "serviceDiscoveredCallback", "(Lcom/intel/bluetooth/SearchServicesThread;JJ)Z");
 	if (serviceDiscoveredCallback == NULL) {
-		throwRuntimeException(env, "Fail to get MethodID serviceDiscoveredCallback");
 		return SERVICE_SEARCH_ERROR;
 	}
 
