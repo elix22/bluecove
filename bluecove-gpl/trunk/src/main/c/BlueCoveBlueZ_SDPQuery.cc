@@ -435,9 +435,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			jmethodID addElementID = getGetMethodID(env, dataElementClass, "addElement", "(Ljavax/bluetooth/DataElement;)V");
 			for(; newData; newData = newData->next) {
 				jobject newDataElement = createDataElement(env, newData);
-				if (newDataElement != NULL) {
-				    env->CallVoidMethod(dataElement, addElementID, newDataElement);
-			    }
+				if (newDataElement == NULL) {
+				    break;
+				}
+				env->CallVoidMethod(dataElement, addElementID, newDataElement);
 			    if (env->ExceptionCheck()) {
 		            break;
 		        }
@@ -480,11 +481,12 @@ void populateServiceRecord(JNIEnv *env, jobject serviceRecord, sdp_record_t* sdp
 			if (env->ExceptionCheck()) {
 		        break;
 		    }
-			if (dataElement != NULL) {
-			    env->CallVoidMethod(serviceRecord, populateAttributeValueID, attributeID, dataElement);
-			    if (env->ExceptionCheck()) {
-		            break;
-		        }
+			if (dataElement == NULL) {
+			    break;
+			}
+			env->CallVoidMethod(serviceRecord, populateAttributeValueID, attributeID, dataElement);
+			if (env->ExceptionCheck()) {
+		         break;
 		    }
 		    attrCount ++;
 		}
