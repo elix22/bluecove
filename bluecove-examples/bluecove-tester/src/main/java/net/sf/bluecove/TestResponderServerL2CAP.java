@@ -56,6 +56,12 @@ public class TestResponderServerL2CAP extends Thread {
 		public void run() {
 			try {
 				receive(channel);
+				if (!isStoped) {
+					try {
+						Thread.sleep(Configuration.serverSleepB4ClosingConnection);
+					} catch (InterruptedException e) {
+					}
+				}
 			} finally {
 				IOUtils.closeQuietly(channel);
 			}
@@ -135,8 +141,17 @@ public class TestResponderServerL2CAP extends Thread {
 				errorCount = 0;
 				Logger.info("Received L2CAP connection");
 				if (!Configuration.serverAcceptWhileConnected) {
-					receive(channel);
-					IOUtils.closeQuietly(channel);
+					try {
+						receive(channel);
+						if (!isStoped) {
+							try {
+								Thread.sleep(Configuration.serverSleepB4ClosingConnection);
+							} catch (InterruptedException e) {
+							}
+						}
+					} finally {
+						IOUtils.closeQuietly(channel);
+					}
 				} else {
 					ServerConnectionTread t = new ServerConnectionTread(channel);
 					t.start();
