@@ -64,7 +64,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 		return SERVICE_SEARCH_ERROR;
 	}
 
-	jmethodID serviceDiscoveredCallback = env->GetMethodID(peerClass, "serviceDiscoveredCallback", "(Lcom/intel/bluetooth/SearchServicesThread;JJ)Z");
+	jmethodID serviceDiscoveredCallback = getGetMethodID(env, peerClass, "serviceDiscoveredCallback", "(Lcom/intel/bluetooth/SearchServicesThread;JJ)Z");
 	if (serviceDiscoveredCallback == NULL) {
 		throwRuntimeException(env, "Fail to get MethodID serviceDiscoveredCallback");
 		return SERVICE_SEARCH_ERROR;
@@ -207,7 +207,10 @@ jobject createJavaUUID(JNIEnv *env, uuid_t uuid) {
 
 	jstring uuidString = env->NewStringUTF(uuidChars);
 	jclass uuidClass = env->FindClass("javax/bluetooth/UUID");
-	jmethodID constructorID = env->GetMethodID(uuidClass, "<init>", "(Ljava/lang/String;Z)V");
+	jmethodID constructorID = getGetMethodID(env, uuidClass, "<init>", "(Ljava/lang/String;Z)V");
+	if (constructorID == NULL) {
+	    return NULL;
+	}
 	return env->NewObject(uuidClass, constructorID, uuidString, shortUUID);
 }
 
@@ -219,63 +222,84 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 	switch (data->dtd) {
 		case SDP_DATA_NIL:
 		{
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(I)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(I)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_NULL);
 			break;
 		}
 		case SDP_BOOL:
 		{
 			jboolean boolean = data->val.uint8;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(Z)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(Z)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, boolean);
 			break;
 		}
 		case SDP_UINT8:
 		{
 			jlong value = (jlong)data->val.uint8;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(IJ)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(IJ)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_U_INT_1, value);
 			break;
 		}
 		case SDP_UINT16:
 		{
 			jlong value = (jlong)data->val.uint16;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(IJ)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(IJ)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_U_INT_2, value);
 			break;
 		}
 		case SDP_UINT32:
 		{
 			jlong value = (jlong)data->val.uint32;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(IJ)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(IJ)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_U_INT_4, value);
 			break;
 		}
 		case SDP_INT8:
 		{
 			jlong value = (jlong)data->val.int8;
-			constructorID = env->GetMethodID(dataElementClass,"<init>","(IJ)V");
+			constructorID = getGetMethodID(env, dataElementClass,"<init>","(IJ)V");
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_1, value);
 			break;
 		}
 		case SDP_INT16:
 		{
 			jlong value = (jlong)data->val.int16;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(IJ)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(IJ)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_2, value);
 			break;
 		}
 		case SDP_INT32:
 		{
 			jlong value = (jlong)data->val.int32;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(IJ)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(IJ)V");
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_4, value);
 			break;
 		}
 		case SDP_INT64:
 		{
 			jlong value = (jlong)data->val.int64;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(IJ)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(IJ)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_8, value);
 			break;
 		}
@@ -288,7 +312,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			reverseArray(bytes, sizeof(value));
 			jbyteArray byteArray = env->NewByteArray(sizeof(value));
 			env->SetByteArrayRegion(byteArray, 0, sizeof(value), bytes);
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_U_INT_8, byteArray);
 			break;
 		}
@@ -300,7 +327,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			reverseArray(bytes, sizeof(value));
 			jbyteArray byteArray = env->NewByteArray(sizeof(value));
 			env->SetByteArrayRegion(byteArray, 0, sizeof(value), bytes);
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_U_INT_16, byteArray);
 			break;
 		}
@@ -312,7 +342,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			reverseArray(bytes, sizeof(value));
 			jbyteArray byteArray = env->NewByteArray(sizeof(value));
 			env->SetByteArrayRegion(byteArray, 0, sizeof(value), bytes);
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement=env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_16, byteArray);
 			break;
 		}
@@ -323,7 +356,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		{
 			Edebug("SDP_URL");
 			char* str = data->val.str;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			jstring string = env->NewStringUTF(str);
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_URL, string);
 			break;
@@ -335,7 +371,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		{
 			Edebug("SDP_TEXT");
 			char* str = data->val.str;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			jstring string = env->NewStringUTF(str);
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_STRING, string);
 			break;
@@ -351,7 +390,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			    debug("fail to create UUID");
 			    break;
 			}
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(ILjava/lang/Object;)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_UUID, javaUUID);
 			break;
 		}
@@ -362,9 +404,12 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		{
 			Edebug("SDP_SEQ");
 			sdp_data_t *newData = data->val.dataseq;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(I)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(I)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_DATSEQ);
-			jmethodID addElementID = env->GetMethodID(dataElementClass, "addElement", "(Ljavax/bluetooth/DataElement;)V");
+			jmethodID addElementID = getGetMethodID(env, dataElementClass, "addElement", "(Ljavax/bluetooth/DataElement;)V");
 			for(; newData; newData = newData->next) {
 				jobject newDataElement = createDataElement(env, newData);
 				if (newDataElement != NULL) {
@@ -383,9 +428,12 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		{
 		    Edebug("SDP_ALT");
 			sdp_data_t *newData = data->val.dataseq;
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(I)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(I)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_DATALT);
-			jmethodID addElementID = env->GetMethodID(dataElementClass, "addElement", "(Ljavax/bluetooth/DataElement;)V");
+			jmethodID addElementID = getGetMethodID(env, dataElementClass, "addElement", "(Ljavax/bluetooth/DataElement;)V");
 			for(; newData; newData = newData->next) {
 				jobject newDataElement = createDataElement(env, newData);
 				if (newDataElement != NULL) {
@@ -400,7 +448,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		default:
 		{
 		    debug("strange data type 0x%x", data->dtd);
-			constructorID = env->GetMethodID(dataElementClass, "<init>", "(I)V");
+			constructorID = getGetMethodID(env, dataElementClass, "<init>", "(I)V");
+			if (constructorID == NULL) {
+			    break;
+			}
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_NULL);
 			break;
 		}
@@ -417,7 +468,10 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 void populateServiceRecord(JNIEnv *env, jobject serviceRecord, sdp_record_t* sdpRecord, sdp_list_t* attributeList) {
 	jclass serviceRecordImplClass = env->GetObjectClass(serviceRecord);
 	debug("populateServiceRecord");
-	jmethodID populateAttributeValueID = env->GetMethodID(serviceRecordImplClass, "populateAttributeValue", "(ILjavax/bluetooth/DataElement;)V");
+	jmethodID populateAttributeValueID = getGetMethodID(env, serviceRecordImplClass, "populateAttributeValue", "(ILjavax/bluetooth/DataElement;)V");
+	if (populateAttributeValueID == NULL) {
+	    return;
+	}
 	int attrCount = 0;
 	for(; attributeList; attributeList = attributeList->next) {
 		jint attributeID=*(uint16_t*)attributeList->data;

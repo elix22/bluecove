@@ -209,6 +209,19 @@ bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer) {
 	return env->ExceptionCheck();
 }
 
+jmethodID getGetMethodID(JNIEnv * env, jclass clazz, const char *name, const char *sig) {
+    if (clazz == NULL) {
+        throwRuntimeException(env, "Fail to get MethodID %s for NULL class", name);
+	    return NULL;
+    }
+    jmethodID methodID = env->GetMethodID(clazz, name, sig);
+    if (methodID == NULL) {
+	    throwRuntimeException(env, "Fail to get MethodID %s", name);
+	    return NULL;
+	}
+	return methodID;
+}
+
 DeviceInquiryCallback::DeviceInquiryCallback() {
     this->peer = NULL;
     this->deviceDiscoveredCallbackMethod = NULL;
