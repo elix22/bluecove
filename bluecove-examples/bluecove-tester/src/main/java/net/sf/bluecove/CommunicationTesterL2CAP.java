@@ -134,7 +134,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				}
 				byte[] dataRecived = new byte[receiveMTU];
 				int lengthdataRecived = c.channel.receive(dataRecived);
-				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
+				Assert.assertTrue("seq " + i + " lengthdataRecived " + lengthdataRecived, lengthdataRecived >= 1);
 				Assert.assertEquals("sequence", (byte) i, dataRecived[0]);
 				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
 				for (int j = 1; j < lengthdataRecived; j++) {
@@ -173,7 +173,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				}
 				byte[] dataRecived = new byte[receiveMTU];
 				int lengthdataRecived = c.channel.receive(dataRecived);
-				Assert.assertTrue("lengthdataRecived", lengthdataRecived >= 1);
+				Assert.assertTrue("seq " + i + " lengthdataRecived " + lengthdataRecived, lengthdataRecived >= 1);
 				Assert.assertEquals("sequence", (byte) i, dataRecived[0]);
 				Assert.assertEquals("lengthdataRecived", i, lengthdataRecived);
 				for (int j = 1; j < lengthdataRecived; j++) {
