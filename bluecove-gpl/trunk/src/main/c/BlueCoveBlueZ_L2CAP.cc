@@ -27,6 +27,10 @@
 #include <errno.h>
 #include <sys/poll.h>
 
+//#define BLUECOVE_L2CAP_USE_MSG
+// TODO Is this necessary to truncate data before calling socket functions? sockets preserve message boundaries.
+//#define BLUECOVE_L2CAP_MTU_TRUNCATE
+
 bool l2Get_options(JNIEnv* env, jlong handle, l2cap_options* opt);
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClientConnectionImpl
@@ -34,11 +38,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
     debug("CONNECT connect, psm %d", channel);
 
     sockaddr_l2 localAddr;
-	int error = hci_read_bd_addr(deviceDescriptor, &localAddr.l2_bdaddr, LOCALDEVICE_ACCESS_TIMEOUT);
-	if (error != 0) {
+    int error = hci_read_bd_addr(deviceDescriptor, &localAddr.l2_bdaddr, LOCALDEVICE_ACCESS_TIMEOUT);
+    if (error != 0) {
         throwBluetoothStateException(env, "Bluetooth Device is not ready. %d", error);
-	    return 0;
-	}
+        return 0;
+    }
 
     // allocate socket
     int handle = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
@@ -54,12 +58,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
     //bacpy(&localAddr.l2_bdaddr, BDADDR_ANY);
 
     if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
-		throwIOException(env, "Failed to bind socket. [%d] %s", errno, strerror(errno));
-		close(handle);
-		return 0;
-	}
+        throwIOException(env, "Failed to bind socket. [%d] %s", errno, strerror(errno));
+        close(handle);
+        return 0;
+    }
 
-	// Set link mtu and security options
+    // Set link mtu and security options
     l2cap_options opt;
     socklen_t opt_len = sizeof(opt);
     memset(&opt, 0, opt_len);
@@ -75,36 +79,36 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
     }
 
     if (encrypt || authenticate) {
-		int socket_opt = 0;
-		socklen_t len = sizeof(socket_opt);
+        int socket_opt = 0;
+        socklen_t len = sizeof(socket_opt);
         if (getsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, &len) < 0) {
             throwIOException(env, "Failed to read L2CAP link mode. [%d] %s", errno, strerror(errno));
             close(handle);
             return 0;
         }
-		//if (master) {
-		//	socket_opt |= L2CAP_LM_MASTER;
-		//}
-		if (authenticate) {
-			socket_opt |= L2CAP_LM_AUTH;
-			Edebug("L2CAP set authenticate");
-		}
-		if (encrypt) {
-			socket_opt |= L2CAP_LM_ENCRYPT;
-		}
+        //if (master) {
+        //  socket_opt |= L2CAP_LM_MASTER;
+        //}
+        if (authenticate) {
+            socket_opt |= L2CAP_LM_AUTH;
+            Edebug("L2CAP set authenticate");
+        }
+        if (encrypt) {
+            socket_opt |= L2CAP_LM_ENCRYPT;
+        }
 
-		if ((socket_opt != 0) && setsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, sizeof(socket_opt)) < 0) {
-			throwIOException(env, "Failed to set L2CAP link mode. [%d] %s", errno, strerror(errno));
+        if ((socket_opt != 0) && setsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, sizeof(socket_opt)) < 0) {
+            throwIOException(env, "Failed to set L2CAP link mode. [%d] %s", errno, strerror(errno));
             close(handle);
             return 0;
-		}
+        }
     }
 
 
-	sockaddr_l2 remoteAddr;
+    sockaddr_l2 remoteAddr;
     remoteAddr.l2_family = AF_BLUETOOTH;
-	longToDeviceAddr(address, &remoteAddr.l2_bdaddr);
-	remoteAddr.l2_psm = channel;
+    longToDeviceAddr(address, &remoteAddr.l2_bdaddr);
+    remoteAddr.l2_psm = channel;
 
     // connect to server
     if (connect(handle, (sockaddr*)&remoteAddr, sizeof(remoteAddr)) != 0) {
@@ -151,59 +155,85 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Ready
     pollfd fds;
     int timeout = 10; // milliseconds
     fds.fd = handle;
-	fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
-	fds.revents = 0;
-	if (poll(&fds, 1, timeout) > 0) {
-	    if (fds.revents & POLLIN) {
-	        return JNI_TRUE;
-	    } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
-	        throwIOException(env, "Peer closed connection");
-	    }
-	}
+    fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
+    fds.revents = 0;
+    if (poll(&fds, 1, timeout) > 0) {
+        if (fds.revents & POLLIN) {
+            return JNI_TRUE;
+        } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
+            throwIOException(env, "Peer closed connection");
+        }
+    }
     return JNI_FALSE;
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Receive
   (JNIEnv* env, jobject, jlong handle, jbyteArray inBuf) {
+#ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
     l2cap_options opt;
     if (!l2Get_options(env, handle, &opt)) {
-        return 0;
+       return 0;
     }
+#endif //BLUECOVE_L2CAP_MTU_TRUNCATE
 
     jbyte *bytes = env->GetByteArrayElements(inBuf, 0);
-	size_t inBufLen = (size_t)env->GetArrayLength(inBuf);
-	int readLen = inBufLen;
-	if (readLen > opt.imtu) {
-		readLen = opt.imtu;
-	}
+    size_t inBufLen = (size_t)env->GetArrayLength(inBuf);
+    int readLen = inBufLen;
 
-	int count = recv(handle, (char *)bytes, readLen, 0);
+#ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
+    if (readLen > opt.imtu) {
+        readLen = opt.imtu;
+    }
+#endif //BLUECOVE_L2CAP_MTU_TRUNCATE
+
+#ifdef BLUECOVE_L2CAP_USE_MSG
+    int flags = 0;
+    iovec iov;
+    msghdr msg;
+    memset((void*)&iov, 0, sizeof(iov));
+    memset((void*)&msg, 0, sizeof(msg));
+    iov.iov_base = bytes;
+    iov.iov_len = readLen;
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    int count = recvmsg(handle, &msg, flags);
+#else
+    int count = recv(handle, (char *)bytes, readLen, 0);
+#endif //BLUECOVE_L2CAP_USE_MSG
     if (count < 0) {
-	    throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
-		count = 0;
-	}
+        throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
+        count = 0;
+    }
 
-	env->ReleaseByteArrayElements(inBuf, bytes, 0);
-	debug("receive[] returns %i", count);
-	return count;
+    env->ReleaseByteArrayElements(inBuf, bytes, 0);
+    debug("receive[] returns %i", count);
+    return count;
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Send
   (JNIEnv* env, jobject, jlong handle, jbyteArray data) {
-    jbyte *bytes = env->GetByteArrayElements(data, 0);
-	int len = (int)env->GetArrayLength(data);
-	l2cap_options opt;
+#ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
+    l2cap_options opt;
     if (!l2Get_options(env, handle, &opt)) {
         return;
     }
+#endif //BLUECOVE_L2CAP_MTU_TRUNCATE
+
+    jbyte *bytes = env->GetByteArrayElements(data, 0);
+    int len = (int)env->GetArrayLength(data);
+
+#ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
     if (len > opt.omtu) {
-		len = opt.omtu;
-	}
-	int count = send(handle, (char *)bytes, len, 0);
-	if (count < 0) {
-		throwIOException(env, "Failed to write. [%d] %s", errno, strerror(errno));
-	}
-	env->ReleaseByteArrayElements(data, bytes, 0);
+        len = opt.omtu;
+    }
+#endif //BLUECOVE_L2CAP_MTU_TRUNCATE
+
+    int count = send(handle, (char *)bytes, len, 0);
+    if (count < 0) {
+        throwIOException(env, "Failed to write. [%d] %s", errno, strerror(errno));
+    }
+    env->ReleaseByteArrayElements(data, bytes, 0);
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetReceiveMTU
@@ -232,8 +262,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2RemoteAdd
     socklen_t len = sizeof(remoteAddr);
     if (getpeername(handle, (sockaddr*)&remoteAddr, &len) < 0) {
         throwIOException(env, "Failed to get peer name. [%d] %s", errno, strerror(errno));
-		return -1;
-	}
+        return -1;
+    }
     return deviceAddrToLong(&remoteAddr.l2_bdaddr);
 }
 
@@ -248,11 +278,11 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetSecurit
     bool encrypted = socket_opt &  (L2CAP_LM_ENCRYPT | L2CAP_LM_SECURE);
     bool authenticated = socket_opt & L2CAP_LM_AUTH;
     if (authenticated) {
-		return NOAUTHENTICATE_NOENCRYPT;
-	}
-	if (encrypted) {
-		return AUTHENTICATE_ENCRYPT;
-	} else {
-		return AUTHENTICATE_NOENCRYPT;
-	}
+        return NOAUTHENTICATE_NOENCRYPT;
+    }
+    if (encrypted) {
+        return AUTHENTICATE_ENCRYPT;
+    } else {
+        return AUTHENTICATE_NOENCRYPT;
+    }
 }
