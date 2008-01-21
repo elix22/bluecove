@@ -24,7 +24,6 @@
 
 #include <sys/socket.h>
 #include <sys/unistd.h>
-#include <bluetooth/sdp_lib.h>
 #include <bluetooth/rfcomm.h>
 
 int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port) {
@@ -72,7 +71,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpe
 
     // TODO verify how this works, I think device needs to paird before this can be setup.
     // Set link security options
-    if (encrypt || authenticate) {
+    if (encrypt || authenticate || authorize || master) {
 		int socket_opt = 0;
 		socklen_t len = sizeof(socket_opt);
         if (getsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, &len) < 0) {
@@ -122,7 +121,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerGetC
 	return localAddr.rc_channel;
 }
 
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerClose
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerCloseImpl
   (JNIEnv* env, jobject, jlong handle, jboolean quietly) {
     debug("RFCOMM close server handle %li", handle);
     // Closing channel, further sends and receives will be disallowed.
@@ -144,7 +143,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerAcc
 	socklen_t  remoteAddrLen = sizeof(remoteAddr);
 	int client_socket = accept(handle, (sockaddr*)&remoteAddr, &remoteAddrLen);
 	if (client_socket < 0) {
-	    throwIOException(env, "Failed to accept client connection. [%d] %s", errno, strerror(errno));
+	    throwIOException(env, "Failed to accept RFCOMM client connection. [%d] %s", errno, strerror(errno));
 	    return 0;
 	}
+	return client_socket;
 }

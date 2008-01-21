@@ -337,7 +337,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private native long registerSDPServiceImpl(int deviceDescriptor, byte[] record) throws ServiceRegistrationException;
 
-	private native long unregisterSDPServiceImpl(long sdpSessionHandle) throws ServiceRegistrationException;
+	private native void unregisterSDPServiceImpl(long sdpSessionHandle) throws ServiceRegistrationException;
 
 	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
 			throws IOException {
@@ -354,24 +354,28 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 			return socket;
 		} finally {
 			if (!success) {
-				rfServerClose(socket, true);
+				rfServerCloseImpl(socket, true);
 			}
 		}
 	}
 
-	private native void rfServerClose(long handle, boolean quietly) throws IOException;
+	private native void rfServerCloseImpl(long handle, boolean quietly) throws IOException;
 
 	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
 		try {
 			unregisterSDPServiceImpl(serviceRecord.getHandle());
 		} finally {
-			rfServerClose(handle, false);
+			rfServerCloseImpl(handle, false);
 		}
 	}
 
 	public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
-		unregisterSDPServiceImpl(serviceRecord.getHandle());
+		long sdpSessionHandle = serviceRecord.getHandle();
+		if (sdpSessionHandle != 0) {
+			serviceRecord.setHandle(0);
+			unregisterSDPServiceImpl(sdpSessionHandle);
+		}
 		byte[] blob;
 		try {
 			blob = serviceRecord.toByteArray();
@@ -427,6 +431,12 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public native void l2CloseClientConnection(long handle) throws IOException;
 
+	private native long l2ServerOpenImpl(int deviceDescriptor, boolean authorize, boolean authenticate,
+			boolean encrypt, boolean master, boolean timeouts, int backlog, int receiveMTU, int transmitMTU)
+			throws IOException;
+
+	public native int l2ServerGetPSMImpl(long handle) throws IOException;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -435,8 +445,22 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		final int listen_backlog = 1;
+		long socket = l2ServerOpenImpl(this.deviceDescriptor, params.authorize, params.authenticate, params.encrypt,
+				params.master, params.timeouts, listen_backlog, receiveMTU, transmitMTU);
+		boolean success = false;
+		try {
+			int channel = l2ServerGetPSMImpl(socket);
+			int serviceRecordHandle = (int) socket;
+			serviceRecord.populateL2CAPAttributes(serviceRecordHandle, channel, params.uuid, params.name);
+			serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, serviceRecord.toByteArray()));
+			success = true;
+			return socket;
+		} finally {
+			if (!success) {
+				l2ServerCloseImpl(socket, true);
+			}
+		}
 	}
 
 	/*
@@ -447,7 +471,18 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public void l2ServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
-		// TODO Auto-generated method stub
+		long sdpSessionHandle = serviceRecord.getHandle();
+		if (sdpSessionHandle != 0) {
+			serviceRecord.setHandle(0);
+			unregisterSDPServiceImpl(sdpSessionHandle);
+		}
+		byte[] blob;
+		try {
+			blob = serviceRecord.toByteArray();
+		} catch (IOException e) {
+			throw new ServiceRegistrationException(e.toString());
+		}
+		serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, blob));
 	}
 
 	/*
@@ -455,10 +490,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2ServerAcceptAndOpenServerConnection(long)
 	 */
-	public long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public native long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -466,9 +498,10 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * @see com.intel.bluetooth.BluetoothStack#l2CloseServerConnection(long)
 	 */
 	public void l2CloseServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-
+		l2CloseClientConnection(handle);
 	}
+
+	private native void l2ServerCloseImpl(long handle, boolean quietly) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -477,7 +510,11 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 *      com.intel.bluetooth.ServiceRecordImpl)
 	 */
 	public void l2ServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
-		// TODO Auto-generated method stub
+		try {
+			unregisterSDPServiceImpl(serviceRecord.getHandle());
+		} finally {
+			l2ServerCloseImpl(handle, false);
+		}
 
 	}
 

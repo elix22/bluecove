@@ -59,8 +59,11 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_registerSDP
  * Method:    unregisterSDPServiceImpl
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_unregisterSDPServiceImpl
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_unregisterSDPServiceImpl
   (JNIEnv* env, jobject, jlong sdpSessionHandle) {
+    if (sdpSessionHandle == 0) {
+        return;
+    }
     if (sdp_close((sdp_session_t*)sdpSessionHandle) < 0) {
         throwServiceRegistrationException(env, "Can not close SDP session. [%d] %s", errno, strerror(errno));
     }

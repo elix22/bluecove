@@ -38,7 +38,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
     sockaddr_l2 localAddr;
     int error = hci_read_bd_addr(deviceDescriptor, &localAddr.l2_bdaddr, LOCALDEVICE_ACCESS_TIMEOUT);
     if (error != 0) {
-        throwBluetoothStateException(env, "Bluetooth Device is not ready. %d", error);
+        throwBluetoothStateException(env, "Bluetooth Device is not ready. [%d] %s", errno, strerror(errno));
         return 0;
     }
 

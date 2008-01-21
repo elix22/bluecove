@@ -62,7 +62,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLocalDev
         case HCI_HARDWARE_FAILURE:
             throwBluetoothStateException(env, "Bluetooth Device is not available");
 	    default:
-	        throwBluetoothStateException(env, "Bluetooth Device is not ready. %d", error);
+	        throwBluetoothStateException(env, "Bluetooth Device is not ready. [%d] %s", errno, strerror(errno));
         }
 	    return 0;
 	}
