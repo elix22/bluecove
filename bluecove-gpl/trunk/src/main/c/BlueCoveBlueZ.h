@@ -48,8 +48,10 @@ void longToDeviceAddr(jlong addr, bdaddr_t* address);
 
 void reverseArray(jbyte* array,int length);
 
-void convertUUIDByteArryaToUUID(JNIEnv *env, jbyteArray byteArray, uuid_t* uuid);
+void convertUUIDByteArrayToUUID(JNIEnv *env, jbyteArray byteArray, uuid_t* uuid);
 void convertUUIDBytesToUUID(jbyte *bytes, uuid_t* uuid);
+
+int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port);
 
 #define INQUIRY_COMPLETED  com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_COMPLETED
 #define INQUIRY_TERMINATED com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_TERMINATED

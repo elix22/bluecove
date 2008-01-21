@@ -26,6 +26,7 @@
 #include <bluetooth/hci_lib.h>
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
+#include <bluetooth/rfcomm.h>
 #include <jni.h>
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLibraryVersionNative
@@ -65,7 +66,7 @@ void reverseArray(jbyte* array, int length) {
 	}
 }
 
-void convertUUIDByteArryaToUUID(JNIEnv *env, jbyteArray byteArray, uuid_t* uuid) {
+void convertUUIDByteArrayToUUID(JNIEnv *env, jbyteArray byteArray, uuid_t* uuid) {
     jbyte *bytes = env->GetByteArrayElements(byteArray, 0);
 	convertUUIDBytesToUUID(bytes, uuid);
 	// unpin array
@@ -77,5 +78,18 @@ void convertUUIDBytesToUUID(jbyte *bytes, uuid_t* uuid) {
 	memcpy(&uuid->value, bytes, 128/8);
 }
 
+int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port) {
+	int err;
+	for(*port=1;*port<=31;*port++) {
+		sockaddr->rc_channel=*port;
+		err=bind(sock,(struct sockaddr *)sockaddr,sizeof(sockaddr));
+		if(!err)
+			break;
+	}
+	if(*port==31) {
+		err=-1;
+	}
+	return err;
+}
 
 

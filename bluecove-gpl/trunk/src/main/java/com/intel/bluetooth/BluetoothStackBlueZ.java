@@ -330,32 +330,61 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return rfGetSecurityOptImpl(handle);
 	}
 
+	//-- constants and methods to be used with RFCOMM and L2CAP connections --
+	private static final int PROTOCOL_RFCOMM = 3;	// defined in <bluetooth/bluetooth.h> with name BTPROTO_RFCOMM
+	private static final int PROTOCOL_L2CAP = 0;	// defined in <bluetooth/bluetooth.h> with name BTPROTO_L2CAP
+	
+	private static final int SOCKET_STREAM = 1;		// defined in <sys/socket.h> with name SOCK_STREAM
+	private static final int SOCKET_SEQ_PACKET = 5;	// defined in <sys/socket.h> with name SOCK_SEQPACKET
+	
+	private native long nativeOpenSession() throws IOException;
+	private native void nativeCloseSession(long session);
+	private native long nativeOpenSocket(int type,int protocol) throws IOException;
+	private native void nativeCloseSocket(long socket);
+	private native int nativeListen(long socket);
+	private native long nativeAccept(long socket);
+	
 	// --- Server RFCOMM connections
 
-	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+	private long rfcommSession;
+	private long rfcommSocket;
+	private long rfcommServiceRecordPointer;
+	
+	private native long nativeCreateRFCOMMServiceRecord(long socket,byte[] uuid,String name,boolean authorize,boolean authenticate,boolean encrypt,boolean master);
+	private native long nativeRegisterServiceRecord(long session,long serviceRecordPointer) throws IOException;
+	private native void nativeUnregisterServiceRecord(long session,long serviceRecordPointer);
+	
+	public long rfServerOpen(BluetoothConnectionNotifierParams params,ServiceRecordImpl serviceRecord) throws IOException
+	{
+		rfcommSession=nativeOpenSession();
+		rfcommSocket=nativeOpenSocket(SOCKET_STREAM,PROTOCOL_RFCOMM);
+		rfcommServiceRecordPointer=nativeCreateRFCOMMServiceRecord(rfcommSocket,Utils.UUIDToByteArray(params.uuid),params.name,params.authorize,params.authenticate,params.encrypt,params.master);
+		return nativeRegisterServiceRecord(rfcommSession,rfcommServiceRecordPointer);
 	}
 
-	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
-		// TODO Auto-generated method stub
-
+	public void rfServerClose(long handle,ServiceRecordImpl serviceRecord) throws IOException
+	{
+		nativeUnregisterServiceRecord(rfcommSession,rfcommServiceRecordPointer);
+		nativeCloseSocket(rfcommSocket);
+		nativeCloseSession(rfcommSession);
 	}
 
-	public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
-			throws ServiceRegistrationException {
-		// TODO Auto-generated method stub
-
+	public void rfServerUpdateServiceRecord(long handle,ServiceRecordImpl serviceRecord,boolean acceptAndOpen) throws ServiceRegistrationException
+	{
+		throw new UnsupportedOperationException("rfServerUpdateServiceRecord() Not yet Implemented.");
 	}
 
-	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException
+	{
+		int error=nativeListen(rfcommSocket);
+		if(error!=0)
+			throw new IOException("failed to listen on socket");
+		return nativeAccept(rfcommSocket);
 	}
 
-	public void connectionRfCloseServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
+	public void connectionRfCloseServerConnection(long clientHandle) throws IOException
+	{
+		nativeCloseSocket(clientHandle);
 	}
 
 	// --- Shared Client and Server RFCOMM connections

@@ -76,7 +76,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 	for(jsize i = 0; i < uuidSetSize; i++) {
 		jbyteArray byteArray = (jbyteArray)env->GetObjectArrayElement(uuidValues, i);
 		uuid_t* uuid =  (uuid_t*)malloc(sizeof(uuid_t));
-		convertUUIDByteArryaToUUID(env, byteArray, uuid);
+		convertUUIDByteArrayToUUID(env, byteArray, uuid);
 		data.uuidList = sdp_list_append(data.uuidList, uuid);
 	}
 
