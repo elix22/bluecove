@@ -330,61 +330,61 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return rfGetSecurityOptImpl(handle);
 	}
 
-	//-- constants and methods to be used with RFCOMM and L2CAP connections --
-	private static final int PROTOCOL_RFCOMM = 3;	// defined in <bluetooth/bluetooth.h> with name BTPROTO_RFCOMM
-	private static final int PROTOCOL_L2CAP = 0;	// defined in <bluetooth/bluetooth.h> with name BTPROTO_L2CAP
-	
-	private static final int SOCKET_STREAM = 1;		// defined in <sys/socket.h> with name SOCK_STREAM
-	private static final int SOCKET_SEQ_PACKET = 5;	// defined in <sys/socket.h> with name SOCK_SEQPACKET
-	
-	private native long nativeOpenSession() throws IOException;
-	private native void nativeCloseSession(long session);
-	private native long nativeOpenSocket(int type,int protocol) throws IOException;
-	private native void nativeCloseSocket(long socket);
-	private native int nativeListen(long socket);
-	private native long nativeAccept(long socket);
-	
-	// --- Server RFCOMM connections
+	private native long rfServerOpenImpl(int deviceDescriptor, boolean authorize, boolean authenticate,
+			boolean encrypt, boolean master, boolean timeouts, int backlog) throws IOException;
 
-	private long rfcommSession;
-	private long rfcommSocket;
-	private long rfcommServiceRecordPointer;
-	
-	private native long nativeCreateRFCOMMServiceRecord(long socket,byte[] uuid,String name,boolean authorize,boolean authenticate,boolean encrypt,boolean master);
-	private native long nativeRegisterServiceRecord(long session,long serviceRecordPointer) throws IOException;
-	private native void nativeUnregisterServiceRecord(long session,long serviceRecordPointer);
-	
-	public long rfServerOpen(BluetoothConnectionNotifierParams params,ServiceRecordImpl serviceRecord) throws IOException
-	{
-		rfcommSession=nativeOpenSession();
-		rfcommSocket=nativeOpenSocket(SOCKET_STREAM,PROTOCOL_RFCOMM);
-		rfcommServiceRecordPointer=nativeCreateRFCOMMServiceRecord(rfcommSocket,Utils.UUIDToByteArray(params.uuid),params.name,params.authorize,params.authenticate,params.encrypt,params.master);
-		return nativeRegisterServiceRecord(rfcommSession,rfcommServiceRecordPointer);
+	private native int rfServerGetChannelIDImpl(long handle) throws IOException;
+
+	private native long registerSDPServiceImpl(int deviceDescriptor, byte[] record) throws ServiceRegistrationException;
+
+	private native long unregisterSDPServiceImpl(long sdpSessionHandle) throws ServiceRegistrationException;
+
+	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
+			throws IOException {
+		final int listen_backlog = 1;
+		long socket = rfServerOpenImpl(this.deviceDescriptor, params.authorize, params.authenticate, params.encrypt,
+				params.master, params.timeouts, listen_backlog);
+		boolean success = false;
+		try {
+			int channel = rfServerGetChannelIDImpl(socket);
+			long serviceRecordHandle = socket;
+			serviceRecord.populateRFCOMMAttributes(serviceRecordHandle, channel, params.uuid, params.name, params.obex);
+			serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, serviceRecord.toByteArray()));
+			success = true;
+			return socket;
+		} finally {
+			if (!success) {
+				rfServerClose(socket, true);
+			}
+		}
 	}
 
-	public void rfServerClose(long handle,ServiceRecordImpl serviceRecord) throws IOException
-	{
-		nativeUnregisterServiceRecord(rfcommSession,rfcommServiceRecordPointer);
-		nativeCloseSocket(rfcommSocket);
-		nativeCloseSession(rfcommSession);
+	private native void rfServerClose(long handle, boolean quietly) throws IOException;
+
+	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
+		try {
+			unregisterSDPServiceImpl(serviceRecord.getHandle());
+		} finally {
+			rfServerClose(handle, false);
+		}
 	}
 
-	public void rfServerUpdateServiceRecord(long handle,ServiceRecordImpl serviceRecord,boolean acceptAndOpen) throws ServiceRegistrationException
-	{
-		throw new UnsupportedOperationException("rfServerUpdateServiceRecord() Not yet Implemented.");
+	public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
+			throws ServiceRegistrationException {
+		unregisterSDPServiceImpl(serviceRecord.getHandle());
+		byte[] blob;
+		try {
+			blob = serviceRecord.toByteArray();
+		} catch (IOException e) {
+			throw new ServiceRegistrationException(e.toString());
+		}
+		serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, blob));
 	}
 
-	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException
-	{
-		int error=nativeListen(rfcommSocket);
-		if(error!=0)
-			throw new IOException("failed to listen on socket");
-		return nativeAccept(rfcommSocket);
-	}
+	public native long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException;
 
-	public void connectionRfCloseServerConnection(long clientHandle) throws IOException
-	{
-		nativeCloseSocket(clientHandle);
+	public void connectionRfCloseServerConnection(long clientHandle) throws IOException {
+		connectionRfCloseClientConnection(clientHandle);
 	}
 
 	// --- Shared Client and Server RFCOMM connections
