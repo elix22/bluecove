@@ -21,10 +21,7 @@
 #define CPP__FILE "BlueCoveBlueZ_SDPQuery.cc"
 
 #include "BlueCoveBlueZ.h"
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-#include <bluetooth/sdp.h>
+
 #include <bluetooth/sdp_lib.h>
 
 // Used to free memory automaticaly

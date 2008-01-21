@@ -21,11 +21,9 @@
 #define CPP__FILE "BlueCoveBlueZ_L2CAP.cc"
 
 #include "BlueCoveBlueZ.h"
-#include <bluetooth/l2cap.h>
 
-#include <unistd.h>
-#include <errno.h>
 #include <sys/poll.h>
+#include <bluetooth/l2cap.h>
 
 //#define BLUECOVE_L2CAP_USE_MSG
 // TODO Is this necessary to truncate data before calling socket functions? sockets preserve message boundaries.

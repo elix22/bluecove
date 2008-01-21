@@ -21,7 +21,7 @@
 #define CPP__FILE "BlueCoveBlueZ_LocalDevice.cc"
 
 #include "BlueCoveBlueZ.h"
-#include <bluetooth/bluetooth.h>
+
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
 

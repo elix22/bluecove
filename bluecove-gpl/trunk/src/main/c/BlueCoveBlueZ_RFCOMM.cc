@@ -21,11 +21,10 @@
 #define CPP__FILE "BlueCoveBlueZ_RFCOMM.cc"
 
 #include "BlueCoveBlueZ.h"
+
+#include <sys/poll.h>
 #include <bluetooth/rfcomm.h>
 
-#include <unistd.h>
-#include <errno.h>
-#include <sys/poll.h>
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfOpenClientConnectionImpl
   (JNIEnv* env, jobject, jint deviceDescriptor, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint timeout) {

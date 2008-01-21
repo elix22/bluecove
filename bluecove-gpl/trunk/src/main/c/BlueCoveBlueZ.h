@@ -25,13 +25,15 @@
 #ifndef _BLUECOVEBLUEZ_H
 #define	_BLUECOVEBLUEZ_H
 
+#include <jni.h>
+#include <unistd.h>
+#include <errno.h>
+#include <malloc.h>
+
 #include <bluetooth/bluetooth.h>
+#include <bluetooth/sdp.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
-#include <bluetooth/sdp.h>
-#include <bluetooth/sdp_lib.h>
-#include <jni.h>
-#include <malloc.h>
 
 #include "com_intel_bluetooth_BluetoothStackBlueZ.h"
 #include "com_intel_bluetooth_BluetoothStackBlueZConsts.h"
@@ -50,8 +52,6 @@ void reverseArray(jbyte* array,int length);
 
 void convertUUIDByteArrayToUUID(JNIEnv *env, jbyteArray byteArray, uuid_t* uuid);
 void convertUUIDBytesToUUID(jbyte *bytes, uuid_t* uuid);
-
-int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port);
 
 #define INQUIRY_COMPLETED  com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_COMPLETED
 #define INQUIRY_TERMINATED com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_TERMINATED

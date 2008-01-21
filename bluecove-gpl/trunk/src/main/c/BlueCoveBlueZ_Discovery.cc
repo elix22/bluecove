@@ -21,9 +21,6 @@
 #define CPP__FILE "BlueCoveBlueZ_Discovery.cc"
 
 #include "BlueCoveBlueZ.h"
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runDeviceInquiryImpl
 (JNIEnv *env, jobject peer, jobject startedNotify, jint deviceID, jint deviceDescriptor, jint accessCode, jint inquiryLength, jint maxResponses, jobject listener) {

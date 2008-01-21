@@ -20,17 +20,27 @@
  */
 #define CPP__FILE "BlueCoveBlueZ_RFCOMMServer.cc"
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-#include <bluetooth/sdp.h>
-#include <bluetooth/sdp_lib.h>
-#include <bluetooth/rfcomm.h>
+#include "BlueCoveBlueZ.h"
+
 #include <sys/socket.h>
 #include <sys/unistd.h>
+#include <bluetooth/sdp_lib.h>
+#include <bluetooth/rfcomm.h>
 
-#include "BlueCoveBlueZ.h"
-#include "BluetoothStackBlueZ.h"
+
+int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port) {
+	int err;
+	for(*port=1;*port<=31;*port++) {
+		sockaddr->rc_channel=*port;
+		err=bind(sock,(struct sockaddr *)sockaddr,sizeof(sockaddr));
+		if(!err)
+			break;
+	}
+	if(*port==31) {
+		err=-1;
+	}
+	return err;
+}
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeOpenSession(JNIEnv *env, jobject thisObject) {
 	sdp_session_t* session=sdp_connect(BDADDR_ANY,BDADDR_LOCAL,SDP_RETRY_IF_BUSY);
@@ -61,15 +71,15 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeCreat
 	sdp_uuid16_create(&l2capUUID,L2CAP_UUID);
 	sdp_uuid16_create(&rfcommUUID,RFCOMM_UUID);
 	convertUUIDByteArrayToUUID(env,uuid,&serviceUUID);
-	
+
 	sdp_record_t* serviceRecord=sdp_record_alloc();
 	sdp_set_service_id(serviceRecord,serviceUUID);
-	
+
 	sdp_list_t *rootList,*rfcommList,*l2capList,*protocolList,*accessProtocolList;
 	rootList=sdp_list_append(NULL,&rootUUID);
 	l2capList=sdp_list_append(NULL,&l2capUUID);
 	rfcommList=sdp_list_append(NULL,&rfcommUUID);
-	
+
 	sockaddr_rc socketAddress;
 	socketAddress.rc_family = AF_BLUETOOTH;
 	socketAddress.rc_bdaddr=*BDADDR_ANY;
@@ -78,29 +88,29 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeCreat
 		throwIOException(env,"can not find channel for service");
 		return 0;
 	}
-	
+
 	sdp_data_t* channel=sdp_data_alloc(SDP_UINT8,&socketAddress.rc_channel);
 	rfcommList=sdp_list_append(rfcommList,channel);
-	
+
 	// TODO find a way to attach flags to the service record (authorize, authenticate, encrypt, master);
-	
+
 	sdp_set_browse_groups(serviceRecord,rootList);
 	protocolList=sdp_list_append(NULL,l2capList);
 	protocolList=sdp_list_append(protocolList,rfcommList);
 	accessProtocolList=sdp_list_append(NULL,protocolList);
-	
+
 	sdp_set_access_protos(serviceRecord,accessProtocolList);
 	jboolean isCopy=JNI_FALSE;
 	const char* nameChars=env->GetStringUTFChars(name,&isCopy);
 	sdp_set_info_attr(serviceRecord,nameChars,"BlueCove","service offered by BlueCove");
-	
+
 	sdp_data_free(channel);
 	sdp_list_free(rootList,NULL);
 	sdp_list_free(l2capList,NULL);
 	sdp_list_free(rfcommList,NULL);
 	sdp_list_free(protocolList,NULL);
 	sdp_list_free(accessProtocolList,NULL);
-	
+
 	return (jlong)serviceRecord;
 }
 
