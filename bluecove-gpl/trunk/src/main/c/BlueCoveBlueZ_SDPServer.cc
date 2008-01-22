@@ -43,11 +43,22 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_registerSDP
 	jbyte *bytes = env->GetByteArrayElements(record, 0);
     int flags = 0;
     uint32_t handle;
-    int err = sdp_device_record_register_binary(session, &localAddr, (uint8_t*)bytes, length, flags, &handle);
+    int err = 0;
+    // bluez-libs-3.24
+    //int err = sdp_device_record_register_binary(session, &localAddr, (uint8_t*)bytes, length, flags, &handle);
+    sdp_record_t *rec = sdp_extract_pdu((uint8_t*)bytes, &length);
+    if (rec == NULL) {
+        err = -1;
+    } else {
+        rec->handle = 0xffffffff;
+        err = sdp_device_record_register(session, &localAddr, rec, flags);
+    }
+
     env->ReleaseByteArrayElements(record, bytes, 0);
 
     if (err != 0) {
         throwServiceRegistrationException(env, "Can not register SDP record. [%d] %s", errno, strerror(errno));
+        sdp_close(session);
         return 0;
     }
 

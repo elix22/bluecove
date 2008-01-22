@@ -21,6 +21,5 @@
     - Java SE Development Kit 1.4 or newer
     - Linux Bluetooth protocol stack (BlueZ)
     - Development librararies for Bluetooth applications (package bluez-libs-devel 3.9 or newer)
-    - GNU autotools (autoconf 2.61 or newer)
 
     The native library are build during maven build.
