@@ -175,7 +175,7 @@ public abstract class BluetoothTypesInfo {
 			}
 			int shortIdx = str.indexOf(SHORT_BASE);
 			if ((shortIdx != -1) && (shortIdx + SHORT_BASE.length() == str.length())) {
-				// This is short 16-bit UUID
+				// This is short 16-bit or 32-bit UUID
 				return toHexString(Integer.parseInt(str.substring(0, shortIdx), 16));
 			}
 			return null;
