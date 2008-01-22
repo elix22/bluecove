@@ -206,6 +206,10 @@
                                 </source>
                                 -->
                             </sources>
+                            <compilerStartOptions>
+                                <!-- This flag creates position independent code on 64 bit platform/ IA32 has this flag applied by default with GCC -->
+                                <compilerStartOption>-fPIC</compilerStartOption>
+                            </compilerStartOptions>
                             <linkerStartOptions>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-lbluetooth</linkerStartOption>
