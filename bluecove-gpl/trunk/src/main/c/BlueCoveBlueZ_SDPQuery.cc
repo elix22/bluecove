@@ -299,7 +299,6 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 			dataElement = env->NewObject(dataElementClass, constructorID, DATA_ELEMENT_TYPE_INT_8, value);
 			break;
 		}
-		//-----------------------------------------//
 		case SDP_UINT64:
 		{
 			Edebug("SDP_UINT64");
@@ -318,8 +317,8 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		case SDP_UINT128:
 		{
 			Edebug("SDP_UINT128");
-			uint128_t value=data->val.uint128;
-			jbyte* bytes=(jbyte*)&value;
+			uint128_t value = data->val.uint128;
+			jbyte* bytes = (jbyte*)&value;
 			reverseArray(bytes, sizeof(value));
 			jbyteArray byteArray = env->NewByteArray(sizeof(value));
 			env->SetByteArrayRegion(byteArray, 0, sizeof(value), bytes);
@@ -378,7 +377,7 @@ jobject createDataElement(JNIEnv *env, sdp_data_t *data) {
 		case SDP_UUID_UNSPEC:
 		case SDP_UUID16:
 		case SDP_UUID32:
-		case SDP_UUID128:
+	case SDP_UUID128:
 		{
 		    Edebug("SDP_UUID");
 			jobject javaUUID = createJavaUUID(env, data->val.uuid);
@@ -491,3 +490,147 @@ void populateServiceRecord(JNIEnv *env, jobject serviceRecord, sdp_record_t* sdp
 	Edebug("attrCount %i", attrCount);
 }
 
+void debugDataElement(JNIEnv *env, sdp_data_t *data, int ident);
+
+void debugDataElementSequence(JNIEnv *env, sdp_data_t *seqData, int ident) {
+    for(; seqData; seqData = seqData->next) {
+	    debugDataElement(env, seqData, ident + 1);
+    }
+}
+
+void debugDataElement(JNIEnv *env, sdp_data_t *data, int ident) {
+    char t[40];
+    memset(t, ' ', sizeof(t));
+    t[ident] = '\0';
+
+    switch (data->dtd) {
+		case SDP_DATA_NIL:
+		    debug("%sSDP_DATA_NIL %i", t, data->dtd);
+			break;
+		case SDP_BOOL:
+		    debug("%sSDP_BOOL %i", t, data->val.uint8);
+			break;
+		case SDP_UINT8:
+		    debug("%sSDP_UINT8 %i", t, data->val.uint8);
+			break;
+		case SDP_UINT16:
+		    debug("%sSDP_UINT16 %i", t, data->val.uint16);
+			break;
+		case SDP_UINT32:
+		    debug("%sSDP_UINT32 %i", t, data->val.uint32);
+			break;
+		case SDP_INT8:
+		    debug("%sSDP_INT8 %i", t, data->val.int8);
+			break;
+		case SDP_INT16:
+		    debug("%sSDP_INT16 %i", t, data->val.int16);
+			break;
+		case SDP_INT32:
+		    debug("%sSDP_INT32 %i", t, data->val.int32);
+			break;
+		case SDP_INT64:
+		    debug("%sSDP_INT64 %i", t, data->val.int64);
+			break;
+		case SDP_UINT64: {
+		    uint64_t value = data->val.uint64;
+		    debug("%sSDP_UINT64 ...", t);
+		    break;
+		}
+		case SDP_UINT128: {
+		    uint128_t value = data->val.uint128;
+		    debug("%sSDP_UINT128 ...", t);
+		    break;
+		}
+		case SDP_INT128: {
+			uint128_t value = data->val.int128;
+			debug("%sSDP_INT128 ...", t);
+			break;
+		}
+		case SDP_URL_STR_UNSPEC:
+		    debug("%sSDP_URL_STR_UNSPEC %s", t, data->val.str);
+		    break;
+		case SDP_URL_STR8:
+		    debug("%sSDP_URL_STR8 %s", t, data->val.str);
+		    break;
+		case SDP_URL_STR16:
+		    debug("%sSDP_URL_STR16 %s", t, data->val.str);
+		    break;
+		case SDP_URL_STR32:
+		    debug("%sSDP_URL_STR32 %s", t, data->val.str);
+		    break;
+		case SDP_TEXT_STR_UNSPEC:
+		    debug("%sSDP_TEXT_STR_UNSPEC %s", t, data->val.str);
+		    break;
+		case SDP_TEXT_STR8:
+		    debug("%sSDP_TEXT_STR8 %s", t, data->val.str);
+		    break;
+		case SDP_TEXT_STR16:
+		    debug("%sSDP_TEXT_STR16 %s", t, data->val.str);
+		    break;
+		case SDP_TEXT_STR32:
+		    debug("%sSDP_TEXT_STR32 %s", t, data->val.str);
+		    break;
+		case SDP_UUID_UNSPEC:
+		    debug("%sSDP_UUID_UNSPEC ...", t);
+		    break;
+		case SDP_UUID16:
+		    debug("%sSDP_UUID16 %.4x", t, data->val.uuid.value.uuid16);
+		    break;
+		case SDP_UUID32:
+		    debug("%sSDP_UUID32 %.8x", t, data->val.uuid.value.uuid32);
+		    break;
+		case SDP_UUID128:
+		    debug("%sSDP_UUID128 ...", t);
+		    break;
+		case SDP_SEQ_UNSPEC:
+		    debug("%sSDP_SEQ_UNSPEC", t);
+			debugDataElementSequence(env, data->val.dataseq, ident);
+			break;
+		case SDP_SEQ8:
+		    debug("%sSDP_SEQ8", t);
+			debugDataElementSequence(env, data->val.dataseq, ident);
+			break;
+		case SDP_SEQ16:
+		    debug("%sSDP_SEQ16", t);
+			debugDataElementSequence(env, data->val.dataseq, ident);
+			break;
+		case SDP_SEQ32:
+			debug("%sSDP_SEQ32", t);
+			debugDataElementSequence(env, data->val.dataseq, ident);
+			break;
+		case SDP_ALT_UNSPEC:
+		case SDP_ALT8:
+		case SDP_ALT16:
+		case SDP_ALT32: {
+		    debug("%sSDP_ALT", t);
+			sdp_data_t *seqData = data->val.dataseq;
+			for(; seqData; seqData = seqData->next) {
+				debugDataElement(env, seqData, ident + 1);
+			}
+			break;
+		}
+		default: {
+		    debug("%sstrange data type 0x%x", t, data->dtd);
+			break;
+		}
+	}
+}
+
+void debugServiceRecord(JNIEnv *env, sdp_record_t* sdpRecord) {
+    if (sdpRecord == NULL) {
+        debug("sdpRecord is NULL");
+        return;
+    }
+    debug("sdpRecord.handle", sdpRecord->handle);
+
+    if (sdpRecord->attrlist == NULL) {
+        debug("sdpRecord.attrlist is NULL");
+        return;
+    }
+    sdp_list_t *list = sdpRecord->attrlist;
+    for (; list; list = list->next) {
+        sdp_data_t * sdpdata = (sdp_data_t *)list->data;
+		debug("AttrID: 0x%x", sdpdata->attrId);
+		debugDataElement(env, sdpdata, 1);
+    }
+}

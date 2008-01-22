@@ -41,6 +41,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private int deviceDescriptor;
 
+	private long localDeviceBTAddress;
+
 	private Map/* <String,String> */propertiesMap;
 
 	private DiscoveryListener discoveryListener;
@@ -85,6 +87,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	public void initialize() throws BluetoothStateException {
 		deviceID = nativeGetDeviceID();
 		deviceDescriptor = nativeOpenDevice(deviceID);
+		localDeviceBTAddress = getLocalDeviceBluetoothAddressImpl(deviceDescriptor);
 		propertiesMap = new TreeMap/* <String,String> */();
 		propertiesMap.put("bluetooth.api.version", "1.1");
 	}
@@ -314,11 +317,11 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// --- Client RFCOMM connections
 
-	private native long connectionRfOpenClientConnectionImpl(int deviceDescriptor, long address, int channel,
+	private native long connectionRfOpenClientConnectionImpl(long localDeviceBTAddress, long address, int channel,
 			boolean authenticate, boolean encrypt, int timeout) throws IOException;
 
 	public long connectionRfOpenClientConnection(BluetoothConnectionParams params) throws IOException {
-		return connectionRfOpenClientConnectionImpl(deviceDescriptor, params.address, params.channel,
+		return connectionRfOpenClientConnectionImpl(localDeviceBTAddress, params.address, params.channel,
 				params.authenticate, params.encrypt, params.timeout);
 	}
 
@@ -330,26 +333,27 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return rfGetSecurityOptImpl(handle);
 	}
 
-	private native long rfServerOpenImpl(int deviceDescriptor, boolean authorize, boolean authenticate,
+	private native long rfServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
 			boolean encrypt, boolean master, boolean timeouts, int backlog) throws IOException;
 
 	private native int rfServerGetChannelIDImpl(long handle) throws IOException;
 
-	private native long registerSDPServiceImpl(int deviceDescriptor, byte[] record) throws ServiceRegistrationException;
+	private native long registerSDPServiceImpl(long localDeviceBTAddress, byte[] record)
+			throws ServiceRegistrationException;
 
 	private native void unregisterSDPServiceImpl(long sdpSessionHandle) throws ServiceRegistrationException;
 
 	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
 			throws IOException {
 		final int listen_backlog = 1;
-		long socket = rfServerOpenImpl(this.deviceDescriptor, params.authorize, params.authenticate, params.encrypt,
-				params.master, params.timeouts, listen_backlog);
+		long socket = rfServerOpenImpl(this.localDeviceBTAddress, params.authorize, params.authenticate,
+				params.encrypt, params.master, params.timeouts, listen_backlog);
 		boolean success = false;
 		try {
 			int channel = rfServerGetChannelIDImpl(socket);
-			long serviceRecordHandle = socket;
+			long serviceRecordHandle = 0;
 			serviceRecord.populateRFCOMMAttributes(serviceRecordHandle, channel, params.uuid, params.name, params.obex);
-			serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, serviceRecord.toByteArray()));
+			serviceRecord.setHandle(registerSDPServiceImpl(this.localDeviceBTAddress, serviceRecord.toByteArray()));
 			success = true;
 			return socket;
 		} finally {
@@ -382,7 +386,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		} catch (IOException e) {
 			throw new ServiceRegistrationException(e.toString());
 		}
-		serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, blob));
+		serviceRecord.setHandle(registerSDPServiceImpl(this.localDeviceBTAddress, blob));
 	}
 
 	public native long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException;
@@ -409,7 +413,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// --- Client and Server L2CAP connections
 
-	private native long l2OpenClientConnectionImpl(int deviceDescriptor, long address, int channel,
+	private native long l2OpenClientConnectionImpl(long localDeviceBTAddress, long address, int channel,
 			boolean authenticate, boolean encrypt, int receiveMTU, int transmitMTU, int timeout) throws IOException;
 
 	/*
@@ -420,8 +424,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
 			throws IOException {
-		return l2OpenClientConnectionImpl(deviceDescriptor, params.address, params.channel, params.authenticate,
-				params.encrypt, receiveMTU, transmitMTU, params.timeout);
+		return l2OpenClientConnectionImpl(this.localDeviceBTAddress, params.address, params.channel,
+				params.authenticate, params.encrypt, receiveMTU, transmitMTU, params.timeout);
 	}
 
 	/*
@@ -431,7 +435,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public native void l2CloseClientConnection(long handle) throws IOException;
 
-	private native long l2ServerOpenImpl(int deviceDescriptor, boolean authorize, boolean authenticate,
+	private native long l2ServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
 			boolean encrypt, boolean master, boolean timeouts, int backlog, int receiveMTU, int transmitMTU)
 			throws IOException;
 
@@ -446,8 +450,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
 		final int listen_backlog = 1;
-		long socket = l2ServerOpenImpl(this.deviceDescriptor, params.authorize, params.authenticate, params.encrypt,
-				params.master, params.timeouts, listen_backlog, receiveMTU, transmitMTU);
+		long socket = l2ServerOpenImpl(this.localDeviceBTAddress, params.authorize, params.authenticate,
+				params.encrypt, params.master, params.timeouts, listen_backlog, receiveMTU, transmitMTU);
 		boolean success = false;
 		try {
 			int channel = l2ServerGetPSMImpl(socket);

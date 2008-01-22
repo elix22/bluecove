@@ -53,6 +53,8 @@ void reverseArray(jbyte* array,int length);
 void convertUUIDByteArrayToUUID(JNIEnv *env, jbyteArray byteArray, uuid_t* uuid);
 void convertUUIDBytesToUUID(jbyte *bytes, uuid_t* uuid);
 
+void debugServiceRecord(JNIEnv *env, sdp_record_t* sdpRecord);
+
 #define INQUIRY_COMPLETED  com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_COMPLETED
 #define INQUIRY_TERMINATED com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_TERMINATED
 #define INQUIRY_ERROR      com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_ERROR

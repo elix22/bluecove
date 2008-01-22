@@ -24,13 +24,7 @@
 #include <bluetooth/l2cap.h>
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpenImpl
-  (JNIEnv* env, jobject, jint deviceDescriptor, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog, jint receiveMTU, jint transmitMTU) {
-    sockaddr_l2 localAddr;
-    int error = hci_read_bd_addr(deviceDescriptor, &localAddr.l2_bdaddr, LOCALDEVICE_ACCESS_TIMEOUT);
-    if (error != 0) {
-        throwBluetoothStateException(env, "Bluetooth Device is not ready. [%d] %s", errno, strerror(errno));
-        return 0;
-    }
+  (JNIEnv* env, jobject, jlong localDeviceBTAddress, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog, jint receiveMTU, jint transmitMTU) {
 
     // allocate socket
     int handle = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
@@ -39,11 +33,12 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpe
         return 0;
     }
 
+    sockaddr_l2 localAddr;
     //bind local address
     localAddr.l2_family = AF_BLUETOOTH;
     localAddr.l2_psm = 0;
-    //We used deviceDescriptor to get local address for selected device
     //bacpy(&localAddr.l2_bdaddr, BDADDR_ANY);
+    longToDeviceAddr(localDeviceBTAddress, &localAddr.l2_bdaddr);
 
     if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
         throwIOException(env, "Failed to bind socket. [%d] %s", errno, strerror(errno));

@@ -41,14 +41,7 @@ int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port) {
 }
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpenImpl
-  (JNIEnv* env, jobject, jint deviceDescriptor, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog) {
-    sockaddr_rc localAddr;
-	int error = hci_read_bd_addr(deviceDescriptor, &localAddr.rc_bdaddr, LOCALDEVICE_ACCESS_TIMEOUT);
-	if (error != 0) {
-        throwBluetoothStateException(env, "Bluetooth Device is not ready. [%d] %s", errno, strerror(errno));
-	    return 0;
-	}
-
+  (JNIEnv* env, jobject, jlong localDeviceBTAddress, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog) {
     // allocate socket
     int handle = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
     if (handle < 0) {
@@ -56,12 +49,13 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpe
         return 0;
     }
 
+    sockaddr_rc localAddr;
     //bind local address
     localAddr.rc_family = AF_BLUETOOTH;
     // TODO for kernel versions 2.6.6 and before use dynamic_bind_rc
     localAddr.rc_channel = 0;
-    //We used deviceDescriptor to get local address for selected device
     //bacpy(&localAddr.rc_bdaddr, BDADDR_ANY);
+    longToDeviceAddr(localDeviceBTAddress, &localAddr.rc_bdaddr);
 
     if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
 		throwIOException(env, "Failed to  bind socket. [%d] %s", errno, strerror(errno));
