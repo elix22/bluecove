@@ -299,4 +299,21 @@
 
     </build>
 
+
+    <profiles>
+
+        <profile>
+            <id>hasBuildLabel</id>
+            <activation>
+                <property>
+                    <name>label</name>
+                </property>
+            </activation>
+            <properties>
+                <buildLabel>${label}</buildLabel>
+            </properties>
+        </profile>
+
+    </profiles>
+
 </project>
