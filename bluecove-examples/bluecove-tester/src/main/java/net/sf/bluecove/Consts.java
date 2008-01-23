@@ -68,7 +68,8 @@ public interface Consts {
 	public static final int TEST_SERVICE_ATTRIBUTE_LONG_TYPE = DataElement.INT_4;
 
 	public static final long TEST_SERVICE_ATTRIBUTE_LONG_VALUE = 128; // 0xF1234567l;
-																		// //4045620583
+
+	// //4045620583
 
 	public static final int TEST_SERVICE_ATTRIBUTE_BYTES_ID = 0x0A4;
 
@@ -95,11 +96,11 @@ public interface Consts {
 
 	public static final int TEST_SERVER_TERMINATE = 99;
 
-	public static final int TRAFIC_GENERATOR_WRITE = 100;
+	public static final int TRAFFIC_GENERATOR_WRITE = 100;
 
-	public static final int TRAFIC_GENERATOR_READ = 101;
+	public static final int TRAFFIC_GENERATOR_READ = 101;
 
-	public static final int TRAFIC_GENERATOR_READ_WRITE = 102;
+	public static final int TRAFFIC_GENERATOR_READ_WRITE = 102;
 
 	// RFCOMM test numbers
 

@@ -155,6 +155,7 @@ public class TwoThreadsPerConnection {
 					for (int j = 0; j < arraySize; j++, k++) {
 						Assert.assertEquals("sent " + sentCount + " bytes; read byte[" + k + "]", (byte) k, data[j]);
 					}
+					c.active();
 					receivedCount += arraySize;
 				}
 			} catch (IOException e) {

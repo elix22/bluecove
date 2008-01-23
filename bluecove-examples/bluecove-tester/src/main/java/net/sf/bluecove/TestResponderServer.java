@@ -211,7 +211,10 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					return;
 				}
 				testType = c.is.read();
-
+				if (isTest == -1) {
+					Logger.debug("EOF recived");
+					return;
+				}
 				if (testType == Consts.TEST_SERVER_TERMINATE) {
 					Logger.info("Stop requested");
 					shutdown();

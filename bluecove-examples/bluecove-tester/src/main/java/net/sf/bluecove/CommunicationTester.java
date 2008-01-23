@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove;
 
 import java.io.DataInputStream;
@@ -31,6 +31,7 @@ import javax.bluetooth.RemoteDevice;
 import javax.microedition.io.StreamConnection;
 
 import junit.framework.Assert;
+import net.sf.bluecove.tests.RfTrafficGenerator;
 import net.sf.bluecove.tests.TwoThreadsPerConnection;
 import net.sf.bluecove.util.TimeUtils;
 import net.sf.bluecove.util.ValueHolder;
@@ -38,9 +39,9 @@ import net.sf.bluecove.util.ValueHolder;
 public class CommunicationTester extends CommunicationData {
 
 	public static boolean dataOutputStreamFlush = true;
-	
+
 	public static int clientConnectionOpenRetry = 3;
-	
+
 	static void sendString(OutputStream os) throws IOException {
 		DataOutputStream dos = new DataOutputStream(os);
 		dos.writeUTF(stringData);
@@ -48,7 +49,7 @@ public class CommunicationTester extends CommunicationData {
 			dos.flush();
 		}
 	}
-	
+
 	static void readString(InputStream is) throws IOException {
 		DataInputStream dis = new DataInputStream(is);
 		String got = dis.readUTF();
@@ -62,59 +63,59 @@ public class CommunicationTester extends CommunicationData {
 			dos.flush();
 		}
 	}
-	
+
 	static void readUTFString(InputStream is) throws IOException {
 		DataInputStream dis = new DataInputStream(is);
 		String got = dis.readUTF();
 		Assert.assertEquals("ReadString", stringUTFData, got);
 	}
-	
+
 	static void sendByte(OutputStream os) throws IOException {
 		os.write(aKnowndPositiveByte);
 		os.write(aKnowndNegativeByte);
-		
+
 		// Test int conversions
 		int bp = aKnowndPositiveByte;
 		os.write(bp);
 		int bn = aKnowndNegativeByte;
 		os.write(bn);
-		
-		for(int i = 1; i < byteCount; i++) {
-			os.write((byte)i);
+
+		for (int i = 1; i < byteCount; i++) {
+			os.write((byte) i);
 		}
-		for(int i = 0; i < byteAray.length; i++) {
+		for (int i = 0; i < byteAray.length; i++) {
 			os.write(byteAray[i]);
 		}
 		// The byte to be written is the eight low-order bits of the argument b.
 		os.write(0xABC);
 		os.write(aKnowndPositiveByte);
 	}
-	
+
 	static void readByte(InputStream is) throws IOException {
-		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte)is.read());
-		Assert.assertEquals("negativeByte", aKnowndNegativeByte, (byte)is.read());
-		Assert.assertEquals("positiveByte written(int)", aKnowndPositiveByte, (byte)is.read());
-		Assert.assertEquals("negativeByte written(int)", aKnowndNegativeByte, (byte)is.read());
-		for(int i = 1; i < byteCount; i++) {
-			byte got = (byte)is.read();
-			Assert.assertEquals("t1, byte [" + i + "]", (byte)i, got);
+		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte) is.read());
+		Assert.assertEquals("negativeByte", aKnowndNegativeByte, (byte) is.read());
+		Assert.assertEquals("positiveByte written(int)", aKnowndPositiveByte, (byte) is.read());
+		Assert.assertEquals("negativeByte written(int)", aKnowndNegativeByte, (byte) is.read());
+		for (int i = 1; i < byteCount; i++) {
+			byte got = (byte) is.read();
+			Assert.assertEquals("t1, byte [" + i + "]", (byte) i, got);
 		}
-		for(int i = 0; i < byteAray.length; i++) {
-			byte got = (byte)is.read();
+		for (int i = 0; i < byteAray.length; i++) {
+			byte got = (byte) is.read();
 			Assert.assertEquals("t2, byte [" + i + "]", byteAray[i], got);
 		}
 		int abc = is.read();
 		Assert.assertEquals("written(0xABC)", 0xBC, abc);
-		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte)is.read());
+		Assert.assertEquals("positiveByte", aKnowndPositiveByte, (byte) is.read());
 	}
 
 	static void sendBytes256(OutputStream os) throws IOException {
 		// Write all 256 bytes
 		int cnt = 0;
-		for(int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
+		for (int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
 			try {
-				os.write((byte)i);
-				cnt ++;
+				os.write((byte) i);
+				cnt++;
 			} catch (IOException e) {
 				Logger.debug("Sent only " + cnt + " bytes");
 				throw e;
@@ -123,24 +124,24 @@ public class CommunicationTester extends CommunicationData {
 		// Send one more byte to see is 0xFF is not EOF
 		os.write(aKnowndPositiveByte);
 	}
-	
+
 	static void readBytes256(InputStream is) throws IOException {
-		//Read all 256 bytes
+		// Read all 256 bytes
 		int cnt = 0;
-		for(int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
+		for (int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++) {
 			byte got;
 			try {
-				got = (byte)is.read();
-				cnt ++;
+				got = (byte) is.read();
+				cnt++;
 			} catch (IOException e) {
 				Logger.debug("Received only " + cnt + " bytes");
 				throw e;
 			}
-			Assert.assertEquals("all bytes [" + i + "]", (byte)i, got);
+			Assert.assertEquals("all bytes [" + i + "]", (byte) i, got);
 		}
-		Assert.assertEquals("conformation that 0xFF is not EOF", aKnowndPositiveByte, (byte)is.read());
+		Assert.assertEquals("conformation that 0xFF is not EOF", aKnowndPositiveByte, (byte) is.read());
 	}
-	
+
 	static void sendByteAray(OutputStream os) throws IOException {
 		os.write(byteAray);
 	}
@@ -149,7 +150,7 @@ public class CommunicationTester extends CommunicationData {
 		byte[] byteArayGot = new byte[byteAray.length];
 		int got = is.read(byteArayGot);
 		Assert.assertEquals("byteAray.len", byteAray.length, got);
-		for(int i = 0; i < byteAray.length; i++) {
+		for (int i = 0; i < byteAray.length; i++) {
 			Assert.assertEquals("byte", byteAray[i], byteArayGot[i]);
 		}
 	}
@@ -163,15 +164,15 @@ public class CommunicationTester extends CommunicationData {
 		dos.writeBoolean(false);
 		dos.writeChar('O');
 		dos.writeShort(541);
-//		CLDC_1_0 dos.writeFloat((float)3.14159); 
-//		CLDC_1_0 dos.writeDouble(Math.E); 
+		// CLDC_1_0 dos.writeFloat((float)3.14159);
+		// CLDC_1_0 dos.writeDouble(Math.E);
 		dos.writeByte(aKnowndPositiveByte);
 		dos.writeByte(aKnowndNegativeByte);
 		if (dataOutputStreamFlush) {
 			dos.flush();
 		}
 	}
-	
+
 	static void readDataStream(InputStream is) throws IOException {
 		DataInputStream dis = new DataInputStream(is);
 		String got = dis.readUTF();
@@ -182,14 +183,16 @@ public class CommunicationTester extends CommunicationData {
 		Assert.assertEquals("ReadBoolean2", false, dis.readBoolean());
 		Assert.assertEquals("ReadChar", 'O', dis.readChar());
 		Assert.assertEquals("readShort", 541, dis.readShort());
-//		CLDC_1_0 Assert.assertEquals("readFloat", (float)3.14159, dis.readFloat(), (float)0.0000001);
-//		CLDC_1_0 Assert.assertEquals("readDouble", Math.E, dis.readDouble(), 0.0000000000000001);
+		// CLDC_1_0 Assert.assertEquals("readFloat", (float)3.14159,
+		// dis.readFloat(), (float)0.0000001);
+		// CLDC_1_0 Assert.assertEquals("readDouble", Math.E, dis.readDouble(),
+		// 0.0000000000000001);
 		Assert.assertEquals("positiveByte", aKnowndPositiveByte, dis.readByte());
 		Assert.assertEquals("negativeByte", aKnowndNegativeByte, dis.readByte());
 	}
-	
+
 	private static void sendStreamAvailable(InputStream is, OutputStream os) throws IOException {
-		for(int i = 1; i < streamAvailableByteCount; i++) {
+		for (int i = 1; i < streamAvailableByteCount; i++) {
 			os.write(i);
 			if (i % 10 == 0) {
 				os.flush();
@@ -197,29 +200,30 @@ public class CommunicationTester extends CommunicationData {
 		}
 		// Long test need conformation
 		os.flush();
-		byte got = (byte)is.read();
+		byte got = (byte) is.read();
 		Assert.assertEquals("conformation byte", streamAvailableByteCount, got);
 	}
 
 	private static void readStreamAvailable(InputStream is, OutputStream os) throws IOException {
-		int available = 0; 
-		for(int i = 1; i < streamAvailableByteCount; i++) {
+		int available = 0;
+		for (int i = 1; i < streamAvailableByteCount; i++) {
 			boolean hasData = (available > 0);
 			int tryCount = 0;
-			while(!hasData) {
-				// This blocks on Nokia(Srv) on second call connected to Widcomm(Client)
+			while (!hasData) {
+				// This blocks on Nokia(Srv) on second call connected to
+				// Widcomm(Client)
 				try {
 					available = is.available();
 				} catch (IOException e) {
 					Logger.debug("(m1) Received only " + i + " bytes");
 					throw e;
-				}		
+				}
 				if (available > 0) {
 					hasData = true;
 				} else if (available < 0) {
 					Assert.fail("negative available");
 				}
-				tryCount ++;
+				tryCount++;
 				try {
 					Thread.sleep(300);
 				} catch (InterruptedException e) {
@@ -229,25 +233,25 @@ public class CommunicationTester extends CommunicationData {
 					Assert.fail("Test Available took too long, got " + i + " bytes");
 				}
 			}
-			
+
 			byte got;
 			try {
-				got = (byte)is.read();
+				got = (byte) is.read();
 			} catch (IOException e) {
 				Logger.debug("(m2) Received only " + i + " bytes");
 				throw e;
 			}
 			Assert.assertEquals("byte[" + i + "]", i, got);
-			available --;
+			available--;
 		}
 		os.write(streamAvailableByteCount);
 		os.flush();
 	}
-	
-	private static void sendEOF(ConnectionHolderStream c, TestStatus testStatus) throws IOException  {
+
+	private static void sendEOF(ConnectionHolderStream c, TestStatus testStatus) throws IOException {
 		c.os.write(aKnowndPositiveByte);
 		c.os.flush();
-		Assert.assertEquals("byte received", aKnowndNegativeByte, (byte)c.is.read());
+		Assert.assertEquals("byte received", aKnowndNegativeByte, (byte) c.is.read());
 		c.disconnected();
 		c.os.close();
 		c.is.close();
@@ -255,7 +259,7 @@ public class CommunicationTester extends CommunicationData {
 	}
 
 	private static void readEOF(InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
-		Assert.assertEquals("byte", aKnowndPositiveByte, (byte)is.read());
+		Assert.assertEquals("byte", aKnowndPositiveByte, (byte) is.read());
 		os.write(aKnowndNegativeByte);
 		os.flush();
 		long startWait = System.currentTimeMillis();
@@ -310,7 +314,7 @@ public class CommunicationTester extends CommunicationData {
 		c.os.close();
 		c.is.close();
 		testStatus.streamClosed = true;
-		
+
 		try {
 			c.os.write(byteAray);
 			c.os.flush();
@@ -321,15 +325,15 @@ public class CommunicationTester extends CommunicationData {
 	}
 
 	private static void readClosedConnection(ConnectionHolderStream c, TestStatus testStatus) throws IOException {
-		Assert.assertEquals("byte1", aKnowndPositiveByte, (byte)c.is.read());
-		Assert.assertEquals("byte2", aKnowndNegativeByte, (byte)c.is.read());
+		Assert.assertEquals("byte1", aKnowndPositiveByte, (byte) c.is.read());
+		Assert.assertEquals("byte2", aKnowndNegativeByte, (byte) c.is.read());
 		testStatus.streamClosed = true;
 		try {
 			Assert.assertEquals("EOF expected", -1, c.is.read());
 		} catch (IOException e) {
 			if (Configuration.isBlueCove) {
 				Logger.error("EOF IOException not expected", e);
-				Assert.fail("EOF IOException not expected [" + e.toString() + "]");	
+				Assert.fail("EOF IOException not expected [" + e.toString() + "]");
 			}
 		}
 		c.disconnected();
@@ -341,37 +345,39 @@ public class CommunicationTester extends CommunicationData {
 			testStatus.isSuccess = true;
 		}
 	}
-	
-	private static void serverRemoteDevice(StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+
+	private static void serverRemoteDevice(StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus)
+			throws IOException {
 		RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
 		Logger.debug("is connected to BTAddress " + device.getBluetoothAddress());
 		DataInputStream dis = new DataInputStream(is);
 		String gotBluetoothAddress = dis.readUTF();
-		Assert.assertEquals("PairBTAddress", gotBluetoothAddress.toUpperCase(), device.getBluetoothAddress().toUpperCase());
-		
+		Assert.assertEquals("PairBTAddress", gotBluetoothAddress.toUpperCase(), device.getBluetoothAddress()
+				.toUpperCase());
+
 		boolean remoreIsAuthenticated = dis.readBoolean();
 		boolean remoreIsEncrypted = dis.readBoolean();
-		
+
 		boolean isAuthenticated = device.isAuthenticated();
 		boolean isEncrypted = device.isEncrypted();
-		
+
 		if (Configuration.authenticate.booleanValue()) {
 			if (!isAuthenticated) {
 				Logger.error("wrong isAuthenticated " + isAuthenticated);
-				testStatus.isError = true;	
+				testStatus.isError = true;
 			} else {
 				Logger.debug("isAuthenticated OK " + isAuthenticated);
 			}
-		} 
+		}
 		if (remoreIsAuthenticated != isAuthenticated) {
 			Logger.error("this Authenticated " + isAuthenticated + " != remote " + remoreIsAuthenticated);
 			testStatus.isError = true;
 		}
-		
+
 		if (Configuration.encrypt.booleanValue()) {
 			if (!isEncrypted) {
 				Logger.error("wrong isEncrypted " + isEncrypted);
-				testStatus.isError = true;	
+				testStatus.isError = true;
 			} else {
 				Logger.debug("isEncrypted OK " + isEncrypted);
 			}
@@ -385,8 +391,9 @@ public class CommunicationTester extends CommunicationData {
 			testStatus.isError = true;
 		}
 	}
-	
-	private static void clientRemoteDevice(StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus) throws IOException {
+
+	private static void clientRemoteDevice(StreamConnection conn, InputStream is, OutputStream os, TestStatus testStatus)
+			throws IOException {
 		RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
 		Logger.debug("is connected toBTAddress " + device.getBluetoothAddress());
 		DataOutputStream dos = new DataOutputStream(os);
@@ -394,37 +401,39 @@ public class CommunicationTester extends CommunicationData {
 		if (dataOutputStreamFlush) {
 			dos.flush();
 		}
-		Assert.assertEquals("PairBTAddress", testStatus.pairBTAddress.toUpperCase(), device.getBluetoothAddress().toUpperCase());
-		
+		Assert.assertEquals("PairBTAddress", testStatus.pairBTAddress.toUpperCase(), device.getBluetoothAddress()
+				.toUpperCase());
+
 		boolean isAuthenticated = device.isAuthenticated();
 		boolean isEncrypted = device.isEncrypted();
-		
+
 		dos.writeBoolean(isAuthenticated);
 		dos.writeBoolean(isEncrypted);
-		
+
 		if (Configuration.authenticate.booleanValue() == device.isAuthenticated()) {
-			Logger.debug("isAuthenticated OK " + Configuration.authenticate); 
+			Logger.debug("isAuthenticated OK " + Configuration.authenticate);
 		} else {
 			Logger.error("wrong isAuthenticated " + isAuthenticated);
 		}
 		if (Configuration.encrypt.booleanValue() == isEncrypted) {
-			Logger.debug("isEncrypted OK " + Configuration.encrypt); 
+			Logger.debug("isEncrypted OK " + Configuration.encrypt);
 		} else {
 			Logger.error("wrong isEncrypted " + isEncrypted);
 		}
 	}
-	
+
 	static void sendByte4clientToClose(OutputStream os, InputStream is, TestStatus testStatus) throws IOException {
 		os.write(aKnowndPositiveByte);
 		os.flush();
-		
+
 		TimeUtils.sleep(1 * 1000);
 
 		// Do not send any reply to client.
 		testStatus.streamClosed = true;
-		
+
 		long startWait = System.currentTimeMillis();
-		// wait for client to close connection, This has been tested in TEST_EOF_READ
+		// wait for client to close connection, This has been tested in
+		// TEST_EOF_READ
 		int eof = 0;
 		try {
 			eof = is.read();
@@ -436,8 +445,9 @@ public class CommunicationTester extends CommunicationData {
 		testStatus.isSuccess = true;
 	}
 
-	static void reciveByteAndCloseStream(boolean testArray, final ConnectionHolderStream c, TestStatus testStatus) throws IOException {
-		Assert.assertEquals("byte", aKnowndPositiveByte, (byte)c.is.read());
+	static void reciveByteAndCloseStream(boolean testArray, final ConnectionHolderStream c, TestStatus testStatus)
+			throws IOException {
+		Assert.assertEquals("byte", aKnowndPositiveByte, (byte) c.is.read());
 		final ValueHolder whenClose = new ValueHolder();
 		final ValueHolder alreadyClose = new ValueHolder(false);
 		final ValueHolder whoClose = new ValueHolder();
@@ -445,7 +455,7 @@ public class CommunicationTester extends CommunicationData {
 			public void run() {
 				TimeUtils.sleep(500);
 				c.disconnected();
-				//Logger.debug("try to closed");
+				// Logger.debug("try to closed");
 				whenClose.valueLong = System.currentTimeMillis();
 				whoClose.valueInt = 1;
 				try {
@@ -454,7 +464,7 @@ public class CommunicationTester extends CommunicationData {
 				} catch (IOException e) {
 					Logger.debug("error in conn close", e);
 				}
-				//Logger.debug("conn.closed");
+				// Logger.debug("conn.closed");
 				whenClose.valueLong = System.currentTimeMillis();
 				TimeUtils.sleep(100);
 				if (!alreadyClose.valueBoolean) {
@@ -466,7 +476,7 @@ public class CommunicationTester extends CommunicationData {
 					} catch (IOException e) {
 						Logger.debug("error in is close", e);
 					}
-					//Logger.debug("is.closed");
+					// Logger.debug("is.closed");
 					whenClose.valueLong = System.currentTimeMillis();
 					TimeUtils.sleep(100);
 					if (!alreadyClose.valueBoolean) {
@@ -478,7 +488,7 @@ public class CommunicationTester extends CommunicationData {
 						} catch (IOException e) {
 							Logger.debug("error in os close", e);
 						}
-						//Logger.debug("os.closed");
+						// Logger.debug("os.closed");
 						whenClose.valueLong = System.currentTimeMillis();
 					}
 				}
@@ -486,12 +496,13 @@ public class CommunicationTester extends CommunicationData {
 		};
 		t.start();
 		testStatus.streamClosed = true;
-		// This will stuck since server is not sending any more data. conn.close() should force read() to throw exception or return -1.
+		// This will stuck since server is not sending any more data.
+		// conn.close() should force read() to throw exception or return -1.
 		int eof = 0;
 		try {
 			// This is function under test
 			if (testArray) {
-				byte[] buf = new byte[2]; 
+				byte[] buf = new byte[2];
 				eof = c.is.read(buf, 0, buf.length);
 			} else {
 				eof = c.is.read();
@@ -503,25 +514,31 @@ public class CommunicationTester extends CommunicationData {
 		}
 		alreadyClose.valueBoolean = true;
 		long returenedDelay = System.currentTimeMillis() - whenClose.valueLong;
-		if ((returenedDelay < 2*1000) || (returenedDelay > -2*1000)) {
+		if ((returenedDelay < 2 * 1000) || (returenedDelay > -2 * 1000)) {
 			testStatus.isSuccess = true;
 		} else {
 			Assert.fail("Took too long " + (returenedDelay) + " to return");
 		}
 		switch (whoClose.valueInt) {
-		case 1: Logger.debug("Closed by StreamConnection.close()"); break;
-		case 2: Logger.debug("Closed by InputStream.close()"); break;
-		case 3: Logger.debug("Closed by OutputStream.close()"); break;
+		case 1:
+			Logger.debug("Closed by StreamConnection.close()");
+			break;
+		case 2:
+			Logger.debug("Closed by InputStream.close()");
+			break;
+		case 3:
+			Logger.debug("Closed by OutputStream.close()");
+			break;
 		default:
 			Assert.fail("Closed by unknown source");
 		}
 	}
-	
+
 	static void sendByteArayLarge(InputStream is, OutputStream os) throws IOException {
 		long start = System.currentTimeMillis();
 		byte[] byteArayLarge = new byte[byteArayLargeSize];
-		for(int i = 0; i < byteArayLargeSize; i++) {
-			byteArayLarge[i] = (byte)(i & 0xF);
+		for (int i = 0; i < byteArayLargeSize; i++) {
+			byteArayLarge[i] = (byte) (i & 0xF);
 		}
 		os.write(byteArayLarge);
 		os.flush();
@@ -539,20 +556,21 @@ public class CommunicationTester extends CommunicationData {
 			if (read == -1) {
 				break;
 			}
-			got += read; 
+			got += read;
 		}
-		
+
 		Assert.assertEquals("byteArayLarge.len", byteArayLargeSize, got);
-		for(int i = 0; i < byteArayLargeSize; i++) {
+		for (int i = 0; i < byteArayLargeSize; i++) {
 			Assert.assertEquals("byte", (i & 0xF), byteArayGot[i]);
 		}
 		os.write(1);
 		os.flush();
 		Logger.debug("read speed " + TimeUtils.bps(byteArayLargeSize, start));
 	}
-	
-	public static void runTest(int testType, boolean server, ConnectionHolderStream c, TestStatus testStatus) throws IOException {
-		InputStream is = c.is; 
+
+	public static void runTest(int testType, boolean server, ConnectionHolderStream c, TestStatus testStatus)
+			throws IOException {
+		InputStream is = c.is;
 		OutputStream os = c.os;
 		switch (testType) {
 		case TEST_STRING:
@@ -720,7 +738,7 @@ public class CommunicationTester extends CommunicationData {
 			} else {
 				CommunicationTester.sendBytes256(os);
 			}
-			break;			
+			break;
 		case TEST_CAN_CLOSE_READ_ON_CLIENT:
 			testStatus.setName("CAN_CLOSE_READ_ON_CLIENT");
 			if (server) {
@@ -784,11 +802,22 @@ public class CommunicationTester extends CommunicationData {
 			} else {
 				CommunicationTester.sendByteArayLarge(is, os);
 			}
-			break;			
+			break;
+		// ---- TRAFFIC GENERATORS
+		case TRAFFIC_GENERATOR_WRITE:
+			testStatus.setName("RFTGenW");
+			if (server) {
+				RfTrafficGenerator.write(c);
+			} else {
+				// traficGeneratorClientInit(c, testType);
+				// traficGeneratorRead(c, initialData);
+			}
+			break;
+
 		case TEST_SERVER_TERMINATE:
 			return;
 		default:
-			Assert.fail("Invalid test#" + testType);	
+			Assert.fail("Invalid test#" + testType);
 		}
 	}
 }

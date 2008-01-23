@@ -75,31 +75,31 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				maxMTUSend(testType, c);
 			}
 			break;
-		case TRAFIC_GENERATOR_WRITE:
+		case TRAFFIC_GENERATOR_WRITE:
 			testStatus.setName("l2genW");
 			if (server) {
-				traficGeneratorWrite(c, initialData);
+				trafficGeneratorWrite(c, initialData);
 			} else {
-				traficGeneratorClientInit(c, testType);
-				traficGeneratorRead(c, initialData);
+				trafficGeneratorClientInit(c, testType);
+				trafficGeneratorRead(c, initialData);
 			}
 			break;
-		case TRAFIC_GENERATOR_READ:
+		case TRAFFIC_GENERATOR_READ:
 			testStatus.setName("l2genR");
 			if (server) {
-				traficGeneratorRead(c, initialData);
+				trafficGeneratorRead(c, initialData);
 			} else {
-				traficGeneratorClientInit(c, testType);
-				traficGeneratorWrite(c, initialData);
+				trafficGeneratorClientInit(c, testType);
+				trafficGeneratorWrite(c, initialData);
 			}
 			break;
-		case TRAFIC_GENERATOR_READ_WRITE:
+		case TRAFFIC_GENERATOR_READ_WRITE:
 			testStatus.setName("l2genRW");
 			if (!server) {
-				traficGeneratorClientInit(c, testType);
+				trafficGeneratorClientInit(c, testType);
 			}
-			traficGeneratorReadStart(c, initialData);
-			traficGeneratorWrite(c, initialData);
+			trafficGeneratorReadStart(c, initialData);
+			trafficGeneratorWrite(c, initialData);
 			break;
 		default:
 			Assert.fail("Invalid test#" + testType);
@@ -297,13 +297,13 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		}
 	}
 
-	private static void traficGeneratorClientInit(ConnectionHolderL2CAP c, int testType) throws IOException {
+	private static void trafficGeneratorClientInit(ConnectionHolderL2CAP c, int testType) throws IOException {
 		byte sequenceSleep = 2;
 		byte sequenceSize = 77;
 		c.channel.send(startPrefix(testType, new byte[] { sequenceSleep, sequenceSize }));
 	}
 
-	private static void traficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+	private static void trafficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
 		int sequenceSleep = 100;
 		final int sequenceSizeMin = 16;
 		int sequenceSize = 77;
@@ -354,11 +354,11 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		}
 	}
 
-	private static void traficGeneratorReadStart(final ConnectionHolderL2CAP c, final byte[] initialData) {
+	private static void trafficGeneratorReadStart(final ConnectionHolderL2CAP c, final byte[] initialData) {
 		Thread t = new Thread() {
 			public void run() {
 				try {
-					traficGeneratorRead(c, initialData);
+					trafficGeneratorRead(c, initialData);
 				} catch (IOException e) {
 					Logger.error("reader", e);
 				}
@@ -367,7 +367,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		t.start();
 	}
 
-	private static void traficGeneratorRead(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+	private static void trafficGeneratorRead(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
 		long sequenceRecivedCount = 0;
 		long sequenceRecivedNumberLast = -1;
 		long sequenceOutOfOrderCount = 0;
