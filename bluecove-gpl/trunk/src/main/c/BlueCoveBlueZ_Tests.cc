@@ -23,6 +23,8 @@
 #include "BlueCoveBlueZ.h"
 #include "com_intel_bluetooth_BluetoothStackBlueZNativeTests.h"
 
+#include <bluetooth/sdp_lib.h>
+
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_testThrowException
 (JNIEnv *env, jclass, jint extype) {
 	switch (extype) {
@@ -57,4 +59,34 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_t
 		case 3: debug("message[%s],[%s],[%i]", c, c, argc); break;
 	}
 	env->ReleaseStringUTFChars(message, c);
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_testServiceRecordConvert
+  (JNIEnv *env, jclass, jbyteArray record) {
+    int length = env->GetArrayLength(record);
+	jbyte *bytes = env->GetByteArrayElements(record, 0);
+
+	int length_scanned = length;
+    sdp_record_t *rec = sdp_extract_pdu((uint8_t*)bytes, &length_scanned);
+    debug("pdu scanned %i -> %i", length, length_scanned);
+    if (rec == NULL) {
+        throwServiceRegistrationException(env, "Can not convert SDP record. [%d] %s", errno, strerror(errno));
+        env->ReleaseByteArrayElements(record, bytes, 0);
+        return NULL;
+    }
+
+    sdp_buf_t pdu;
+    sdp_gen_record_pdu(rec, &pdu);
+    debug("pdu.data_size %i -> %i", length, pdu.data_size);
+
+    // construct byte array to hold pdu
+	jbyteArray result = env->NewByteArray(pdu.data_size);
+    jbyte *result_bytes = env->GetByteArrayElements(result, 0);
+	memcpy(result_bytes, pdu.data, pdu.data_size);
+	env->ReleaseByteArrayElements(result, result_bytes, 0);
+
+    free(pdu.data);
+
+	env->ReleaseByteArrayElements(record, bytes, 0);
+    return result;
 }

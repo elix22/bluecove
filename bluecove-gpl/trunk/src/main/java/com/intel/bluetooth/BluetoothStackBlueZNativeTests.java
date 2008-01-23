@@ -30,4 +30,5 @@ public class BluetoothStackBlueZNativeTests {
 
 	static native void testDebug(int argc, String message);
 
+	static native byte[] testServiceRecordConvert(byte[] record);
 }

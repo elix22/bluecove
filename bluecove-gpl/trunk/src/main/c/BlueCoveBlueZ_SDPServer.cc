@@ -57,8 +57,8 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_registerSDP
         err = -1;
         throwServiceRegistrationException(env, "Can not convert SDP record. [%d] %s", errno, strerror(errno));
     } else {
-        debugServiceRecord(env, rec);
-        if (true) {
+        //debugServiceRecord(env, rec);
+        if (false) {
             sdp_buf_t pdu;
             sdp_gen_record_pdu(rec, &pdu);
             debug("pdu.data_size %i -> %i", length, pdu.data_size);
@@ -67,7 +67,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_registerSDP
             debugServiceRecord(env, rec2);
             free(pdu.data);
         }
-        rec->handle = 1;
+        rec->handle = 0;
         err = sdp_device_record_register(session, &localAddr, rec, flags);
         if (err != 0) {
             throwServiceRegistrationException(env, "Can not register SDP record. [%d] %s", errno, strerror(errno));
