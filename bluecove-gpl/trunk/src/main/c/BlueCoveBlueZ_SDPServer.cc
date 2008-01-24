@@ -24,78 +24,95 @@
 
 #include <bluetooth/sdp_lib.h>
 
-// Since bluez-libs-3.8
+// Since bluez-libs-3.8 we have sdp_device_record_register_binary
 //#define BLUECOVE_USE_BINARY_SDP
 
-JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_registerSDPServiceImpl
-  (JNIEnv* env, jobject, jlong localDeviceBTAddress, jbyteArray record) {
-    bdaddr_t localAddr;
-    longToDeviceAddr(localDeviceBTAddress, &localAddr);
-
+JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_openSDPSessionImpl
+  (JNIEnv* env, jobject) {
     sdp_session_t* session = sdp_connect(BDADDR_ANY, BDADDR_LOCAL, SDP_RETRY_IF_BUSY);
 	if (!session) {
 		throwServiceRegistrationException(env, "Can not open SDP session. [%d] %s", errno, strerror(errno));
 		return 0;
 	}
-
-	int length = env->GetArrayLength(record);
-	jbyte *bytes = env->GetByteArrayElements(record, 0);
-    int flags = 0;
-    uint32_t handle;
-    int err = 0;
-#ifdef BLUECOVE_USE_BINARY_SDP
-    // Since bluez-libs-3.8
-    err = sdp_device_record_register_binary(session, &localAddr, (uint8_t*)bytes, length, flags, &handle);
-    if (err != 0) {
-        throwServiceRegistrationException(env, "Can not register SDP record. [%d] %s", errno, strerror(errno));
-    }
-#else
-    int length_scanned = length;
-    sdp_record_t *rec = sdp_extract_pdu((uint8_t*)bytes, &length_scanned);
-    debug("pdu scanned %i -> %i", length, length_scanned);
-    if (rec == NULL) {
-        err = -1;
-        throwServiceRegistrationException(env, "Can not convert SDP record. [%d] %s", errno, strerror(errno));
-    } else {
-        //debugServiceRecord(env, rec);
-        if (false) {
-            sdp_buf_t pdu;
-            sdp_gen_record_pdu(rec, &pdu);
-            debug("pdu.data_size %i -> %i", length, pdu.data_size);
-            int pdu_scanned = pdu.data_size;
-            sdp_record_t *rec2 = sdp_extract_pdu(pdu.data, &pdu_scanned);
-            debugServiceRecord(env, rec2);
-            free(pdu.data);
-        }
-        rec->handle = 0;
-        err = sdp_device_record_register(session, &localAddr, rec, flags);
-        if (err != 0) {
-            throwServiceRegistrationException(env, "Can not register SDP record. [%d] %s", errno, strerror(errno));
-        }
-    }
-#endif
-
-    env->ReleaseByteArrayElements(record, bytes, 0);
-
-    if (err != 0) {
-        sdp_close(session);
-        return 0;
-    }
-
 	return (jlong)session;
 }
 
-/*
- * Class:     com_intel_bluetooth_BluetoothStackBlueZ
- * Method:    unregisterSDPServiceImpl
- * Signature: (J)J
- */
-JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_unregisterSDPServiceImpl
-  (JNIEnv* env, jobject, jlong sdpSessionHandle) {
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_closeSDPSessionImpl
+  (JNIEnv* env, jobject, jlong sdpSessionHandle, jboolean quietly) {
     if (sdpSessionHandle == 0) {
         return;
     }
     if (sdp_close((sdp_session_t*)sdpSessionHandle) < 0) {
-        throwServiceRegistrationException(env, "Can not close SDP session. [%d] %s", errno, strerror(errno));
+        if (quietly) {
+            throwServiceRegistrationException(env, "Failed to close SDP session. [%d] %s", errno, strerror(errno));
+        } else {
+            debug("Failed to close SDP session. [%d] %s", errno, strerror(errno));
+        }
     }
 }
+
+sdp_record_t* createNativeSDPrecord(JNIEnv* env, jbyteArray record) {
+	int length = env->GetArrayLength(record);
+	jbyte *bytes = env->GetByteArrayElements(record, 0);
+    int length_scanned = length;
+    sdp_record_t *rec = sdp_extract_pdu((uint8_t*)bytes, &length_scanned);
+    debug("pdu scanned %i -> %i", length, length_scanned);
+    if (rec == NULL) {
+        throwServiceRegistrationException(env, "Can not convert SDP record. [%d] %s", errno, strerror(errno));
+    }
+    env->ReleaseByteArrayElements(record, bytes, 0);
+    return rec;
+}
+
+JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_registerSDPServiceImpl
+  (JNIEnv* env, jobject, jlong sdpSessionHandle, jlong localDeviceBTAddress, jbyteArray record) {
+    sdp_session_t* session = (sdp_session_t*)sdpSessionHandle;
+    sdp_record_t *rec = createNativeSDPrecord(env, record);
+    if (rec == NULL) {
+        return 0;
+    }
+    bdaddr_t localAddr;
+    longToDeviceAddr(localDeviceBTAddress, &localAddr);
+    // Remove ServiceRecordHandle
+    sdp_attr_remove(rec, 0);
+    rec->handle = 0;
+    int flags = 0;
+    int err = sdp_device_record_register(session, &localAddr, rec, flags);
+    if (err != 0) {
+        throwServiceRegistrationException(env, "Can not register SDP record. [%d] %s", errno, strerror(errno));
+    }
+    return rec->handle;
+}
+
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_updateSDPServiceImpl
+  (JNIEnv* env, jobject, jlong sdpSessionHandle, jlong localDeviceBTAddress, jlong handle, jbyteArray record) {
+    sdp_session_t* session = (sdp_session_t*)sdpSessionHandle;
+    sdp_record_t *rec = createNativeSDPrecord(env, record);
+    if (rec == NULL) {
+        return;
+    }
+    bdaddr_t localAddr;
+    longToDeviceAddr(localDeviceBTAddress, &localAddr);
+    rec->handle = handle;
+    int err = sdp_device_record_update(session, &localAddr, rec);
+    if (err != 0) {
+        throwServiceRegistrationException(env, "Can not update SDP record. [%d] %s", errno, strerror(errno));
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_unregisterSDPServiceImpl
+  (JNIEnv* env, jobject, jlong sdpSessionHandle, jlong localDeviceBTAddress, jlong handle, jbyteArray record) {
+    sdp_session_t* session = (sdp_session_t*)sdpSessionHandle;
+    sdp_record_t *rec = createNativeSDPrecord(env, record);
+    if (rec == NULL) {
+        return;
+    }
+    bdaddr_t localAddr;
+    longToDeviceAddr(localDeviceBTAddress, &localAddr);
+    rec->handle = handle;
+    int err = sdp_device_record_unregister(session, &localAddr, rec);
+    if (err != 0) {
+        throwServiceRegistrationException(env, "Can not unregister SDP record. [%d] %s", errno, strerror(errno));
+    }
+}
+

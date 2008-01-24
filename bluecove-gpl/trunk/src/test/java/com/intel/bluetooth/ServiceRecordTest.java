@@ -30,12 +30,21 @@ import javax.bluetooth.UUID;
  */
 public class ServiceRecordTest extends NativeTestCase {
 
-	public void testServiceRecordConvert() throws IOException {
-		ServiceRecordImpl serviceRecord = new ServiceRecordImpl(null, null, 0);
-		serviceRecord.populateL2CAPAttributes(1, 2, new UUID(3), null);
+	public void validateServiceRecordConvert(ServiceRecordImpl serviceRecord) throws IOException {
 		byte[] inRecordData = serviceRecord.toByteArray();
 		DebugLog.debug("inRecordData", inRecordData);
 		byte[] nativeRecord = BluetoothStackBlueZNativeTests.testServiceRecordConvert(inRecordData);
 		DebugLog.debug("nativeRecord", nativeRecord);
+		assertEquals("length", inRecordData.length, nativeRecord.length);
+		for (int k = 0; k < inRecordData.length; k++) {
+			assertEquals("byteAray[" + k + "]", inRecordData[k], nativeRecord[k]);
+		}
+
+	}
+
+	public void testServiceRecordConvert() throws IOException {
+		ServiceRecordImpl serviceRecord = new ServiceRecordImpl(null, null, 0);
+		serviceRecord.populateL2CAPAttributes(1, 2, new UUID(3), "BBBB");
+		validateServiceRecordConvert(serviceRecord);
 	}
 }

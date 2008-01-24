@@ -26,6 +26,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.RemoteDevice;
@@ -42,6 +43,10 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	private int deviceDescriptor;
 
 	private long localDeviceBTAddress;
+
+	private long sdpSesion;
+
+	private int registeredServicesCount = 0;
 
 	private Map/* <String,String> */propertiesMap;
 
@@ -95,6 +100,14 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	private native void nativeCloseDevice(int deviceDescriptor);
 
 	public void destroy() {
+		if (sdpSesion != 0) {
+			try {
+				long s = sdpSesion;
+				sdpSesion = 0;
+				closeSDPSessionImpl(s, true);
+			} catch (ServiceRegistrationException ignore) {
+			}
+		}
 		nativeCloseDevice(deviceDescriptor);
 	}
 
@@ -315,6 +328,68 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 				serviceRecord);
 	}
 
+	// --- SDP Server
+
+	private native long openSDPSessionImpl() throws ServiceRegistrationException;
+
+	private synchronized long getSDPSession() throws ServiceRegistrationException {
+		if (this.sdpSesion == 0) {
+			sdpSesion = openSDPSessionImpl();
+			DebugLog.debug("created SDPSession", sdpSesion);
+		}
+		return sdpSesion;
+	}
+
+	private native void closeSDPSessionImpl(long sdpSesion, boolean quietly) throws ServiceRegistrationException;
+
+	private native long registerSDPServiceImpl(long sdpSesion, long localDeviceBTAddress, byte[] record)
+			throws ServiceRegistrationException;
+
+	private native void updateSDPServiceImpl(long sdpSesion, long localDeviceBTAddress, long handle, byte[] record)
+			throws ServiceRegistrationException;
+
+	private native void unregisterSDPServiceImpl(long sdpSesion, long localDeviceBTAddress, long handle, byte[] record)
+			throws ServiceRegistrationException;
+
+	private byte[] getSDPBinary(ServiceRecordImpl serviceRecord) throws ServiceRegistrationException {
+		byte[] blob;
+		try {
+			blob = serviceRecord.toByteArray();
+		} catch (IOException e) {
+			throw new ServiceRegistrationException(e.toString());
+		}
+		return blob;
+	}
+
+	private synchronized void registerSDPRecord(ServiceRecordImpl serviceRecord) throws ServiceRegistrationException {
+		long handle = registerSDPServiceImpl(getSDPSession(), this.localDeviceBTAddress, getSDPBinary(serviceRecord));
+		serviceRecord.setHandle(handle);
+		serviceRecord.populateAttributeValue(BluetoothConsts.ServiceRecordHandle, new DataElement(DataElement.U_INT_4,
+				handle));
+		registeredServicesCount++;
+	}
+
+	private void updateSDPRecord(ServiceRecordImpl serviceRecord) throws ServiceRegistrationException {
+		updateSDPServiceImpl(getSDPSession(), this.localDeviceBTAddress, serviceRecord.getHandle(),
+				getSDPBinary(serviceRecord));
+	}
+
+	private synchronized void unregisterSDPRecord(ServiceRecordImpl serviceRecord) throws ServiceRegistrationException {
+		try {
+			unregisterSDPServiceImpl(getSDPSession(), this.localDeviceBTAddress, serviceRecord.getHandle(),
+					getSDPBinary(serviceRecord));
+		} finally {
+			registeredServicesCount--;
+			if (registeredServicesCount <= 0) {
+				registeredServicesCount = 0;
+				DebugLog.debug("closeSDPSession", sdpSesion);
+				long s = sdpSesion;
+				sdpSesion = 0;
+				closeSDPSessionImpl(s, false);
+			}
+		}
+	}
+
 	// --- Client RFCOMM connections
 
 	private native long connectionRfOpenClientConnectionImpl(long localDeviceBTAddress, long address, int channel,
@@ -338,11 +413,6 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private native int rfServerGetChannelIDImpl(long handle) throws IOException;
 
-	private native long registerSDPServiceImpl(long localDeviceBTAddress, byte[] record)
-			throws ServiceRegistrationException;
-
-	private native void unregisterSDPServiceImpl(long sdpSessionHandle) throws ServiceRegistrationException;
-
 	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
 			throws IOException {
 		final int listen_backlog = 1;
@@ -351,9 +421,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		boolean success = false;
 		try {
 			int channel = rfServerGetChannelIDImpl(socket);
-			long serviceRecordHandle = 0;
-			serviceRecord.populateRFCOMMAttributes(serviceRecordHandle, channel, params.uuid, params.name, params.obex);
-			serviceRecord.setHandle(registerSDPServiceImpl(this.localDeviceBTAddress, serviceRecord.toByteArray()));
+			serviceRecord.populateRFCOMMAttributes(0, channel, params.uuid, params.name, params.obex);
+			registerSDPRecord(serviceRecord);
 			success = true;
 			return socket;
 		} finally {
@@ -367,7 +436,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
 		try {
-			unregisterSDPServiceImpl(serviceRecord.getHandle());
+			unregisterSDPRecord(serviceRecord);
 		} finally {
 			rfServerCloseImpl(handle, false);
 		}
@@ -375,18 +444,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
-		long sdpSessionHandle = serviceRecord.getHandle();
-		if (sdpSessionHandle != 0) {
-			serviceRecord.setHandle(0);
-			unregisterSDPServiceImpl(sdpSessionHandle);
-		}
-		byte[] blob;
-		try {
-			blob = serviceRecord.toByteArray();
-		} catch (IOException e) {
-			throw new ServiceRegistrationException(e.toString());
-		}
-		serviceRecord.setHandle(registerSDPServiceImpl(this.localDeviceBTAddress, blob));
+		updateSDPRecord(serviceRecord);
 	}
 
 	public native long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException;
@@ -455,9 +513,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		boolean success = false;
 		try {
 			int channel = l2ServerGetPSMImpl(socket);
-			int serviceRecordHandle = (int) socket;
-			serviceRecord.populateL2CAPAttributes(serviceRecordHandle, channel, params.uuid, params.name);
-			serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, serviceRecord.toByteArray()));
+			serviceRecord.populateL2CAPAttributes(0, channel, params.uuid, params.name);
+			registerSDPRecord(serviceRecord);
 			success = true;
 			return socket;
 		} finally {
@@ -475,18 +532,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public void l2ServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
-		long sdpSessionHandle = serviceRecord.getHandle();
-		if (sdpSessionHandle != 0) {
-			serviceRecord.setHandle(0);
-			unregisterSDPServiceImpl(sdpSessionHandle);
-		}
-		byte[] blob;
-		try {
-			blob = serviceRecord.toByteArray();
-		} catch (IOException e) {
-			throw new ServiceRegistrationException(e.toString());
-		}
-		serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor, blob));
+		updateSDPRecord(serviceRecord);
 	}
 
 	/*
@@ -515,7 +561,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public void l2ServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
 		try {
-			unregisterSDPServiceImpl(serviceRecord.getHandle());
+			unregisterSDPRecord(serviceRecord);
 		} finally {
 			l2ServerCloseImpl(handle, false);
 		}

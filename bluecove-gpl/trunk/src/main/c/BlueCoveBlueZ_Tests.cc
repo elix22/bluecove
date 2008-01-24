@@ -74,6 +74,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeT
         env->ReleaseByteArrayElements(record, bytes, 0);
         return NULL;
     }
+    debugServiceRecord(env, rec);
 
     sdp_buf_t pdu;
     sdp_gen_record_pdu(rec, &pdu);
