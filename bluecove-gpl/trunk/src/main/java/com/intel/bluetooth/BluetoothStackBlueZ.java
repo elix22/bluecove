@@ -34,6 +34,11 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.ServiceRegistrationException;
 import javax.bluetooth.UUID;
 
+/**
+ * Property "bluecove.deviceID" or "bluecove.deviceAddress" can be used to
+ * select Local Bluetooth device.
+ * 
+ */
 class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, SearchServicesRunnable {
 
 	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.nativeLibraryVersionExpected;
@@ -85,12 +90,23 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return BlueCoveImpl.BLUECOVE_STACK_DETECT_BLUEZ;
 	}
 
-	private native int nativeGetDeviceID() throws BluetoothStateException;
+	private native int nativeGetDeviceID(int id, long findLocalDeviceBTAddress) throws BluetoothStateException;
 
 	private native int nativeOpenDevice(int deviceID) throws BluetoothStateException;
 
 	public void initialize() throws BluetoothStateException {
-		deviceID = nativeGetDeviceID();
+		int findID = -1;
+		long findLocalDeviceBTAddress = -1;
+		String deviceIDStr = BlueCoveImpl.getConfigProperty("bluecove.deviceID");
+		if (deviceIDStr != null) {
+			findID = Integer.parseInt(deviceIDStr);
+		}
+		String deviceAddressStr = BlueCoveImpl.getConfigProperty("bluecove.deviceAddress");
+		if (deviceAddressStr != null) {
+			findLocalDeviceBTAddress = Long.parseLong(deviceAddressStr, 16);
+		}
+		deviceID = nativeGetDeviceID(findID, findLocalDeviceBTAddress);
+		DebugLog.debug("localDeviceID", deviceID);
 		deviceDescriptor = nativeOpenDevice(deviceID);
 		localDeviceBTAddress = getLocalDeviceBluetoothAddressImpl(deviceDescriptor);
 		propertiesMap = new TreeMap/* <String,String> */();

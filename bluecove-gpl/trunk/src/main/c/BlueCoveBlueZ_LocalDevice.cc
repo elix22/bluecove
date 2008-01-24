@@ -24,16 +24,72 @@
 
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
+#include <sys/ioctl.h>
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceID
-(JNIEnv *env, jobject thisObject) {
-	int dev_id = hci_get_route(NULL);
-	if (dev_id < 0) {
-	    debug("hci_get_route : %i", dev_id);
-	    throwBluetoothStateException(env, "Bluetooth Device is not available");
-	    return 0;
-	} else {
-	    return dev_id;
+(JNIEnv *env, jobject thisObject, jint id, jlong findLocalDeviceBTAddress) {
+	bool findDevice = (id >=0) || (findLocalDeviceBTAddress > 0);
+	if (findDevice) {
+	    int s = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
+	    if (s < 0) {
+            throwBluetoothStateException(env, "Failed to create Bluetooth socket. [%d] %s", errno, strerror(errno));
+            return 0;
+        }
+        hci_dev_list_req *dl;
+	    hci_dev_req *dr;
+	    dl = (hci_dev_list_req*)malloc(HCI_MAX_DEV * sizeof(*dr) + sizeof(*dl));
+	    if (!dl) {
+	        throwBluetoothStateException(env, "Out of memory");
+	        close(s);
+            return 0;
+	    }
+        dl->dev_num = HCI_MAX_DEV;
+	    dr = dl->dev_req;
+	    if (ioctl(s, HCIGETDEVLIST, dl) < 0) {
+		    free(dl);
+	    	close(s);
+		    throwBluetoothStateException(env, "Failed to list Bluetooth devices. [%d] %s", errno, strerror(errno));
+		    return 0;
+	    }
+	    int dev_id = -1;
+	    int flag = HCI_UP;
+	    for (int i = 0; i < dl->dev_num; i++, dr++) {
+		    if (hci_test_bit(flag, &dr->dev_opt)) {
+		        if (id == i) {
+		            dev_id = dr->dev_id;
+		            break;
+		        }
+		        if (findLocalDeviceBTAddress > 0) {
+		            // Select device by address
+		            int dd = hci_open_dev(dr->dev_id);
+		            if (dd >= 0) {
+		                bdaddr_t address;
+			            hci_read_bd_addr(dd, &address, 1000);
+			            hci_close_dev(dd);
+			            if (deviceAddrToLong(&address) == findLocalDeviceBTAddress) {
+			                dev_id = dr->dev_id;
+		                    break;
+			            }
+			        }
+		        }
+		    }
+		}
+
+	    free(dl);
+	    close(s);
+	    if (dev_id < 0) {
+	        throwBluetoothStateException(env, "Bluetooth Device is not found");
+	    }
+        return dev_id;
+    } else {
+	    int dev_id = hci_get_route(NULL);
+	    if (dev_id < 0) {
+	        debug("hci_get_route : %i", dev_id);
+	        throwBluetoothStateException(env, "Bluetooth Device is not available");
+	        return 0;
+	    } else {
+	        return dev_id;
+        }
     }
 }
 
