@@ -63,11 +63,13 @@ public class ClientConnectionThread extends Thread {
 
 	public static final int interpretDataChars = 0;
 
-	int interpretData = 0;
+	public static final int interpretDataStats = 1;
 
-	int dataReceiveType;
+	int interpretData = interpretDataChars;
 
-	long reported;
+	long reported = 0;
+
+	private StringBuffer dataBuf = new StringBuffer();
 
 	ClientConnectionThread(String serverURL) {
 		super("ClientConnectionThread" + (++connectionCount));
@@ -98,7 +100,6 @@ public class ClientConnectionThread extends Thread {
 				cs.is = cs.conn.openInputStream();
 				cs.os = cs.conn.openOutputStream();
 				isRunning = true;
-				StringBuffer buf = new StringBuffer();
 				while (!stoped) {
 					int data = cs.is.read();
 					if (data == -1) {
@@ -106,19 +107,10 @@ public class ClientConnectionThread extends Thread {
 						break;
 					}
 					receivedCount++;
-					switch (interpretData) {
-					case interpretDataChars:
-						char c = (char) data;
-						buf.append(c);
-						if ((c == '\n') || (buf.length() > 30)) {
-							Logger.debug("cc:" + StringUtils.toBinaryText(buf));
-							buf = new StringBuffer();
-						}
-						break;
-					}
+					printdataReceivedRFCOMM(data);
 				}
-				if (buf.length() > 0) {
-					Logger.debug("cc:" + StringUtils.toBinaryText(buf));
+				if (dataBuf.length() > 0) {
+					Logger.debug("cc:" + StringUtils.toBinaryText(dataBuf));
 				}
 			} else { // l2cap
 				ConnectionHolderL2CAP lc = new ConnectionHolderL2CAP((L2CAPConnection) conn);
@@ -153,9 +145,31 @@ public class ClientConnectionThread extends Thread {
 		}
 	}
 
+	private void printdataReceivedRFCOMM(int data) {
+		switch (interpretData) {
+		case interpretDataChars:
+			char c = (char) data;
+			dataBuf.append(c);
+			if ((c == '\n') || (dataBuf.length() > 30)) {
+				Logger.debug("cc:" + StringUtils.toBinaryText(dataBuf));
+				dataBuf = new StringBuffer();
+			}
+			break;
+		case interpretDataStats:
+			long now = System.currentTimeMillis();
+			if (now - reported > 5 * 1000) {
+				int size = (int) (receivedCount - reportedSize);
+				reportedSize = receivedCount;
+				Logger.debug("Received " + receivedCount + " bytes " + TimeUtils.bps(size, reported));
+				reported = now;
+			}
+			break;
+		}
+	}
+
 	private void printdataReceivedL2CAP(byte[] data, int length) {
-		switch (dataReceiveType) {
-		case 0:
+		switch (interpretData) {
+		case interpretDataChars:
 			int messageLength = length;
 			if ((length > 0) && (data[length - 1] == '\n')) {
 				messageLength = length - 1;
@@ -167,19 +181,16 @@ public class ClientConnectionThread extends Thread {
 			buf.append(" (").append(length).append(")");
 			Logger.debug("cc:" + buf.toString());
 			break;
-		case 1:
+		case interpretDataStats:
 			long now = System.currentTimeMillis();
 			if (now - reported > 5 * 1000) {
 				int size = (int) (receivedCount - reportedSize);
 				reportedSize = receivedCount;
-				if (rfcomm) {
-
-				} else {
-					Logger.debug("Received " + receivedPacketsCount + " packet(s), " + receivedCount + " bytes "
-							+ TimeUtils.bps(size, reported));
-				}
+				Logger.debug("Received " + receivedPacketsCount + " packet(s), " + receivedCount + " bytes "
+						+ TimeUtils.bps(size, reported));
 				reported = now;
 			}
+			break;
 		}
 
 	}
@@ -193,7 +204,7 @@ public class ClientConnectionThread extends Thread {
 	}
 
 	public void updateDataReceiveType(int type) {
-		dataReceiveType = type;
+		interpretData = type;
 	}
 
 	public void send(final byte data[]) {
