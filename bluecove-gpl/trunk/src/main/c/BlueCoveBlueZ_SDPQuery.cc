@@ -52,7 +52,7 @@ SDPQueryData::~SDPQueryData() {
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchServicesImpl
-  (JNIEnv *env, jobject peer, jobject searchServicesThread, jobjectArray uuidValues, jlong remoteDeviceAddressLong) {
+  (JNIEnv *env, jobject peer, jobject searchServicesThread, jlong localDeviceBTAddress, jobjectArray uuidValues, jlong remoteDeviceAddressLong) {
 
     // Prepare serviceDiscoveredCallback
     jclass peerClass = env->GetObjectClass(peer);
@@ -81,8 +81,11 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 	bdaddr_t remoteAddress;
 	longToDeviceAddr(remoteDeviceAddressLong, &remoteAddress);
 
+    bdaddr_t localAddr;
+    longToDeviceAddr(localDeviceBTAddress, &localAddr);
+
 	// connect to the device to retrieve services
-	data.session = sdp_connect(BDADDR_ANY, &remoteAddress, SDP_RETRY_IF_BUSY);
+	data.session = sdp_connect(&localAddr, &remoteAddress, SDP_RETRY_IF_BUSY);
 
 	// if connection is not established throw an exception
 	if (data.session == NULL) {
@@ -120,16 +123,18 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 }
 
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_populateServiceRecordAttributeValuesImpl
-  (JNIEnv *env, jobject peer, jlong remoteDeviceAddressLong, jlong sdpSession, jlong handle, jintArray attrIDs, jobject serviceRecord) {
+  (JNIEnv *env, jobject peer, jlong localDeviceBTAddress, jlong remoteDeviceAddressLong, jlong sdpSession, jlong handle, jintArray attrIDs, jobject serviceRecord) {
 	SDPQueryData data;
 	sdp_session_t* session = (sdp_session_t*)sdpSession;
 	if (session != NULL) {
 	    debug("populateServiceRecordAttributeValuesImpl connected %p, recordHandle %li", session, handle);
 	} else {
 	    debug("populateServiceRecordAttributeValuesImpl connects, recordHandle %li", handle);
+	    bdaddr_t localAddr;
+        longToDeviceAddr(localDeviceBTAddress, &localAddr);
 	    bdaddr_t remoteAddress;
 	    longToDeviceAddr(remoteDeviceAddressLong, &remoteAddress);
-	    session = sdp_connect(BDADDR_ANY, &remoteAddress, SDP_RETRY_IF_BUSY);
+	    session = sdp_connect(&localAddr, &remoteAddress, SDP_RETRY_IF_BUSY);
 	    if (session == NULL) {
 	        debug("populateServiceRecordAttributeValuesImpl can't connect");
 	        return JNI_FALSE;

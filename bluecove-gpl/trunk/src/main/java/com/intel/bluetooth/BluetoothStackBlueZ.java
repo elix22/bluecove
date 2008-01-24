@@ -258,8 +258,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return SearchServicesThread.startSearchServices(this, attrSet, uuidSet, device, listener);
 	}
 
-	private native int runSearchServicesImpl(SearchServicesThread sst, byte[][] uuidValues, long remoteDeviceAddress)
-			throws SearchServicesException;
+	private native int runSearchServicesImpl(SearchServicesThread sst, long localDeviceBTAddress, byte[][] uuidValues,
+			long remoteDeviceAddress) throws SearchServicesException;
 
 	public int runSearchServices(SearchServicesThread sst, int[] attrSet, UUID[] uuidSet, RemoteDevice device,
 			DiscoveryListener listener) throws BluetoothStateException {
@@ -269,7 +269,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 			for (int i = 0; i < uuidSet.length; i++) {
 				uuidValues[i] = Utils.UUIDToByteArray(uuidSet[i]);
 			}
-			int respCode = runSearchServicesImpl(sst, uuidValues, RemoteDeviceHelper.getAddress(device));
+			int respCode = runSearchServicesImpl(sst, this.localDeviceBTAddress, uuidValues, RemoteDeviceHelper
+					.getAddress(device));
 			if ((respCode != DiscoveryListener.SERVICE_SEARCH_ERROR) && (sst.isTerminated())) {
 				return DiscoveryListener.SERVICE_SEARCH_TERMINATED;
 			} else if (respCode == DiscoveryListener.SERVICE_SEARCH_COMPLETED) {
@@ -304,7 +305,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		ServiceRecordImpl servRecord = new ServiceRecordImpl(this, sst.getDevice(), handle);
 		int[] attrIDs = sst.getAttrSet();
 		long remoteDeviceAddress = RemoteDeviceHelper.getAddress(sst.getDevice());
-		populateServiceRecordAttributeValuesImpl(remoteDeviceAddress, sdpSession, handle, attrIDs, servRecord);
+		populateServiceRecordAttributeValuesImpl(this.localDeviceBTAddress, remoteDeviceAddress, sdpSession, handle,
+				attrIDs, servRecord);
 		sst.addServicesRecords(servRecord);
 		return false;
 	}
@@ -318,14 +320,14 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		}
 	}
 
-	private native boolean populateServiceRecordAttributeValuesImpl(long remoteDeviceAddress, long sdpSession,
-			long handle, int[] attrIDs, ServiceRecordImpl serviceRecord);
+	private native boolean populateServiceRecordAttributeValuesImpl(long localDeviceBTAddress,
+			long remoteDeviceAddress, long sdpSession, long handle, int[] attrIDs, ServiceRecordImpl serviceRecord);
 
 	public boolean populateServicesRecordAttributeValues(ServiceRecordImpl serviceRecord, int[] attrIDs)
 			throws IOException {
 		long remoteDeviceAddress = RemoteDeviceHelper.getAddress(serviceRecord.getHostDevice());
-		return populateServiceRecordAttributeValuesImpl(remoteDeviceAddress, 0, serviceRecord.getHandle(), attrIDs,
-				serviceRecord);
+		return populateServiceRecordAttributeValuesImpl(this.localDeviceBTAddress, remoteDeviceAddress, 0,
+				serviceRecord.getHandle(), attrIDs, serviceRecord);
 	}
 
 	// --- SDP Server
