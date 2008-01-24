@@ -24,32 +24,7 @@
 
 #include <bluetooth/sdp_lib.h>
 
-// Used to free memory automaticaly
-class SDPQueryData {
-public:
-    sdp_list_t *uuidList;
-    sdp_list_t *rsp_list;
-    sdp_session_t *session;
-
-    SDPQueryData();
-    ~SDPQueryData();
-};
-
 void populateServiceRecord(JNIEnv *env, jobject serviceRecord, sdp_record_t* sdpRecord, sdp_list_t* attributeList);
-
-SDPQueryData::SDPQueryData() {
-    uuidList = NULL;
-    rsp_list = NULL;
-    session = NULL;
-}
-
-SDPQueryData::~SDPQueryData() {
-    sdp_list_free(uuidList, free);
-    sdp_list_free(rsp_list, free);
-    if (session != NULL) {
-	    sdp_close(session);
-    }
-}
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchServicesImpl
   (JNIEnv *env, jobject peer, jobject searchServicesThread, jlong localDeviceBTAddress, jobjectArray uuidValues, jlong remoteDeviceAddressLong) {
@@ -66,7 +41,13 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 		return SERVICE_SEARCH_ERROR;
 	}
 
-    SDPQueryData data;
+    sdp_list_t *uuidList = NULL;
+    sdp_list_t *rsp_list = NULL;
+    sdp_session_t *session = NULL;
+    jint rc = SERVICE_SEARCH_ERROR;
+	const uint16_t max_rec_num = 256;
+	int serviceCount = 0;
+	int error;
 
 	// convert uuid set from java array to bluez sdp_list_t
 	jsize uuidSetSize = env->GetArrayLength(uuidValues);
@@ -74,7 +55,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
 		jbyteArray byteArray = (jbyteArray)env->GetObjectArrayElement(uuidValues, i);
 		uuid_t* uuid =  (uuid_t*)malloc(sizeof(uuid_t));
 		convertUUIDByteArrayToUUID(env, byteArray, uuid);
-		data.uuidList = sdp_list_append(data.uuidList, uuid);
+		uuidList = sdp_list_append(uuidList, uuid);
 	}
 
 	// convert remote device address from jlong to bluez bdaddr_t
@@ -85,47 +66,55 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runSearchSer
     longToDeviceAddr(localDeviceBTAddress, &localAddr);
 
 	// connect to the device to retrieve services
-	data.session = sdp_connect(&localAddr, &remoteAddress, SDP_RETRY_IF_BUSY);
+	session = sdp_connect(&localAddr, &remoteAddress, SDP_RETRY_IF_BUSY);
 
 	// if connection is not established throw an exception
-	if (data.session == NULL) {
-		return SERVICE_SEARCH_DEVICE_NOT_REACHABLE;
+	if (session == NULL) {
+		rc = SERVICE_SEARCH_DEVICE_NOT_REACHABLE;
+		goto searchServicesImplEnd;
 	}
 
-	const uint16_t max_rec_num = 256;
+
 
 	// then ask the device for service record handles
-	int error = sdp_service_search_req(data.session, data.uuidList, max_rec_num, &(data.rsp_list));
+	error = sdp_service_search_req(session, uuidList, max_rec_num, &(rsp_list));
 	if (error) {
 	    debug("sdp_service_search_req error %i", error);
-		return SERVICE_SEARCH_ERROR;
+		rc = SERVICE_SEARCH_ERROR;
+		goto searchServicesImplEnd;
 	}
-	jlong sdpSession = (jlong)data.session;
-    Edebug("runSearchServicesImpl session %p %li", data.session, sdpSession);
+    Edebug("runSearchServicesImpl session %p %li", session, (jlong)session);
 
 	// Notify java about found services
-	int serviceCount = 0;
-	sdp_list_t* handle = data.rsp_list;
-	for(; handle; handle = handle->next) {
+	for(sdp_list_t* handle = rsp_list; handle; handle = handle->next) {
 		uint32_t record = *(uint32_t*)handle->data;
 		jlong recordHandle = record;
 		Edebug("runSearchServicesImpl serviceRecordHandle %li", recordHandle);
-		jboolean isTerminated = env->CallBooleanMethod(peer, serviceDiscoveredCallback, searchServicesThread, sdpSession, recordHandle);
+		jboolean isTerminated = env->CallBooleanMethod(peer, serviceDiscoveredCallback, searchServicesThread, (jlong)session, recordHandle);
         if (env->ExceptionCheck()) {
-            return SERVICE_SEARCH_ERROR;
+            rc = SERVICE_SEARCH_ERROR;
+            goto searchServicesImplEnd;
         } else if (isTerminated) {
-            return SERVICE_SEARCH_TERMINATED;
+            rc = SERVICE_SEARCH_TERMINATED;
+            goto searchServicesImplEnd;
         }
         serviceCount ++;
 	}
 	debug("runSearchServicesImpl found %i", serviceCount);
-	return SERVICE_SEARCH_COMPLETED;
+	rc = SERVICE_SEARCH_COMPLETED;
+searchServicesImplEnd:
+    sdp_list_free(uuidList, free);
+    sdp_list_free(rsp_list, free);
+    if (session != NULL) {
+	    sdp_close(session);
+    }
+	return rc;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_populateServiceRecordAttributeValuesImpl
   (JNIEnv *env, jobject peer, jlong localDeviceBTAddress, jlong remoteDeviceAddressLong, jlong sdpSession, jlong handle, jintArray attrIDs, jobject serviceRecord) {
-	SDPQueryData data;
 	sdp_session_t* session = (sdp_session_t*)sdpSession;
+	sdp_session_t* close_session_on_return = NULL;
 	if (session != NULL) {
 	    debug("populateServiceRecordAttributeValuesImpl connected %p, recordHandle %li", session, handle);
 	} else {
@@ -140,7 +129,7 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_populate
 	        return JNI_FALSE;
 	    }
 	    // Close session on exit
-	    data.session = session;
+	    close_session_on_return = session;
     }
 
 	sdp_list_t *attr_list = NULL;
@@ -149,30 +138,25 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_populate
 	for(int i = 0; i < env->GetArrayLength(attrIDs); i++) {
 		uint16_t* id = (uint16_t*)malloc(sizeof(uint16_t));
 		*id=(uint16_t)ids[i];
-//		cout<<"id:"<<ids[i]<<"\t"<<*id<<endl;
 		attr_list = sdp_list_append(attr_list,id);
 	}
-//	cout<<"2"<<endl;
-//	sdp_list_t* atrli=attr_list;
-//	cout<<"list : ";
-//	while(atrli)
-//	{
-//		uint16_t* atrid=(uint16_t*)atrli->data;
-//		cout<<*atrid<<" ";
-//		atrli=atrli->next;
-//	}
-//	cout<<endl<<endl;
 
+    jboolean rc = JNI_FALSE;
 	sdp_record_t *sdpRecord = sdp_service_attr_req(session, (uint32_t)handle, SDP_ATTR_REQ_INDIVIDUAL, attr_list);
 	if (!sdpRecord) {
         debug("sdp_service_attr_req return error");
-		sdp_list_free(attr_list, free);
-		return JNI_FALSE;
+		rc = JNI_FALSE;
+	} else {
+	    populateServiceRecord(env, serviceRecord, sdpRecord, attr_list);
+	    sdp_record_free(sdpRecord);
+	    rc = JNI_TRUE;
 	}
-	populateServiceRecord(env, serviceRecord, sdpRecord, attr_list);
-	sdp_record_free(sdpRecord);
 	sdp_list_free(attr_list, free);
-	return JNI_TRUE;
+	if (close_session_on_return != NULL) {
+	    sdp_close(close_session_on_return);
+	}
+
+	return rc;
 }
 
 char b2hex(int i) {
