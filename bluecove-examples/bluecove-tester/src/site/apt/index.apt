@@ -101,6 +101,14 @@ java -cp avetanaBluetooth.jar;bluecove-tester-app.jar net.sf.bluecove.awt.Main
 
 * on Linux
 
+    On BlueZ bluecove supports multiple local devices so you can start more then one applications and see how they communicate.
+
+        * <<<{{{./awt-bctest-device-0.jnlp}\u00bbStart with Local Bluetooth device 0}}>>>
+
+        * <<<{{{./awt-bctest-device-1.jnlp}\u00bbStart with Local Bluetooth device 1}}>>>
+
+        * <<<{{{./awt-bctest-device-2.jnlp}\u00bbStart with Local Bluetooth device 2}}>>>
+
     You can download the {{{./bluecove-tester.jar}bluecove-tester.jar}} application jar and run it with or without BlueCove JSR-82 in calsspath.
 
 ---
