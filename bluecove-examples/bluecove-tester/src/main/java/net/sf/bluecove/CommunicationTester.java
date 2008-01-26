@@ -289,7 +289,10 @@ public class CommunicationTester extends CommunicationData {
 		byte[] byteArayGot = new byte[3];
 		int got = is.read(byteArayGot);
 		if (got == 1) {
-			got += is.read(byteArayGot, 1, 2);
+			int size = is.read(byteArayGot, 1, 2);
+			if (size != -1) {
+				got += size;
+			}
 		}
 		Assert.assertEquals("byteAray.len", 2, got);
 		Assert.assertEquals("byte1", aKnowndPositiveByte, byteArayGot[0]);
