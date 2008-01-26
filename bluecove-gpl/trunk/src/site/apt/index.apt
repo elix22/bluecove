@@ -10,7 +10,7 @@ BlueCove Linux module
    BlueCove-gpl is additional module for BlueCove to support bluecove on Linux.
 This module distributed as different jar because of the License differences.
 
-  Compiled version of the native code (shared library) is included in distribution.
+  Compiled for i386 version of the native code (shared library) is included in distribution.
 
    N.B. This is experimental module.
 
@@ -20,7 +20,17 @@ This module distributed as different jar because of the License differences.
 java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:yourApp.jar org.your.app.Main
 ---
 
+* Configuration options
+
+    System properties:
+
+        * `bluecove.deviceID=1` bluecove supports multiple local devices, this will force it to select second one.
+
+        * `bluecove.deviceAddress=btaddr` select local devices by Bluetooth address
+
 * Legal
 
   BlueCove-gpl is licensed under {{{http://www.gnu.org/licenses/gpl.html}GNU General Public License}}.
+
+  If you know how we can legaly make a library for BlueZ licensed differently please let us know.
 
