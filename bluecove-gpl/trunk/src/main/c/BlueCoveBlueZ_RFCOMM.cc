@@ -157,8 +157,15 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 	while (done < len) {
 		int count = recv(handle, (char *)(bytes + off + done), len - done, 0);
 		if (count < 0) {
-			throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
-			done = 0;
+		    //104 Connection reset by peer
+            if (errno == ECONNRESET) {
+                debug("Connection closed, Connection reset by peer");
+		        // See InputStream.read();
+		        done = -1;
+            } else {
+			    throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
+			    done = 0;
+		    }
 			break;
 		} else if (count == 0) {
 			debug("Connection closed");
