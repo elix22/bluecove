@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+    <!-- @version $Revision$ ($Author$) $Date$ -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cx.ath.matthew</groupId>
+    <version>0.6-SNAPSHOT</version>
+    <artifactId>debug-disable</artifactId>
+    <name>Debug Library</name>
+    <packaging>jar</packaging>
+
+    <description>Comprehensive logging and debugging solution</description>
+
+    <url>http://www.matthew.ath.cx/projects/java/</url>
+
+    <licenses>
+        <license>
+            <name>GNU Library or Lesser General Public License (LGPL)</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+        </license>
+    </licenses>
+
+    <distributionManagement>
+        <repository>
+            <id>pyx4j.com-file-release</id>
+            <url>file:///home/apache/pyx4j/maven2-release</url>
+        </repository>
+        <snapshotRepository>
+            <id>pyx4j.com-file-development</id>
+            <url>file:///home/apache/pyx4j/maven2</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>pyx4me-web-repo</id>
+            <url>http://www.pyx4me.com/maven2-snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <developers>
+        <developer>
+            <name>Matthew Johnson</name>
+            <email>dbus@matthew.ath.cx</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
