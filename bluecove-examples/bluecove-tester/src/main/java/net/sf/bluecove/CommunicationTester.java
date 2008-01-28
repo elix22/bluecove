@@ -1,7 +1,7 @@
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
- * 
+ *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -454,11 +454,14 @@ public class CommunicationTester extends CommunicationData {
 		final ValueHolder whenClose = new ValueHolder();
 		final ValueHolder alreadyClose = new ValueHolder(false);
 		final ValueHolder whoClose = new ValueHolder();
-		Thread t = new Thread() {
+		final boolean debug = true;
+		Thread t = new Thread("ReciveStreamCloser") {
 			public void run() {
 				TimeUtils.sleep(500);
 				c.disconnected();
-				// Logger.debug("try to closed");
+				if (debug) {
+				    Logger.debug("try to closed");
+			    }
 				whenClose.valueLong = System.currentTimeMillis();
 				whoClose.valueInt = 1;
 				try {
@@ -467,7 +470,9 @@ public class CommunicationTester extends CommunicationData {
 				} catch (IOException e) {
 					Logger.debug("error in conn close", e);
 				}
-				// Logger.debug("conn.closed");
+				if (debug) {
+				    Logger.debug("conn.closed");
+				}
 				whenClose.valueLong = System.currentTimeMillis();
 				TimeUtils.sleep(100);
 				if (!alreadyClose.valueBoolean) {
@@ -479,7 +484,9 @@ public class CommunicationTester extends CommunicationData {
 					} catch (IOException e) {
 						Logger.debug("error in is close", e);
 					}
-					// Logger.debug("is.closed");
+					if (debug) {
+					    Logger.debug("is.closed");
+					}
 					whenClose.valueLong = System.currentTimeMillis();
 					TimeUtils.sleep(100);
 					if (!alreadyClose.valueBoolean) {
@@ -491,10 +498,15 @@ public class CommunicationTester extends CommunicationData {
 						} catch (IOException e) {
 							Logger.debug("error in os close", e);
 						}
-						// Logger.debug("os.closed");
+						if (debug) {
+						    Logger.debug("os.closed");
+						}
 						whenClose.valueLong = System.currentTimeMillis();
 					}
 				}
+				if (debug) {
+				    Logger.debug("close thread finished");
+                }
 			}
 		};
 		t.start();
@@ -503,6 +515,9 @@ public class CommunicationTester extends CommunicationData {
 		// conn.close() should force read() to throw exception or return -1.
 		int eof = 0;
 		try {
+		    if (debug) {
+			    Logger.debug("try to read EOF");
+            }
 			// This is function under test
 			if (testArray) {
 				byte[] buf = new byte[2];
@@ -513,7 +528,11 @@ public class CommunicationTester extends CommunicationData {
 			Assert.assertEquals("EOF expected", -1, eof);
 			Logger.debug("OK read on conn.closed GOT EOF");
 		} catch (IOException e) {
-			Logger.debug("OK read on conn.closed throws Exception");
+			Logger.debug("OK read on conn.closed throws Exception", e);
+		} finally {
+		    if (debug) {
+			    Logger.debug("read EOF ends");
+            }
 		}
 		alreadyClose.valueBoolean = true;
 		long returenedDelay = System.currentTimeMillis() - whenClose.valueLong;
