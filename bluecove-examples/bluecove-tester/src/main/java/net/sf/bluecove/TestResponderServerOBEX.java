@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -52,14 +52,16 @@ public class TestResponderServerOBEX implements Runnable {
 
 	private boolean isRunning = false;
 
+	private Thread thread;
+
 	private TestResponderServerOBEX() {
 
 	}
 
 	public static TestResponderServerOBEX startServer() {
 		TestResponderServerOBEX srv = new TestResponderServerOBEX();
-		Thread thread = new Thread(srv);
-		thread.start();
+		srv.thread = Configuration.cldcStub.createNamedThread(srv, "ServerOBEX");
+		srv.thread.start();
 		return srv;
 	}
 

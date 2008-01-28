@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,18 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove.util;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class CLDC11 implements CLDCStub {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.sf.bluecove.util.CLDCStub#interruptThread(java.lang.Thread)
 	 */
 	public void interruptThread(Thread t) {
@@ -35,4 +37,13 @@ public class CLDC11 implements CLDCStub {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sf.bluecove.util.CLDCStub#createNamedThread(java.lang.Runnable,
+	 *      java.lang.String)
+	 */
+	public Thread createNamedThread(Runnable target, String name) {
+		return new Thread(target, name);
+	}
 }

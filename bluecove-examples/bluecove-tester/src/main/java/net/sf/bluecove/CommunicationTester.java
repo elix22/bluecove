@@ -455,13 +455,13 @@ public class CommunicationTester extends CommunicationData {
 		final ValueHolder alreadyClose = new ValueHolder(false);
 		final ValueHolder whoClose = new ValueHolder();
 		final boolean debug = true;
-		Thread t = new Thread("ReciveStreamCloser") {
+		Runnable r = new Runnable() {
 			public void run() {
 				TimeUtils.sleep(500);
 				c.disconnected();
 				if (debug) {
-				    Logger.debug("try to closed");
-			    }
+					Logger.debug("try to closed");
+				}
 				whenClose.valueLong = System.currentTimeMillis();
 				whoClose.valueInt = 1;
 				try {
@@ -471,7 +471,7 @@ public class CommunicationTester extends CommunicationData {
 					Logger.debug("error in conn close", e);
 				}
 				if (debug) {
-				    Logger.debug("conn.closed");
+					Logger.debug("conn.closed");
 				}
 				whenClose.valueLong = System.currentTimeMillis();
 				TimeUtils.sleep(100);
@@ -485,7 +485,7 @@ public class CommunicationTester extends CommunicationData {
 						Logger.debug("error in is close", e);
 					}
 					if (debug) {
-					    Logger.debug("is.closed");
+						Logger.debug("is.closed");
 					}
 					whenClose.valueLong = System.currentTimeMillis();
 					TimeUtils.sleep(100);
@@ -499,25 +499,27 @@ public class CommunicationTester extends CommunicationData {
 							Logger.debug("error in os close", e);
 						}
 						if (debug) {
-						    Logger.debug("os.closed");
+							Logger.debug("os.closed");
 						}
 						whenClose.valueLong = System.currentTimeMillis();
 					}
 				}
 				if (debug) {
-				    Logger.debug("close thread finished");
-                }
+					Logger.debug("close thread finished");
+				}
 			}
 		};
+		Thread t = Configuration.cldcStub.createNamedThread(r, "ReciveStreamCloser");
 		t.start();
+
 		testStatus.streamClosed = true;
 		// This will stuck since server is not sending any more data.
 		// conn.close() should force read() to throw exception or return -1.
 		int eof = 0;
 		try {
-		    if (debug) {
-			    Logger.debug("try to read EOF");
-            }
+			if (debug) {
+				Logger.debug("try to read EOF");
+			}
 			// This is function under test
 			if (testArray) {
 				byte[] buf = new byte[2];
@@ -530,9 +532,9 @@ public class CommunicationTester extends CommunicationData {
 		} catch (IOException e) {
 			Logger.debug("OK read on conn.closed throws Exception", e);
 		} finally {
-		    if (debug) {
-			    Logger.debug("read EOF ends");
-            }
+			if (debug) {
+				Logger.debug("read EOF ends");
+			}
 		}
 		alreadyClose.valueBoolean = true;
 		long returenedDelay = System.currentTimeMillis() - whenClose.valueLong;

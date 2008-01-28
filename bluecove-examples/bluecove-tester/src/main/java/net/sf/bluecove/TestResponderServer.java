@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -80,13 +80,13 @@ public class TestResponderServer implements CanShutdown, Runnable {
 
 	private TestResponderServerOBEX responderOBEXServer = null;
 
-	private Vector concurrentConnectionThreads = new Vector();
+	private Vector concurrentConnectionRunnable = new Vector();
 
 	public static CountStatistic concurrentStatistic = new CountStatistic();
 
 	public static TimeStatistic connectionDuration = new TimeStatistic();
 
-	private class ServerConnectionTread extends Thread {
+	private class ServerConnectionRunnable implements Runnable {
 
 		long connectionStartTime;
 
@@ -96,25 +96,30 @@ public class TestResponderServer implements CanShutdown, Runnable {
 
 		boolean isRunning = true;
 
-		ServerConnectionTread(StreamConnection conn) {
-			// CLDC_1_0 super("ServerConnectionTread" + (++countConnection));
-			++countConnection;
+		private String name;
+
+		ServerConnectionRunnable(StreamConnection conn) {
+			name = "ServerConnectionTread" + (++countConnection);
 
 			c.conn = conn;
 			connectionStartTime = System.currentTimeMillis();
-			synchronized (concurrentConnectionThreads) {
-				concurrentConnectionThreads.addElement(this);
+			synchronized (concurrentConnectionRunnable) {
+				concurrentConnectionRunnable.addElement(this);
 			}
 		}
 
+		String getName() {
+			return this.name;
+		}
+
 		private void concurrentNotify() {
-			synchronized (concurrentConnectionThreads) {
-				int concurNow = concurrentConnectionThreads.size();
+			synchronized (concurrentConnectionRunnable) {
+				int concurNow = concurrentConnectionRunnable.size();
 				setConcurrentCount(concurNow);
 				if (concurNow > 1) {
 					// Update all other working Threads
-					for (Enumeration iter = concurrentConnectionThreads.elements(); iter.hasMoreElements();) {
-						ServerConnectionTread t = (ServerConnectionTread) iter.nextElement();
+					for (Enumeration iter = concurrentConnectionRunnable.elements(); iter.hasMoreElements();) {
+						ServerConnectionRunnable t = (ServerConnectionRunnable) iter.nextElement();
 						t.setConcurrentCount(concurNow);
 					}
 				}
@@ -202,7 +207,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 
 				int isTest = c.is.read();
 				if (isTest == -1) {
-					Logger.debug("EOF recived");
+					Logger.debug("EOF received");
 					return;
 				}
 				if (isTest != Consts.SEND_TEST_START) {
@@ -212,7 +217,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 				testType = c.is.read();
 				if (isTest == -1) {
-					Logger.debug("EOF recived");
+					Logger.debug("EOF received");
 					return;
 				}
 				if (testType == Consts.TEST_SERVER_TERMINATE) {
@@ -222,7 +227,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				}
 				testStatus.setName(testType);
 				Logger.debug("run test# " + testType);
-				monitorConnection = new TestTimeOutMonitor("test" + testType, c, Configuration.serverTestTimeOutSec);
+				monitorConnection = TestTimeOutMonitor.create("test" + testType, c, Configuration.serverTestTimeOutSec);
 				c.os = c.conn.openOutputStream();
 				c.active();
 				CommunicationTester.runTest(testType, true, c, testStatus);
@@ -251,8 +256,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				if (monitorConnection != null) {
 					monitorConnection.finish();
 				}
-				synchronized (concurrentConnectionThreads) {
-					concurrentConnectionThreads.removeElement(this);
+				synchronized (concurrentConnectionRunnable) {
+					concurrentConnectionRunnable.removeElement(this);
 				}
 				countRunningConnections--;
 				concurrentStatistic.add(concurrentCount);
@@ -280,7 +285,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		isRunning = true;
 		if (!Configuration.serverContinuous) {
 			lastActivityTime = System.currentTimeMillis();
-			monitorServer = new TestTimeOutMonitor("ServerUp", this, Consts.serverUpTimeOutSec);
+			monitorServer = TestTimeOutMonitor.create("ServerUp", this, Consts.serverUpTimeOutSec);
 		}
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
@@ -364,11 +369,12 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							showServiceRecordOnce = false;
 						}
 						lastActivityTime = System.currentTimeMillis();
-						ServerConnectionTread t = new ServerConnectionTread(conn);
+						ServerConnectionRunnable r = new ServerConnectionRunnable(conn);
+						Thread t = Configuration.cldcStub.createNamedThread(r, r.getName());
 						t.start();
 						if (!Configuration.serverAcceptWhileConnected) {
-							while (t.isRunning) {
-								synchronized (t) {
+							while (r.isRunning) {
+								synchronized (r) {
 									try {
 										t.wait();
 									} catch (InterruptedException e) {

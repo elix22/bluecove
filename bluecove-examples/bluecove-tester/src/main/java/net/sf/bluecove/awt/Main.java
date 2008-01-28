@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -300,7 +300,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		output.setEditable(false);
 		this.add(output);
 
-		Thread statusUpdate = new Thread() {
+		Runnable statusUpdateRunnable = new Runnable() {
 			public void run() {
 				while (true) {
 					try {
@@ -322,6 +322,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				}
 			}
 		};
+		Thread statusUpdate = Configuration.cldcStub.createNamedThread(statusUpdateRunnable, "StatusUpdate");
 		statusUpdate.start();
 
 		output.addKeyListener(new KeyListener() {

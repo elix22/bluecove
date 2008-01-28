@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -196,7 +196,7 @@ public class TestResponderServerL2CAP extends Thread {
 		TestStatus testStatus = new TestStatus(testType);
 		ConnectionHolderL2CAP c = new ConnectionHolderL2CAP(channel);
 
-		TestTimeOutMonitor monitorConnection = new TestTimeOutMonitor("test" + testType, c,
+		TestTimeOutMonitor monitorConnection = TestTimeOutMonitor.create("test" + testType, c,
 				Configuration.serverTestTimeOutSec);
 
 		byte[] initialData = new byte[receivedLength - CommunicationTesterL2CAP.INITIAL_DATA_PREFIX_LEN];
