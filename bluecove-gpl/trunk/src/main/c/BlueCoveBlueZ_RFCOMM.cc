@@ -129,44 +129,27 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfGetSecurit
 	}
 }
 
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfRead__J
-  (JNIEnv* env, jobject, jlong handle) {
-    unsigned char c;
-    int rc = recv(handle, (char *)&c, 1, 0);
-    if (rc < 0) {
-        //104 Connection reset by peer
-        if (errno == ECONNRESET) {
-            debug("Connection closed, Connection reset by peer");
-		    // See InputStream.read();
-		    return -1;
-        }
-        throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
-        return 0;
-    } else if (rc == 0) {
-		debug("Connection closed");
-		// See InputStream.read();
-		return -1;
-	}
-    return (int)c;
-}
-
-JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfRead__J_3BII
+JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfRead
   (JNIEnv* env, jobject peer, jlong handle, jbyteArray b, jint off, jint len ) {
     jbyte *bytes = env->GetByteArrayElements(b, 0);
 	int done = 0;
-	while (done < len) {
-		int count = recv(handle, (char *)(bytes + off + done), len - done, 0);
+	while (done == 0) {
+	    int flags = MSG_DONTWAIT;
+		int count = recv(handle, (char *)(bytes + off + done), len - done, flags);
 		if (count < 0) {
-		    //104 Connection reset by peer
-            if (errno == ECONNRESET) {
+		    if (errno == EAGAIN) { // Try again for non-blocking operation
+                count = 0;
+                 Edebug("no data available for read");
+            } else if (errno == ECONNRESET) { //104 Connection reset by peer
                 debug("Connection closed, Connection reset by peer");
 		        // See InputStream.read();
 		        done = -1;
+		        break;
             } else {
 			    throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
 			    done = 0;
+			    break;
 		    }
-			break;
 		} else if (count == 0) {
 			debug("Connection closed");
 			if (done == 0) {
@@ -177,7 +160,40 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 		}
 		done += count;
 		if (isCurrentThreadInterrupted(env, peer)) {
+		    done = 0;
 			break;
+		}
+		if (done == 0) {
+		    // Sleep while not avalable
+		    bool available = false;
+		    do {
+		        pollfd fds;
+                int timeout = 100; // milliseconds
+                fds.fd = handle;
+	            fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
+	            fds.revents = 0;
+	            int poll_rc = poll(&fds, 1, timeout);
+	            if (poll_rc > 0) {
+	                if (fds.revents & POLLIN) {
+	                    Edebug("poll: data to read available");
+	                    available = true;
+	                } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
+	                    debug("Stream socket peer closed connection");
+	                    done = -1;
+			            break;
+	                }
+	            } else if (poll_rc == -1) {
+	                throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
+			        done = 0;
+			        break;
+	            } else {
+	                Edebug("poll: call timed out");
+	            }
+		        if (isCurrentThreadInterrupted(env, peer)) {
+			        done = -1;
+			        break;
+		        }
+		    } while (!available);
 		}
 	}
 	env->ReleaseByteArrayElements(b, bytes, 0);
@@ -191,13 +207,16 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
     fds.fd = handle;
 	fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
 	fds.revents = 0;
-	if (poll(&fds, 1, timeout) > 0) {
+	int poll_rc = poll(&fds, 1, timeout);
+    if (poll_rc > 0) {
 	    if (fds.revents & POLLIN) {
 	        return 1;
 	    } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
 	        throwIOException(env, "Stream socket peer closed connection");
 	    }
-	}
+	} else if (poll_rc == -1) {
+        throwIOException(env, "Failed to read available. [%d] %s", errno, strerror(errno));
+    }
     return 0;
 }
 

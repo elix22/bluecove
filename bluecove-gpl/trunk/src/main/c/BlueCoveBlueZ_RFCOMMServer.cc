@@ -140,5 +140,6 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerAcc
 	    throwIOException(env, "Failed to accept RFCOMM client connection. [%d] %s", errno, strerror(errno));
 	    return 0;
 	}
+	debug("RFCOMM client accepted, handle %li", client_socket);
 	return client_socket;
 }

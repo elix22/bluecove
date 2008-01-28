@@ -473,7 +473,14 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// --- Shared Client and Server RFCOMM connections
 
-	public native int connectionRfRead(long handle) throws IOException;
+	public int connectionRfRead(long handle) throws IOException {
+		byte[] data = new byte[1];
+		int size = connectionRfRead(handle, data, 0, 1);
+		if (size == -1) {
+			return -1;
+		}
+		return 0xFF & data[0];
+	}
 
 	public native int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException;
 
