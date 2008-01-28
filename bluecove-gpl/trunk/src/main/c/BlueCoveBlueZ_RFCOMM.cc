@@ -144,11 +144,11 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
                 debug("Connection closed, Connection reset by peer");
 		        // See InputStream.read();
 		        done = -1;
-		        break;
+		        goto rfReadEnd;
             } else {
 			    throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
 			    done = 0;
-			    break;
+			    goto rfReadEnd;
 		    }
 		} else if (count == 0) {
 			debug("Connection closed");
@@ -156,46 +156,55 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 				// See InputStream.read();
 				done = -1;
 			}
-			break;
+			goto rfReadEnd;
 		}
 		done += count;
 		if (isCurrentThreadInterrupted(env, peer)) {
 		    done = 0;
-			break;
+			goto rfReadEnd;
 		}
 		if (done == 0) {
 		    // Sleep while not avalable
 		    bool available = false;
 		    do {
 		        pollfd fds;
-                int timeout = 100; // milliseconds
+                int timeout = 500; // milliseconds
                 fds.fd = handle;
 	            fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
 	            fds.revents = 0;
+	            //Edebug("poll: wait");
 	            int poll_rc = poll(&fds, 1, timeout);
 	            if (poll_rc > 0) {
 	                if (fds.revents & POLLIN) {
-	                    Edebug("poll: data to read available");
+	                    //Edebug("poll: data to read available");
 	                    available = true;
 	                } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
 	                    debug("Stream socket peer closed connection");
 	                    done = -1;
-			            break;
+			            goto rfReadEnd;
+			        } else if (fds.revents & POLLNVAL) {
+			            // socket closed...
+			             done = -1;
+			             goto rfReadEnd;
+	                } else {
+	                    Edebug("poll: revents %i", fds.revents);
 	                }
 	            } else if (poll_rc == -1) {
-	                throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
+	                //Edebug("poll: call error %i", errno);
+	                throwIOException(env, "Failed to poll. [%d] %s", errno, strerror(errno));
 			        done = 0;
-			        break;
+			        goto rfReadEnd;
 	            } else {
-	                Edebug("poll: call timed out");
+	                //Edebug("poll: call timed out");
 	            }
 		        if (isCurrentThreadInterrupted(env, peer)) {
 			        done = -1;
-			        break;
+			        goto rfReadEnd;
 		        }
 		    } while (!available);
 		}
 	}
+rfReadEnd:
 	env->ReleaseByteArrayElements(b, bytes, 0);
 	return done;
 }
@@ -214,6 +223,8 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 	    } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
 	        throwIOException(env, "Stream socket peer closed connection");
 	    }
+	    // POLLNVAL - this method may choose to throw an IOException if this input stream has been closed by invoking the close() method.
+	    // We do not
 	} else if (poll_rc == -1) {
         throwIOException(env, "Failed to read available. [%d] %s", errno, strerror(errno));
     }
