@@ -3,23 +3,22 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="http://maven.apache.org/POM/4.0.0">
-    <!-- @version $Revision$ ($Author$) $Date$ -->
+    <!-- @version $Revision: 1702 $ ($Author: skarzhevskyy $) $Date: 2008-01-28 17:11:06 -0500 (Mon, 28 Jan 2008) $ -->
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cx.ath.matthew</groupId>
-    <version>0.6-SNAPSHOT</version>
-    <artifactId>unixsockets</artifactId>
-    <name>Unix Sockets Library</name>
+    <groupId>org.freedesktop.dbus</groupId>
+    <version>2.3.2-SNAPSHOT</version>
+    <artifactId>dbus</artifactId>
+    <name>dbus</name>
     <packaging>jar</packaging>
 
-    <description>This is a collection of classes and native code to allow you to read and write Unix sockets in Java.</description>
+    <description>D-Bus Java bindings</description>
 
-    <url>http://www.matthew.ath.cx/projects/java/</url>
+    <url>http://www.freedesktop.org/wiki/Software/DBusBindings</url>
 
     <licenses>
         <license>
-            <name>GNU Library or Lesser General Public License (LGPL)</name>
-            <url>http://www.gnu.org/licenses/lgpl.html</url>
+            <name>The Academic Free License v. 2.1 (AFL)</name>
         </license>
     </licenses>
 
@@ -38,11 +37,22 @@
         <dependency>
             <groupId>cx.ath.matthew</groupId>
             <artifactId>debug-disable</artifactId>
-            <version>${project.version}</version>
+            <version>0.6-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>cx.ath.matthew</groupId>
+            <artifactId>unixsockets</artifactId>
+            <version>0.6-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
+
+    <properties>
+        <src-distribution>dbus-java-2.3.2</src-distribution>
+        <src-distribution-url>http://dbus.freedesktop.org/releases/dbus-java/</src-distribution-url>
+    </properties>
 
     <distributionManagement>
         <repository>
@@ -54,10 +64,6 @@
             <url>file:///home/apache/pyx4j/maven2</url>
         </snapshotRepository>
     </distributionManagement>
-
-    <properties>
-        <native.build.skip>false</native.build.skip>
-    </properties>
 
     <build>
         <defaultGoal>install</defaultGoal>
@@ -73,43 +79,33 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>native-maven-plugin</artifactId>
+                <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>build-jni-headers</id>
-                        <phase>process-classes</phase>
+                        <id>extract-sources</id>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>javah</goal>
+                            <goal>run</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>src/main/native</outputDirectory>
-                            <classNames>
-                                <className>cx.ath.matthew.unix.USInputStream</className>
-                                <className>cx.ath.matthew.unix.USOutputStream</className>
-                                <className>cx.ath.matthew.unix.UnixSocket</className>
-                                <className>cx.ath.matthew.unix.UnixServerSocket</className>
-                            </classNames>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <configuration>
-                    <skip>${native.build.skip}</skip>
-               </configuration>
-                <executions>
-                    <execution>
-                        <id>compile-jnilib</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>make</executable>
+                            <tasks>
+                                <get src="${src-distribution-url}/${src-distribution}.tar.gz"
+                                     dest="${basedir}/${src-distribution}.tar.gz"
+                                     usetimestamp="true"/>
+                                <gunzip src="${basedir}/${src-distribution}.tar.gz" dest="${project.build.directory}/${src-distribution}.tar"/>
+                                <untar src="${project.build.directory}/${src-distribution}.tar" dest="${project.build.directory}">
+                                    <patternset>
+                                        <include name="**/*.java"/>
+                                        <exclude name="**/dbus/bin/*.java"/>
+                                        <exclude name="**/dbus/test/*.java"/>
+                                        <exclude name="**/dbus/viewer/*.java"/>
+                                    </patternset>
+                                </untar>
+                                <mkdir dir="${basedir}/src/main/java"/>
+                                <copy todir="${basedir}/src/main/java">
+                                    <fileset dir="${project.build.directory}/${src-distribution}"/>
+                                </copy>
+                            </tasks>
                         </configuration>
                     </execution>
                 </executions>
@@ -121,10 +117,13 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Description>Unix Sockets Library</Description>
-                            <License>GNU General Public License (GPL)</License>
+                            <Description>D-Bus Java bindings</Description>
+                            <License>The Academic Free License v. 2.1</License>
                             <Implementation-Version>${pom.version}</Implementation-Version>
                         </manifestEntries>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
                     </archive>
                 </configuration>
             </plugin>
@@ -148,3 +147,4 @@
     </build>
 
 </project>
+

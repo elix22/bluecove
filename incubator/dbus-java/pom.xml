@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0">
+    <!-- @version $Revision: 1702 $ ($Author: skarzhevskyy $) $Date: 2008-01-28 17:11:06 -0500 (Mon, 28 Jan 2008) $ -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cx.ath.matthew</groupId>
+    <version>0.0-SNAPSHOT</version>
+    <artifactId>matthew-parent</artifactId>
+    <name>matthew-parent</name>
+    <packaging>pom</packaging>
+
+    <description>The bild file for dbus-java and dependencies</description>
+
+    <url>http://www.matthew.ath.cx/projects/java/</url>
+
+    <licenses>
+        <license>
+            <name>GNU Library or Lesser General Public License (LGPL)</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>debug-disable</module>
+        <module>unixsockets</module>
+        <module>dbus</module>
+    </modules>
+
+    <distributionManagement>
+        <repository>
+            <id>no-deployment-release</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </repository>
+        <snapshotRepository>
+            <id>no-deployment-development</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>pyx4me-web-repo</id>
+            <url>http://www.pyx4me.com/maven2-snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+</project>

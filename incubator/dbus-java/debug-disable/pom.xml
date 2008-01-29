@@ -23,30 +23,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <repository>
-            <id>pyx4j.com-file-release</id>
-            <url>file:///home/apache/pyx4j/maven2-release</url>
-        </repository>
-        <snapshotRepository>
-            <id>pyx4j.com-file-development</id>
-            <url>file:///home/apache/pyx4j/maven2</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>pyx4me-web-repo</id>
-            <url>http://www.pyx4me.com/maven2-snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <developers>
         <developer>
             <name>Matthew Johnson</name>

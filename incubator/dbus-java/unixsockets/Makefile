@@ -22,7 +22,7 @@ INCLUDES=-I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux
 
 LDFLAGS=-fpic -shared -lc
 
-ARCH_EXT := $(shell uname -m | sed -e s/i.86// -e s/x86_64/-x64/)
+ARCH_EXT := $(shell uname -m | sed -e s/i.86// -e s/x86_64/_x64/)
 
 default: outdir clean so
 
