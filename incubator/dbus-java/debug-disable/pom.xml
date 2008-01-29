@@ -33,6 +33,17 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <repository>
+            <id>no-deployment-release</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </repository>
+        <snapshotRepository>
+            <id>no-deployment-development</id>
+            <url>file:///${basedir}/target/tmp</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <defaultGoal>install</defaultGoal>
 
