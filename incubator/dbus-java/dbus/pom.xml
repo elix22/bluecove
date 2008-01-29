@@ -92,6 +92,7 @@
                                 <get src="${src-distribution-url}/${src-distribution}.tar.gz"
                                      dest="${basedir}/${src-distribution}.tar.gz"
                                      usetimestamp="true"/>
+                                <mkdir dir="${project.build.directory}"/>
                                 <gunzip src="${basedir}/${src-distribution}.tar.gz" dest="${project.build.directory}/${src-distribution}.tar"/>
                                 <untar src="${project.build.directory}/${src-distribution}.tar" dest="${project.build.directory}">
                                     <patternset>
