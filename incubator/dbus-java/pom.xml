@@ -23,6 +23,10 @@
         </license>
     </licenses>
 
+    <scm>
+        <connection>scm:svn:https://bluecove.googlecode.com/svn/incubator/dbus-java</connection>
+    </scm>
+
     <modules>
         <module>debug-disable</module>
         <module>unixsockets</module>
