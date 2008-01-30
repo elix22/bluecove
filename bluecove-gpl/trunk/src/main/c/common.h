@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,20 +67,19 @@ jmethodID getGetMethodID(JNIEnv * env, jclass clazz, const char *name, const cha
 
 bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer);
 
-class DeviceInquiryCallback {
-private:
+struct DeviceInquiryCallback {
     jobject peer;
     jmethodID deviceDiscoveredCallbackMethod;
 
     jobject startedNotify;
     jmethodID startedNotifyNotifyMethod;
-
-public:
-    DeviceInquiryCallback();
-    bool builDeviceInquiryCallbacks(JNIEnv * env, jobject peer, jobject startedNotify);
-    bool callDeviceInquiryStartedCallback(JNIEnv * env);
-    bool callDeviceDiscovered(JNIEnv * env, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired);
 };
+
+void DeviceInquiryCallback_Init(DeviceInquiryCallback* callback);
+bool DeviceInquiryCallback_builDeviceInquiryCallbacks(JNIEnv * env, DeviceInquiryCallback* callback, jobject peer, jobject startedNotify);
+bool DeviceInquiryCallback_callDeviceInquiryStartedCallback(JNIEnv * env, DeviceInquiryCallback* callback);
+bool DeviceInquiryCallback_callDeviceDiscovered(JNIEnv * env, DeviceInquiryCallback* callback, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired);
+
 
 #endif	/* _BLUECOVE_COMMON_H */
 

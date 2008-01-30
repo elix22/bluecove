@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +25,11 @@
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runDeviceInquiryImpl
 (JNIEnv *env, jobject peer, jobject startedNotify, jint deviceID, jint deviceDescriptor, jint accessCode, jint inquiryLength, jint maxResponses, jobject listener) {
 	DeviceInquiryCallback callback;
-    if (!callback.builDeviceInquiryCallbacks(env, peer, startedNotify)) {
+	DeviceInquiryCallback_Init(&callback);
+    if (!DeviceInquiryCallback_builDeviceInquiryCallbacks(env, &callback, peer, startedNotify)) {
         return INQUIRY_ERROR;
     }
-    if (!callback.callDeviceInquiryStartedCallback(env)) {
+    if (!DeviceInquiryCallback_callDeviceInquiryStartedCallback(env, &callback)) {
 		return INQUIRY_ERROR;
 	}
 	int max_rsp = maxResponses;
@@ -48,7 +49,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runDeviceInq
 
             jstring name = NULL; // Names are stored in RemoteDeviceHelper and can be reused.
 
-		    if (!callback.callDeviceDiscovered(env, listener, addressLong, deviceClass, name, paired)) {
+		    if (!DeviceInquiryCallback_callDeviceDiscovered(env, &callback, listener, addressLong, deviceClass, name, paired)) {
 			    rc = INQUIRY_ERROR;
 			    break;
 		    }

@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -222,14 +222,14 @@ jmethodID getGetMethodID(JNIEnv * env, jclass clazz, const char *name, const cha
 	return methodID;
 }
 
-DeviceInquiryCallback::DeviceInquiryCallback() {
-    this->peer = NULL;
-    this->deviceDiscoveredCallbackMethod = NULL;
-    this->startedNotify = NULL;
-    this->startedNotifyNotifyMethod = NULL;
+void DeviceInquiryCallback_Init(DeviceInquiryCallback* callback) {
+    callback->peer = NULL;
+    callback->deviceDiscoveredCallbackMethod = NULL;
+    callback->startedNotify = NULL;
+    callback->startedNotifyNotifyMethod = NULL;
 }
 
-bool DeviceInquiryCallback::builDeviceInquiryCallbacks(JNIEnv * env, jobject peer, jobject startedNotify) {
+bool DeviceInquiryCallback_builDeviceInquiryCallbacks(JNIEnv * env, DeviceInquiryCallback* callback, jobject peer, jobject startedNotify) {
     jclass peerClass = env->GetObjectClass(peer);
 
 	if (peerClass == NULL) {
@@ -254,20 +254,20 @@ bool DeviceInquiryCallback::builDeviceInquiryCallbacks(JNIEnv * env, jobject pee
 		return false;
 	}
 
-    this->peer = peer;
-    this->deviceDiscoveredCallbackMethod = deviceDiscoveredCallbackMethod;
-    this->startedNotify = startedNotify;
-    this->startedNotifyNotifyMethod = notifyMethod;
+    callback->peer = peer;
+    callback->deviceDiscoveredCallbackMethod = deviceDiscoveredCallbackMethod;
+    callback->startedNotify = startedNotify;
+    callback->startedNotifyNotifyMethod = notifyMethod;
 
 	return true;
 }
 
-bool DeviceInquiryCallback::callDeviceInquiryStartedCallback(JNIEnv * env) {
-    if ((this->startedNotify == NULL) || (this->startedNotifyNotifyMethod == NULL)) {
+bool DeviceInquiryCallback_callDeviceInquiryStartedCallback(JNIEnv * env, DeviceInquiryCallback* callback) {
+    if ((callback->startedNotify == NULL) || (callback->startedNotifyNotifyMethod == NULL)) {
         throwRuntimeException(env, "DeviceInquiryCallback not initialized");
         return false;
     }
-    env->CallVoidMethod(this->startedNotify, this->startedNotifyNotifyMethod);
+    env->CallVoidMethod(callback->startedNotify, callback->startedNotifyNotifyMethod);
     if (env->ExceptionCheck()) {
         return false;
     } else {
@@ -275,12 +275,12 @@ bool DeviceInquiryCallback::callDeviceInquiryStartedCallback(JNIEnv * env) {
     }
 }
 
-bool DeviceInquiryCallback::callDeviceDiscovered(JNIEnv * env, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired) {
-    if ((this->peer == NULL) || (this->deviceDiscoveredCallbackMethod == NULL)) {
+bool DeviceInquiryCallback_callDeviceDiscovered(JNIEnv * env, DeviceInquiryCallback* callback, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired) {
+    if ((callback->peer == NULL) || (callback->deviceDiscoveredCallbackMethod == NULL)) {
         throwRuntimeException(env, "DeviceInquiryCallback not initialized");
         return false;
     }
-    env->CallVoidMethod(this->peer, this->deviceDiscoveredCallbackMethod, listener, deviceAddr, deviceClass, name, paired);
+    env->CallVoidMethod(callback->peer, callback->deviceDiscoveredCallbackMethod, listener, deviceAddr, deviceClass, name, paired);
 	if (env->ExceptionCheck()) {
         return false;
     } else {

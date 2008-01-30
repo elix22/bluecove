@@ -240,8 +240,11 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <move file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/classes/libbluecove.so" overwrite="true"/>
-                                <copy file="${project.build.directory}/classes/libbluecove.so" todir="${basedir}/src/main/resources" overwrite="true"/>
+                                <condition property="library_sufix" value="_x64" else="">
++                                     <os name="Linux" arch="amd64"/>
++                               </condition>
+                                <move file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/classes/libbluecove${library_sufix}.so" overwrite="true"/>
+                                <copy file="${project.build.directory}/classes/libbluecove${library_sufix}.so" todir="${basedir}/src/main/resources" overwrite="true"/>
                             </tasks>
                         </configuration>
                     </execution>
