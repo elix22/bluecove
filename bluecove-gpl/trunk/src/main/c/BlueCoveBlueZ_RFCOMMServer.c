@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *
  * @version $Id$
  */
-#define CPP__FILE "BlueCoveBlueZ_RFCOMMServer.cc"
+#define CPP__FILE "BlueCoveBlueZ_RFCOMMServer.c"
 
 #include "BlueCoveBlueZ.h"
 
@@ -41,7 +41,7 @@ int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port) {
 }
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpenImpl
-  (JNIEnv* env, jobject, jlong localDeviceBTAddress, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog) {
+  (JNIEnv* env, jobject peer, jlong localDeviceBTAddress, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog) {
     // allocate socket
     int handle = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
     if (handle < 0) {
@@ -49,7 +49,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpe
         return 0;
     }
 
-    sockaddr_rc localAddr;
+    struct sockaddr_rc localAddr;
     //bind local address
     localAddr.rc_family = AF_BLUETOOTH;
     // TODO for kernel versions 2.6.6 and before use dynamic_bind_rc
@@ -57,7 +57,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpe
     //bacpy(&localAddr.rc_bdaddr, BDADDR_ANY);
     longToDeviceAddr(localDeviceBTAddress, &localAddr.rc_bdaddr);
 
-    if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
+    if (bind(handle, (struct sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
 		throwIOException(env, "Failed to  bind socket. [%d] %s", errno, strerror(errno));
 		close(handle);
 		return 0;
@@ -105,10 +105,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpe
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerGetChannelIDImpl
-  (JNIEnv* env, jobject, jlong handle) {
-    sockaddr_rc localAddr;
+  (JNIEnv* env, jobject peer, jlong handle) {
+    struct sockaddr_rc localAddr;
     socklen_t len = sizeof(localAddr);
-    if (getsockname(handle, (sockaddr*)&localAddr, &len) < 0) {
+    if (getsockname(handle, (struct sockaddr*)&localAddr, &len) < 0) {
         throwIOException(env, "Failed to get rc_channel. [%d] %s", errno, strerror(errno));
 		return -1;
 	}
@@ -116,7 +116,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerGetC
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerCloseImpl
-  (JNIEnv* env, jobject, jlong handle, jboolean quietly) {
+  (JNIEnv* env, jobject peer, jlong handle, jboolean quietly) {
     debug("RFCOMM close server handle %li", handle);
     // Closing channel, further sends and receives will be disallowed.
     if (shutdown(handle, SHUT_RDWR) < 0) {
@@ -132,10 +132,10 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerClos
 }
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerAcceptAndOpenRfServerConnection
-  (JNIEnv* env, jobject, jlong handle) {
-    sockaddr_rc remoteAddr;
+  (JNIEnv* env, jobject peer, jlong handle) {
+    struct sockaddr_rc remoteAddr;
 	socklen_t  remoteAddrLen = sizeof(remoteAddr);
-	int client_socket = accept(handle, (sockaddr*)&remoteAddr, &remoteAddrLen);
+	int client_socket = accept(handle, (struct sockaddr*)&remoteAddr, &remoteAddrLen);
 	if (client_socket < 0) {
 	    throwIOException(env, "Failed to accept RFCOMM client connection. [%d] %s", errno, strerror(errno));
 	    return 0;

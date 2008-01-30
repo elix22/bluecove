@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,15 @@
  *
  * @version $Id$
  */
-#define CPP__FILE "BlueCoveBlueZ_RFCOMM.cc"
+#define CPP__FILE "BlueCoveBlueZ_RFCOMM.c"
 
 #include "BlueCoveBlueZ.h"
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <bluetooth/rfcomm.h>
 
-
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfOpenClientConnectionImpl
-  (JNIEnv* env, jobject, jlong localDeviceBTAddress, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint timeout) {
+  (JNIEnv* env, jobject peer, jlong localDeviceBTAddress, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint timeout) {
     debug("RFCOMM connect, channel %d", channel);
 
     // allocate socket
@@ -37,7 +36,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionR
         return 0;
     }
 
-    sockaddr_rc localAddr;
+    struct sockaddr_rc localAddr;
     //bind local address
     localAddr.rc_family = AF_BLUETOOTH;
     localAddr.rc_channel = 0;
@@ -45,50 +44,50 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionR
     longToDeviceAddr(localDeviceBTAddress, &localAddr.rc_bdaddr);
 
 
-    if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
-		throwIOException(env, "Failed to  bind socket. [%d] %s", errno, strerror(errno));
-		close(handle);
-		return 0;
-	}
+    if (bind(handle, (struct sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
+        throwIOException(env, "Failed to  bind socket. [%d] %s", errno, strerror(errno));
+        close(handle);
+        return 0;
+    }
 
     // TODO verify how this works, I think device needs to paird before this can be setup.
     // Set link security options
     if (encrypt || authenticate) {
-		int socket_opt = 0;
-		socklen_t len = sizeof(socket_opt);
+        int socket_opt = 0;
+        socklen_t len = sizeof(socket_opt);
         if (getsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, &len) < 0) {
             throwIOException(env, "Failed to read RFCOMM link mode. [%d] %s", errno, strerror(errno));
             close(handle);
             return 0;
         }
-		//if (master) {
-		//	socket_opt |= RFCOMM_LM_MASTER;
-		//}
-		if (authenticate) {
-			socket_opt |= RFCOMM_LM_AUTH;
-			debug("RFCOMM set authenticate");
-		}
-		if (encrypt) {
-			socket_opt |= RFCOMM_LM_ENCRYPT;
-		}
-		//if (socket_opt != 0) {
-		//	socket_opt |= RFCOMM_LM_SECURE;
-		//}
+        //if (master) {
+        //  socket_opt |= RFCOMM_LM_MASTER;
+        //}
+        if (authenticate) {
+            socket_opt |= RFCOMM_LM_AUTH;
+            debug("RFCOMM set authenticate");
+        }
+        if (encrypt) {
+            socket_opt |= RFCOMM_LM_ENCRYPT;
+        }
+        //if (socket_opt != 0) {
+        //  socket_opt |= RFCOMM_LM_SECURE;
+        //}
 
-		if ((socket_opt != 0) && setsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, sizeof(socket_opt)) < 0) {
-			throwIOException(env, "Failed to set RFCOMM link mode. [%d] %s", errno, strerror(errno));
+        if ((socket_opt != 0) && setsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, sizeof(socket_opt)) < 0) {
+            throwIOException(env, "Failed to set RFCOMM link mode. [%d] %s", errno, strerror(errno));
             close(handle);
             return 0;
-		}
+        }
     }
 
-    sockaddr_rc remoteAddr;
+    struct sockaddr_rc remoteAddr;
     remoteAddr.rc_family = AF_BLUETOOTH;
-	longToDeviceAddr(address, &remoteAddr.rc_bdaddr);
-	remoteAddr.rc_channel = channel;
+    longToDeviceAddr(address, &remoteAddr.rc_bdaddr);
+    remoteAddr.rc_channel = channel;
 
     // connect to server
-    if (connect(handle, (sockaddr*)&remoteAddr, sizeof(remoteAddr)) != 0) {
+    if (connect(handle, (struct sockaddr*)&remoteAddr, sizeof(remoteAddr)) != 0) {
         throwIOException(env, "Failed to connect. [%d] %s", errno, strerror(errno));
         close(handle);
         return 0;
@@ -98,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionR
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfCloseClientConnection
-  (JNIEnv* env, jobject, jlong handle) {
+  (JNIEnv* env, jobject peer, jlong handle) {
     debug("RFCOMM disconnect, handle %li", handle);
     // Closing channel, further sends and receives will be disallowed.
     if (shutdown(handle, SHUT_RDWR) < 0) {
@@ -110,7 +109,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfGetSecurityOptImpl
-  (JNIEnv *env, jobject, jlong handle) {
+  (JNIEnv *env, jobject peer, jlong handle) {
     int socket_opt = 0;
     socklen_t len = sizeof(socket_opt);
     if (getsockopt(handle, SOL_RFCOMM, RFCOMM_LM, &socket_opt, &len) < 0) {
@@ -120,119 +119,119 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfGetSecurit
     bool encrypted = socket_opt &  (RFCOMM_LM_ENCRYPT | RFCOMM_LM_SECURE);
     bool authenticated = socket_opt & RFCOMM_LM_AUTH;
     if (authenticated) {
-		return NOAUTHENTICATE_NOENCRYPT;
-	}
-	if (encrypted) {
-		return AUTHENTICATE_ENCRYPT;
-	} else {
-		return AUTHENTICATE_NOENCRYPT;
-	}
+        return NOAUTHENTICATE_NOENCRYPT;
+    }
+    if (encrypted) {
+        return AUTHENTICATE_ENCRYPT;
+    } else {
+        return AUTHENTICATE_NOENCRYPT;
+    }
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfRead
   (JNIEnv* env, jobject peer, jlong handle, jbyteArray b, jint off, jint len ) {
-    jbyte *bytes = env->GetByteArrayElements(b, 0);
-	int done = 0;
-	while (done == 0) {
-	    int flags = MSG_DONTWAIT;
-		int count = recv(handle, (char *)(bytes + off + done), len - done, flags);
-		if (count < 0) {
-		    if (errno == EAGAIN) { // Try again for non-blocking operation
+    jbyte *bytes = (*env)->GetByteArrayElements(env, b, 0);
+    int done = 0;
+    while (done == 0) {
+        int flags = MSG_DONTWAIT;
+        int count = recv(handle, (char *)(bytes + off + done), len - done, flags);
+        if (count < 0) {
+            if (errno == EAGAIN) { // Try again for non-blocking operation
                 count = 0;
                  Edebug("no data available for read");
             } else if (errno == ECONNRESET) { //104 Connection reset by peer
                 debug("Connection closed, Connection reset by peer");
-		        // See InputStream.read();
-		        done = -1;
-		        goto rfReadEnd;
+                // See InputStream.read();
+                done = -1;
+                goto rfReadEnd;
             } else {
-			    throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
-			    done = 0;
-			    goto rfReadEnd;
-		    }
-		} else if (count == 0) {
-			debug("Connection closed");
-			if (done == 0) {
-				// See InputStream.read();
-				done = -1;
-			}
-			goto rfReadEnd;
-		}
-		done += count;
-		if (isCurrentThreadInterrupted(env, peer)) {
-		    done = 0;
-			goto rfReadEnd;
-		}
-		if (done == 0) {
-		    // Sleep while not avalable
-		    bool available = false;
-		    do {
-		        pollfd fds;
+                throwIOException(env, "Failed to read. [%d] %s", errno, strerror(errno));
+                done = 0;
+                goto rfReadEnd;
+            }
+        } else if (count == 0) {
+            debug("Connection closed");
+            if (done == 0) {
+                // See InputStream.read();
+                done = -1;
+            }
+            goto rfReadEnd;
+        }
+        done += count;
+        if (isCurrentThreadInterrupted(env, peer)) {
+            done = 0;
+            goto rfReadEnd;
+        }
+        if (done == 0) {
+            // Sleep while not avalable
+            bool available = false;
+            do {
+                struct pollfd fds;
                 int timeout = 500; // milliseconds
                 fds.fd = handle;
-	            fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
-	            fds.revents = 0;
-	            //Edebug("poll: wait");
-	            int poll_rc = poll(&fds, 1, timeout);
-	            if (poll_rc > 0) {
-	                if (fds.revents & POLLIN) {
-	                    //Edebug("poll: data to read available");
-	                    available = true;
-	                } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
-	                    debug("Stream socket peer closed connection");
-	                    done = -1;
-			            goto rfReadEnd;
-			        } else if (fds.revents & POLLNVAL) {
-			            // socket closed...
-			             done = -1;
-			             goto rfReadEnd;
-	                } else {
-	                    Edebug("poll: revents %i", fds.revents);
-	                }
-	            } else if (poll_rc == -1) {
-	                //Edebug("poll: call error %i", errno);
-	                throwIOException(env, "Failed to poll. [%d] %s", errno, strerror(errno));
-			        done = 0;
-			        goto rfReadEnd;
-	            } else {
-	                //Edebug("poll: call timed out");
-	            }
-		        if (isCurrentThreadInterrupted(env, peer)) {
-			        done = -1;
-			        goto rfReadEnd;
-		        }
-		    } while (!available);
-		}
-	}
+                fds.events = POLLIN | POLLHUP | POLLERR;// | POLLRDHUP;
+                fds.revents = 0;
+                //Edebug("poll: wait");
+                int poll_rc = poll(&fds, 1, timeout);
+                if (poll_rc > 0) {
+                    if (fds.revents & POLLIN) {
+                        //Edebug("poll: data to read available");
+                        available = true;
+                    } else if (fds.revents & (POLLHUP | POLLERR /* | POLLRDHUP */)) {
+                        debug("Stream socket peer closed connection");
+                        done = -1;
+                        goto rfReadEnd;
+                    } else if (fds.revents & POLLNVAL) {
+                        // socket closed...
+                         done = -1;
+                         goto rfReadEnd;
+                    } else {
+                        Edebug("poll: revents %i", fds.revents);
+                    }
+                } else if (poll_rc == -1) {
+                    //Edebug("poll: call error %i", errno);
+                    throwIOException(env, "Failed to poll. [%d] %s", errno, strerror(errno));
+                    done = 0;
+                    goto rfReadEnd;
+                } else {
+                    //Edebug("poll: call timed out");
+                }
+                if (isCurrentThreadInterrupted(env, peer)) {
+                    done = -1;
+                    goto rfReadEnd;
+                }
+            } while (!available);
+        }
+    }
 rfReadEnd:
-	env->ReleaseByteArrayElements(b, bytes, 0);
-	return done;
+    (*env)->ReleaseByteArrayElements(env, b, bytes, 0);
+    return done;
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfReadAvailable
-  (JNIEnv* env, jobject, jlong handle) {
-    pollfd fds;
+  (JNIEnv* env, jobject peer, jlong handle) {
+    struct pollfd fds;
     int timeout = 10; // milliseconds
     fds.fd = handle;
-	fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
-	fds.revents = 0;
-	int poll_rc = poll(&fds, 1, timeout);
+    fds.events = POLLIN | POLLHUP | POLLERR; // | POLLRDHUP;
+    fds.revents = 0;
+    int poll_rc = poll(&fds, 1, timeout);
     if (poll_rc > 0) {
-	    if (fds.revents & POLLIN) {
-	        return 1;
-	    } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
-	        throwIOException(env, "Stream socket peer closed connection");
-	    }
-	    // POLLNVAL - this method may choose to throw an IOException if this input stream has been closed by invoking the close() method.
-	    // We do not
-	} else if (poll_rc == -1) {
+        if (fds.revents & POLLIN) {
+            return 1;
+        } else if (fds.revents & (POLLHUP | POLLERR/* | POLLRDHUP */)) {
+            throwIOException(env, "Stream socket peer closed connection");
+        }
+        // POLLNVAL - this method may choose to throw an IOException if this input stream has been closed by invoking the close() method.
+        // We do not
+    } else if (poll_rc == -1) {
         throwIOException(env, "Failed to read available. [%d] %s", errno, strerror(errno));
     }
     return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfWrite__JI
-  (JNIEnv* env, jobject, jlong handle, jint b) {
+  (JNIEnv* env, jobject peer, jlong handle, jint b) {
     char c = (char)b;
     if (send(handle, &c, 1, 0) != 1) {
         throwIOException(env, "Failed to write. [%d] %s", errno, strerror(errno));
@@ -242,33 +241,33 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRf
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfWrite__J_3BII
   (JNIEnv* env, jobject peer, jlong handle, jbyteArray b, jint off, jint len) {
 
-    jbyte *bytes = env->GetByteArrayElements(b, 0);
-	int done = 0;
-	while(done < len) {
-		int count = send(handle, (char *)(bytes + off + done), len - done, 0);
-		if (count < 0) {
-			throwIOException(env, "Failed to write. [%d] %s", errno, strerror(errno));
-			break;
-		}
-		if (isCurrentThreadInterrupted(env, peer)) {
-			break;
-		}
-		done += count;
-	}
-	env->ReleaseByteArrayElements(b, bytes, 0);
+    jbyte *bytes = (*env)->GetByteArrayElements(env, b, 0);
+    int done = 0;
+    while(done < len) {
+        int count = send(handle, (char *)(bytes + off + done), len - done, 0);
+        if (count < 0) {
+            throwIOException(env, "Failed to write. [%d] %s", errno, strerror(errno));
+            break;
+        }
+        if (isCurrentThreadInterrupted(env, peer)) {
+            break;
+        }
+        done += count;
+    }
+    (*env)->ReleaseByteArrayElements(env, b, bytes, 0);
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_connectionRfFlush
-  (JNIEnv* env, jobject, jlong handle) {
+  (JNIEnv* env, jobject peer, jlong handle) {
 }
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getConnectionRfRemoteAddress
-  (JNIEnv* env, jobject, jlong handle) {
-    sockaddr_rc remoteAddr;
+  (JNIEnv* env, jobject peer, jlong handle) {
+    struct sockaddr_rc remoteAddr;
     socklen_t len = sizeof(remoteAddr);
-    if (getpeername(handle, (sockaddr*)&remoteAddr, &len) < 0) {
+    if (getpeername(handle, (struct sockaddr*)&remoteAddr, &len) < 0) {
         throwIOException(env, "Failed to get peer name. [%d] %s", errno, strerror(errno));
-		return -1;
-	}
+        return -1;
+    }
     return deviceAddrToLong(&remoteAddr.rc_bdaddr);
 }

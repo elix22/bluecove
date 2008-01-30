@@ -23,9 +23,12 @@
  */
 
 #ifndef _BLUECOVE_COMMON_H
-#define	_BLUECOVE_COMMON_H
+#define _BLUECOVE_COMMON_H
 
 #include <jni.h>
+
+typedef unsigned char bool;
+enum {true = 1, false = 0};
 
 // --- Debug
 #define STD_DEBUG
@@ -75,11 +78,11 @@ struct DeviceInquiryCallback {
     jmethodID startedNotifyNotifyMethod;
 };
 
-void DeviceInquiryCallback_Init(DeviceInquiryCallback* callback);
-bool DeviceInquiryCallback_builDeviceInquiryCallbacks(JNIEnv * env, DeviceInquiryCallback* callback, jobject peer, jobject startedNotify);
-bool DeviceInquiryCallback_callDeviceInquiryStartedCallback(JNIEnv * env, DeviceInquiryCallback* callback);
-bool DeviceInquiryCallback_callDeviceDiscovered(JNIEnv * env, DeviceInquiryCallback* callback, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired);
+void DeviceInquiryCallback_Init(struct DeviceInquiryCallback* callback);
+bool DeviceInquiryCallback_builDeviceInquiryCallbacks(JNIEnv * env, struct DeviceInquiryCallback* callback, jobject peer, jobject startedNotify);
+bool DeviceInquiryCallback_callDeviceInquiryStartedCallback(JNIEnv * env, struct DeviceInquiryCallback* callback);
+bool DeviceInquiryCallback_callDeviceDiscovered(JNIEnv * env, struct DeviceInquiryCallback* callback, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired);
 
 
-#endif	/* _BLUECOVE_COMMON_H */
+#endif  /* _BLUECOVE_COMMON_H */
 

@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *
  * @version $Id$
  */
-#define CPP__FILE "BlueCoveBlueZ_L2CAP.cc"
+#define CPP__FILE "BlueCoveBlueZ_L2CAP.c"
 
 #include "BlueCoveBlueZ.h"
 
@@ -32,7 +32,7 @@
 bool l2Get_options(JNIEnv* env, jlong handle, l2cap_options* opt);
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClientConnectionImpl
-  (JNIEnv* env, jobject, jlong localDeviceBTAddress, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint receiveMTU, jint transmitMTU, jint timeout) {
+  (JNIEnv* env, jobject peer, jlong localDeviceBTAddress, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint receiveMTU, jint transmitMTU, jint timeout) {
     debug("CONNECT connect, psm %d", channel);
 
     // allocate socket
@@ -42,21 +42,21 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
         return 0;
     }
 
-    sockaddr_l2 localAddr;
+    struct sockaddr_l2 localAddr;
     //bind local address
     localAddr.l2_family = AF_BLUETOOTH;
     localAddr.l2_psm = 0;
     //bacpy(&localAddr.l2_bdaddr, BDADDR_ANY);
     longToDeviceAddr(localDeviceBTAddress, &localAddr.l2_bdaddr);
 
-    if (bind(handle, (sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
+    if (bind(handle, (struct sockaddr *)&localAddr, sizeof(localAddr)) < 0) {
         throwIOException(env, "Failed to bind socket. [%d] %s", errno, strerror(errno));
         close(handle);
         return 0;
     }
 
     // Set link mtu and security options
-    l2cap_options opt;
+    struct l2cap_options opt;
     socklen_t opt_len = sizeof(opt);
     memset(&opt, 0, opt_len);
     opt.imtu = receiveMTU;
@@ -97,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
     }
 
 
-    sockaddr_l2 remoteAddr;
+    struct sockaddr_l2 remoteAddr;
     remoteAddr.l2_family = AF_BLUETOOTH;
     longToDeviceAddr(address, &remoteAddr.l2_bdaddr);
     remoteAddr.l2_psm = channel;
@@ -110,7 +110,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
     }
     debug("L2CAP connected, handle %li", handle);
 
-    l2cap_options copt;
+    struct l2cap_options copt;
     if (!l2Get_options(env, handle, &copt)) {
         close(handle);
         return 0;
@@ -121,7 +121,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
 
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2CloseClientConnection
-  (JNIEnv* env, jobject, jlong handle) {
+  (JNIEnv* env, jobject peer, jlong handle) {
     debug("L2CAP disconnect, handle %li", handle);
     // Closing channel, further sends and receives will be disallowed.
     if (shutdown(handle, SHUT_RDWR) < 0) {
@@ -143,8 +143,8 @@ bool l2Get_options(JNIEnv* env, jlong handle, l2cap_options* opt) {
 
 
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Ready
-  (JNIEnv* env, jobject, jlong handle) {
-    pollfd fds;
+  (JNIEnv* env, jobject peer, jlong handle) {
+    struct pollfd fds;
     int timeout = 10; // milliseconds
     fds.fd = handle;
     fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
@@ -160,7 +160,7 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Ready
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Receive
-  (JNIEnv* env, jobject, jlong handle, jbyteArray inBuf) {
+  (JNIEnv* env, jobject peer, jlong handle, jbyteArray inBuf) {
 #ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
     l2cap_options opt;
     if (!l2Get_options(env, handle, &opt)) {
@@ -204,7 +204,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Receive
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Send
-  (JNIEnv* env, jobject, jlong handle, jbyteArray data) {
+  (JNIEnv* env, jobject peer, jlong handle, jbyteArray data) {
 #ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
     l2cap_options opt;
     if (!l2Get_options(env, handle, &opt)) {
@@ -229,7 +229,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Send
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetReceiveMTU
-  (JNIEnv* env, jobject, jlong handle) {
+  (JNIEnv* env, jobject peer, jlong handle) {
     l2cap_options opt;
     if (l2Get_options(env, handle, &opt)) {
         return opt.imtu;
@@ -239,7 +239,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetReceive
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetTransmitMTU
-  (JNIEnv* env, jobject, jlong handle) {
+  (JNIEnv* env, jobject peer, jlong handle) {
     l2cap_options opt;
     if (l2Get_options(env, handle, &opt)) {
         return opt.omtu;
@@ -249,7 +249,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetTransmi
 }
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2RemoteAddress
-(JNIEnv* env, jobject, jlong handle) {
+  (JNIEnv* env, jobject peer, jlong handle) {
     sockaddr_l2 remoteAddr;
     socklen_t len = sizeof(remoteAddr);
     if (getpeername(handle, (sockaddr*)&remoteAddr, &len) < 0) {
@@ -260,7 +260,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2RemoteAdd
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetSecurityOpt
-  (JNIEnv* env, jobject, jlong handle, jint) {
+  (JNIEnv* env, jobject peer, jlong handle, jint) {
     int socket_opt = 0;
     socklen_t len = sizeof(socket_opt);
     if (getsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, &len) < 0) {

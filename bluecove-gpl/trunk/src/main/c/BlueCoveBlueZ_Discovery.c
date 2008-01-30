@@ -18,45 +18,46 @@
  *
  * @version $Id$
  */
-#define CPP__FILE "BlueCoveBlueZ_Discovery.cc"
+#define CPP__FILE "BlueCoveBlueZ_Discovery.c"
 
 #include "BlueCoveBlueZ.h"
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runDeviceInquiryImpl
 (JNIEnv *env, jobject peer, jobject startedNotify, jint deviceID, jint deviceDescriptor, jint accessCode, jint inquiryLength, jint maxResponses, jobject listener) {
-	DeviceInquiryCallback callback;
-	DeviceInquiryCallback_Init(&callback);
+    struct DeviceInquiryCallback callback;
+    DeviceInquiryCallback_Init(&callback);
     if (!DeviceInquiryCallback_builDeviceInquiryCallbacks(env, &callback, peer, startedNotify)) {
         return INQUIRY_ERROR;
     }
     if (!DeviceInquiryCallback_callDeviceInquiryStartedCallback(env, &callback)) {
-		return INQUIRY_ERROR;
-	}
-	int max_rsp = maxResponses;
-	inquiry_info *ii = NULL;
-	int num_rsp = hci_inquiry(deviceID, inquiryLength, max_rsp, NULL, &ii, accessCode);
-	int rc = INQUIRY_COMPLETED;
-	if (num_rsp < 0) {
-		rc = INQUIRY_ERROR;
-	} else {
-	    for(int i = 0; i < num_rsp; i++) {
-		    bdaddr_t* address = &(ii+i)->bdaddr;
-		    jlong addressLong = deviceAddrToLong(address);
-		    uint8_t *dev_class = (ii+i)->dev_class;
-		    int deviceClass = deviceClassBytesToInt(dev_class);
+        return INQUIRY_ERROR;
+    }
+    int max_rsp = maxResponses;
+    inquiry_info *ii = NULL;
+    int num_rsp = hci_inquiry(deviceID, inquiryLength, max_rsp, NULL, &ii, accessCode);
+    int rc = INQUIRY_COMPLETED;
+    if (num_rsp < 0) {
+        rc = INQUIRY_ERROR;
+    } else {
+        int i;
+        for(i = 0; i < num_rsp; i++) {
+            bdaddr_t* address = &(ii+i)->bdaddr;
+            jlong addressLong = deviceAddrToLong(address);
+            uint8_t *dev_class = (ii+i)->dev_class;
+            int deviceClass = deviceClassBytesToInt(dev_class);
 
             jboolean paired = false; // TODO
 
             jstring name = NULL; // Names are stored in RemoteDeviceHelper and can be reused.
 
-		    if (!DeviceInquiryCallback_callDeviceDiscovered(env, &callback, listener, addressLong, deviceClass, name, paired)) {
-			    rc = INQUIRY_ERROR;
-			    break;
-		    }
-		}
-	}
-	free(ii);
-	return rc;
+            if (!DeviceInquiryCallback_callDeviceDiscovered(env, &callback, listener, addressLong, deviceClass, name, paired)) {
+                rc = INQUIRY_ERROR;
+                break;
+            }
+        }
+    }
+    free(ii);
+    return rc;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_deviceInquiryCancelImpl
@@ -67,13 +68,13 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_deviceIn
 
 JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getRemoteDeviceFriendlyNameImpl
 (JNIEnv *env, jobject peer, jint deviceDescriptor, jlong remoteAddress) {
-	bdaddr_t address;
+    bdaddr_t address;
     longToDeviceAddr(remoteAddress, &address);
-	char name[DEVICE_NAME_MAX_SIZE];
-	int error = hci_read_remote_name(deviceDescriptor, &address, sizeof(name), name, READ_REMOTE_NAME_TIMEOUT);
-	if (error < 0) {
-		throwIOException(env, "Can not get remote device name");
-		return NULL;
-	}
-	return env->NewStringUTF(name);
+    char name[DEVICE_NAME_MAX_SIZE];
+    int error = hci_read_remote_name(deviceDescriptor, &address, sizeof(name), name, READ_REMOTE_NAME_TIMEOUT);
+    if (error < 0) {
+        throwIOException(env, "Can not get remote device name");
+        return NULL;
+    }
+    return (*env)->NewStringUTF(env, name);
 }

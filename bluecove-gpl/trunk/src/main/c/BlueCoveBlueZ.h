@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  */
 
 #ifndef _BLUECOVEBLUEZ_H
-#define	_BLUECOVEBLUEZ_H
+#define _BLUECOVEBLUEZ_H
 
 #include <jni.h>
 #include <unistd.h>
@@ -95,5 +95,5 @@ void debugServiceRecord(JNIEnv *env, sdp_record_t* sdpRecord);
 #define BT_CONNECTION_ERROR_TIMEOUT             com_intel_bluetooth_BluetoothStackBlueZConsts_CONNECTION_ERROR_TIMEOUT
 #define BT_CONNECTION_ERROR_UNACCEPTABLE_PARAMS com_intel_bluetooth_BluetoothStackBlueZConsts_CONNECTION_ERROR_UNACCEPTABLE_PARAMS
 
-#endif	/* _BLUECOVEBLUEZ_H */
+#endif  /* _BLUECOVEBLUEZ_H */
 
