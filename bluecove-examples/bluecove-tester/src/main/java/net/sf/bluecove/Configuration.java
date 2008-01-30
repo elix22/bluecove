@@ -106,11 +106,11 @@ public class Configuration {
 
 	public static IntVar TEST_CASE_FIRST = new IntVar(1);
 
-	public static IntVar TEST_CASE_LAST = new IntVar(1); //= new IntVar(Consts.TEST_LAST_WORKING);
+	public static IntVar TEST_CASE_LAST = new IntVar(Consts.TEST_LAST_WORKING);
 
 	public static IntVar STERSS_TEST_CASE = new IntVar(Consts.TEST_BYTE);
 
-	public static BooleanVar testL2CAP = new BooleanVar(false);
+	public static BooleanVar testL2CAP = new BooleanVar(true);
 
 	public static IntVar TEST_CASE_L2CAP_FIRST = new IntVar(1);
 
