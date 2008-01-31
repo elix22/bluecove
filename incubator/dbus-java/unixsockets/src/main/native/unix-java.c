@@ -3,13 +3,13 @@
  *
  * Copyright (c) Matthew Johnson 2005
  *
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation, version 2 only.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details. 
+ * GNU Lesser General Public License for more details.
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -54,7 +54,18 @@ extern "C" {
    (*env)->Throw(env, exo);
    (*env)->DeleteLocalRef(env, exo);
 }
-   
+
+/*
+ * Class:     cx_ath_matthew_unix_UnixSocket
+ * Method:    native_isReady
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1isReady
+  (JNIEnv *env, jclass o)
+{
+    return JNI_TRUE;
+}
+
 /*
  * Class:     cx_ath_matthew_unix_UnixServerSocket
  * Method:    native_bind
@@ -240,7 +251,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_USOutputStream_native_1send__I_3
    msg.msg_iov = iov;
    jbyteArray *b = (jbyteArray*) malloc(els * sizeof(jbyteArray));
    int rv = 0;
-   
+
    for (int i = 0, j = 0, s = 0; i <= els; i++, j++) {
       if (i == els) {
          msg.msg_iovlen = j;
@@ -273,7 +284,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_USOutputStream_native_1send__I_3
       iov[j].iov_len = l;
       s += l;
    }
-   
+
    free(iov);
    free(b);
    return rv;
@@ -291,7 +302,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1getPID
    struct ucred cr;
    size_t cl=sizeof(cr);
 
-   if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0) 
+   if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0)
       return cr.pid;
    else
       return -1;
@@ -312,7 +323,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1getUID
    struct ucred cr;
    size_t cl=sizeof(cr);
 
-   if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0) 
+   if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0)
       return cr.uid;
    else
       return -1;
@@ -333,7 +344,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1getGID
    struct ucred cr;
    size_t cl=sizeof(cr);
 
-   if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0) 
+   if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0)
       return cr.gid;
    else
       return -1;
@@ -421,7 +432,7 @@ JNIEXPORT jbyte JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1recv_1creds
          cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
       if (cmsg->cmsg_level == SOL_SOCKET
             && cmsg->cmsg_type == SCM_CREDENTIALS) {
-         creds = (struct ucred *) CMSG_DATA(cmsg);        
+         creds = (struct ucred *) CMSG_DATA(cmsg);
          break;
       }
    }

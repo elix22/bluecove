@@ -3,13 +3,13 @@
  *
  * Copyright (c) Matthew Johnson 2004
  *
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation, version 2 only.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details. 
+ * GNU Lesser General Public License for more details.
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -30,7 +30,31 @@ import cx.ath.matthew.debug.Debug;
  */
 public class UnixSocket
 {
-   static { System.loadLibrary("unix-java"); }
+   static
+   {
+        if (!isReady())
+        {
+            // Load library if one not loaded alredy
+            System.loadLibrary("unix-java");
+        }
+   }
+
+   /**
+    * This allow to load native library by different loader
+    */
+   private static native boolean native_isReady();
+   private static boolean isReady()
+   {
+        try
+        {
+            return native_isReady();
+        } catch (UnsatisfiedLinkError e)
+        {
+            return false;
+        }
+   }
+
+
    private native void native_set_pass_cred(int sock, boolean passcred) throws IOException;
    private native int native_connect(String address, boolean abs) throws IOException;
    private native void native_close(int sock) throws IOException;
@@ -106,7 +130,7 @@ public class UnixSocket
    }
    public void finalize()
    {
-      try { 
+      try {
          close();
       } catch (IOException IOe) {}
    }
@@ -144,7 +168,7 @@ public class UnixSocket
     * @return The UnixSocketAddress the socket is connected to
     */
    public UnixSocketAddress getAddress()
-   { 
+   {
       return address;
    }
    /**

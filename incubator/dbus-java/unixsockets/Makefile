@@ -3,7 +3,7 @@
 # $Author$
 # $Id$
 #
-# Makefile for libunixsockets.so
+# Makefile for .so
 #
 
 
@@ -11,7 +11,7 @@ SRCDIR=src/main/native
 OBJDIR=target
 OUTDIR=target/classes
 
-SO_TARGET=libunixsockets
+SO_TARGET=libunix-java
 SRCS=unix-java.c
 
 CC=gcc
