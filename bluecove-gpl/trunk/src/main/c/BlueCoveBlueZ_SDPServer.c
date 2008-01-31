@@ -53,6 +53,11 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_closeSDPSess
 
 sdp_record_t* createNativeSDPrecord(JNIEnv* env, jbyteArray record) {
     int length = (*env)->GetArrayLength(env, record);
+    int MAX_BLUEZ_PDU = SDP_REQ_BUFFER_SIZE - sizeof(sdp_pdu_hdr_t) - sizeof(bdaddr_t) - 2;
+    if (length > MAX_BLUEZ_PDU) {
+        throwServiceRegistrationException(env, "SDP record too large %i of max %i", length, MAX_BLUEZ_PDU);
+        return NULL;
+    }
     jbyte *bytes = (*env)->GetByteArrayElements(env, record, 0);
     int length_scanned = length;
     sdp_record_t *rec = sdp_extract_pdu((uint8_t*)bytes, &length_scanned);
@@ -81,7 +86,9 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_registerSDP
     if (err != 0) {
         throwServiceRegistrationException(env, "Can not register SDP record. [%d] %s", errno, strerror(errno));
     }
-    return rec->handle;
+    jlong handle = rec->handle;
+    sdp_record_free(rec);
+    return handle;
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_updateSDPServiceImpl
@@ -98,21 +105,26 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_updateSDPSer
     if (err != 0) {
         throwServiceRegistrationException(env, "Can not update SDP record. [%d] %s", errno, strerror(errno));
     }
+    sdp_record_free(rec);
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_unregisterSDPServiceImpl
   (JNIEnv* env, jobject peer, jlong sdpSessionHandle, jlong localDeviceBTAddress, jlong handle, jbyteArray record) {
     sdp_session_t* session = (sdp_session_t*)jlong2ptr(sdpSessionHandle);
-    sdp_record_t *rec = createNativeSDPrecord(env, record);
+    sdp_record_t *rec;
+    // Use just handle to unredister record
+    //rec = createNativeSDPrecord(env, record);
+    rec = sdp_record_alloc();
     if (rec == NULL) {
         return;
     }
+    rec->handle = handle;
     bdaddr_t localAddr;
     longToDeviceAddr(localDeviceBTAddress, &localAddr);
-    rec->handle = handle;
     int err = sdp_device_record_unregister(session, &localAddr, rec);
     if (err != 0) {
         throwServiceRegistrationException(env, "Can not unregister SDP record. [%d] %s", errno, strerror(errno));
+        sdp_record_free(rec);
     }
 }
 
