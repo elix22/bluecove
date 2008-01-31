@@ -27,12 +27,19 @@ import org.bluez.Manager;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.DBusSigHandler;
 
+import cx.ath.matthew.unix.UnixSocket;
+
 
 /**
  * @author vlads
  *
  */
-public class ManagerTest {
+public class RunDBusManager {
+	
+	static {
+		System.getProperties().put("bluecove.debug", "true");
+		NativeLibLoader.isAvailable("unix-java", UnixSocket.class);
+	}
 	
 	public static void main(String[] args) {
 		DBusConnection conn = null;
