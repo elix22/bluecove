@@ -199,6 +199,8 @@
                             <compilerStartOptions>
                                 <!-- This flag creates position independent code on 64 bit platform/ IA32 has this flag applied by default with GCC -->
                                 <compilerStartOption>-fPIC</compilerStartOption>
+                                <!-- ubuntu -->
+                                <compilerStartOption>-fno-stack-protector</compilerStartOption>
                             </compilerStartOptions>
                             <linkerStartOptions>
                                 <linkerStartOption>-shared</linkerStartOption>
