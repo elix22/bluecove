@@ -10,9 +10,9 @@ BlueCove Linux module
    BlueCove-gpl is additional module for BlueCove to support bluecove on Linux.
 This module distributed as different jar because of the License differences.
 
-  Compiled for i386 version of the native code (shared library) is included in distribution.
+  Compiled for i386 and x86-64 versions of the native code (shared library) is included in jar distribution.
 
-   N.B. This is experimental module.
+  N.B. This is experimental module.
 
 * Usage
 

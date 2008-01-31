@@ -55,6 +55,18 @@ void longToDeviceAddr(jlong addr, bdaddr_t* address) {
     }
 }
 
+jlong ptr2jlong(void *ptr) {
+    jlong l = 0;
+    memcpy(&l, &ptr, sizeof(void*));
+    return l;
+}
+
+void* jlong2ptr(jlong l) {
+    void* ptr = NULL;
+    memcpy(&ptr, &l, sizeof(void*));
+    return ptr;
+}
+
 void reverseArray(jbyte* array, int length) {
     int i;
     jbyte temp;
