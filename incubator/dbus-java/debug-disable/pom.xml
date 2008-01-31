@@ -35,12 +35,12 @@
 
     <distributionManagement>
         <repository>
-            <id>no-deployment-release</id>
-            <url>file:///${basedir}/target/tmp</url>
+            <id>pyx4j.com-file-release</id>
+            <url>file:///home/apache/pyx4j/maven2-release</url>
         </repository>
         <snapshotRepository>
-            <id>no-deployment-development</id>
-            <url>file:///${basedir}/target/tmp</url>
+            <id>pyx4j.com-file-development</id>
+            <url>file:///home/apache/pyx4j/maven2</url>
         </snapshotRepository>
     </distributionManagement>
 

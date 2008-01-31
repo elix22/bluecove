@@ -38,7 +38,10 @@
             <groupId>cx.ath.matthew</groupId>
             <artifactId>debug-disable</artifactId>
             <version>0.6-SNAPSHOT</version>
-            <optional>true</optional>
+            <!--optional>true</optional -->
+            <!--
+                Need thi at runtime: rg.freedesktop.dbus.Transport$SASL.stupidlyEncode(Transport.java:185)
+            -->
         </dependency>
 
         <dependency>
