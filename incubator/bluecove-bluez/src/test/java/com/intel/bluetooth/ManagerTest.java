@@ -1,3 +1,4 @@
+package com.intel.bluetooth;
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2007 Vlad Skarzhevskyy
