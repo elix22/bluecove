@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *
  * @version $Id$
  */
-#define CPP__FILE "BlueCoveBlueZ_Tests.cc"
+#define CPP__FILE "BlueCoveBlueZ_Tests.c"
 
 #include "BlueCoveBlueZ.h"
 #include "com_intel_bluetooth_BluetoothStackBlueZNativeTests.h"
@@ -26,7 +26,7 @@
 #include <bluetooth/sdp_lib.h>
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_testThrowException
-(JNIEnv *env, jclass, jint extype) {
+(JNIEnv *env, jclass peer, jint extype) {
 	switch (extype) {
 		case 0: throwException(env, "java/lang/Exception", "0"); break;
 		case 1: throwException(env, "java/lang/Exception", "1[%s]", "str"); break;
@@ -47,31 +47,31 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_t
 }
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_testDebug
-(JNIEnv *env, jclass, jint argc, jstring message) {
+(JNIEnv *env, jclass peer, jint argc, jstring message) {
 	if ((argc == 0) || (message == NULL)) {
 	    debug("message");
 	    return;
 	}
-	const char *c = env->GetStringUTFChars(message, 0);
+	const char *c = (*env)->GetStringUTFChars(env, message, 0);
 	switch (argc) {
 		case 1: debug("message[%s]", c); break;
 		case 2: debug("message[%s],[%s]", c, c); break;
 		case 3: debug("message[%s],[%s],[%i]", c, c, argc); break;
 	}
-	env->ReleaseStringUTFChars(message, c);
+	(*env)->ReleaseStringUTFChars(env, message, c);
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_testServiceRecordConvert
-  (JNIEnv *env, jclass, jbyteArray record) {
-    int length = env->GetArrayLength(record);
-	jbyte *bytes = env->GetByteArrayElements(record, 0);
+  (JNIEnv *env, jclass peer, jbyteArray record) {
+    int length = (*env)->GetArrayLength(env, record);
+	jbyte *bytes = (*env)->GetByteArrayElements(env, record, 0);
 
 	int length_scanned = length;
     sdp_record_t *rec = sdp_extract_pdu((uint8_t*)bytes, &length_scanned);
     debug("pdu scanned %i -> %i", length, length_scanned);
     if (rec == NULL) {
         throwServiceRegistrationException(env, "Can not convert SDP record. [%d] %s", errno, strerror(errno));
-        env->ReleaseByteArrayElements(record, bytes, 0);
+        (*env)->ReleaseByteArrayElements(env, record, bytes, 0);
         return NULL;
     }
     debugServiceRecord(env, rec);
@@ -81,13 +81,13 @@ JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeT
     debug("pdu.data_size %i -> %i", length, pdu.data_size);
 
     // construct byte array to hold pdu
-	jbyteArray result = env->NewByteArray(pdu.data_size);
-    jbyte *result_bytes = env->GetByteArrayElements(result, 0);
+	jbyteArray result = (*env)->NewByteArray(env, pdu.data_size);
+    jbyte *result_bytes = (*env)->GetByteArrayElements(env, result, 0);
 	memcpy(result_bytes, pdu.data, pdu.data_size);
-	env->ReleaseByteArrayElements(result, result_bytes, 0);
+	(*env)->ReleaseByteArrayElements(env, result, result_bytes, 0);
 
     free(pdu.data);
 
-	env->ReleaseByteArrayElements(record, bytes, 0);
+	(*env)->ReleaseByteArrayElements(env, record, bytes, 0);
     return result;
 }

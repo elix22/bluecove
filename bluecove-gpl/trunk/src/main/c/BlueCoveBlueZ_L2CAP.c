@@ -29,7 +29,7 @@
 // TODO Is this necessary to truncate data before calling socket functions? sockets preserve message boundaries.
 //#define BLUECOVE_L2CAP_MTU_TRUNCATE
 
-bool l2Get_options(JNIEnv* env, jlong handle, l2cap_options* opt);
+bool l2Get_options(JNIEnv* env, jlong handle, struct l2cap_options* opt);
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClientConnectionImpl
   (JNIEnv* env, jobject peer, jlong localDeviceBTAddress, jlong address, jint channel, jboolean authenticate, jboolean encrypt, jint receiveMTU, jint transmitMTU, jint timeout) {
@@ -103,7 +103,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2OpenClien
     remoteAddr.l2_psm = channel;
 
     // connect to server
-    if (connect(handle, (sockaddr*)&remoteAddr, sizeof(remoteAddr)) != 0) {
+    if (connect(handle, (struct sockaddr*)&remoteAddr, sizeof(remoteAddr)) != 0) {
         throwIOException(env, "Failed to connect. [%d] %s", errno, strerror(errno));
         close(handle);
         return 0;
@@ -132,7 +132,7 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2CloseClien
     }
 }
 
-bool l2Get_options(JNIEnv* env, jlong handle, l2cap_options* opt) {
+bool l2Get_options(JNIEnv* env, jlong handle, struct l2cap_options* opt) {
     socklen_t opt_len = sizeof(*opt);
     if (getsockopt(handle, SOL_L2CAP, L2CAP_OPTIONS, opt, &opt_len) < 0) {
         throwIOException(env, "Failed to get L2CAP link mtu. [%d] %s", errno, strerror(errno));
@@ -147,12 +147,12 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Ready
     struct pollfd fds;
     int timeout = 10; // milliseconds
     fds.fd = handle;
-    fds.events = POLLIN | POLLHUP | POLLERR | POLLRDHUP;
+    fds.events = POLLIN | POLLHUP | POLLERR;// | POLLRDHUP;
     fds.revents = 0;
     if (poll(&fds, 1, timeout) > 0) {
         if (fds.revents & POLLIN) {
             return JNI_TRUE;
-        } else if (fds.revents & (POLLHUP | POLLERR | POLLRDHUP)) {
+        } else if (fds.revents & (POLLHUP | POLLERR /*| POLLRDHUP*/)) {
             throwIOException(env, "Peer closed connection");
         }
     }
@@ -162,14 +162,14 @@ JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Ready
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Receive
   (JNIEnv* env, jobject peer, jlong handle, jbyteArray inBuf) {
 #ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
-    l2cap_options opt;
+    struct l2cap_options opt;
     if (!l2Get_options(env, handle, &opt)) {
        return 0;
     }
 #endif //BLUECOVE_L2CAP_MTU_TRUNCATE
 
-    jbyte *bytes = env->GetByteArrayElements(inBuf, 0);
-    size_t inBufLen = (size_t)env->GetArrayLength(inBuf);
+    jbyte *bytes = (*env)->GetByteArrayElements(env, inBuf, 0);
+    size_t inBufLen = (size_t)(*env)->GetArrayLength(env, inBuf);
     int readLen = inBufLen;
 
 #ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
@@ -198,7 +198,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Receive
         count = 0;
     }
 
-    env->ReleaseByteArrayElements(inBuf, bytes, 0);
+    (*env)->ReleaseByteArrayElements(env, inBuf, bytes, 0);
     debug("receive[] returns %i", count);
     return count;
 }
@@ -206,14 +206,14 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Receive
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Send
   (JNIEnv* env, jobject peer, jlong handle, jbyteArray data) {
 #ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
-    l2cap_options opt;
+    struct l2cap_options opt;
     if (!l2Get_options(env, handle, &opt)) {
         return;
     }
 #endif //BLUECOVE_L2CAP_MTU_TRUNCATE
 
-    jbyte *bytes = env->GetByteArrayElements(data, 0);
-    int len = (int)env->GetArrayLength(data);
+    jbyte *bytes = (*env)->GetByteArrayElements(env, data, 0);
+    int len = (int)(*env)->GetArrayLength(env, data);
 
 #ifdef BLUECOVE_L2CAP_MTU_TRUNCATE
     if (len > opt.omtu) {
@@ -225,12 +225,12 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2Send
     if (count < 0) {
         throwIOException(env, "Failed to write. [%d] %s", errno, strerror(errno));
     }
-    env->ReleaseByteArrayElements(data, bytes, 0);
+    (*env)->ReleaseByteArrayElements(env, data, bytes, 0);
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetReceiveMTU
   (JNIEnv* env, jobject peer, jlong handle) {
-    l2cap_options opt;
+    struct l2cap_options opt;
     if (l2Get_options(env, handle, &opt)) {
         return opt.imtu;
     } else {
@@ -240,7 +240,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetReceive
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetTransmitMTU
   (JNIEnv* env, jobject peer, jlong handle) {
-    l2cap_options opt;
+    struct l2cap_options opt;
     if (l2Get_options(env, handle, &opt)) {
         return opt.omtu;
     } else {
@@ -250,9 +250,9 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetTransmi
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2RemoteAddress
   (JNIEnv* env, jobject peer, jlong handle) {
-    sockaddr_l2 remoteAddr;
+    struct sockaddr_l2 remoteAddr;
     socklen_t len = sizeof(remoteAddr);
-    if (getpeername(handle, (sockaddr*)&remoteAddr, &len) < 0) {
+    if (getpeername(handle, (struct sockaddr*)&remoteAddr, &len) < 0) {
         throwIOException(env, "Failed to get peer name. [%d] %s", errno, strerror(errno));
         return -1;
     }
@@ -260,7 +260,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2RemoteAdd
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetSecurityOpt
-  (JNIEnv* env, jobject peer, jlong handle, jint) {
+  (JNIEnv* env, jobject peer, jlong handle, jint expected) {
     int socket_opt = 0;
     socklen_t len = sizeof(socket_opt);
     if (getsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, &len) < 0) {

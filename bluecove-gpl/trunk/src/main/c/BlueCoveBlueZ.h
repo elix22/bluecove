@@ -39,9 +39,9 @@
 #include "com_intel_bluetooth_BluetoothStackBlueZConsts.h"
 #include "common.h"
 
-const int LOCALDEVICE_ACCESS_TIMEOUT = 5000;
-const int READ_REMOTE_NAME_TIMEOUT = 5000;
-const int DEVICE_NAME_MAX_SIZE = 248;
+#define LOCALDEVICE_ACCESS_TIMEOUT 5000
+#define READ_REMOTE_NAME_TIMEOUT 5000
+#define DEVICE_NAME_MAX_SIZE 248
 
 int deviceClassBytesToInt(uint8_t* deviceClass);
 
