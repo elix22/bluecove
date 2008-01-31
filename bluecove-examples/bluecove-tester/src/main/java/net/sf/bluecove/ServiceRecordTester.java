@@ -29,11 +29,10 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
-import net.sf.bluecove.util.BluetoothTypesInfo;
-import net.sf.bluecove.util.CollectionUtils;
-
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
+import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.CollectionUtils;
 
 /**
  * @author vlads
@@ -402,6 +401,7 @@ public class ServiceRecordTester {
 			final boolean extraTestInt16 = false;
 			final boolean extraTestUUIDTypes = false;
 			final boolean extraTestComplextSequence = false;
+			final boolean extraTestLargeSequence = false;
 
 			if (extraTestNULL) {
 				allTestServiceAttributes.addElement(new DataElement(DataElement.NULL));
@@ -492,6 +492,14 @@ public class ServiceRecordTester {
 				allTestServiceAttributes.addElement(seq2);
 			}
 
+			if (extraTestLargeSequence) {
+				DataElement seqLong = new DataElement(DataElement.DATSEQ);
+				for (int i = 0; i < 100; i++) {
+					seqLong.addElement(new DataElement(DataElement.STRING, "BlueCove-long-seq " + i));
+				}
+				allTestServiceAttributes.addElement(seqLong);
+			}
+
 		} catch (Throwable e) {
 			Logger.error("attrs create", e);
 		}
@@ -550,8 +558,8 @@ public class ServiceRecordTester {
 				countSuccess += 1;
 			} else {
 				countError += 1;
-				Logger.error("ServAttr expected " + BluetoothTypesInfo.toString(deExpect));
-				Logger.error("ServAttr received " + BluetoothTypesInfo.toString(deGot));
+				Logger.error("ServAttr " + id + " expected " + BluetoothTypesInfo.toString(deExpect));
+				Logger.error("ServAttr " + id + " received " + BluetoothTypesInfo.toString(deGot));
 			}
 		}
 
