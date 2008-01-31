@@ -26,8 +26,8 @@
 
     <licenses>
         <license>
-            <name>GNU Library or Lesser General Public License (LGPL)</name>
-            <url>http://www.gnu.org/licenses/lgpl.html</url>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
@@ -87,7 +87,31 @@
             </roles>
             <timezone>-5</timezone>
         </developer>
+        <developer>
+            <name>Mark Swanson</name>
+            <id>TBD</id>
+            <email>mark@scheduleworld.com</email>
+            <organization>scheduleworld.com</organization>
+            <organizationUrl>http://www.scheduleworld.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
     </developers>
+
+    <repositories>
+        <repository>
+            <id>pyx4me-web-repo</id>
+            <url>http://www.pyx4me.com/maven2-snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
     <dependencies>
 
@@ -148,8 +172,8 @@
                             <outputDirectory>${native.source.dir}</outputDirectory>
                             <classNames>
                                 <className>com.intel.bluetooth.BluetoothStackBlueZ</className>
-                                <className>com.intel.bluetooth.BluetoothStackBlueZConsts</className>
-                                <className>com.intel.bluetooth.BluetoothStackBlueZNativeTests</className>
+                                <!--className>com.intel.bluetooth.BluetoothStackBlueZConsts</className>
+                                <className>com.intel.bluetooth.BluetoothStackBlueZNativeTests</className-->
                             </classNames>
                         </configuration>
                     </execution>
@@ -254,7 +278,7 @@
                     <archive>
                         <manifestEntries>
                             <Description>BlueCove JSR-82 implementation, BlueZ D-Bus Linux module</Description>
-                            <License>GNU Library or Lesser General Public License (LGPL)</License>
+                            <License>The Apache Software License, Version 2.0</License>
                             <Implementation-Version>${pom.version}</Implementation-Version>
                             <Implementation-Build>${buildLabel}</Implementation-Build>
                         </manifestEntries>
