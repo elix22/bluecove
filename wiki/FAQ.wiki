@@ -24,6 +24,11 @@
      * [http://forum.nokia.com/info/sw.nokia.com/id/125b7ff5-f2dd-4441-8cfe-59e23c006373/MIDP_Bluetooth_API_Developers_Guide_v2_0_en.pdf.html Nokia Bluetooth API Developer's Guide v2.0]
      * [http://www.jsr82.com/  JSR-82 Samples]
 
+* Where can I download current development version snapshot/nightly build?
+
+  BlueCove is built automatically by CruiseControl. [http://snapshot.bluecove.org/ nightly build]. Follow the link  on the left Download \ Snapshot.  This will bring you maven repository. Take the latest jar files. 
+
+
 * Can I use !BlueCove Bluetooth stack to ...?
 
  !BlueCove is not Bluetooth Protocol Stack! !BlueCove is Java JSR-82 interface for following Bluetooth Profiles:
