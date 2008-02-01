@@ -26,7 +26,7 @@
 
 * Where can I download current development version snapshot/nightly build?
 
-  BlueCove is built automatically by CruiseControl. [http://snapshot.bluecove.org/ nightly build]. Follow the link  on the left Download \ Snapshot.  This will bring you maven repository. Take the latest jar files. 
+  BlueCove is built automatically by CruiseControl. [http://snapshot.bluecove.org/ http://snapshot.bluecove.org/]. Follow the link  on the left Download \ Snapshot.  This will bring you maven repository. Take the latest jar files. 
 
 
 * Can I use !BlueCove Bluetooth stack to ...?
