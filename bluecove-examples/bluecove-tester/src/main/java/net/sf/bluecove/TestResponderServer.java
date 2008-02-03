@@ -460,13 +460,26 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 
 	public static boolean setDiscoverable() {
+		return setDiscoverable(DiscoveryAgent.GIAC);
+	}
+
+	public static boolean setDiscoverable(int mode) {
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
-			boolean rc = localDevice.setDiscoverable(DiscoveryAgent.GIAC);
-			if (!rc) {
-				Logger.error("Set Discoverable " + rc);
+			boolean rc = localDevice.setDiscoverable(mode);
+			String modeStr;
+			if (DiscoveryAgent.GIAC == mode) {
+				modeStr = "GIAC";
+			} else if (DiscoveryAgent.LIAC == mode) {
+				modeStr = "LIAC";
 			} else {
-				Logger.debug("Set Discoverable " + rc);
+				modeStr = "0x" + Integer.toHexString(mode);
+			}
+
+			if (!rc) {
+				Logger.error("Set Discoverable " + modeStr + " " + rc);
+			} else {
+				Logger.debug("Set Discoverable " + modeStr + " " + rc);
 			}
 			discoverable = true;
 			discoverableStartTime = System.currentTimeMillis();

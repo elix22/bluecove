@@ -291,6 +291,33 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		});
 
+		Menu menuLocalDevice = new Menu("LocalDevice");
+		addMenu(menuLocalDevice, "Get discoverable", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.getDiscoverable();
+			}
+		});
+
+		addMenu(menuLocalDevice, "Set NOT discoverable", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.setNotDiscoverable();
+			}
+		});
+
+		addMenu(menuLocalDevice, "Set discoverable GIAC", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.setDiscoverableGIAC();
+			}
+		});
+
+		addMenu(menuLocalDevice, "Set discoverable LIAC", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.setDiscoverableLIAC();
+			}
+		});
+
+		menuMore.add(menuLocalDevice);
+
 		menuBar.add(menuMore);
 
 		setMenuBar(menuBar);
