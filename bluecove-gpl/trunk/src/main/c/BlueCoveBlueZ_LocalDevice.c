@@ -149,6 +149,28 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDev
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeSetLocalDeviceDiscoverable
 (JNIEnv *env, jobject peer, jint deviceDescriptor, jint mode) {
+
+	uint8_t scan_enable = SCAN_PAGE;
+	if ((mode == GIAC) || (mode == LIAC)) {
+	    scan_enable = (SCAN_PAGE | SCAN_INQUIRY);
+	}
+
+	struct hci_request rq;
+	uint8_t status = 0;
+
+	memset(&rq, 0, sizeof(rq));
+	rq.ogf    = OGF_HOST_CTL;
+	rq.ocf    = OCF_WRITE_SCAN_ENABLE;
+	rq.cparam = &scan_enable;
+	rq.clen   = sizeof(scan_enable);
+	rq.rparam = &status;
+	rq.rlen   = sizeof(status);
+	rq.event = EVT_CMD_COMPLETE;
+	if (hci_send_req(deviceDescriptor, &rq, LOCALDEVICE_ACCESS_TIMEOUT) < 0) {
+	    throwBluetoothStateException(env, "Bluetooth Device is not ready. [%d] %s", errno, strerror(errno));
+	    return -1;
+	}
+
 	uint8_t lap[3];
 	lap[0] = mode & 0xff;
 	lap[1] = (mode & 0xff00)>>8;

@@ -58,6 +58,10 @@ void debugServiceRecord(JNIEnv *env, sdp_record_t* sdpRecord);
 jlong ptr2jlong(void * ptr);
 void* jlong2ptr(jlong l);
 
+#define NOT_DISCOVERABLE com_intel_bluetooth_BluetoothStackBlueZConsts_NOT_DISCOVERABLE
+#define GIAC             com_intel_bluetooth_BluetoothStackBlueZConsts_GIAC
+#define LIAC             com_intel_bluetooth_BluetoothStackBlueZConsts_LIAC
+
 #define INQUIRY_COMPLETED  com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_COMPLETED
 #define INQUIRY_TERMINATED com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_TERMINATED
 #define INQUIRY_ERROR      com_intel_bluetooth_BluetoothStackBlueZConsts_INQUIRY_ERROR

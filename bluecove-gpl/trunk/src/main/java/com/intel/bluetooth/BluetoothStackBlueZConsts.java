@@ -21,17 +21,24 @@
 package com.intel.bluetooth;
 
 import javax.bluetooth.DataElement;
+import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.BluetoothConnectionException;
 import javax.bluetooth.ServiceRecord;
 
 /**
  * @author vlads
- * 
+ *
  * Export constants to native code
- * 
+ *
  */
 abstract class BluetoothStackBlueZConsts {
+
+    public static final int NOT_DISCOVERABLE = DiscoveryAgent.NOT_DISCOVERABLE;
+
+    public static final int GIAC = DiscoveryAgent.GIAC;
+
+    public static final int LIAC = DiscoveryAgent.LIAC;
 
 	static final int INQUIRY_COMPLETED = DiscoveryListener.INQUIRY_COMPLETED;
 
