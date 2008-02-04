@@ -291,9 +291,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE)
 					|| (Configuration.testServerForceDiscoverable)) {
-				if (!setDiscoverable()) {
-					return;
-				}
+				setDiscoverable();
 			}
 
 			if (Configuration.testRFCOMM.booleanValue()) {
@@ -485,7 +483,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			discoverableStartTime = System.currentTimeMillis();
 			return true;
 		} catch (Throwable e) {
-			Logger.error("Start server error", e);
+			Logger.error("Set Discoverable error", e);
 			return false;
 		}
 	}
