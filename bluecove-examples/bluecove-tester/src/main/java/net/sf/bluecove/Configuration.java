@@ -35,13 +35,13 @@ import net.sf.bluecove.util.J2MEStringTokenizer;
 import net.sf.bluecove.util.Storage;
 
 /**
- *
+ * 
  * This define different client and server work patterns to identify problem in
  * native code.
- *
- *
+ * 
+ * 
  * @author vlads
- *
+ * 
  */
 public class Configuration {
 
@@ -132,7 +132,7 @@ public class Configuration {
 	 */
 	public static BooleanVar testIgnoreNotWorkingServiceAttributes = new BooleanVar(true);
 
-	public static boolean testServerForceDiscoverable = true;
+	public static BooleanVar testServerForceDiscoverable = new BooleanVar(false);
 
 	public static boolean initializeLocalDevice = true;
 

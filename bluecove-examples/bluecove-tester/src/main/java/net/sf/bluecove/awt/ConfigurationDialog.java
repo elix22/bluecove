@@ -138,6 +138,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("testIgnoreNotWorkingServiceAttributes", "ignoreNotWorkingServAttr");
 		addConfig("testAllServiceAttributes");
 
+		addConfig("testServerForceDiscoverable");
+
 		addConfig("clientContinuous");
 		addConfig("clientContinuousDiscovery");
 		addConfig("clientContinuousDiscoveryDevices");

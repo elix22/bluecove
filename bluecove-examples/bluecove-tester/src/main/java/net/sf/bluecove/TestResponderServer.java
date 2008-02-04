@@ -290,7 +290,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE)
-					|| (Configuration.testServerForceDiscoverable)) {
+					|| (Configuration.testServerForceDiscoverable.booleanValue())) {
 				setDiscoverable();
 			}
 
