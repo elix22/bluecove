@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -33,13 +33,13 @@ import java.util.Properties;
 public class Persistence {
 
 	private static final String configFileName = "obex-install.cfg";
-	
+
 	private static final String devicePrefix = "device:";
-	
+
 	private static final String selectedPrefix = "selected:";
-	
-	private static final Properties properties = new Properties(); 
-	
+
+	private static final Properties properties = new Properties();
+
 	private static File homePath() {
 		String path = ".bluecove";
 		boolean isWindows = false;
@@ -53,7 +53,7 @@ public class Persistence {
 		}
 		File dir;
 		try {
-			dir =  new File(System.getProperty("user.home"), path);
+			dir = new File(System.getProperty("user.home"), path);
 			if (!dir.exists()) {
 				if (!dir.mkdirs()) {
 					throw new SecurityException();
@@ -77,7 +77,7 @@ public class Persistence {
 		}
 		return dir;
 	}
-	
+
 	private static File getConfigFile() {
 		File home = homePath();
 		if (home == null) {
@@ -85,7 +85,7 @@ public class Persistence {
 		}
 		return new File(home, configFileName);
 	}
-	
+
 	public static String loadDevices(Hashtable devices) {
 		File cf = getConfigFile();
 		if (cf == null || !cf.exists()) {
@@ -134,7 +134,7 @@ public class Persistence {
 			}
 		}
 	}
-	
+
 	public static void storeDevices(Hashtable devices, String selected) {
 		File cf = getConfigFile();
 		if (cf == null) {
@@ -145,14 +145,14 @@ public class Persistence {
 			fw = new FileWriter(cf, false);
 			for (Enumeration i = devices.keys(); i.hasMoreElements();) {
 				String addr = (String) i.nextElement();
-				DeviceInfo di = (DeviceInfo)devices.get(addr);
+				DeviceInfo di = (DeviceInfo) devices.get(addr);
 				fw.write(devicePrefix + di.saveAsLine() + "\n");
 			}
 			if (selected != null) {
 				fw.write(selectedPrefix + selected + "\n");
 			}
-			for(Enumeration en = properties.propertyNames(); en.hasMoreElements(); ) {
-				String name = (String)en.nextElement();
+			for (Enumeration en = properties.propertyNames(); en.hasMoreElements();) {
+				String name = (String) en.nextElement();
 				fw.write(name + "=" + properties.getProperty(name) + "\n");
 			}
 			fw.flush();
@@ -172,7 +172,7 @@ public class Persistence {
 	public static String getProperty(String key, String defaultValue) {
 		return properties.getProperty(key, defaultValue);
 	}
-	
+
 	public static void setProperty(String key, String value) {
 		properties.setProperty(key, value);
 	}

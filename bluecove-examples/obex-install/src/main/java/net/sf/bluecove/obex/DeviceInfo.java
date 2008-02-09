@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -24,18 +24,18 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 class DeviceInfo implements Storable {
-	
-	String btAddress; 
-	
-	String name; 
-	
+
+	String btAddress;
+
+	String name;
+
 	String obexUrl;
-	
+
 	boolean obexServiceFound = false;
-	
+
 	public String toString() {
 		if ((name != null) && (name.length() > 0)) {
-			return name;		
+			return name;
 		} else {
 			return btAddress;
 		}
@@ -47,27 +47,27 @@ class DeviceInfo implements Storable {
 		}
 		return str;
 	}
-	
+
 	public void loadFromLine(String line) throws IOException {
 		StringTokenizer st = new StringTokenizer(line, "|");
-	     if (!st.hasMoreTokens()) {
-	    	 throw new IOException();
-	     }
-	     btAddress = fixNull(st.nextToken());
-	     if (!st.hasMoreTokens()) {
-	    	 throw new IOException();
-	     }
-	     name = fixNull(st.nextToken());
-	     if (!st.hasMoreTokens()) {
-	    	 throw new IOException();
-	     }
-	     obexUrl = fixNull(st.nextToken());
+		if (!st.hasMoreTokens()) {
+			throw new IOException();
+		}
+		btAddress = fixNull(st.nextToken());
+		if (!st.hasMoreTokens()) {
+			throw new IOException();
+		}
+		name = fixNull(st.nextToken());
+		if (!st.hasMoreTokens()) {
+			throw new IOException();
+		}
+		obexUrl = fixNull(st.nextToken());
 	}
 
 	public String saveAsLine() {
 		return btAddress + "|" + name + "|" + obexUrl;
 	}
-	
+
 	public boolean isValid() {
 		if ((obexUrl == null) || (btAddress == null)) {
 			return false;

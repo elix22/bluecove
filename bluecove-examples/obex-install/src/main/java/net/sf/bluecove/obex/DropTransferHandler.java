@@ -1,7 +1,7 @@
 /**
  *  MicroEmulator
- *  Copyright (C) 2006-2007 Bartek Teodorczyk <barteo@barteo.net>
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Bartek Teodorczyk <barteo@barteo.net>
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,6 @@
  */
 package net.sf.bluecove.obex;
 
-
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -36,64 +35,65 @@ import javax.swing.TransferHandler;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class DropTransferHandler extends TransferHandler {
 
 	private static final long serialVersionUID = 1L;
 
 	private static DataFlavor uriListFlavor = new DataFlavor("text/uri-list;class=java.lang.String", null);
-	
+
 	private static boolean debugImport = false;
-	
+
 	private Main mainInstance;
-	
+
 	public DropTransferHandler(Main main) {
 		mainInstance = main;
 	}
-	
+
 	public int getSourceActions(JComponent c) {
-        return TransferHandler.COPY;
-    }
+		return TransferHandler.COPY;
+	}
 
 	public boolean canImport(JComponent comp, DataFlavor transferFlavors[]) {
 		for (int i = 0; i < transferFlavors.length; i++) {
 			Class representationclass = transferFlavors[i].getRepresentationClass();
 			// URL from Explorer or Firefox, KDE
-        	if ((representationclass != null) && URL.class.isAssignableFrom(representationclass)) {
-        		if (debugImport) {
-        			Logger.debug("acepted ", transferFlavors[i]);
-        		}
-        		return true;
-        	}
-        	// Drop from Windows Explorer
-        	if (DataFlavor.javaFileListFlavor.equals(transferFlavors[i])) {
-        		if (debugImport) {
-        			Logger.debug("acepted ", transferFlavors[i]);
-        		}
-        		return true;
-            }
-        	// Drop from GNOME
-            if (DataFlavor.stringFlavor.equals(transferFlavors[i])) {
-            	if (debugImport) {
-        			Logger.debug("acepted ", transferFlavors[i]);
-        		}
-                return true;
-            }
+			if ((representationclass != null) && URL.class.isAssignableFrom(representationclass)) {
+				if (debugImport) {
+					Logger.debug("acepted ", transferFlavors[i]);
+				}
+				return true;
+			}
+			// Drop from Windows Explorer
+			if (DataFlavor.javaFileListFlavor.equals(transferFlavors[i])) {
+				if (debugImport) {
+					Logger.debug("acepted ", transferFlavors[i]);
+				}
+				return true;
+			}
+			// Drop from GNOME
+			if (DataFlavor.stringFlavor.equals(transferFlavors[i])) {
+				if (debugImport) {
+					Logger.debug("acepted ", transferFlavors[i]);
+				}
+				return true;
+			}
 			if (uriListFlavor.equals(transferFlavors[i])) {
 				if (debugImport) {
-        			Logger.debug("acepted ", transferFlavors[i]);
-        		}
+					Logger.debug("acepted ", transferFlavors[i]);
+				}
 				return true;
-        	}
-//          String mimePrimaryType = transferFlavors[i].getPrimaryType();
-//			String mimeSubType = transferFlavors[i].getSubType();
-//			if ((mimePrimaryType != null) && (mimeSubType != null)) {
-//				if (mimePrimaryType.equals("text") && mimeSubType.equals("uri-list")) {
-//					Logger.debug("acepted ", transferFlavors[i]);
-//					return true;
-//				}
-//			}
+			}
+			// String mimePrimaryType = transferFlavors[i].getPrimaryType();
+			// String mimeSubType = transferFlavors[i].getSubType();
+			// if ((mimePrimaryType != null) && (mimeSubType != null)) {
+			// if (mimePrimaryType.equals("text") &&
+			// mimeSubType.equals("uri-list")) {
+			// Logger.debug("acepted ", transferFlavors[i]);
+			// return true;
+			// }
+			// }
 			if (debugImport) {
 				Logger.debug(i + " unknown import ", transferFlavors[i]);
 			}
@@ -101,38 +101,38 @@ public class DropTransferHandler extends TransferHandler {
 		if (debugImport) {
 			Logger.debug("import rejected");
 		}
-        return false;
+		return false;
 	}
-	
+
 	public boolean importData(JComponent comp, Transferable t) {
 		DataFlavor[] transferFlavors = t.getTransferDataFlavors();
-        for (int i = 0; i < transferFlavors.length; i++) {
-        	// Drop from Windows Explorer
-        	if (DataFlavor.javaFileListFlavor.equals(transferFlavors[i])) {
-        		Logger.debug("importing", transferFlavors[i]);
-        		try {
+		for (int i = 0; i < transferFlavors.length; i++) {
+			// Drop from Windows Explorer
+			if (DataFlavor.javaFileListFlavor.equals(transferFlavors[i])) {
+				Logger.debug("importing", transferFlavors[i]);
+				try {
 					List fileList = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
 					if (fileList.get(0) instanceof File) {
 						File f = (File) fileList.get(0);
 						mainInstance.downloadFile(getCanonicalFileURL(f));
-						for(int fi = 1; fi < fileList.size(); fi ++) {
+						for (int fi = 1; fi < fileList.size(); fi++) {
 							f = (File) fileList.get(fi);
-							mainInstance.queueFile(getCanonicalFileURL(f));	
+							mainInstance.queueFile(getCanonicalFileURL(f));
 						}
 					} else {
-						Logger.debug("Unknown object in list ", fileList.get(0));	
+						Logger.debug("Unknown object in list ", fileList.get(0));
 					}
 				} catch (UnsupportedFlavorException e) {
 					Logger.debug(e);
 				} catch (IOException e) {
 					Logger.debug(e);
 				}
-        		return true;
-            }
-        	
-        	// Drop from GNOME Firefox
-            if (DataFlavor.stringFlavor.equals(transferFlavors[i])) {
-            	Object data;
+				return true;
+			}
+
+			// Drop from GNOME Firefox
+			if (DataFlavor.stringFlavor.equals(transferFlavors[i])) {
+				Object data;
 				try {
 					data = t.getTransferData(DataFlavor.stringFlavor);
 				} catch (UnsupportedFlavorException e) {
@@ -140,15 +140,15 @@ public class DropTransferHandler extends TransferHandler {
 				} catch (IOException e) {
 					continue;
 				}
-            	if (data instanceof String) {
-                	Logger.debug("importing", transferFlavors[i]);
-                	String path = getPathString((String) data);
-                	mainInstance.downloadFile(path);
-          			return true;
-              	}
-            }
-            // Drop from GNOME Nautilus
-            if (uriListFlavor.equals(transferFlavors[i])) {
+				if (data instanceof String) {
+					Logger.debug("importing", transferFlavors[i]);
+					String path = getPathString((String) data);
+					mainInstance.downloadFile(path);
+					return true;
+				}
+			}
+			// Drop from GNOME Nautilus
+			if (uriListFlavor.equals(transferFlavors[i])) {
 				Object data;
 				try {
 					data = t.getTransferData(uriListFlavor);
@@ -164,18 +164,19 @@ public class DropTransferHandler extends TransferHandler {
 					return true;
 				}
 			}
-            if (debugImport) {
-            	Logger.debug(i + " unknown importData ", transferFlavors[i]);
-            }
-        }
-        // This is the second best option since it works incorrectly  on Max OS X making url like this [file://localhost/users/work/app.jad]
-        for (int i = 0; i < transferFlavors.length; i++) {
-        	Class representationclass = transferFlavors[i].getRepresentationClass();
-        	// URL from Explorer or Firefox, KDE
-        	if ((representationclass != null) && URL.class.isAssignableFrom(representationclass)) {
-        		Logger.debug("importing", transferFlavors[i]);
-        		try {
-					URL jadUrl = (URL)t.getTransferData(transferFlavors[i]);
+			if (debugImport) {
+				Logger.debug(i + " unknown importData ", transferFlavors[i]);
+			}
+		}
+		// This is the second best option since it works incorrectly on Max OS X
+		// making url like this [file://localhost/users/work/app.jad]
+		for (int i = 0; i < transferFlavors.length; i++) {
+			Class representationclass = transferFlavors[i].getRepresentationClass();
+			// URL from Explorer or Firefox, KDE
+			if ((representationclass != null) && URL.class.isAssignableFrom(representationclass)) {
+				Logger.debug("importing", transferFlavors[i]);
+				try {
+					URL jadUrl = (URL) t.getTransferData(transferFlavors[i]);
 					String urlString = jadUrl.toExternalForm();
 					mainInstance.downloadFile(urlString);
 				} catch (UnsupportedFlavorException e) {
@@ -184,11 +185,11 @@ public class DropTransferHandler extends TransferHandler {
 					Logger.debug(e);
 				}
 				return true;
-        	}
-        }
+			}
+		}
 		return false;
 	}
-	
+
 	private String getPathString(String path) {
 		if (path == null) {
 			return null;
@@ -199,7 +200,7 @@ public class DropTransferHandler extends TransferHandler {
 		}
 		return path;
 	}
-	
+
 	public static String getCanonicalFileURL(File file) {
 		String path = file.getAbsoluteFile().getPath();
 		if (File.separatorChar != '/') {

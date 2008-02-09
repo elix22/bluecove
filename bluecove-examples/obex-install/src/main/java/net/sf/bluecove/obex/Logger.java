@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -22,15 +22,26 @@ package net.sf.bluecove.obex;
 
 public class Logger {
 
+	static boolean debugOn = true;
+
 	static void debug(String message) {
+		if (!debugOn) {
+			return;
+		}
 		System.out.println(message);
 	}
 
 	static void debug(String message, Object o) {
+		if (!debugOn) {
+			return;
+		}
 		System.out.println(message + " " + o);
 	}
 
 	static void debug(String message, Throwable e) {
+		if (!debugOn) {
+			return;
+		}
 		System.out.println(message + " " + e.getMessage());
 		e.printStackTrace();
 	}
@@ -41,6 +52,9 @@ public class Logger {
 	}
 
 	static void debug(Throwable e) {
+		if (!debugOn) {
+			return;
+		}
 		System.out.println(e.getMessage());
 		e.printStackTrace();
 	}

@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -62,7 +62,7 @@ import javax.swing.border.EmptyBorder;
  * @author vlads
  * 
  */
-public class Main extends JFrame implements ActionListener {
+public class Main extends JFrame implements ActionListener, UserInteraction {
 
 	private static final long serialVersionUID = 1L;
 
@@ -199,18 +199,30 @@ public class Main extends JFrame implements ActionListener {
 		this.setLocation(((screenSize.width - this.getWidth()) / 2), ((screenSize.height - this.getHeight()) / 2));
 	}
 
+	public void showStatus(final String message) {
+		setStatus(message);
+	}
+
 	protected void setStatus(final String message) {
 		status = message;
 		progressBar.setString(message);
 	}
 
-	void setProgressValue(int n) {
+	public void setProgressMaximum(int n) {
+		progressBar.setMaximum(n);
+	}
+
+	public void setProgressValue(int n) {
 		progressBar.setValue(n);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				progressBar.setString(status);
 			}
 		});
+	}
+
+	public void setProgressDone() {
+		progressBar.setValue(0);
 	}
 
 	protected void disabledBluetooth() {

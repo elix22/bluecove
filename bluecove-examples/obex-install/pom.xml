@@ -134,6 +134,9 @@
                                 <copy overwrite="true"
                                     file="${project.build.directory}/proguard_seeds.txt"
                                     tofile="${project.build.directory}/site/proguard_seeds.txt"/>
+                                <copy overwrite="true"
+                                    file="${project.build.directory}/${project.build.finalName}.${project.packaging}"
+                                    tofile="${project.build.directory}/site/bluecove-obex-install.jar"/>
                             </tasks>
                         </configuration>
                     </execution>

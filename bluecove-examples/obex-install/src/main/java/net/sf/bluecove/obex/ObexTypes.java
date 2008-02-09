@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,7 @@ import java.util.Hashtable;
 public class ObexTypes {
 
 	private static Hashtable types = new Hashtable();
-	
+
 	static {
 		types.put("jpg", "image/jpeg");
 		types.put("jpeg", "image/jpeg");
@@ -34,7 +34,7 @@ public class ObexTypes {
 		types.put("txt", "text/plain");
 		types.put("jar", "application/java-archive");
 	}
-	
+
 	static String getFileExtension(String fileName) {
 		int extEnd = fileName.lastIndexOf('.');
 		if (extEnd == -1) {
@@ -45,6 +45,6 @@ public class ObexTypes {
 	}
 
 	static String getObexFileType(String fileName) {
-		return (String)types.get(getFileExtension(fileName));
+		return (String) types.get(getFileExtension(fileName));
 	}
 }

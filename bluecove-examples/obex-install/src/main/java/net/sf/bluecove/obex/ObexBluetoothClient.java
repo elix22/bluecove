@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -36,15 +36,15 @@ import javax.obex.ResponseCodes;
  */
 public class ObexBluetoothClient {
 
-	private Main mainInstance;
+	private UserInteraction interaction;
 
 	private String fileName;
 
 	private byte[] data;
 
-	public ObexBluetoothClient(Main mainInstance, String fileName, byte[] data) {
+	public ObexBluetoothClient(UserInteraction interaction, String fileName, byte[] data) {
 		super();
-		this.mainInstance = mainInstance;
+		this.interaction = interaction;
 		this.fileName = fileName;
 		this.data = data;
 	}
@@ -54,11 +54,11 @@ public class ObexBluetoothClient {
 		try {
 			// System.setProperty("bluecove.debug", "true");
 			Logger.debug("Connecting", serverURL);
-			mainInstance.setStatus("Connecting ...");
+			interaction.showStatus("Connecting ...");
 			clientSession = (ClientSession) Connector.open(serverURL);
 			HeaderSet hsConnectReply = clientSession.connect(clientSession.createHeaderSet());
 			if (hsConnectReply.getResponseCode() != ResponseCodes.OBEX_HTTP_OK) {
-				mainInstance.setStatus("Connect Error " + hsConnectReply.getResponseCode());
+				interaction.showStatus("Connect Error " + hsConnectReply.getResponseCode());
 			}
 			HeaderSet hsOperation = clientSession.createHeaderSet();
 			hsOperation.setHeader(HeaderSet.NAME, fileName);
@@ -68,10 +68,10 @@ public class ObexBluetoothClient {
 			}
 			hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
 
-			mainInstance.progressBar.setMaximum(data.length);
-			mainInstance.setProgressValue(0);
+			interaction.setProgressMaximum(data.length);
+			interaction.setProgressValue(0);
 
-			mainInstance.setStatus("Sending " + fileName + " ...");
+			interaction.showStatus("Sending " + fileName + " ...");
 			Operation po = clientSession.put(hsOperation);
 
 			OutputStream os = po.openOutputStream();
@@ -83,7 +83,7 @@ public class ObexBluetoothClient {
 			while (i != -1) {
 				os.write(buffer, 0, i);
 				done += i;
-				mainInstance.setProgressValue(done);
+				interaction.setProgressValue(done);
 				i = is.read(buffer);
 			}
 			os.flush();
@@ -92,11 +92,14 @@ public class ObexBluetoothClient {
 			// log.debug("put responseCode " + po.getResponseCode());
 
 			po.close();
+
+			interaction.setProgressDone();
+
 			HeaderSet hsDisconnect = clientSession.disconnect(null);
 			// log.debug("disconnect responseCode " + hs.getResponseCode());
 
 			if (hsDisconnect.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
-				mainInstance.setStatus("Finished successfully");
+				interaction.showStatus("Finished successfully");
 				return true;
 			} else {
 				return false;
@@ -104,11 +107,11 @@ public class ObexBluetoothClient {
 
 		} catch (IOException e) {
 			Logger.error(e);
-			mainInstance.setStatus("Communication error " + e.getMessage());
+			interaction.showStatus("Communication error " + e.getMessage());
 			return false;
 		} catch (Throwable e) {
 			Logger.error(e);
-			mainInstance.setStatus("Error " + e.getMessage());
+			interaction.showStatus("Error " + e.getMessage());
 			return false;
 		} finally {
 			if (clientSession != null) {
@@ -118,7 +121,7 @@ public class ObexBluetoothClient {
 				}
 			}
 			clientSession = null;
-			mainInstance.setProgressValue(0);
+			interaction.setProgressValue(0);
 		}
 	}
 
