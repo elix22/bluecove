@@ -121,7 +121,7 @@ Configuration options
 	            InterruptedIOException. Defaults to 2 minutes.
         * `bluecove.connect.timeout` The amount of time in milliseconds for which the implementation will
 	        attempt to establish connection RFCOMM or L2CAP before it throws
-	        !BluetoothConnectionException. Defaults to 2 minutes. WIDCOMM only.
+	        !BluetoothConnectionException. Defaults to 2 minutes. WIDCOMM and OS X only.
 	    * `bluecove.obex.mtu` You can increase transfer speed by changing mtu to bigger value. Default is 1024
 	    * `bluecove.bluez.class` defaults to com.intel.bluetooth.BluetoothStackBlueZ. Use reflection to start Linux version.
 
