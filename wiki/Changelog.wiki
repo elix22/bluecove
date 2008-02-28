@@ -1,10 +1,18 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
-* 2.0.3 to released 2008-02-XX
+* 2.0.3 to released 2008-XX-XX
+
+    2008-02-27
+    * Configurable "bluecove.inquiry.duration" for MS stack and OSX
+
+    2008-01-30 Vlad Skarzhevskyy
+    * Fixed major start problem on Mac OS X
+    * Fixed SDP SEQ8, SEQ16, UUID 16 and 36 bit
+    * Allow to load _x64 libraries on Windows and Linux
 
     2008-01-19 Vlad Skarzhevskyy
-    *  bluecove-gpl: RFCOMM and L2CAP client on Linux BlueZ
+    *  bluecove-gpl: RFCOMM and L2CAP client and services on Linux BlueZ
 
     2008-01-12 Mina Shokry
     *  bluecove-gpl: Service discovery on Linux
