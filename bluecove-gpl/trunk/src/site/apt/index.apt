@@ -12,13 +12,21 @@ This module distributed as different jar because of the License differences.
 
   Compiled for i386 and x86-64 versions of the native code (shared library) is included in jar distribution.
 
-  N.B. This is experimental module.
+  N.B. This is experimental module. Another module bluecove-bluez (Apache Software License) that is using D-Bus is in developement. {{{http://groups.google.com/group/bluecove-developers}Help us make it}}.
 
 * Usage
 
 ---
 java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:yourApp.jar org.your.app.Main
 ---
+
+* Requirements
+
+    * BlueCove library of the same mojor version
+
+    * Package bluez-libs 3.7 or later should be installed on your system
+
+    * To change Discoverable mode of the device you should be root
 
 * Configuration options
 
