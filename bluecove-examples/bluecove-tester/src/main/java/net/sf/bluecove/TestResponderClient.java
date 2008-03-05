@@ -38,6 +38,7 @@ import javax.microedition.io.Connector;
 
 import net.sf.bluecove.awt.JavaSECommon;
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.CollectionUtils;
 import net.sf.bluecove.util.CountStatistic;
 import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.IntVar;
@@ -49,7 +50,7 @@ import net.sf.bluecove.util.TimeUtils;
  * @author vlads
  * 
  */
-public class TestResponderClient extends TestResponderCommon implements Runnable {
+public class TestResponderClient extends TestResponderCommon implements Runnable, CanShutdown {
 
 	public static int countSuccess = 0;
 
@@ -93,6 +94,8 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 	boolean searchOnlyBluecoveUuid = false;
 
+	boolean searchServiceRetry = true;
+
 	boolean isRunning = false;
 
 	boolean runStressTest = false;
@@ -108,6 +111,8 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 	boolean configured = false;
 
 	private static int sdAttrRetrievableMax = 255;
+
+	public String logID = "";
 
 	public static synchronized void clear() {
 		countSuccess = 0;
@@ -151,7 +156,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 		private boolean servicesFound = false;
 
-		private boolean anyServicesFound = false;
+		boolean anyServicesFound = false;
 
 		private int anyServicesFoundCount;
 
@@ -352,7 +357,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			if (devices.size() == 0) {
 				return true;
 			}
-			Logger.debug("Starting Services search " + TimeUtils.timeNowToString());
+			Logger.debug(logID + "Starting Services search " + TimeUtils.timeNowToString());
 			long inquiryStart = System.currentTimeMillis();
 			nextDevice: for (Enumeration iter = devices.elements(); iter.hasMoreElements();) {
 				if (stoped) {
@@ -371,12 +376,12 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 							recentDeviceNames.put(remoteDevice.getBluetoothAddress().toUpperCase(), name);
 						}
 					} catch (Throwable e) {
-						Logger.error("er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
+						Logger.error(logID + "er.getFriendlyName," + remoteDevice.getBluetoothAddress(), e);
 					}
 				}
 				servicesOnDeviceAddress = remoteDevice.getBluetoothAddress();
 				servicesOnDeviceName = niceDeviceName(servicesOnDeviceAddress);
-				Logger.debug("Search Services on " + servicesOnDeviceName + " " + name);
+				Logger.debug(logID + "Search Services on " + servicesOnDeviceName + " " + name);
 
 				int transID = -1;
 
@@ -398,7 +403,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 							for (int i = 0; i < sdAttrRetrievableMax; i++) {
 								shortAttrSet[i] = attrIDs[i];
 							}
-							Logger.debug("search attr first " + shortAttrSet.length + " of " + attrIDs.length);
+							Logger.debug(logID + "search attr first " + shortAttrSet.length + " of " + attrIDs.length);
 						} else {
 							shortAttrSet = attrIDs;
 						}
@@ -407,10 +412,14 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 								.searchServices(shortAttrSet, uuidSet, remoteDevice, this);
 						transID = servicesSearchTransID;
 						if (transID <= 0) {
-							Logger.warn("servicesSearch TransID mast be positive, " + transID);
+							Logger.warn(logID + "servicesSearch TransID mast be positive, " + transID);
 						}
 					} catch (BluetoothStateException e) {
-						Logger.error("Cannot start searchServices", e);
+						Logger.error(logID + "Cannot start searchServices on " + servicesOnDeviceName, e);
+						if (!searchServiceRetry) {
+							stoped = true;
+							return false;
+						}
 						continue nextDevice;
 					}
 					// By this time serviceSearchCompleted maybe already been
@@ -429,13 +438,13 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 				RemoteDeviceInfo.searchServices(remoteDevice, servicesFound, TimeUtils.since(start));
 				String msg = (anyServicesFound) ? "; " + anyServicesFoundCount + " service(s) found" : "; no services";
-				Logger.debug(" Services Search " + transID + " took " + TimeUtils.secSince(start) + msg);
+				Logger.debug(logID + "Services Search " + transID + " took " + TimeUtils.secSince(start) + msg);
 			}
 			String msg = "";
 			if (serverURLs.size() > 0) {
 				msg = "; BC Srv(s) " + serverURLs.size();
 			}
-			Logger.debug("Services search completed " + TimeUtils.secSince(inquiryStart) + msg);
+			Logger.debug(logID + "Services search completed " + TimeUtils.secSince(inquiryStart) + msg);
 			return true;
 		}
 
@@ -473,7 +482,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 					if (Configuration.testAllServiceAttributes.booleanValue() && (sdAttrRetrievableMax != 0)) {
 						// populateAllservicesAttributes(servRecord[i]);
 					}
-					Logger.debug("ServiceRecord " + (i + 1) + "/" + servRecord.length + "\n"
+					Logger.debug(logID + "ServiceRecord " + (i + 1) + "/" + servRecord.length + "\n"
 							+ BluetoothTypesInfo.toString(servRecord[i]));
 				}
 				if (url == null) {
@@ -510,14 +519,14 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 				if (isBlueCoveTestService) {
 					discoveryCount++;
-					Logger.info("Found BlueCove SRV:"
+					Logger.info(logID + "Found BlueCove SRV:"
 							+ niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 				}
 
 				if (searchOnlyBluecoveUuid || isBlueCoveTestService) {
 					serverURLs.addElement(url);
 				} else {
-					Logger.info("is not TestService on "
+					Logger.info(logID + "is not TestService on "
 							+ niceDeviceName(servRecord[i].getHostDevice().getBluetoothAddress()));
 				}
 				if (isBlueCoveTestService) {
@@ -529,13 +538,13 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		public synchronized void serviceSearchCompleted(int transID, int respCode) {
 			switch (respCode) {
 			case SERVICE_SEARCH_ERROR:
-				Logger.error("error occurred while processing the service search");
+				Logger.error(logID + "error occurred while processing the service search");
 				break;
 			case SERVICE_SEARCH_TERMINATED:
-				Logger.info("SERVICE_SEARCH_TERMINATED");
+				Logger.info(logID + "SERVICE_SEARCH_TERMINATED");
 				break;
 			case SERVICE_SEARCH_DEVICE_NOT_REACHABLE:
-				Logger.info("SERVICE_SEARCH_DEVICE_NOT_REACHABLE");
+				Logger.info(logID + "SERVICE_SEARCH_DEVICE_NOT_REACHABLE");
 				break;
 			}
 			searchingServices = false;
@@ -560,8 +569,14 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 	}
 
 	public TestResponderClient() throws BluetoothStateException {
+		this(true);
+	}
 
-		TestResponderCommon.startLocalDevice();
+	public TestResponderClient(boolean logLocalDevice) throws BluetoothStateException {
+
+		if (logLocalDevice) {
+			TestResponderCommon.startLocalDevice();
+		}
 
 		String v = LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max");
 		if (v != null) {
@@ -835,6 +850,10 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		}
 	}
 
+	public long lastActivityTime() {
+		return lastSuccessfulDiscovery;
+	}
+
 	public void run() {
 		synchronized (this) {
 			while (!configured) {
@@ -845,10 +864,11 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				}
 			}
 		}
-		Logger.debug("Client started..." + TimeUtils.timeNowToString());
+		Logger.debug(logID + "Client started..." + TimeUtils.timeNowToString());
 		isRunning = true;
 		try {
 			bluetoothInquirer = new BluetoothInquirer();
+			Switcher.clientStarted(this);
 
 			int startTry = 0;
 			if (connectURL != null) {
@@ -869,13 +889,13 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 								: Configuration.discoveryUUID;
 						String url = discoveryAgent.selectService(uuid, Configuration.getRequiredSecurity(), false);
 						if (url != null) {
-							Logger.debug("selectService service found " + url);
+							Logger.debug(logID + "selectService service found " + url);
 							bluetoothInquirer.serverURLs.addElement(url);
 						} else {
-							Logger.debug("selectService service not found");
+							Logger.debug(logID + "selectService service not found");
 						}
 					} catch (BluetoothStateException e) {
-						Logger.error("Cannot selectService", e);
+						Logger.error(logID + "Cannot selectService", e);
 					}
 				} else if ((!bluetoothInquirer.hasServers())
 						|| (Configuration.clientContinuousDiscovery && (connectURL == null))
@@ -915,11 +935,11 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				} else {
 					discoveryDryCount++;
 					if ((discoveryDryCount % 5 == 0) && (lastSuccessfulDiscovery != 0)) {
-						Logger.debug("No services " + discoveryDryCount + " times for "
+						Logger.debug(logID + "No services " + discoveryDryCount + " times for "
 								+ TimeUtils.secSince(lastSuccessfulDiscovery) + " " + discoverySuccessCount);
 					}
 				}
-				Logger.info("*Success:" + countSuccess + " Failure:" + failure.countFailure);
+				Logger.info(logID + "*Success:" + countSuccess + " Failure:" + failure.countFailure);
 				if ((countSuccess + failure.countFailure > 0) && (!Configuration.clientContinuous.booleanValue())) {
 					break;
 				}
@@ -930,18 +950,27 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			}
 		} catch (Throwable e) {
 			if (!stoped) {
-				Logger.error("cleint error ", e);
+				Logger.error(logID + "client error ", e);
 			}
 		} finally {
+			Switcher.clientEnds(this);
 			connectURL = null;
 			isRunning = false;
-			Logger.info("Client finished! " + TimeUtils.timeNowToString());
+			Logger.info(logID + "Client finished! " + TimeUtils.timeNowToString());
 			Switcher.yield(this);
 		}
 	}
 
+	public boolean isAnyServiceFound() {
+		if (bluetoothInquirer != null) {
+			return bluetoothInquirer.anyServicesFound;
+		} else {
+			return false;
+		}
+	}
+
 	public void shutdown() {
-		Logger.info("shutdownClient");
+		Logger.info(logID + "shutdownClient");
 		stoped = true;
 		if (bluetoothInquirer != null) {
 			bluetoothInquirer.shutdown();
@@ -949,10 +978,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		if (Configuration.cldcStub != null) {
 			Configuration.cldcStub.interruptThread(thread);
 		}
-		Vector concurrentConnectionsCopy = new Vector();
-		for (Enumeration iter = concurrentConnections.elements(); iter.hasMoreElements();) {
-			concurrentConnectionsCopy.addElement(iter.nextElement());
-		}
+		Vector concurrentConnectionsCopy = CollectionUtils.copy(concurrentConnections);
 		for (Enumeration iter = concurrentConnectionsCopy.elements(); iter.hasMoreElements();) {
 			ConnectionHolder t = (ConnectionHolder) iter.nextElement();
 			t.shutdown();
@@ -968,4 +994,5 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			Logger.error("start error ", e);
 		}
 	}
+
 }

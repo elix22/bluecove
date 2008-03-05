@@ -53,6 +53,7 @@ import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.RemoteDeviceInfo;
 import net.sf.bluecove.Switcher;
+import net.sf.bluecove.TestConcurrent;
 import net.sf.bluecove.TestResponderClient;
 import net.sf.bluecove.TestResponderServer;
 import net.sf.bluecove.Logger.LoggerAppender;
@@ -288,6 +289,12 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			public void actionPerformed(ActionEvent e) {
 				Switcher.startTwoClients();
 				updateTitle();
+			}
+		});
+
+		addMenu(menuMore, "Concurrent Services Search", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TestConcurrent.startConcurrentServicesSearchClients();
 			}
 		});
 

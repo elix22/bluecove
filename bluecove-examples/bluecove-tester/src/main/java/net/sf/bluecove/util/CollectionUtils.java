@@ -21,6 +21,7 @@
 
 package net.sf.bluecove.util;
 
+import java.util.Enumeration;
 import java.util.Vector;
 
 public class CollectionUtils {
@@ -33,6 +34,14 @@ public class CollectionUtils {
 
 	public static void sort(Vector v) {
 		quickSort(v, 0, v.size() - 1);
+	}
+
+	public static Vector copy(Vector v) {
+		Vector copy = new Vector();
+		for (Enumeration en = v.elements(); en.hasMoreElements();) {
+			copy.addElement(en.nextElement());
+		}
+		return copy;
 	}
 
 	public static int compareLong(long l1, long l2) {

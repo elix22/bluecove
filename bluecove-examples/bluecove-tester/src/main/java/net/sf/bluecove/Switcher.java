@@ -20,13 +20,16 @@
  */
 package net.sf.bluecove;
 
+import java.util.Enumeration;
 import java.util.Random;
+import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
 
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.CollectionUtils;
 
 /**
  * @author vlads
@@ -36,7 +39,11 @@ public class Switcher implements Runnable {
 
 	public static TestResponderClient client;
 
+	private static Vector runningClients = new Vector();
+
 	public static TestResponderServer server;
+
+	private static Vector runningServers = new Vector();
 
 	public static int clientStartCount = 0;
 
@@ -96,7 +103,7 @@ public class Switcher implements Runnable {
 	}
 
 	public static boolean isRunningClient() {
-		return (client != null) && client.isRunning;
+		return ((client != null) && client.isRunning) || (!runningClients.isEmpty());
 	}
 
 	public static boolean isRunningServer() {
@@ -178,6 +185,14 @@ public class Switcher implements Runnable {
 			notifyAll();
 		}
 		instance = null;
+	}
+
+	public static void clientStarted(CanShutdown t) {
+		runningClients.addElement(t);
+	}
+
+	public static void clientEnds(CanShutdown t) {
+		runningClients.removeElement(t);
 	}
 
 	public static void interruptThread(Thread thread) {
@@ -265,19 +280,30 @@ public class Switcher implements Runnable {
 	}
 
 	public static TestResponderClient createClient() {
+		return createClient(false);
+	}
+
+	public static TestResponderClient createClient(boolean force) {
 		try {
-			if (client == null) {
-				client = new TestResponderClient();
+			TestResponderClient c;
+			if ((client == null) || (force)) {
+				c = new TestResponderClient(!force);
+				client = c;
+			} else {
+				c = client;
 			}
-			if (!client.isRunning) {
-				client.configured = false;
-				client.discoveryOnce = false;
-				client.useDiscoveredDevices = false;
-				client.searchOnlyBluecoveUuid = Configuration.searchOnlyBluecoveUuid;
+			if (!c.isRunning) {
+				c.logID = "";
+				c.configured = false;
+				c.discoveryOnce = false;
+				c.connectDevice = null;
+				c.searchServiceRetry = true;
+				c.useDiscoveredDevices = false;
+				c.searchOnlyBluecoveUuid = Configuration.searchOnlyBluecoveUuid;
 				String name = "Client" + clientStartCount++;
-				client.thread = Configuration.cldcStub.createNamedThread(client, name);
-				client.thread.start();
-				return client;
+				c.thread = Configuration.cldcStub.createNamedThread(c, name);
+				c.thread.start();
+				return c;
 			} else {
 				if (Configuration.isJ2ME) {
 					BlueCoveTestMIDlet.message("Warn", "Client is already Running");
@@ -439,6 +465,11 @@ public class Switcher implements Runnable {
 		if (client != null) {
 			client.shutdown();
 			client = null;
+		}
+		Vector runningClientsCopy = CollectionUtils.copy(runningClients);
+		for (Enumeration iter = runningClientsCopy.elements(); iter.hasMoreElements();) {
+			CanShutdown t = (CanShutdown) iter.nextElement();
+			t.shutdown();
 		}
 	}
 
