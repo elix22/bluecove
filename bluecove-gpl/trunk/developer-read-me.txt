@@ -21,5 +21,6 @@
     - Java SE Development Kit 1.4 or newer
     - Linux Bluetooth protocol stack (BlueZ)
     - Development librararies for Bluetooth applications (package bluez-libs-devel 3.9 or newer)
+    - When building on 64-bit platform make sure JAVA_HOME during build is pointing to 64-bit java
 
     The native library are build during maven build.
