@@ -287,7 +287,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public int searchServices(int[] attrSet, UUID[] uuidSet, RemoteDevice device, DiscoveryListener listener)
 			throws BluetoothStateException {
-		return SearchServicesThread.startSearchServices(this, attrSet, uuidSet, device, listener);
+		return SearchServicesThread.startSearchServices(this, this, attrSet, uuidSet, device, listener);
 	}
 
 	private native int runSearchServicesImpl(SearchServicesThread sst, long localDeviceBTAddress, byte[][] uuidValues,
