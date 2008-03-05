@@ -43,6 +43,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.nativeLibraryVersionExpected;
 
+	// TODO what is the real number for Attributes retrievable ?
+	private final static int ATTR_RETRIEVABLE_MAX = 256;
+
 	private int deviceID;
 
 	private int deviceDescriptor;
@@ -110,7 +113,20 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		deviceDescriptor = nativeOpenDevice(deviceID);
 		localDeviceBTAddress = getLocalDeviceBluetoothAddressImpl(deviceDescriptor);
 		propertiesMap = new TreeMap/* <String,String> */();
-		propertiesMap.put("bluetooth.api.version", "1.1");
+		final String TRUE = "true";
+		final String FALSE = "false";
+		propertiesMap.put("bluetooth.connected.devices.max", "7");
+		propertiesMap.put("bluetooth.sd.trans.max", "7");
+		propertiesMap.put("bluetooth.connected.inquiry.scan", TRUE);
+		propertiesMap.put("bluetooth.connected.page.scan", TRUE);
+		propertiesMap.put("bluetooth.connected.inquiry", TRUE);
+		propertiesMap.put("bluetooth.connected.page", TRUE);
+		propertiesMap.put("bluetooth.sd.attr.retrievable.max", String.valueOf(ATTR_RETRIEVABLE_MAX));
+		propertiesMap.put("bluetooth.master.switch", FALSE);
+		propertiesMap.put("bluetooth.l2cap.receiveMTU.max", "65535");
+		// propertiesMap.put("bluecove.radio.version", );
+		// propertiesMap.put("bluecove.radio.manufacturer", );
+		// propertiesMap.put("bluecove.stack.version", );
 	}
 
 	private native void nativeCloseDevice(int deviceDescriptor);
