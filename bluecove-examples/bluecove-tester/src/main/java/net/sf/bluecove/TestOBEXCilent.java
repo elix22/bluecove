@@ -65,6 +65,7 @@ public class TestOBEXCilent implements Runnable {
 			serverURL = "tcpobex://127.1.1.1:650";
 		} else {
 			DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+			Logger.debug("Find OBEX_OBJECT_PUSH  service");
 			serverURL = discoveryAgent.selectService(TestResponderServerOBEX.OBEX_OBJECT_PUSH, Configuration
 					.getRequiredSecurity(), false);
 			if (serverURL == null) {
@@ -72,7 +73,7 @@ public class TestOBEXCilent implements Runnable {
 				return;
 			}
 		}
-
+		Logger.debug("connect " + serverURL);
 		ClientSession clientSession = (ClientSession) Connector.open(serverURL);
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		if (hsConnectReply.getResponseCode() != ResponseCodes.OBEX_HTTP_OK) {
