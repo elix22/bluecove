@@ -107,7 +107,7 @@ public class Switcher implements Runnable {
 	}
 
 	public static boolean isRunningServer() {
-		return isTCKRunning() || ((server != null) && TestResponderServer.discoverable && server.isRunning());
+		return isTCKRunning() || ((server != null) && server.isRunning());
 	}
 
 	public void run() {
