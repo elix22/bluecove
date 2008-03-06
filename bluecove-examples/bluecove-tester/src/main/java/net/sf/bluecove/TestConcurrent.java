@@ -82,6 +82,8 @@ public class TestConcurrent {
 						TestResponderClient c = (TestResponderClient) en.nextElement();
 						if (c.isAnyServiceFound()) {
 							cerviceFound++;
+						} else {
+							Logger.debug("No srvc on " + TestResponderClient.niceDeviceName(c.connectDevice));
 						}
 					}
 
