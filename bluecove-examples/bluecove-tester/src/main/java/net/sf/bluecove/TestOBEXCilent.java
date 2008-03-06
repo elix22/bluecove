@@ -67,6 +67,10 @@ public class TestOBEXCilent implements Runnable {
 			DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 			serverURL = discoveryAgent.selectService(TestResponderServerOBEX.OBEX_OBJECT_PUSH, Configuration
 					.getRequiredSecurity(), false);
+			if (serverURL == null) {
+				Logger.debug("no OBEX service found");
+				return;
+			}
 		}
 
 		ClientSession clientSession = (ClientSession) Connector.open(serverURL);
