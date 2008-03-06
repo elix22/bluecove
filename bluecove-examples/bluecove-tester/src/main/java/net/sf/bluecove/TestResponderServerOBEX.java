@@ -56,7 +56,7 @@ public class TestResponderServerOBEX implements Runnable {
 
 	private Thread thread;
 
-	public final UUID OBEX_OBJECT_PUSH = new UUID(0x1105);
+	public static final UUID OBEX_OBJECT_PUSH = new UUID(0x1105);
 
 	public static final String OBEX_OBJECT_PUSH_SERVER_NAME = "OBEX Object Push";
 

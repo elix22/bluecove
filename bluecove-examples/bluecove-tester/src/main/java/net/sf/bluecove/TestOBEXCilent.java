@@ -23,6 +23,8 @@ package net.sf.bluecove;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.LocalDevice;
 import javax.microedition.io.Connector;
 import javax.obex.ClientSession;
 import javax.obex.HeaderSet;
@@ -58,7 +60,14 @@ public class TestOBEXCilent implements Runnable {
 
 	private void runObecPut() throws IOException {
 
-		String serverURL = "tcpobex://127.1.1.1:650";
+		String serverURL;
+		if (Configuration.testServerOBEX_TCP) {
+			serverURL = "tcpobex://127.1.1.1:650";
+		} else {
+			DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
+			serverURL = discoveryAgent.selectService(TestResponderServerOBEX.OBEX_OBJECT_PUSH, Configuration
+					.getRequiredSecurity(), false);
+		}
 
 		ClientSession clientSession = (ClientSession) Connector.open(serverURL);
 		HeaderSet hsConnectReply = clientSession.connect(null);
