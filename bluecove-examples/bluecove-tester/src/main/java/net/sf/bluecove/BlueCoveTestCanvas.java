@@ -37,54 +37,71 @@ import net.sf.bluecove.util.TimeUtils;
 public class BlueCoveTestCanvas extends Canvas implements CommandListener, LoggerAppender {
 
 	static final Command exitCommand = new Command("Exit", Command.EXIT, 0);
+
 	static final Command printStatsCommand = new Command("1-Print Stats", Command.ITEM, 1);
-	
+
 	static final Command startDiscoveryCommand = new Command("*-Discovery", Command.ITEM, 2);
+
 	static final Command startServicesSearchCommand = new Command("7-Services Search", Command.ITEM, 2);
+
 	static final Command startClientCommand = new Command("2-Client Start", Command.ITEM, 2);
+
 	static final Command stopClientCommand = new Command("3-Client Stop", Command.ITEM, 3);
+
 	static final Command startServerCommand = new Command("5-Server Start", Command.ITEM, 4);
+
 	static final Command stopServerCommand = new Command("6-Server Stop", Command.ITEM, 5);
+
 	static final Command startSwitcherCommand = new Command("8-Switcher Start", Command.ITEM, 6);
+
 	static final Command stopSwitcherCommand = new Command("9-Switcher Stop", Command.ITEM, 7);
+
 	static final Command clearCommand = new Command("#-Clear", Command.ITEM, 8);
+
 	static final Command printFailureLogCommand = new Command("4-Print FailureLog", Command.ITEM, 8);
+
 	static final Command startClientStressCommand = new Command("Client Stress Start", Command.ITEM, 9);
+
 	static final Command startClientLastServiceCommand = new Command("Client Last service Start", Command.ITEM, 10);
+
 	static final Command startClientLastDeviceCommand = new Command("Client Last device Start", Command.ITEM, 11);
+
 	static final Command startTCKAgentCommand = new Command("TCK Agent", Command.ITEM, 12);
+
 	static final Command configurationCommand = new Command("Options...", Command.ITEM, 13);
-	
+
+	static final Command obexPutCommand = new Command("ObexPut", Command.ITEM, 14);
+
 	private boolean showLogDebug = true;
-	
+
 	private int line;
-	
+
 	private int lineOffsetY;
-	
+
 	private int lineOffsetX;
-	
+
 	private Switcher switcher;
-	
+
 	private Vector logMessages = new Vector();
-	
+
 	private int errorCount = 0;
-	
+
 	private int logLine = 0;
-	
+
 	private int logScrollX;
-	
+
 	private int logVisibleLines = 0;
-	
+
 	private int logMessagesSownSize = 0;
-	
+
 	private boolean movingCursor = false;
-	
+
 	private boolean logLastEvenVisible = true;
-	
+
 	public BlueCoveTestCanvas() {
 		super();
 		super.setTitle("BlueCoveT");
-		
+
 		addCommand(exitCommand);
 		addCommand(startDiscoveryCommand);
 		addCommand(startServicesSearchCommand);
@@ -104,52 +121,56 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			addCommand(startTCKAgentCommand);
 		}
 		addCommand(configurationCommand);
-		
+		if (TestOBEXCilent.obexEnabled) {
+			addCommand(obexPutCommand);
+		}
 		setCommandListener(this);
 		Logger.addAppender(this);
 		Configuration.storage = new StorageRMS();
 	}
-	
+
 	public int writeln(Graphics g, String s) {
 		int h = (g.getFont().getHeight() + 1);
 		int y = lineOffsetY + h * line;
 		g.drawString(s, lineOffsetX, y, Graphics.LEFT | Graphics.TOP);
-		line ++;
+		line++;
 		return y + h;
 	}
-	
+
 	protected void paint(Graphics g) {
 		lineOffsetY = 0;
 		lineOffsetX = 0;
 		line = 0;
 		int width = getWidth();
-        int height = getHeight();
+		int height = getHeight();
 
 		g.setGrayScale(255);
 		g.fillRect(0, 0, width, height);
-		
+
 		g.setColor(0);
 		int lastY = writeln(g, "BlueCove Tester");
 
 		line = 0;
 		lineOffsetY = lastY;
-		Font font = Font.getFont(Font.FACE_PROPORTIONAL,  Font.STYLE_PLAIN, Font.SIZE_SMALL);
+		Font font = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
 		g.setFont(font);
-		
+
 		StringBuffer msg = new StringBuffer();
 		msg.append("(");
-		msg.append("srv:").append((Switcher.isRunningServer())?"ON":"off").append(" ").append(Switcher.serverStartCount);
-		msg.append(" cli:").append((Switcher.isRunningClient())?"ON":"off").append(" ").append(Switcher.clientStartCount);
-		msg.append(" X:").append((Switcher.isRunning())?"ON":"off");
+		msg.append("srv:").append((Switcher.isRunningServer()) ? "ON" : "off").append(" ").append(
+				Switcher.serverStartCount);
+		msg.append(" cli:").append((Switcher.isRunningClient()) ? "ON" : "off").append(" ").append(
+				Switcher.clientStartCount);
+		msg.append(" X:").append((Switcher.isRunning()) ? "ON" : "off");
 		msg.append(" dc:").append(TestResponderClient.discoveryCount);
 		msg.append(" er:").append(errorCount);
 		msg.append(")");
 		lastY = writeln(g, msg.toString());
-		
+
 		int lineHeight = g.getFont().getHeight() + 1;
-		logVisibleLines = (height - lastY ) / lineHeight;
+		logVisibleLines = (height - lastY) / lineHeight;
 		lineOffsetX = logScrollX;
-		
+
 		if (!movingCursor && logLastEvenVisible) {
 			if (((logLine + logVisibleLines) < logMessages.size())) {
 				setLogEndLine();
@@ -160,17 +181,17 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		int logIndex = logLine;
 		while (((lastY) < height) && (logIndex < logMessagesSownSize)) {
 			try {
-				String message = (String)logMessages.elementAt(logIndex);
+				String message = (String) logMessages.elementAt(logIndex);
 				lastY = writeln(g, message);
-				logIndex ++;
+				logIndex++;
 			} catch (ArrayIndexOutOfBoundsException e) {
-				logLastEvenVisible  = true;
+				logLastEvenVisible = true;
 				return;
 			}
-		} 
+		}
 		logLastEvenVisible = (logIndex == logMessagesSownSize);
 	}
-	
+
 	public void appendLog(int level, String message, Throwable throwable) {
 		if (!showLogDebug && (level == Logger.DEBUG)) {
 			return;
@@ -178,7 +199,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		StringBuffer buf = new StringBuffer();
 		switch (level) {
 		case Logger.ERROR:
-			errorCount ++;
+			errorCount++;
 			buf.append("e.");
 			break;
 		case Logger.WARN:
@@ -204,7 +225,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			cr = m.indexOf("\n");
 		}
 		logMessages.addElement(m);
-		
+
 		int logMax = 1000;
 		if (logMessages.size() >= logMax) {
 			Vector newLogMessages = new Vector();
@@ -214,13 +235,13 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			logMessages = newLogMessages;
 			logLine = 0;
 		}
-		
+
 		if (logLastEvenVisible) {
-			//BlueCoveTestMIDlet.display.flashBacklight(0);
+			// BlueCoveTestMIDlet.display.flashBacklight(0);
 			repaint();
 		}
 	}
-	
+
 	private void setLogEndLine() {
 		logLine = logMessages.size() - logVisibleLines;
 		if (logLine < 0) {
@@ -273,7 +294,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			case UP:
 				if (logLine > 0) {
 					logLine--;
-					movingCursor =true;
+					movingCursor = true;
 				}
 				break;
 			case DOWN:
@@ -295,7 +316,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		}
 		repaint();
 	}
-	
+
 	protected void keyRepeated(int keyCode) {
 		int action = getGameAction(keyCode);
 		switch (action) {
@@ -324,7 +345,6 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		}
 		repaint();
 	}
-	
 
 	private void stopSwitcher() {
 		if (switcher != null) {
@@ -340,7 +360,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		long activeDeadline = System.currentTimeMillis() - 1000 * 60 * 4;
 		for (Enumeration iter = RemoteDeviceInfo.devices.elements(); iter.hasMoreElements();) {
 			RemoteDeviceInfo dev = (RemoteDeviceInfo) iter.nextElement();
-			deviceCnt ++;
+			deviceCnt++;
 			StringBuffer buf = new StringBuffer();
 			buf.append(TestResponderClient.niceDeviceName(dev.remoteDevice.getBluetoothAddress()));
 			buf.append(" dc:").append(dev.serviceDiscovered.count);
@@ -353,7 +373,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			buf.append(" ss:").append(dev.avgServiceSearchDurationSec());
 			buf.append(" sss:").append(dev.serviceSearchSuccessPrc()).append("%");
 			if (dev.serviceDiscoveredLastTime > activeDeadline) {
-				deviceActiveCnt ++;
+				deviceActiveCnt++;
 				buf.append(" Active");
 			} else {
 				buf.append(" Down");
@@ -374,40 +394,44 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		buf.append(" di:").append(RemoteDeviceInfo.allAvgDeviceInquiryDurationSec());
 		buf.append(" ss:").append(RemoteDeviceInfo.allAvgServiceSearchDurationSec());
 		Logger.info(buf.toString());
-		
+
 		buf = new StringBuffer();
 		buf.append("all max");
 		buf.append(" srv:").append(TestResponderServer.allServerDuration.durationMaxSec());
 		buf.append(" di:").append(RemoteDeviceInfo.deviceInquiryDuration.durationMaxSec());
 		buf.append(" ss:").append(RemoteDeviceInfo.allServiceSearch.durationMaxSec());
 		Logger.info(buf.toString());
-		
+
 		buf = new StringBuffer();
 		buf.append("devices:").append(deviceCnt).append(" active:").append(deviceActiveCnt);
 		buf.append(" threads:").append(Thread.activeCount());
 		Logger.info(buf.toString());
 		Logger.info("-----------------------");
-		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
-		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
+		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:"
+				+ TestResponderClient.failure.countFailure);
+		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:"
+				+ TestResponderServer.failure.countFailure);
 		setLogEndLine();
 	}
-	
+
 	private void printFailureLog() {
-		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:" + TestResponderClient.failure.countFailure);
+		Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:"
+				+ TestResponderClient.failure.countFailure);
 		Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
 		Logger.debug("Client max conn concurrent " + TestResponderClient.concurrentStatistic.max());
 		Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
 		Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avgPrc());
-		
+
 		TestResponderClient.failure.writeToLog();
-		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:" + TestResponderServer.failure.countFailure);
+		Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:"
+				+ TestResponderServer.failure.countFailure);
 		Logger.debug("Server avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
 		Logger.debug("Server avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
-		
+
 		TestResponderServer.failure.writeToLog();
 		setLogEndLine();
 	}
-	
+
 	private void clear() {
 		logMessages.removeAllElements();
 		errorCount = 0;
@@ -419,7 +443,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 		RemoteDeviceInfo.clear();
 		repaint();
 	}
-	
+
 	private void startSwitcher() {
 		if (switcher == null) {
 			switcher = new Switcher();
@@ -430,7 +454,7 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 			BlueCoveTestMIDlet.message("Warn", "Switcher isRunning");
 		}
 	}
-	
+
 	public void commandAction(final Command c, Displayable d) {
 		Runnable r = new Runnable() {
 			public void run() {
@@ -475,6 +499,8 @@ public class BlueCoveTestCanvas extends Canvas implements CommandListener, Logge
 					}
 				} else if ((Configuration.likedTCKAgent) && (c == startTCKAgentCommand)) {
 					Switcher.startTCKAgent();
+				} else if ((TestOBEXCilent.obexEnabled) && (c == obexPutCommand)) {
+					TestOBEXCilent.obexPut();
 				} else {
 					if (c != null) {
 						Logger.info("Command " + c.getLabel() + " not found");

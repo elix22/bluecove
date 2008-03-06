@@ -123,6 +123,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("TEST_CASE_L2CAP_FIRST");
 		addConfig("TEST_CASE_L2CAP_LAST");
 		addConfig("testServerOBEX_TCP");
+		addConfig("testServerOBEXObjectPush");
 		addConfig("authenticateOBEX");
 
 		addConfig(null);

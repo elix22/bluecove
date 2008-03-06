@@ -28,9 +28,11 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.bluetooth.DataElement;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
+import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 import javax.obex.HeaderSet;
@@ -53,6 +55,10 @@ public class TestResponderServerOBEX implements Runnable {
 	private boolean isRunning = false;
 
 	private Thread thread;
+
+	public final UUID OBEX_OBJECT_PUSH = new UUID(0x1105);
+
+	public static final String OBEX_OBJECT_PUSH_SERVER_NAME = "OBEX Object Push";
 
 	private TestResponderServerOBEX() {
 
@@ -79,10 +85,59 @@ public class TestResponderServerOBEX implements Runnable {
 				serverConnection = (SessionNotifier) Connector
 						.open(BluetoothTypesInfo.PROTOCOL_SCHEME_TCP_OBEX + "://");
 			} else {
-				serverConnection = (SessionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_BT_OBEX
-						+ "://localhost:" + Configuration.blueCoveOBEXUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
-						+ "_ox" + Configuration.serverURLParams());
-				if (Configuration.testServiceAttributes.booleanValue()) {
+				StringBuffer url = new StringBuffer(BluetoothTypesInfo.PROTOCOL_SCHEME_BT_OBEX);
+				url.append("://localhost:");
+				if (Configuration.testServerOBEXObjectPush) {
+					url.append(OBEX_OBJECT_PUSH);
+					url.append(";name=");
+					url.append(OBEX_OBJECT_PUSH_SERVER_NAME);
+				} else {
+					url.append(Configuration.blueCoveOBEXUUID());
+					url.append(";name=");
+					url.append(Consts.RESPONDER_SERVERNAME);
+					url.append("_ox");
+				}
+
+				url.append(Configuration.serverURLParams());
+
+				serverConnection = (SessionNotifier) Connector.open(url.toString());
+				if (Configuration.testServerOBEXObjectPush) {
+					try {
+						ServiceRecord record = localDevice.getRecord(serverConnection);
+
+						final int OBJECT_TRANSFER_SERVICE = 0x100000;
+
+						try {
+							record.setDeviceServiceClasses(OBJECT_TRANSFER_SERVICE);
+						} catch (Throwable e) {
+							Logger.debug("setDeviceServiceClasses", e);
+						}
+
+						DataElement bluetoothProfileDescriptorList = new DataElement(DataElement.DATSEQ);
+						DataElement obbexPushProfileDescriptor = new DataElement(DataElement.DATSEQ);
+						obbexPushProfileDescriptor.addElement(new DataElement(DataElement.UUID, OBEX_OBJECT_PUSH));
+						obbexPushProfileDescriptor.addElement(new DataElement(DataElement.U_INT_2, 0x100));
+						bluetoothProfileDescriptorList.addElement(obbexPushProfileDescriptor);
+						record.setAttributeValue(0x0009, bluetoothProfileDescriptorList);
+
+						final short ATTR_SUPPORTED_FORMAT_LIST_LIST = 0x0303;
+						DataElement supportedFormatList = new DataElement(DataElement.DATSEQ);
+						// any type of object.
+						supportedFormatList.addElement(new DataElement(DataElement.U_INT_1, 0xFF));
+						record.setAttributeValue(ATTR_SUPPORTED_FORMAT_LIST_LIST, supportedFormatList);
+
+						final short UUID_PUBLICBROWSE_GROUP = 0x1002;
+						final short ATTR_BROWSE_GRP_LIST = 0x0005;
+						DataElement browseClassIDList = new DataElement(DataElement.DATSEQ);
+						UUID browseClassUUID = new UUID(UUID_PUBLICBROWSE_GROUP);
+						browseClassIDList.addElement(new DataElement(DataElement.UUID, browseClassUUID));
+						record.setAttributeValue(ATTR_BROWSE_GRP_LIST, browseClassIDList);
+
+						localDevice.updateRecord(record);
+					} catch (Throwable e) {
+						Logger.error("OBEX Service Updating SDP", e);
+					}
+				} else if (Configuration.testServiceAttributes.booleanValue()) {
 					ServiceRecord record = localDevice.getRecord(serverConnection);
 					if (record == null) {
 						Logger.warn("Bluetooth ServiceRecord is null");
@@ -243,10 +298,32 @@ public class TestResponderServerOBEX implements Runnable {
 			}
 		}
 
+		private void debugHeaderSet(HeaderSet headers) {
+			if (headers == null) {
+				return;
+			}
+			try {
+				int[] headerIDArray = headers.getHeaderList();
+				if (headerIDArray == null) {
+					return;
+				}
+				Logger.debug("Headers.length:" + headerIDArray.length);
+
+				for (int i = 0; i < headerIDArray.length; i++) {
+					int hi = headerIDArray[i];
+					Object value = headers.getHeader(hi);
+					Logger.debug("h[" + hi + "]=" + value);
+				}
+			} catch (IOException e) {
+				Logger.error("headers", e);
+			}
+		}
+
 		public int onConnect(HeaderSet request, HeaderSet reply) {
 			isConnected = true;
 			notConnectedTimer.cancel();
 			Logger.debug("OBEX onConnect");
+			debugHeaderSet(request);
 			if (Configuration.authenticate.booleanValue()) {
 				if (!remoteDevice.isAuthenticated()) {
 					return ResponseCodes.OBEX_HTTP_FORBIDDEN;
@@ -258,15 +335,18 @@ public class TestResponderServerOBEX implements Runnable {
 
 		public void onDisconnect(HeaderSet request, HeaderSet reply) {
 			Logger.debug("OBEX onDisconnect");
+			debugHeaderSet(request);
 		}
 
 		public int onSetPath(HeaderSet request, HeaderSet reply, boolean backup, boolean create) {
 			Logger.debug("OBEX onSetPath");
+			debugHeaderSet(request);
 			return super.onSetPath(request, reply, backup, create);
 		}
 
 		public int onDelete(HeaderSet request, HeaderSet reply) {
 			Logger.debug("OBEX onDelete");
+			debugHeaderSet(request);
 			return super.onDelete(request, reply);
 		}
 
@@ -274,6 +354,7 @@ public class TestResponderServerOBEX implements Runnable {
 			Logger.debug("OBEX onPut");
 			try {
 				HeaderSet hs = op.getReceivedHeaders();
+				debugHeaderSet(hs);
 				String name = (String) hs.getHeader(HeaderSet.NAME);
 				if (name != null) {
 					Logger.debug("name:" + name);
@@ -317,6 +398,7 @@ public class TestResponderServerOBEX implements Runnable {
 			String message = "Hello client! now " + new Date().toString();
 			try {
 				HeaderSet hs = op.getReceivedHeaders();
+				debugHeaderSet(hs);
 				String name = (String) hs.getHeader(HeaderSet.NAME);
 
 				if (name != null) {

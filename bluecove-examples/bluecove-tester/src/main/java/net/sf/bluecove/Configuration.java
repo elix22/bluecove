@@ -118,6 +118,8 @@ public class Configuration {
 
 	public static boolean testServerOBEX_TCP = false;
 
+	public static boolean testServerOBEXObjectPush = false;
+
 	public static IntVar authenticateOBEX = new IntVar(0);
 
 	public static BooleanVar testServiceAttributes = new BooleanVar(true);
