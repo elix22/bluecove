@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/bluecove-emu/src/main/java/com/intel/bluetooth/test/SimpleServer.java"/>
+<listEntry value="/bluecove-emu/src/main/java/com/intel/bluetooth/emu/EmuServer.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -12,7 +12,6 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.profile"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.intel.bluetooth.test.SimpleServer"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.intel.bluetooth.emu.EmuServer"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="bluecove-emu"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dbluecove.stack=emulator"/>
 </launchConfiguration>
