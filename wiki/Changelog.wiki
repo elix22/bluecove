@@ -3,6 +3,10 @@
 
 * 2.0.3 to released 2008-XX-XX
 
+    2008-03-06
+    * Fixed OBEX bug reciving Time Headers (Nokia)
+    * Proper behaviour for concurrent DiscoveryAgent.searchServices, "bluetooth.sd.trans.max"
+
     2008-02-27
     * Configurable "bluecove.inquiry.duration" for MS stack and OSX
 
@@ -12,7 +16,7 @@
     * Allow to load _x64 libraries on Windows and Linux
 
     2008-01-19 Vlad Skarzhevskyy
-    *  bluecove-gpl: RFCOMM and L2CAP client and services on Linux BlueZ
+    * bluecove-gpl: RFCOMM and L2CAP client and services on Linux BlueZ
 
     2008-01-12 Mina Shokry
     *  bluecove-gpl: Service discovery on Linux
@@ -21,6 +25,7 @@
 
     2007-12-09
     * WIDCOMM RFCOMM Service accept multiple connections
+    * Implemented ServiceRecord.setDeviceServiceClasses() on XP MS Stack
 
     2007-12-05
     * L2CAP, RFCOMM and OBEX server on Mac OS X
