@@ -23,12 +23,15 @@ package com.intel.bluetooth;
 
 import java.net.URL;
 
+import javax.bluetooth.BluetoothStateException;
+
 import com.intel.bluetooth.emu.DeviceDescriptor;
 import com.intel.bluetooth.emu.DeviceManagerService;
 import com.pyx4j.rpcoverhttp.client.ServiceProxy;
+import com.pyx4j.rpcoverhttp.common.RoHRuntimeException;
 import com.pyx4j.rpcoverhttp.server.HTTPServer;
 
-public class Helper {
+public class EmulatorHelper {
 
 	private static URL url;
 
@@ -40,34 +43,26 @@ public class Helper {
 		}
 	}
 
-	public static void releaseDevice(long address) {
+	public static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {
 		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
-		service.releaseDevice(address);
+		DeviceDescriptor deviceDescriptor;
+		try {
+			deviceDescriptor = service.createNewDevice(BlueCoveImpl.getConfigProperty("bluecove.deviceID"),
+					BlueCoveImpl.getConfigProperty("bluecove.deviceAddress"));
+		} catch (RoHRuntimeException e) {
+			throw (BluetoothStateException) UtilsJavaSE.initCause(new BluetoothStateException(e.getMessage()), e);
+		}
+		EmulatorLocalDevice device = new EmulatorLocalDevice(service, deviceDescriptor);
+		return device;
 	}
 
-	public static int getLocalDeviceDiscoverable(long address) {
-		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
-		return service.getLocalDeviceDiscoverable(address);
+	public static void releaseDevice(EmulatorLocalDevice device) {
+		device.getDeviceManagerService().releaseDevice(device.getAddress());
+		device.destroy();
 	}
 
-	public static boolean setLocalDeviceDiscoverable(int mode, long address) {
-		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
-		return service.setLocalDeviceDiscoverable(mode, address);
-	}
-
-	public static DeviceDescriptor[] getDiscoveredDevices(long address) {
-		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
-		return service.getDiscoveredDevices(address);
-	}
-
-	public static String getRemoteDeviceFriendlyName(long address) {
-		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
-		return service.getRemoteDeviceFriendlyName(address);
-	}
-
-	public static DeviceDescriptor createNewDevice() {
-		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
-		return service.createNewDevice();
+	public static String getRemoteDeviceFriendlyName(EmulatorLocalDevice localDevice, long address) {
+		return localDevice.getDeviceManagerService().getRemoteDeviceFriendlyName(address);
 	}
 
 }

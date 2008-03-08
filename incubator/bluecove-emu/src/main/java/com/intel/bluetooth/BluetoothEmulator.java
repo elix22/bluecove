@@ -30,48 +30,39 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRegistrationException;
 import javax.bluetooth.UUID;
 
-import com.intel.bluetooth.emu.DeviceDescriptor;
-
-class BluetoothEmulator implements BluetoothStack, DeviceInquiryRunnable, SearchServicesRunnable {
+class BluetoothEmulator implements BluetoothStack, SearchServicesRunnable {
 
 	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.nativeLibraryVersionExpected;
 
-	private DeviceDescriptor deviceDescriptor;
+	private EmulatorLocalDevice localDevice;
 
-	private DiscoveryListener discoveryListener;
-
-	private boolean deviceInquiryCanceled = false;
+	private EmulatorDeviceInquiry deviceInquiry;
 
 	BluetoothEmulator() {
 	}
 
 	// --- Library initialization
 
-	// DONE
 	public String getStackID() {
 		return BlueCoveImpl.STACK_EMULATOR;
 	}
 
-	// DONE
 	public int getLibraryVersion() throws BluetoothStateException {
 		return NATIVE_LIBRARY_VERSION;
 	}
 
-	// DONE
 	public int detectBluetoothStack() {
 		return BlueCoveImpl.BLUECOVE_STACK_DETECT_EMULATOR;
 	}
 
 	public void initialize() throws BluetoothStateException {
-		deviceDescriptor = Helper.createNewDevice();
+		localDevice = EmulatorHelper.createNewLocalDevice();
 	}
 
-	// DONE
 	public void destroy() {
-		Helper.releaseDevice(deviceDescriptor.getAddress());
+		EmulatorHelper.releaseDevice(localDevice);
 	}
 
-	// DONE
 	public void enableNativeDebug(Class nativeDebugCallback, boolean on) {
 	}
 
@@ -80,7 +71,6 @@ class BluetoothEmulator implements BluetoothStack, DeviceInquiryRunnable, Search
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#isCurrentThreadInterruptedCallback()
 	 */
-	// DONE
 	public boolean isCurrentThreadInterruptedCallback() {
 		return Thread.interrupted();
 	}
@@ -90,46 +80,38 @@ class BluetoothEmulator implements BluetoothStack, DeviceInquiryRunnable, Search
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#getFeatureSet()
 	 */
-	// DONE
 	public int getFeatureSet() {
-		return FEATURE_SERVICE_ATTRIBUTES | FEATURE_L2CAP;
+		return FEATURE_SET_DEVICE_SERVICE_CLASSES | FEATURE_SERVICE_ATTRIBUTES | FEATURE_L2CAP;
 	}
 
 	// --- LocalDevice
 
-	// DONE
 	public String getLocalDeviceBluetoothAddress() throws BluetoothStateException {
-		return RemoteDeviceHelper.getBluetoothAddress(deviceDescriptor.getAddress());
+		return RemoteDeviceHelper.getBluetoothAddress(localDevice.getAddress());
 	}
 
-	// DONE
 	public DeviceClass getLocalDeviceClass() {
-		return new DeviceClass(deviceDescriptor.getDeviceClass());
+		return new DeviceClass(localDevice.getDeviceClass());
 	}
 
-	// DONE
 	public String getLocalDeviceName() {
-		return deviceDescriptor.getName();
+		return localDevice.getName();
 	}
 
-	// DONE
 	public boolean isLocalDevicePowerOn() {
-		return true;
+		return localDevice.isLocalDevicePowerOn();
 	}
 
-	// TODO - return property name for now
 	public String getLocalDeviceProperty(String property) {
-		return property;
+		return localDevice.getLocalDeviceProperty(property);
 	}
 
-	// DONE
 	public int getLocalDeviceDiscoverable() {
-		return Helper.getLocalDeviceDiscoverable(deviceDescriptor.getAddress());
+		return localDevice.getLocalDeviceDiscoverable();
 	}
 
-	// DONE
 	public boolean setLocalDeviceDiscoverable(int mode) throws BluetoothStateException {
-		return Helper.setLocalDeviceDiscoverable(mode, deviceDescriptor.getAddress());
+		return localDevice.setLocalDeviceDiscoverable(mode);
 	}
 
 	/*
@@ -137,7 +119,6 @@ class BluetoothEmulator implements BluetoothStack, DeviceInquiryRunnable, Search
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#setLocalDeviceServiceClasses(int)
 	 */
-	// DONE
 	public void setLocalDeviceServiceClasses(int classOfDevice) {
 		throw new NotSupportedRuntimeException(getStackID());
 	}
@@ -145,54 +126,27 @@ class BluetoothEmulator implements BluetoothStack, DeviceInquiryRunnable, Search
 	// --- Device Inquiry
 
 	public boolean startInquiry(int accessCode, DiscoveryListener listener) throws BluetoothStateException {
-		if (discoveryListener != null) {
+		if (deviceInquiry != null) {
 			throw new BluetoothStateException("Another inquiry already running");
 		}
-		discoveryListener = listener;
-		deviceInquiryCanceled = false;
-		return DeviceInquiryThread.startInquiry(this, accessCode, listener);
-	}
-
-	public int runDeviceInquiry(DeviceInquiryThread startedNotify, int accessCode, DiscoveryListener listener)
-			throws BluetoothStateException {
-		startedNotify.deviceInquiryStartedCallback();
-		try {
-			DeviceDescriptor[] devices = Helper.getDiscoveredDevices(deviceDescriptor.getAddress());
-			for (int i = 0; i < devices.length; i++) {
-				RemoteDevice remoteDevice = RemoteDeviceHelper.createRemoteDevice(this, devices[i].getAddress(),
-						devices[i].getName(), false);
-				if (deviceInquiryCanceled || (discoveryListener == null)) {
-					return DiscoveryListener.INQUIRY_TERMINATED;
-				}
-				DeviceClass cod = new DeviceClass(devices[i].getDeviceClass());
-				DebugLog.debug("deviceDiscoveredCallback address", remoteDevice.getBluetoothAddress());
-				DebugLog.debug("deviceDiscoveredCallback deviceClass", cod);
-				listener.deviceDiscovered(remoteDevice, cod);
-			}
-
-			if (deviceInquiryCanceled) {
-				return DiscoveryListener.INQUIRY_TERMINATED;
-			}
-			return DiscoveryListener.INQUIRY_COMPLETED;
-		} finally {
-			discoveryListener = null;
-		}
-	}
-
-	public void deviceDiscoveredCallback(DiscoveryListener listener, long deviceAddr, int deviceClass,
-			String deviceName, boolean paired) {
+		deviceInquiry = new EmulatorDeviceInquiry(localDevice, this, listener);
+		return DeviceInquiryThread.startInquiry(deviceInquiry, accessCode, listener);
 	}
 
 	public boolean cancelInquiry(DiscoveryListener listener) {
-		if (discoveryListener != null && discoveryListener == listener) {
-			deviceInquiryCanceled = true;
-			return true;
+		if (deviceInquiry == null) {
+			return false;
 		}
-		return false;
+		if (deviceInquiry.cancelInquiry(listener)) {
+			deviceInquiry = null;
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public String getRemoteDeviceFriendlyName(long address) throws IOException {
-		return Helper.getRemoteDeviceFriendlyName(address);
+		return EmulatorHelper.getRemoteDeviceFriendlyName(localDevice, address);
 	}
 
 	// --- Service search

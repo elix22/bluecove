@@ -22,7 +22,9 @@
 package com.intel.bluetooth.emu;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.bluetooth.DiscoveryAgent;
 
@@ -30,13 +32,19 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	public static final int MAJOR_COMPUTER = 0x0100;
 
-	private static HashMap devices = new HashMap();
+	private static EmulatorConfiguration configuration = new EmulatorConfiguration();
+
+	private static Hashtable devices = new Hashtable();
 
 	public DeviceManagerServiceImpl() {
 
 	}
 
-	public DeviceDescriptor createNewDevice() {
+	public EmulatorConfiguration getEmulatorConfiguration() {
+		return configuration;
+	}
+
+	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress) {
 		synchronized (devices) {
 			long address = getNextAvailableBTAddress();
 			DeviceDescriptor descriptor = new DeviceDescriptor(address, "Device" + address, MAJOR_COMPUTER);
@@ -45,26 +53,66 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		}
 	}
 
+	public void releaseDevice(long address) {
+		synchronized (devices) {
+			devices.remove(new Long(address));
+		}
+	}
+
+	private DeviceDescriptor getDevice(long address) {
+		return ((DeviceDescriptor) devices.get(new Long(address)));
+	}
+
 	public DeviceDescriptor[] getDiscoveredDevices(long address) {
-		HashMap temp = (HashMap) devices.clone();
-		temp.remove(new Long(address));
-		return (DeviceDescriptor[]) temp.values().toArray(new DeviceDescriptor[] {});
+		Vector discoveredDevice = new Vector();
+		synchronized (devices) {
+			for (Enumeration iterator = devices.elements(); iterator.hasMoreElements();) {
+				DeviceDescriptor device = (DeviceDescriptor) iterator.nextElement();
+				if (device.getAddress() == address) {
+					continue;
+				}
+				if (isDiscoverable(device)) {
+					discoveredDevice.addElement(device);
+				}
+			}
+		}
+		return (DeviceDescriptor[]) discoveredDevice.toArray(new DeviceDescriptor[discoveredDevice.size()]);
+	}
+
+	private boolean isDiscoverable(DeviceDescriptor device) {
+		int discoverableMode = device.getDiscoverableMode();
+		switch (discoverableMode) {
+		case DiscoveryAgent.NOT_DISCOVERABLE:
+			return false;
+		case DiscoveryAgent.GIAC:
+			return true;
+		case DiscoveryAgent.LIAC:
+			if (device.getLimitedDiscoverableStart() + configuration.getDurationLIAC() * 1000 * 60 < System
+					.currentTimeMillis()) {
+				device.setDiscoverableMode(DiscoveryAgent.NOT_DISCOVERABLE);
+				return false;
+			} else {
+				return true;
+			}
+		default:
+			return false;
+		}
 	}
 
 	public int getLocalDeviceDiscoverable(long address) {
-		return DiscoveryAgent.GIAC;
+		DeviceDescriptor device = getDevice(address);
+		// Update mode if it was LIAC
+		isDiscoverable(device);
+		return device.getDiscoverableMode();
+	}
+
+	public boolean setLocalDeviceDiscoverable(long address, int mode) {
+		getDevice(address).setDiscoverableMode(mode);
+		return true;
 	}
 
 	public String getRemoteDeviceFriendlyName(long address) {
-		return ((DeviceDescriptor) devices.get(new Long(address))).getName();
-	}
-
-	public void releaseDevice(long address) {
-		devices.remove(new Long(address));
-	}
-
-	public boolean setLocalDeviceDiscoverable(int mode, long address) {
-		return true;
+		return getDevice(address).getName();
 	}
 
 	long getNextAvailableBTAddress() {

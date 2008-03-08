@@ -21,34 +21,44 @@
  */
 package com.intel.bluetooth.emu;
 
-import junit.framework.TestCase;
+import java.io.Serializable;
 
-public class DeviceManagerTest extends TestCase {
+/**
+ * @author vlads
+ * 
+ */
+public class EmulatorConfiguration implements Serializable {
 
-	DeviceManagerServiceImpl deviceManager;
+	private static final long serialVersionUID = 1L;
 
-	public void setUp() throws Exception {
-		deviceManager = new DeviceManagerServiceImpl();
+	private int durationLIAC = 3;
+
+	private int deviceInquiryDuration = 5;
+
+	private boolean deviceInquiryRandomDelay = true;
+
+	public int getDurationLIAC() {
+		return durationLIAC;
 	}
 
-	public void tearDown() throws Exception {
+	public void setDurationLIAC(int durationLIAC) {
+		this.durationLIAC = durationLIAC;
 	}
 
-	public void testCreateNewDevice() throws Exception {
-		DeviceDescriptor descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		deviceManager.releaseDevice(1);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
+	public int getDeviceInquiryDuration() {
+		return deviceInquiryDuration;
+	}
 
+	public void setDeviceInquiryDuration(int deviceInquiryDuration) {
+		this.deviceInquiryDuration = deviceInquiryDuration;
+	}
+
+	public boolean isDeviceInquiryRandomDelay() {
+		return deviceInquiryRandomDelay;
+	}
+
+	public void setDeviceInquiryRandomDelay(boolean deviceInquiryRandomDelay) {
+		this.deviceInquiryRandomDelay = deviceInquiryRandomDelay;
 	}
 
 }

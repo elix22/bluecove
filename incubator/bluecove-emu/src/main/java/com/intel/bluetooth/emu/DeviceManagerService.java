@@ -25,16 +25,18 @@ import com.pyx4j.rpcoverhttp.common.RoHService;
 
 public interface DeviceManagerService extends RoHService {
 
+	public EmulatorConfiguration getEmulatorConfiguration();
+
+	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress);
+
 	public void releaseDevice(long address);
 
 	public int getLocalDeviceDiscoverable(long address);
 
-	public boolean setLocalDeviceDiscoverable(int mode, long address);
+	public boolean setLocalDeviceDiscoverable(long address, int mode);
 
 	public DeviceDescriptor[] getDiscoveredDevices(long address);
 
 	public String getRemoteDeviceFriendlyName(long address);
-
-	public DeviceDescriptor createNewDevice();
 
 }
