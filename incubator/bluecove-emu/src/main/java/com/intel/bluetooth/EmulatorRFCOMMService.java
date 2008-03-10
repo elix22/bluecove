@@ -125,6 +125,7 @@ class EmulatorRFCOMMService extends EmulatorConnection {
 
 	public void close(ServiceRecordImpl serviceRecord) throws IOException {
 		localDevice.getDeviceManagerService().removeServiceRecord(localDevice.getAddress(), serviceRecord.getHandle());
+		localDevice.getDeviceManagerService().rfCloseService(localDevice.getAddress(), channel);
 	}
 
 }

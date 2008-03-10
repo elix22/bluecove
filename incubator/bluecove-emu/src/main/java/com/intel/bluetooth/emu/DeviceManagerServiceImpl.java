@@ -39,8 +39,6 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	private static Hashtable devices = new Hashtable();
 
-	private static Hashtable devicesSDP = new Hashtable();
-
 	public DeviceManagerServiceImpl() {
 
 	}
@@ -51,34 +49,59 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress) {
 		synchronized (devices) {
-			long address = getNextAvailableBTAddress();
+			long address = getNextAvailableBTAddress(deviceID, deviceAddress);
 			DeviceDescriptor descriptor = new DeviceDescriptor(address, configuration.getDeviceNamePrefix()
 					+ RemoteDeviceHelper.getBluetoothAddress(address), MAJOR_COMPUTER);
-			devices.put(new Long(address), descriptor);
+
+			if (!configuration.isDeviceDiscoverable()) {
+				descriptor.setDiscoverableMode(DiscoveryAgent.NOT_DISCOVERABLE);
+			}
+
+			devices.put(new Long(address), new Device(descriptor));
 			return descriptor;
 		}
 	}
 
 	public void releaseDevice(long address) {
+		Device device;
 		synchronized (devices) {
-			devices.remove(new Long(address));
+			device = (Device) devices.remove(new Long(address));
+		}
+		if (device != null) {
+			device.release();
 		}
 	}
 
-	private DeviceDescriptor getDevice(long address) {
-		return ((DeviceDescriptor) devices.get(new Long(address)));
+	private Device getDevice(long address) {
+		return ((Device) devices.get(new Long(address)));
+	}
+
+	private DeviceDescriptor getDeviceDescriptor(long address) {
+		Device device = ((Device) devices.get(new Long(address)));
+		if (device == null) {
+			throw new RuntimeException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
+		}
+		return device.getDescriptor();
+	}
+
+	private DeviceSDP getDeviceSDP(long address) {
+		Device device = ((Device) devices.get(new Long(address)));
+		if (device == null) {
+			return null;
+		}
+		return device.getDeviceSDP(false);
 	}
 
 	public DeviceDescriptor[] getDiscoveredDevices(long address) {
 		Vector discoveredDevice = new Vector();
 		synchronized (devices) {
 			for (Enumeration iterator = devices.elements(); iterator.hasMoreElements();) {
-				DeviceDescriptor device = (DeviceDescriptor) iterator.nextElement();
-				if (device.getAddress() == address) {
+				Device device = (Device) iterator.nextElement();
+				if (device.getDescriptor().getAddress() == address) {
 					continue;
 				}
-				if (isDiscoverable(device)) {
-					discoveredDevice.addElement(device);
+				if (isDiscoverable(device.getDescriptor())) {
+					discoveredDevice.addElement(device.getDescriptor());
 				}
 			}
 		}
@@ -106,47 +129,52 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	public int getLocalDeviceDiscoverable(long address) {
-		DeviceDescriptor device = getDevice(address);
+		DeviceDescriptor device = getDeviceDescriptor(address);
 		// Update mode if it was LIAC
 		isDiscoverable(device);
 		return device.getDiscoverableMode();
 	}
 
 	public boolean setLocalDeviceDiscoverable(long address, int mode) {
-		getDevice(address).setDiscoverableMode(mode);
+		getDeviceDescriptor(address).setDiscoverableMode(mode);
 		return true;
 	}
 
 	public String getRemoteDeviceFriendlyName(long address) {
-		return getDevice(address).getName();
+		return getDeviceDescriptor(address).getName();
 	}
 
-	private long getNextAvailableBTAddress() {
-		return EmulatorUtils.getNextAvailable(devices.keySet(), configuration.getFirstDeviceAddress(), 1);
-	}
-
-	private DeviceSDP getDeviceSDP(long address, boolean create) {
-		synchronized (devicesSDP) {
-			DeviceSDP ds = ((DeviceSDP) devicesSDP.get(new Long(address)));
-			if (create && (ds == null)) {
-				ds = new DeviceSDP(address);
-				devicesSDP.put(new Long(address), ds);
+	private long getNextAvailableBTAddress(String deviceID, String deviceAddress) {
+		if (deviceID != null) {
+			long id = configuration.getFirstDeviceAddress() + Long.parseLong(deviceID);
+			if (devices.containsKey(new Long(id))) {
+				throw new RuntimeException("Device already reserved " + RemoteDeviceHelper.getBluetoothAddress(id));
 			}
-			return ds;
+			return id;
+		} else if (deviceAddress != null) {
+			long id = Long.parseLong(deviceAddress);
+			if (devices.containsKey(new Long(id))) {
+				throw new RuntimeException("Device already reserved " + RemoteDeviceHelper.getBluetoothAddress(id));
+			}
+			return id;
+		} else {
+			return EmulatorUtils.getNextAvailable(devices.keySet(), configuration.getFirstDeviceAddress(), 1);
 		}
+
 	}
 
 	public void updateServiceRecord(long address, long handle, ServicesDescriptor sdpData)
 			throws ServiceRegistrationException {
-		if (getDevice(address) == null) {
-			throw new ServiceRegistrationException("No such device");
+		Device device = getDevice(address);
+		if (device == null) {
+			throw new ServiceRegistrationException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
 		}
-		DeviceSDP ds = getDeviceSDP(address, true);
+		DeviceSDP ds = device.getDeviceSDP(true);
 		ds.updateServiceRecord(handle, sdpData);
 	}
 
 	public void removeServiceRecord(long address, long handle) {
-		DeviceSDP ds = getDeviceSDP(address, false);
+		DeviceSDP ds = getDeviceSDP(address);
 		if (ds != null) {
 			ds.removeServiceRecord(handle);
 		}
@@ -156,7 +184,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		if (getDevice(address) == null) {
 			return null;
 		}
-		DeviceSDP ds = getDeviceSDP(address, false);
+		DeviceSDP ds = getDeviceSDP(address);
 		if (ds == null) {
 			return new long[0];
 		}
@@ -164,9 +192,9 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	public byte[] getServicesRecordBinary(long address, long handle) throws IOException {
-		DeviceSDP ds = getDeviceSDP(address, false);
+		DeviceSDP ds = getDeviceSDP(address);
 		if (ds == null) {
-			throw new IOException("No such device");
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
 		}
 		ServicesDescriptor sd = ds.getServicesDescriptor(handle);
 		if (sd == null) {
@@ -176,10 +204,74 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	public long rfAccept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
-		try {
-			Thread.sleep(12220 * 1000);
-		} catch (InterruptedException e) {
+		return accept(address, ServiceListener.rfPrefix(channel), authenticate, encrypt);
+	}
+
+	public long rfConnect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
+		return connect(address, ServiceListener.rfPrefix(channel), authenticate, encrypt);
+	}
+
+	public void rfCloseService(long address, int channel) {
+		closeService(address, ServiceListener.rfPrefix(channel));
+	}
+
+	public long l2Accept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
+		return accept(address, ServiceListener.l2Prefix(channel), authenticate, encrypt);
+	}
+
+	public long l2Connect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
+		return connect(address, ServiceListener.l2Prefix(channel), authenticate, encrypt);
+	}
+
+	public void l2CloseService(long address, int channel) {
+		closeService(address, ServiceListener.l2Prefix(channel));
+	}
+
+	private long accept(long address, String channelID, boolean authenticate, boolean encrypt) throws IOException {
+		Device device;
+		if ((device = getDevice(address)) == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
 		}
-		throw new IOException("TODO");
+		ServiceListener sl = device.createServiceListener(channelID);
+		return sl.accept(authenticate, encrypt);
+	}
+
+	private long connect(long address, String channelID, boolean authenticate, boolean encrypt) throws IOException {
+		Device device = getDevice(address);
+		if (device == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
+		}
+		ServiceListener sl = device.getServiceListener(channelID);
+		if (sl == null) {
+			throw new IOException("No such service " + channelID);
+		}
+		return sl.connect(authenticate, encrypt);
+	}
+
+	private void closeService(long address, String channelID) {
+		Device device = getDevice(address);
+		if (device == null) {
+			return;
+		}
+		ServiceListener sl;
+		while ((sl = device.getServiceListener(channelID)) != null) {
+			sl.close();
+		}
+	}
+
+	public void rfWrite(long address, long connectionId, byte[] b) throws IOException {
+
+	}
+
+	public int rfAvailable(long address, long connectionId) throws IOException {
+		return 0;
+	}
+
+	public byte[] rfRead(long address, long connectionId, int len) throws IOException {
+		return null;
+	}
+
+	public void rfCloseConnection(long address, long connectionId) {
+
 	}
 }

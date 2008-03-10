@@ -31,10 +31,13 @@ abstract class EmulatorConnection {
 
 	long handle;
 
+	long connectionHandle;
+
 	public EmulatorConnection(EmulatorLocalDevice localDevice, long handle) {
 		super();
 		this.localDevice = localDevice;
 		this.handle = handle;
+		this.connectionHandle = 0;
 	}
 
 	public long getHandle() {

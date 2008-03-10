@@ -54,13 +54,21 @@ public interface DeviceManagerService extends RoHService {
 
 	public long rfAccept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
 
-	//
-	// public void rfConnect(long address, int channel, boolean authenticate,
-	// boolean encrypt) throws IOException;
-	//
-	// public void rfWrite(long address, long connectionId, byte[] b, int off,
-	// int len) throws IOException;
-	//
-	// public int rfRead(long address, long connectionId, byte[] b, int off, int
-	// len) throws IOException;
+	public long rfConnect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+
+	public void rfCloseService(long address, int channel);
+
+	public void rfCloseConnection(long address, long connectionId);
+
+	public long l2Accept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+
+	public long l2Connect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+
+	public void l2CloseService(long address, int channel);
+
+	public void rfWrite(long address, long connectionId, byte[] b) throws IOException;
+
+	public int rfAvailable(long address, long connectionId) throws IOException;
+
+	public byte[] rfRead(long address, long connectionId, int len) throws IOException;
 }

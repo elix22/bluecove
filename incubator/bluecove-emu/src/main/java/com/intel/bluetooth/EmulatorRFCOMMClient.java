@@ -33,26 +33,39 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 
 	public EmulatorRFCOMMClient(EmulatorLocalDevice localDevice, long handle) {
 		super(localDevice, handle);
+
 	}
 
-	public void connect(long connectionHandle) throws IOException {
-
+	public void connect(long remoteAddress, long connectionHandle) throws IOException {
+		this.connectionHandle = connectionHandle;
 	}
 
 	public void connect(BluetoothConnectionParams params) throws IOException {
-
+		this.remoteAddress = params.address;
+		this.connectionHandle = localDevice.getDeviceManagerService().rfConnect(params.address, params.channel,
+				params.authenticate, params.encrypt);
 	}
 
 	public int read() throws IOException {
-		return 0;
+		byte buf[] = new byte[1];
+		int len = read(buf, 0, 1);
+		if (len == -1) {
+			return -1;
+		}
+		return buf[0];
 	}
 
 	public int read(byte[] b, int off, int len) throws IOException {
-		return 0;
+		byte buf[] = localDevice.getDeviceManagerService().rfRead(remoteAddress, this.connectionHandle, len);
+		if (buf == null) {
+			return -1;
+		}
+		System.arraycopy(buf, 0, b, off, len);
+		return buf.length;
 	}
 
 	public int available() throws IOException {
-		return 0;
+		return localDevice.getDeviceManagerService().rfAvailable(remoteAddress, this.connectionHandle);
 	}
 
 	public void write(int b) throws IOException {
@@ -62,7 +75,14 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 	}
 
 	public void write(byte[] b, int off, int len) throws IOException {
-
+		byte buf[];
+		if ((b.length == len) && (off == 0)) {
+			buf = b;
+		} else {
+			buf = new byte[len];
+			System.arraycopy(b, off, buf, 0, len);
+		}
+		localDevice.getDeviceManagerService().rfWrite(remoteAddress, this.connectionHandle, buf);
 	}
 
 	public void flush() throws IOException {
@@ -73,5 +93,6 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 	}
 
 	public void close() throws IOException {
+		localDevice.getDeviceManagerService().rfCloseConnection(remoteAddress, this.connectionHandle);
 	}
 }

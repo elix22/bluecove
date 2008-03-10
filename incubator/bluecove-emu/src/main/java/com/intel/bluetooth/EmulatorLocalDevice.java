@@ -137,7 +137,7 @@ class EmulatorLocalDevice {
 	EmulatorConnection getConnection(long handle) throws IOException {
 		Object c = connections.get(new Long(handle));
 		if (c == null) {
-			throw new IOException("Invalid connection handle");
+			throw new IOException("Invalid connection handle " + handle);
 		}
 		return (EmulatorConnection) c;
 	}

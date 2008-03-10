@@ -37,6 +37,8 @@ public class EmulatorConfiguration implements Serializable {
 
 	private String deviceNamePrefix = "EmuDevice";
 
+	private boolean deviceDiscoverable = true;
+
 	private int durationLIAC = 3;
 
 	private int deviceInquiryDuration = 0;// 5;
@@ -102,5 +104,13 @@ public class EmulatorConfiguration implements Serializable {
 
 	public void setDeviceNamePrefix(String deviceNamePrefix) {
 		this.deviceNamePrefix = deviceNamePrefix;
+	}
+
+	public boolean isDeviceDiscoverable() {
+		return this.deviceDiscoverable;
+	}
+
+	public void setDeviceDiscoverable(boolean deviceDiscoverable) {
+		this.deviceDiscoverable = deviceDiscoverable;
 	}
 }
