@@ -25,16 +25,33 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.intel.bluetooth.RemoteDeviceHelper;
+
 /**
  * @author vlads
  * 
  */
 class DeviceSDP {
 
+	private long address;
+
 	private static Hashtable services = new Hashtable();
 
+	public DeviceSDP(long address) {
+		this.address = address;
+	}
+
 	public synchronized void updateServiceRecord(long handle, ServicesDescriptor sdpData) {
-		services.put(new Long(handle), sdpData);
+		Long key = new Long(handle);
+		boolean update = (services.get(key) != null);
+		services.put(key, sdpData);
+
+		String[] serviceUuidSet = sdpData.getUuidSet();
+		for (int i = 0; i < serviceUuidSet.length; i++) {
+			System.out.println((update ? "Update" : "Create") + " Srv on "
+					+ RemoteDeviceHelper.getBluetoothAddress(address) + " " + handle + " " + i + " "
+					+ serviceUuidSet[i]);
+		}
 	}
 
 	public synchronized void removeServiceRecord(long handle) {
@@ -51,9 +68,10 @@ class DeviceSDP {
 		for (Enumeration iterator = services.keys(); iterator.hasMoreElements();) {
 			Long key = (Long) iterator.nextElement();
 			ServicesDescriptor service = (ServicesDescriptor) services.get(key);
-			serviceLoop: for (int i = 0; i < service.getUuidSet().length; i++) {
+			String[] serviceUuidSet = service.getUuidSet();
+			serviceLoop: for (int i = 0; i < serviceUuidSet.length; i++) {
 				for (int k = 0; k < uuidSet.length; k++) {
-					if (uuidSet[k].equals(service.getUuidSet()[i])) {
+					if (uuidSet[k].equals(serviceUuidSet[i])) {
 						handles.addElement(key);
 						break serviceLoop;
 					}

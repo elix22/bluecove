@@ -216,7 +216,7 @@ class BluetoothEmulator implements BluetoothStack {
 		boolean success = false;
 		try {
 			s.open(params);
-			s.handle = s.getHandle();
+			serviceRecord.setHandle(s.getHandle());
 			serviceRecord
 					.populateRFCOMMAttributes(s.getHandle(), s.getChannel(), params.uuid, params.name, params.obex);
 			s.updateServiceRecord(serviceRecord);

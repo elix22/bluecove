@@ -45,8 +45,9 @@ public class EmulatorUtils {
 		}
 		Arrays.sort(handles);
 		for (int i = 0; i < handles.length; i++) {
-			if (((Long) handles[i]).longValue() != i + step) {
-				return (long) i + step;
+			long expect = firstAvalable + i * step;
+			if (((Long) handles[i]).longValue() != expect) {
+				return expect;
 			}
 		}
 		return ((Long) handles[handles.length - 1]).longValue() + step;

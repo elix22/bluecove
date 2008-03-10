@@ -129,7 +129,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		synchronized (devicesSDP) {
 			DeviceSDP ds = ((DeviceSDP) devicesSDP.get(new Long(address)));
 			if (create && (ds == null)) {
-				ds = new DeviceSDP();
+				ds = new DeviceSDP(address);
 				devicesSDP.put(new Long(address), ds);
 			}
 			return ds;
@@ -177,7 +177,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	public long rfAccept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
 		try {
-			Thread.sleep(20 * 1000);
+			Thread.sleep(12220 * 1000);
 		} catch (InterruptedException e) {
 		}
 		throw new IOException("TODO");
