@@ -23,7 +23,6 @@ package com.intel.bluetooth.emu;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
@@ -42,6 +41,10 @@ class ServiceListener {
 	private Object lock = new Object();
 
 	private Device serverDevice;
+
+	private static long connectionCount = 0;
+
+	private long connectionId = 0;
 
 	static String rfPrefix(int channel) {
 		return RFCOMM_PREFIX + channel;
@@ -68,33 +71,44 @@ class ServiceListener {
 				throw new InterruptedIOException();
 			}
 		}
-		throw new IOException("TODO");
-		// return 0;
+		if (connectionId <= 0) {
+			throw new InterruptedIOException();
+		}
+		return connectionId;
 	}
 
 	long connect(Device clientDevice, boolean authenticate, boolean encrypt) throws IOException {
-		PipedInputStream cis = new PipedInputStream();
-		PipedOutputStream sos = new PipedOutputStream(cis);
+		try {
+			PipedInputStream cis = new PipedInputStream();
+			PipedOutputStream sos = new PipedOutputStream(cis);
 
-		PipedInputStream sis = new PipedInputStream();
-		OutputStream cos = new PipedOutputStream(sis);
+			PipedInputStream sis = new PipedInputStream();
+			PipedOutputStream cos = new PipedOutputStream(sis);
 
-		ConnectionBufferRFCOMM c = new ConnectionBufferRFCOMM(serverDevice.getDescriptor().getAddress(), cis, cos);
-		ConnectionBufferRFCOMM s = new ConnectionBufferRFCOMM(clientDevice.getDescriptor().getAddress(), sis, sos);
+			ConnectionBuffer cb = new ConnectionBufferRFCOMM(serverDevice.getDescriptor().getAddress(), cis, cos);
+			ConnectionBuffer sb = new ConnectionBufferRFCOMM(clientDevice.getDescriptor().getAddress(), sis, sos);
 
-		synchronized (lock) {
-			lock.notify();
+			long id;
+			synchronized (ServiceListener.class) {
+				connectionCount++;
+				id = connectionCount;
+			}
+			clientDevice.addConnectionBuffer(id, cb);
+			serverDevice.addConnectionBuffer(id, sb);
+
+			connectionId = id;
+			return id;
+		} finally {
+			synchronized (lock) {
+				lock.notify();
+			}
 		}
-		throw new IOException("TODO");
 	}
 
 	void close() {
+		connectionId = -1;
 		synchronized (lock) {
 			lock.notify();
 		}
-	}
-
-	static ConnectionBufferRFCOMM getConnectionBufferRFCOMM(Device localDevice, long connectionId) throws IOException {
-		return null;
 	}
 }

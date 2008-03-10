@@ -43,6 +43,7 @@ public class ConnectionBufferRFCOMM extends ConnectionBuffer {
 
 	public void rfWrite(byte[] b) throws IOException {
 		os.write(b);
+		os.flush();
 	}
 
 	public int rfAvailable() throws IOException {
@@ -50,6 +51,7 @@ public class ConnectionBufferRFCOMM extends ConnectionBuffer {
 	}
 
 	public byte[] rfRead(int len) throws IOException {
+		System.out.println("read " + this + " " + remoteAddress);
 		byte[] b = new byte[len];
 		int rc = is.read(b);
 		if (rc == -1) {

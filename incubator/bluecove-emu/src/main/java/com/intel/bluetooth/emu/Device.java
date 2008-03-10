@@ -21,7 +21,9 @@
  */
 package com.intel.bluetooth.emu;
 
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -36,13 +38,11 @@ class Device {
 
 	private Vector serviceListeners;
 
+	private Hashtable connections = new Hashtable();
+
 	Device(DeviceDescriptor descriptor) {
 		this.descriptor = descriptor;
 		this.serviceListeners = new Vector();
-	}
-
-	void release() {
-
 	}
 
 	DeviceDescriptor getDescriptor() {
@@ -79,4 +79,33 @@ class Device {
 		return sl;
 	}
 
+	void addConnectionBuffer(long connectionId, ConnectionBuffer c) {
+		connections.put(new Long(connectionId), c);
+	}
+
+	ConnectionBuffer getConnectionBuffer(long connectionId) {
+		return (ConnectionBuffer) connections.get(new Long(connectionId));
+	}
+
+	void closeConnection(long connectionId) throws IOException {
+		ConnectionBuffer c = getConnectionBuffer(connectionId);
+		if (c == null) {
+			throw new IOException("No such connection " + connectionId);
+		}
+		c.close();
+	}
+
+	void release() {
+		for (Enumeration iterator = serviceListeners.elements(); iterator.hasMoreElements();) {
+			ServiceListener s = (ServiceListener) iterator.nextElement();
+			s.close();
+		}
+		for (Enumeration iterator = connections.elements(); iterator.hasMoreElements();) {
+			ConnectionBuffer c = (ConnectionBuffer) iterator.nextElement();
+			try {
+				c.close();
+			} catch (IOException e) {
+			}
+		}
+	}
 }

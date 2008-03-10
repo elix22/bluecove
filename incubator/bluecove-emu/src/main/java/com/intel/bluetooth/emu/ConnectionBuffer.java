@@ -29,7 +29,7 @@ import java.io.IOException;
  */
 abstract class ConnectionBuffer {
 
-	private long remoteAddress;
+	long remoteAddress;
 
 	public ConnectionBuffer(long remoteAddress) {
 		super();
@@ -39,4 +39,6 @@ abstract class ConnectionBuffer {
 	public long getRemoteAddress() throws IOException {
 		return remoteAddress;
 	}
+
+	public abstract void close() throws IOException;
 }

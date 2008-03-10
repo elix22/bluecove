@@ -59,7 +59,7 @@ public interface DeviceManagerService extends RoHService {
 
 	public void rfCloseService(long localAddress, int channel);
 
-	public void rfCloseConnection(long localAddress, long connectionId) throws IOException;
+	public void closeConnection(long localAddress, long connectionId) throws IOException;
 
 	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException;
 

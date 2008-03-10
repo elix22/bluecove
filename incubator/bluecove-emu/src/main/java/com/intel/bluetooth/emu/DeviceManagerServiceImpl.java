@@ -266,23 +266,39 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		}
 	}
 
+	private ConnectionBuffer getConnectionBuffer(long localAddress, long connectionId) throws IOException {
+		Device localDevice = getDevice(localAddress);
+		if (localDevice == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
+		}
+		ConnectionBuffer c = localDevice.getConnectionBuffer(connectionId);
+		if (c == null) {
+			throw new IOException("No such connection " + connectionId);
+		}
+		return c;
+	}
+
 	public long getRemoteAddress(long localAddress, long connectionId) throws IOException {
-		return ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).getRemoteAddress();
+		return getConnectionBuffer(localAddress, connectionId).getRemoteAddress();
 	}
 
 	public void rfWrite(long localAddress, long connectionId, byte[] b) throws IOException {
-		ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).rfWrite(b);
+		((ConnectionBufferRFCOMM) getConnectionBuffer(localAddress, connectionId)).rfWrite(b);
 	}
 
 	public int rfAvailable(long localAddress, long connectionId) throws IOException {
-		return ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).rfAvailable();
+		return ((ConnectionBufferRFCOMM) getConnectionBuffer(localAddress, connectionId)).rfAvailable();
 	}
 
 	public byte[] rfRead(long localAddress, long connectionId, int len) throws IOException {
-		return ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).rfRead(len);
+		return ((ConnectionBufferRFCOMM) getConnectionBuffer(localAddress, connectionId)).rfRead(len);
 	}
 
-	public void rfCloseConnection(long localAddress, long connectionId) throws IOException {
-		ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).close();
+	public void closeConnection(long localAddress, long connectionId) throws IOException {
+		Device localDevice = getDevice(localAddress);
+		if (localDevice == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
+		}
+		localDevice.closeConnection(connectionId);
 	}
 }

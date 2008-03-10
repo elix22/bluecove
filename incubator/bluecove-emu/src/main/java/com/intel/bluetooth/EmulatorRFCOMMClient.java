@@ -94,6 +94,6 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 	}
 
 	public void close() throws IOException {
-		localDevice.getDeviceManagerService().rfCloseConnection(localDevice.getAddress(), this.connectionHandle);
+		localDevice.getDeviceManagerService().closeConnection(localDevice.getAddress(), this.connectionHandle);
 	}
 }
