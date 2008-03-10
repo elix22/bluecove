@@ -96,11 +96,9 @@ public class EmulatorSearchServices implements SearchServicesRunnable {
 		for (int i = 0; i < attrIDs.length; i++) {
 			int id = attrIDs[i];
 			DataElement element = temp.getAttributeValue(id);
+			serviceRecord.populateAttributeValue(id, element);
 			if (element != null) {
-				serviceRecord.populateAttributeValue(id, element);
 				anyRetrived = true;
-			} else {
-				serviceRecord.setAttributeValue(id, null);
 			}
 		}
 		return anyRetrived;
