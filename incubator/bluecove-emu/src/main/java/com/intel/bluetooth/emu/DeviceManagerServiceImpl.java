@@ -203,49 +203,56 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		return sd.getSdpBinary();
 	}
 
-	public long rfAccept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
-		return accept(address, ServiceListener.rfPrefix(channel), authenticate, encrypt);
+	public long rfAccept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException {
+		return accept(localAddress, ServiceListener.rfPrefix(channel), authenticate, encrypt);
 	}
 
-	public long rfConnect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
-		return connect(address, ServiceListener.rfPrefix(channel), authenticate, encrypt);
+	public long rfConnect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
+			throws IOException {
+		return connect(localAddress, remoteAddress, ServiceListener.rfPrefix(channel), authenticate, encrypt);
 	}
 
 	public void rfCloseService(long address, int channel) {
 		closeService(address, ServiceListener.rfPrefix(channel));
 	}
 
-	public long l2Accept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
-		return accept(address, ServiceListener.l2Prefix(channel), authenticate, encrypt);
+	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException {
+		return accept(localAddress, ServiceListener.l2Prefix(channel), authenticate, encrypt);
 	}
 
-	public long l2Connect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
-		return connect(address, ServiceListener.l2Prefix(channel), authenticate, encrypt);
+	public long l2Connect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
+			throws IOException {
+		return connect(localAddress, remoteAddress, ServiceListener.l2Prefix(channel), authenticate, encrypt);
 	}
 
 	public void l2CloseService(long address, int channel) {
 		closeService(address, ServiceListener.l2Prefix(channel));
 	}
 
-	private long accept(long address, String channelID, boolean authenticate, boolean encrypt) throws IOException {
+	private long accept(long localAddress, String channelID, boolean authenticate, boolean encrypt) throws IOException {
 		Device device;
-		if ((device = getDevice(address)) == null) {
-			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
+		if ((device = getDevice(localAddress)) == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
 		}
 		ServiceListener sl = device.createServiceListener(channelID);
-		return sl.accept(authenticate, encrypt);
+		return sl.accept(device, authenticate, encrypt);
 	}
 
-	private long connect(long address, String channelID, boolean authenticate, boolean encrypt) throws IOException {
-		Device device = getDevice(address);
-		if (device == null) {
-			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
+	private long connect(long localAddress, long remoteAddress, String channelID, boolean authenticate, boolean encrypt)
+			throws IOException {
+		Device remoteDevice = getDevice(remoteAddress);
+		if (remoteDevice == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(remoteAddress));
 		}
-		ServiceListener sl = device.getServiceListener(channelID);
+		Device localDevice = getDevice(localAddress);
+		if (localDevice == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
+		}
+		ServiceListener sl = remoteDevice.removeServiceListener(channelID);
 		if (sl == null) {
 			throw new IOException("No such service " + channelID);
 		}
-		return sl.connect(authenticate, encrypt);
+		return sl.connect(localDevice, authenticate, encrypt);
 	}
 
 	private void closeService(long address, String channelID) {
@@ -254,24 +261,28 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 			return;
 		}
 		ServiceListener sl;
-		while ((sl = device.getServiceListener(channelID)) != null) {
+		while ((sl = device.removeServiceListener(channelID)) != null) {
 			sl.close();
 		}
 	}
 
-	public void rfWrite(long address, long connectionId, byte[] b) throws IOException {
-
+	public long getRemoteAddress(long localAddress, long connectionId) throws IOException {
+		return ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).getRemoteAddress();
 	}
 
-	public int rfAvailable(long address, long connectionId) throws IOException {
-		return 0;
+	public void rfWrite(long localAddress, long connectionId, byte[] b) throws IOException {
+		ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).rfWrite(b);
 	}
 
-	public byte[] rfRead(long address, long connectionId, int len) throws IOException {
-		return null;
+	public int rfAvailable(long localAddress, long connectionId) throws IOException {
+		return ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).rfAvailable();
 	}
 
-	public void rfCloseConnection(long address, long connectionId) {
+	public byte[] rfRead(long localAddress, long connectionId, int len) throws IOException {
+		return ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).rfRead(len);
+	}
 
+	public void rfCloseConnection(long localAddress, long connectionId) throws IOException {
+		ServiceListener.getConnectionBufferRFCOMM(getDevice(localAddress), connectionId).close();
 	}
 }

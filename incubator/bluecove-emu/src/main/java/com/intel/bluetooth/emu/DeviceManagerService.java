@@ -33,42 +33,46 @@ public interface DeviceManagerService extends RoHService {
 
 	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress);
 
-	public void releaseDevice(long address);
+	public void releaseDevice(long localAddress);
 
-	public int getLocalDeviceDiscoverable(long address);
+	public int getLocalDeviceDiscoverable(long localAddress);
 
-	public boolean setLocalDeviceDiscoverable(long address, int mode);
+	public boolean setLocalDeviceDiscoverable(long localAddress, int mode);
 
-	public DeviceDescriptor[] getDiscoveredDevices(long address);
+	public DeviceDescriptor[] getDiscoveredDevices(long localAddress);
 
-	public String getRemoteDeviceFriendlyName(long address);
+	public String getRemoteDeviceFriendlyName(long remoteAddress);
 
-	public void updateServiceRecord(long address, long handle, ServicesDescriptor sdpData)
+	public void updateServiceRecord(long localAddress, long handle, ServicesDescriptor sdpData)
 			throws ServiceRegistrationException;
 
-	public void removeServiceRecord(long address, long handle);
+	public void removeServiceRecord(long localAddress, long handle);
 
-	public long[] searchServices(long address, String[] uuidSet);
+	public long[] searchServices(long remoteAddress, String[] uuidSet);
 
-	public byte[] getServicesRecordBinary(long address, long handle) throws IOException;
+	public byte[] getServicesRecordBinary(long remoteAddress, long handle) throws IOException;
 
-	public long rfAccept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+	public long rfAccept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException;
 
-	public long rfConnect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+	public long rfConnect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
+			throws IOException;
 
-	public void rfCloseService(long address, int channel);
+	public void rfCloseService(long localAddress, int channel);
 
-	public void rfCloseConnection(long address, long connectionId);
+	public void rfCloseConnection(long localAddress, long connectionId) throws IOException;
 
-	public long l2Accept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException;
 
-	public long l2Connect(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+	public long l2Connect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
+			throws IOException;
 
-	public void l2CloseService(long address, int channel);
+	public void l2CloseService(long localAddress, int channel);
 
-	public void rfWrite(long address, long connectionId, byte[] b) throws IOException;
+	public long getRemoteAddress(long localAddress, long connectionId) throws IOException;
 
-	public int rfAvailable(long address, long connectionId) throws IOException;
+	public void rfWrite(long localAddress, long connectionId, byte[] b) throws IOException;
 
-	public byte[] rfRead(long address, long connectionId, int len) throws IOException;
+	public int rfAvailable(long localAddress, long connectionId) throws IOException;
+
+	public byte[] rfRead(long localAddress, long connectionId, int len) throws IOException;
 }

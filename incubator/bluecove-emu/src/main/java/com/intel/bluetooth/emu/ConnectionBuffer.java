@@ -21,10 +21,22 @@
  */
 package com.intel.bluetooth.emu;
 
+import java.io.IOException;
+
 /**
  * @author vlads
  * 
  */
 abstract class ConnectionBuffer {
 
+	private long remoteAddress;
+
+	public ConnectionBuffer(long remoteAddress) {
+		super();
+		this.remoteAddress = remoteAddress;
+	}
+
+	public long getRemoteAddress() throws IOException {
+		return remoteAddress;
+	}
 }

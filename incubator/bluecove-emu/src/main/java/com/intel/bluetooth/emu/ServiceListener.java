@@ -23,6 +23,9 @@ package com.intel.bluetooth.emu;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 /**
  * @author vlads
@@ -37,6 +40,8 @@ class ServiceListener {
 	private String portID;
 
 	private Object lock = new Object();
+
+	private Device serverDevice;
 
 	static String rfPrefix(int channel) {
 		return RFCOMM_PREFIX + channel;
@@ -54,7 +59,8 @@ class ServiceListener {
 		return this.portID;
 	}
 
-	long accept(boolean authenticate, boolean encrypt) throws IOException {
+	long accept(Device serverDevice, boolean authenticate, boolean encrypt) throws IOException {
+		this.serverDevice = serverDevice;
 		synchronized (lock) {
 			try {
 				lock.wait();
@@ -66,7 +72,16 @@ class ServiceListener {
 		// return 0;
 	}
 
-	long connect(boolean authenticate, boolean encrypt) throws IOException {
+	long connect(Device clientDevice, boolean authenticate, boolean encrypt) throws IOException {
+		PipedInputStream cis = new PipedInputStream();
+		PipedOutputStream sos = new PipedOutputStream(cis);
+
+		PipedInputStream sis = new PipedInputStream();
+		OutputStream cos = new PipedOutputStream(sis);
+
+		ConnectionBufferRFCOMM c = new ConnectionBufferRFCOMM(serverDevice.getDescriptor().getAddress(), cis, cos);
+		ConnectionBufferRFCOMM s = new ConnectionBufferRFCOMM(clientDevice.getDescriptor().getAddress(), sis, sos);
+
 		synchronized (lock) {
 			lock.notify();
 		}
@@ -77,5 +92,9 @@ class ServiceListener {
 		synchronized (lock) {
 			lock.notify();
 		}
+	}
+
+	static ConnectionBufferRFCOMM getConnectionBufferRFCOMM(Device localDevice, long connectionId) throws IOException {
+		return null;
 	}
 }

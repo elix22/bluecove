@@ -253,6 +253,7 @@ class BluetoothEmulator implements BluetoothStack {
 		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
 		long connectionHandle = s.accept();
 		long remoteAddress = 0;
+		localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(), connectionHandle);
 		EmulatorRFCOMMClient c = localDevice.createRFCOMMClient();
 		c.connect(remoteAddress, connectionHandle);
 		return c.getHandle();

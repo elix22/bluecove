@@ -38,12 +38,13 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 
 	public void connect(long remoteAddress, long connectionHandle) throws IOException {
 		this.connectionHandle = connectionHandle;
+		this.remoteAddress = remoteAddress;
 	}
 
 	public void connect(BluetoothConnectionParams params) throws IOException {
+		this.connectionHandle = localDevice.getDeviceManagerService().rfConnect(localDevice.getAddress(),
+				params.address, params.channel, params.authenticate, params.encrypt);
 		this.remoteAddress = params.address;
-		this.connectionHandle = localDevice.getDeviceManagerService().rfConnect(params.address, params.channel,
-				params.authenticate, params.encrypt);
 	}
 
 	public int read() throws IOException {
@@ -56,7 +57,7 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 	}
 
 	public int read(byte[] b, int off, int len) throws IOException {
-		byte buf[] = localDevice.getDeviceManagerService().rfRead(remoteAddress, this.connectionHandle, len);
+		byte buf[] = localDevice.getDeviceManagerService().rfRead(localDevice.getAddress(), this.connectionHandle, len);
 		if (buf == null) {
 			return -1;
 		}
@@ -65,7 +66,7 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 	}
 
 	public int available() throws IOException {
-		return localDevice.getDeviceManagerService().rfAvailable(remoteAddress, this.connectionHandle);
+		return localDevice.getDeviceManagerService().rfAvailable(localDevice.getAddress(), this.connectionHandle);
 	}
 
 	public void write(int b) throws IOException {
@@ -82,7 +83,7 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 			buf = new byte[len];
 			System.arraycopy(b, off, buf, 0, len);
 		}
-		localDevice.getDeviceManagerService().rfWrite(remoteAddress, this.connectionHandle, buf);
+		localDevice.getDeviceManagerService().rfWrite(localDevice.getAddress(), this.connectionHandle, buf);
 	}
 
 	public void flush() throws IOException {
@@ -93,6 +94,6 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 	}
 
 	public void close() throws IOException {
-		localDevice.getDeviceManagerService().rfCloseConnection(remoteAddress, this.connectionHandle);
+		localDevice.getDeviceManagerService().rfCloseConnection(localDevice.getAddress(), this.connectionHandle);
 	}
 }

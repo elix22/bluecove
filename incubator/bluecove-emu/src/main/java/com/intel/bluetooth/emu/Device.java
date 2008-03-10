@@ -64,7 +64,7 @@ class Device {
 		return sl;
 	}
 
-	public ServiceListener getServiceListener(String portID) {
+	public ServiceListener removeServiceListener(String portID) {
 		ServiceListener sl = null;
 		synchronized (serviceListeners) {
 			for (Enumeration iterator = serviceListeners.elements(); iterator.hasMoreElements();) {

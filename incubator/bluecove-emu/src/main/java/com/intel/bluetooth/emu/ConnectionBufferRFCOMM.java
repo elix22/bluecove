@@ -21,10 +21,53 @@
  */
 package com.intel.bluetooth.emu;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * @author vlads
  * 
  */
 public class ConnectionBufferRFCOMM extends ConnectionBuffer {
 
+	private InputStream is;
+
+	private OutputStream os;
+
+	public ConnectionBufferRFCOMM(long remoteAddress, InputStream is, OutputStream os) {
+		super(remoteAddress);
+		this.is = is;
+		this.os = os;
+	}
+
+	public void rfWrite(byte[] b) throws IOException {
+		os.write(b);
+	}
+
+	public int rfAvailable() throws IOException {
+		return is.available();
+	}
+
+	public byte[] rfRead(int len) throws IOException {
+		byte[] b = new byte[len];
+		int rc = is.read(b);
+		if (rc == -1) {
+			return null;
+		} else if (rc == len) {
+			return b;
+		} else {
+			byte[] b2 = new byte[rc];
+			System.arraycopy(b, 0, b2, 0, rc);
+			return b2;
+		}
+	}
+
+	public void close() throws IOException {
+		try {
+			os.close();
+		} finally {
+			is.close();
+		}
+	}
 }
