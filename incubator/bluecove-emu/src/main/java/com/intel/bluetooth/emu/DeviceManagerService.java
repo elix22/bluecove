@@ -21,6 +21,10 @@
  */
 package com.intel.bluetooth.emu;
 
+import java.io.IOException;
+
+import javax.bluetooth.ServiceRegistrationException;
+
 import com.pyx4j.rpcoverhttp.common.RoHService;
 
 public interface DeviceManagerService extends RoHService {
@@ -39,4 +43,24 @@ public interface DeviceManagerService extends RoHService {
 
 	public String getRemoteDeviceFriendlyName(long address);
 
+	public void updateServiceRecord(long address, long handle, ServicesDescriptor sdpData)
+			throws ServiceRegistrationException;
+
+	public void removeServiceRecord(long address, long handle);
+
+	public long[] searchServices(long address, String[] uuidSet);
+
+	public byte[] getServicesRecordBinary(long address, long handle) throws IOException;
+
+	public long rfAccept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException;
+
+	//
+	// public void rfConnect(long address, int channel, boolean authenticate,
+	// boolean encrypt) throws IOException;
+	//
+	// public void rfWrite(long address, long connectionId, byte[] b, int off,
+	// int len) throws IOException;
+	//
+	// public int rfRead(long address, long connectionId, byte[] b, int off, int
+	// len) throws IOException;
 }

@@ -35,7 +35,7 @@ import com.intel.bluetooth.emu.DeviceDescriptor;
  * @author vlads
  * 
  */
-public class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
+class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
 
 	private EmulatorLocalDevice localDevice;
 

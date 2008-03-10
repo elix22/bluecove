@@ -22,6 +22,8 @@
 package com.intel.bluetooth.emu;
 
 import java.io.Serializable;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @author vlads
@@ -31,11 +33,32 @@ public class EmulatorConfiguration implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private long firstDeviceAddress = 0x0B1000000000L;
+
+	private String deviceNamePrefix = "EmuDevice";
+
 	private int durationLIAC = 3;
 
-	private int deviceInquiryDuration = 5;
+	private int deviceInquiryDuration = 0;// 5;
 
 	private boolean deviceInquiryRandomDelay = true;
+
+	private Map/* <String,String> */propertiesMap;
+
+	public EmulatorConfiguration() {
+		propertiesMap = new Hashtable();
+		final String TRUE = "true";
+		final String FALSE = "false";
+		propertiesMap.put("bluetooth.connected.devices.max", "7");
+		propertiesMap.put("bluetooth.sd.trans.max", "7");
+		propertiesMap.put("bluetooth.connected.inquiry.scan", TRUE);
+		propertiesMap.put("bluetooth.connected.page.scan", TRUE);
+		propertiesMap.put("bluetooth.connected.inquiry", TRUE);
+		propertiesMap.put("bluetooth.connected.page", TRUE);
+		propertiesMap.put("bluetooth.sd.attr.retrievable.max", "10");
+		propertiesMap.put("bluetooth.master.switch", FALSE);
+		propertiesMap.put("bluetooth.l2cap.receiveMTU.max", "65535");
+	}
 
 	public int getDurationLIAC() {
 		return durationLIAC;
@@ -61,4 +84,23 @@ public class EmulatorConfiguration implements Serializable {
 		this.deviceInquiryRandomDelay = deviceInquiryRandomDelay;
 	}
 
+	public long getFirstDeviceAddress() {
+		return firstDeviceAddress;
+	}
+
+	public void setFirstDeviceAddress(long firstDeviceAddress) {
+		this.firstDeviceAddress = firstDeviceAddress;
+	}
+
+	public String getProperty(String property) {
+		return (String) propertiesMap.get(property);
+	}
+
+	public String getDeviceNamePrefix() {
+		return deviceNamePrefix;
+	}
+
+	public void setDeviceNamePrefix(String deviceNamePrefix) {
+		this.deviceNamePrefix = deviceNamePrefix;
+	}
 }

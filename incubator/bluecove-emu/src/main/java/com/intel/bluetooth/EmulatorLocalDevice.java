@@ -21,48 +21,46 @@
  */
 package com.intel.bluetooth;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
 
+import com.intel.bluetooth.BluetoothConsts.DeviceClassConsts;
 import com.intel.bluetooth.emu.DeviceDescriptor;
 import com.intel.bluetooth.emu.DeviceManagerService;
 import com.intel.bluetooth.emu.EmulatorConfiguration;
+import com.intel.bluetooth.emu.EmulatorUtils;
 
 /**
  * @author vlads
  * 
  */
-public class EmulatorLocalDevice {
+class EmulatorLocalDevice {
 
 	private DeviceManagerService service;
 
 	private DeviceDescriptor deviceDescriptor;
 
-	private final static int ATTR_RETRIEVABLE_MAX = 256;
+	private int bluetooth_sd_attr_retrievable_max = 0;
 
 	private EmulatorConfiguration configuration;
 
 	private Map/* <String,String> */propertiesMap;
+
+	private Vector channels = new Vector();
+
+	private Vector pcms = new Vector();
+
+	private Map connections = new Hashtable();
 
 	public EmulatorLocalDevice(DeviceManagerService service, DeviceDescriptor deviceDescriptor) {
 		this.service = service;
 		this.deviceDescriptor = deviceDescriptor;
 
 		propertiesMap = new Hashtable();
-		final String TRUE = "true";
-		final String FALSE = "false";
-		propertiesMap.put("bluetooth.connected.devices.max", "7");
-		propertiesMap.put("bluetooth.sd.trans.max", "7");
-		propertiesMap.put("bluetooth.connected.inquiry.scan", TRUE);
-		propertiesMap.put("bluetooth.connected.page.scan", TRUE);
-		propertiesMap.put("bluetooth.connected.inquiry", TRUE);
-		propertiesMap.put("bluetooth.connected.page", TRUE);
-		propertiesMap.put("bluetooth.sd.attr.retrievable.max", String.valueOf(ATTR_RETRIEVABLE_MAX));
-		propertiesMap.put("bluetooth.master.switch", FALSE);
-		propertiesMap.put("bluetooth.l2cap.receiveMTU.max", "65535");
-
 		propertiesMap.put("bluecove.radio.version", BlueCoveImpl.version);
 		propertiesMap.put("bluecove.radio.manufacturer", "pyx4j.com");
 		propertiesMap.put("bluecove.stack.version", BlueCoveImpl.version);
@@ -81,6 +79,16 @@ public class EmulatorLocalDevice {
 
 	public void updateConfiguration() {
 		configuration = service.getEmulatorConfiguration();
+		bluetooth_sd_attr_retrievable_max = Integer.valueOf(
+				configuration.getProperty("bluetooth.sd.attr.retrievable.max")).intValue();
+
+		String[] property = { "bluetooth.master.switch", "bluetooth.sd.attr.retrievable.max",
+				"bluetooth.connected.devices.max", "bluetooth.l2cap.receiveMTU.max", "bluetooth.sd.trans.max",
+				"bluetooth.connected.inquiry.scan", "bluetooth.connected.page.scan", "bluetooth.connected.inquiry",
+				"bluetooth.connected.page" };
+		for (int i = 0; i < property.length; i++) {
+			propertiesMap.put(property[i], configuration.getProperty(property[i]));
+		}
 	}
 
 	public long getAddress() {
@@ -95,12 +103,23 @@ public class EmulatorLocalDevice {
 		return deviceDescriptor.getDeviceClass();
 	}
 
+	public void setLocalDeviceServiceClasses(int classOfDevice) {
+		int c = deviceDescriptor.getDeviceClass();
+		c &= DeviceClassConsts.MAJOR_MASK | DeviceClassConsts.MINOR_MASK;
+		c |= classOfDevice;
+		deviceDescriptor.setDeviceClass(c);
+	}
+
 	public boolean isLocalDevicePowerOn() {
 		return true;
 	}
 
 	public String getLocalDeviceProperty(String property) {
 		return (String) propertiesMap.get(property);
+	}
+
+	public int getBluetooth_sd_attr_retrievable_max() {
+		return bluetooth_sd_attr_retrievable_max;
 	}
 
 	public int getLocalDeviceDiscoverable() {
@@ -115,4 +134,40 @@ public class EmulatorLocalDevice {
 		return configuration;
 	}
 
+	EmulatorConnection getConnection(long handle) throws IOException {
+		Object c = connections.get(new Long(handle));
+		if (c == null) {
+			throw new IOException("Invalid connection handle");
+		}
+		return (EmulatorConnection) c;
+	}
+
+	void removeConnection(EmulatorConnection c) {
+		connections.remove(new Long(c.getHandle()));
+		if (c instanceof EmulatorRFCOMMService) {
+			channels.remove(new Long(((EmulatorRFCOMMService) c).getChannel()));
+		}
+	}
+
+	EmulatorRFCOMMService createRFCOMMService() {
+		EmulatorRFCOMMService s;
+		synchronized (connections) {
+			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			int channel = (int) EmulatorUtils.getNextAvailable(channels, 1, 1);
+			s = new EmulatorRFCOMMService(this, handle, channel);
+			connections.put(new Long(handle), s);
+			channels.addElement(new Long(channel));
+		}
+		return s;
+	}
+
+	EmulatorRFCOMMClient createRFCOMMClient() {
+		EmulatorRFCOMMClient c;
+		synchronized (connections) {
+			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			c = new EmulatorRFCOMMClient(this, handle);
+			connections.put(new Long(handle), c);
+		}
+		return c;
+	}
 }

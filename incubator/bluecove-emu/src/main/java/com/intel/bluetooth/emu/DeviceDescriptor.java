@@ -59,6 +59,10 @@ public class DeviceDescriptor implements Serializable {
 		return deviceClass;
 	}
 
+	public void setDeviceClass(int deviceClass) {
+		this.deviceClass = deviceClass;
+	}
+
 	public String toString() {
 		return "[address=" + address + "; name=" + name + "; clazz=" + deviceClass + "]";
 	}

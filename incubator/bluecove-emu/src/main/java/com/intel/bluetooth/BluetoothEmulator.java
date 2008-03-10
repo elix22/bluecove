@@ -30,7 +30,7 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRegistrationException;
 import javax.bluetooth.UUID;
 
-class BluetoothEmulator implements BluetoothStack, SearchServicesRunnable {
+class BluetoothEmulator implements BluetoothStack {
 
 	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.nativeLibraryVersionExpected;
 
@@ -120,7 +120,7 @@ class BluetoothEmulator implements BluetoothStack, SearchServicesRunnable {
 	 * @see com.intel.bluetooth.BluetoothStack#setLocalDeviceServiceClasses(int)
 	 */
 	public void setLocalDeviceServiceClasses(int classOfDevice) {
-		throw new NotSupportedRuntimeException(getStackID());
+		localDevice.setLocalDeviceServiceClasses(classOfDevice);
 	}
 
 	// --- Device Inquiry
@@ -151,375 +151,221 @@ class BluetoothEmulator implements BluetoothStack, SearchServicesRunnable {
 
 	// --- Service search
 
-	// public int searchServices(int[] attrSet, UUID[] uuidSet, RemoteDevice
-	// device, DiscoveryListener listener)
-	// throws BluetoothStateException {
-	// return SearchServicesThread.startSearchServices(this, attrSet, uuidSet,
-	// device, listener);
-	// }
-	//
-	// public int runSearchServices(SearchServicesThread sst, int[] attrSet,
-	// UUID[] uuidSet, RemoteDevice device,
-	// DiscoveryListener listener) throws BluetoothStateException {
-	// sst.searchServicesStartedCallback();
-	// try {
-	// byte[][] uuidValues = new byte[uuidSet.length][];
-	// for (int i = 0; i < uuidSet.length; i++) {
-	// uuidValues[i] = Utils.UUIDToByteArray(uuidSet[i]);
-	// }
-	// int respCode = runSearchServicesImpl(sst, uuidValues,
-	// RemoteDeviceHelper.getAddress(device));
-	// if ((respCode != DiscoveryListener.SERVICE_SEARCH_ERROR) &&
-	// (sst.isTerminated())) {
-	// return DiscoveryListener.SERVICE_SEARCH_TERMINATED;
-	// } else if (respCode == DiscoveryListener.SERVICE_SEARCH_COMPLETED) {
-	// Vector records = sst.getServicesRecords();
-	// if (records.size() != 0) {
-	// DebugLog.debug("SearchServices finished", sst.getTransID());
-	// ServiceRecord[] servRecordArray = (ServiceRecord[])
-	// Utils.vector2toArray(records,
-	// new ServiceRecord[records.size()]);
-	// listener.servicesDiscovered(sst.getTransID(), servRecordArray);
-	// }
-	// if (records.size() != 0) {
-	// return DiscoveryListener.SERVICE_SEARCH_COMPLETED;
-	// } else {
-	// return DiscoveryListener.SERVICE_SEARCH_NO_RECORDS;
-	// }
-	// } else {
-	// return respCode;
-	// }
-	// } catch (SearchServicesDeviceNotReachableException e) {
-	// return DiscoveryListener.SERVICE_SEARCH_DEVICE_NOT_REACHABLE;
-	// } catch (SearchServicesTerminatedException e) {
-	// return DiscoveryListener.SERVICE_SEARCH_TERMINATED;
-	// } catch (SearchServicesException e) {
-	// return DiscoveryListener.SERVICE_SEARCH_ERROR;
-	// }
-	// }
-	//
-	// public boolean serviceDiscoveredCallback(SearchServicesThread sst, long
-	// sdpSession, long handle) {
-	// if (sst.isTerminated()) {
-	// return true;
-	// }
-	// ServiceRecordImpl servRecord = new ServiceRecordImpl(this,
-	// sst.getDevice(), handle);
-	// int[] attrIDs = sst.getAttrSet();
-	// long remoteDeviceAddress =
-	// RemoteDeviceHelper.getAddress(sst.getDevice());
-	// populateServiceRecordAttributeValuesImpl(remoteDeviceAddress, sdpSession,
-	// handle, attrIDs, servRecord);
-	// sst.addServicesRecords(servRecord);
-	// return false;
-	// }
-	//
-	// public boolean cancelServiceSearch(int transID) {
-	// SearchServicesThread sst =
-	// SearchServicesThread.getServiceSearchThread(transID);
-	// if (sst != null) {
-	// return sst.setTerminated();
-	// } else {
-	// return false;
-	// }
-	// }
-	//
-	// public boolean populateServicesRecordAttributeValues(ServiceRecordImpl
-	// serviceRecord, int[] attrIDs)
-	// throws IOException {
-	// long remoteDeviceAddress =
-	// RemoteDeviceHelper.getAddress(serviceRecord.getHostDevice());
-	// return populateServiceRecordAttributeValuesImpl(remoteDeviceAddress, 0,
-	// serviceRecord.getHandle(), attrIDs,
-	// serviceRecord);
-	// }
-
-	// --- Client RFCOMM connections
-
-	// public long connectionRfOpenClientConnection(BluetoothConnectionParams
-	// params) throws IOException {
-	// return connectionRfOpenClientConnectionImpl(deviceDescriptor,
-	// params.address, params.channel,
-	// params.authenticate, params.encrypt, params.timeout);
-	// }
-	//
-	// public native void connectionRfCloseClientConnection(long handle) throws
-	// IOException;
-	//
-	// public native int rfGetSecurityOptImpl(long handle) throws IOException;
-	//
-	// public int rfGetSecurityOpt(long handle, int expected) throws IOException
-	// {
-	// return rfGetSecurityOptImpl(handle);
-	// }
-	//
-	// public long rfServerOpen(BluetoothConnectionNotifierParams params,
-	// ServiceRecordImpl serviceRecord)
-	// throws IOException {
-	// final int listen_backlog = 1;
-	// long socket = rfServerOpenImpl(this.deviceDescriptor, params.authorize,
-	// params.authenticate, params.encrypt,
-	// params.master, params.timeouts, listen_backlog);
-	// boolean success = false;
-	// try {
-	// int channel = rfServerGetChannelIDImpl(socket);
-	// long serviceRecordHandle = socket;
-	// serviceRecord.populateRFCOMMAttributes(serviceRecordHandle, channel,
-	// params.uuid, params.name, params.obex);
-	// serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor,
-	// serviceRecord.toByteArray()));
-	// success = true;
-	// return socket;
-	// } finally {
-	// if (!success) {
-	// rfServerClose(socket, true);
-	// }
-	// }
-	// }
-	//
-	// public void rfServerClose(long handle, ServiceRecordImpl serviceRecord)
-	// throws IOException {
-	// try {
-	// unregisterSDPServiceImpl(serviceRecord.getHandle());
-	// } finally {
-	// rfServerClose(handle, false);
-	// }
-	// }
-	//
-	// public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl
-	// serviceRecord, boolean acceptAndOpen)
-	// throws ServiceRegistrationException {
-	// unregisterSDPServiceImpl(serviceRecord.getHandle());
-	// byte[] blob;
-	// try {
-	// blob = serviceRecord.toByteArray();
-	// } catch (IOException e) {
-	// throw new ServiceRegistrationException(e.toString());
-	// }
-	// serviceRecord.setHandle(registerSDPServiceImpl(this.deviceDescriptor,
-	// blob));
-	// }
-	//
-	// public native long rfServerAcceptAndOpenRfServerConnection(long handle)
-	// throws IOException;
-	//
-	// public void connectionRfCloseServerConnection(long clientHandle) throws
-	// IOException {
-	// connectionRfCloseClientConnection(clientHandle);
-	// }
-
-	// --- Shared Client and Server RFCOMM connections
-
-	public native int connectionRfRead(long handle) throws IOException;
-
-	public native int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException;
-
-	public native int connectionRfReadAvailable(long handle) throws IOException;
-
-	public native void connectionRfWrite(long handle, int b) throws IOException;
-
-	public native void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException;
-
-	public native void connectionRfFlush(long handle) throws IOException;
-
-	public native long getConnectionRfRemoteAddress(long handle) throws IOException;
-
-	// --- Client and Server L2CAP connections
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2OpenClientConnection(com.intel.bluetooth.BluetoothConnectionParams,
-	 *      int, int)
-	 */
-	// public long l2OpenClientConnection(BluetoothConnectionParams params, int
-	// receiveMTU, int transmitMTU)
-	// throws IOException {
-	// return l2OpenClientConnectionImpl(deviceDescriptor, params.address,
-	// params.channel, params.authenticate,
-	// params.encrypt, receiveMTU, transmitMTU, params.timeout);
-	// }
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2CloseClientConnection(long)
-	 */
-	public native void l2CloseClientConnection(long handle) throws IOException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2ServerOpen(com.intel.bluetooth.BluetoothConnectionNotifierParams,
-	 *      int, int, com.intel.bluetooth.ServiceRecordImpl)
-	 */
-	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
-			ServiceRecordImpl serviceRecord) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+	public int searchServices(int[] attrSet, UUID[] uuidSet, RemoteDevice device, DiscoveryListener listener)
+			throws BluetoothStateException {
+		return SearchServicesThread.startSearchServices(this, new EmulatorSearchServices(localDevice, this), attrSet,
+				uuidSet, device, listener);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2ServerUpdateServiceRecord(long,
-	 *      com.intel.bluetooth.ServiceRecordImpl, boolean)
-	 */
-	public void l2ServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
-			throws ServiceRegistrationException {
-		// TODO Auto-generated method stub
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2ServerAcceptAndOpenServerConnection(long)
-	 */
-	public long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2CloseServerConnection(long)
-	 */
-	public void l2CloseServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2ServerClose(long,
-	 *      com.intel.bluetooth.ServiceRecordImpl)
-	 */
-	public void l2ServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2Ready(long)
-	 */
-	public native boolean l2Ready(long handle) throws IOException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2receive(long, byte[])
-	 */
-	public native int l2Receive(long handle, byte[] inBuf) throws IOException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2send(long, byte[])
-	 */
-	public native void l2Send(long handle, byte[] data) throws IOException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2GetReceiveMTU(long)
-	 */
-	public native int l2GetReceiveMTU(long handle) throws IOException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2GetTransmitMTU(long)
-	 */
-	public native int l2GetTransmitMTU(long handle) throws IOException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2RemoteAddress(long)
-	 */
-	public native long l2RemoteAddress(long handle) throws IOException;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2GetSecurityOpt(long, int)
-	 */
-	public native int l2GetSecurityOpt(long handle, int expected) throws IOException;
-
-	// TODO remove after implementing above methods
 
 	public boolean cancelServiceSearch(int transID) {
-		// TODO Auto-generated method stub
+		SearchServicesThread sst = SearchServicesThread.getServiceSearchThread(transID);
+		if (sst != null) {
+			synchronized (sst) {
+				if (!sst.isTerminated()) {
+					sst.setTerminated();
+					return true;
+				}
+			}
+		}
 		return false;
-	}
-
-	public void connectionRfCloseClientConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void connectionRfCloseServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public long connectionRfOpenClientConnection(BluetoothConnectionParams params) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	public boolean populateServicesRecordAttributeValues(ServiceRecordImpl serviceRecord, int[] attrIDs)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		if (attrIDs.length > localDevice.getBluetooth_sd_attr_retrievable_max()) {
+			throw new IllegalArgumentException();
+		}
+		return EmulatorSearchServices.populateServicesRecordAttributeValues(localDevice, serviceRecord, attrIDs,
+				RemoteDeviceHelper.getAddress(serviceRecord.getHostDevice()), serviceRecord.getHandle());
+	}
+
+	// --- Client RFCOMM connections
+
+	public long connectionRfOpenClientConnection(BluetoothConnectionParams params) throws IOException {
+		EmulatorRFCOMMClient c = localDevice.createRFCOMMClient();
+		boolean success = false;
+		try {
+			c.connect(params);
+			success = true;
+		} finally {
+			if (!success) {
+				localDevice.removeConnection(c);
+			}
+		}
+		return c.getHandle();
+	}
+
+	public void connectionRfCloseClientConnection(long handle) throws IOException {
+		EmulatorRFCOMMClient c = ((EmulatorRFCOMMClient) localDevice.getConnection(handle));
+		try {
+			c.close();
+		} finally {
+			localDevice.removeConnection(c);
+		}
 	}
 
 	public int rfGetSecurityOpt(long handle, int expected) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		return expected;
 	}
 
-	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
+	// --- Server RFCOMM connections
 
 	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		EmulatorRFCOMMService s = localDevice.createRFCOMMService();
+		boolean success = false;
+		try {
+			s.open(params);
+			s.handle = s.getHandle();
+			serviceRecord
+					.populateRFCOMMAttributes(s.getHandle(), s.getChannel(), params.uuid, params.name, params.obex);
+			s.updateServiceRecord(serviceRecord);
+			success = true;
+		} finally {
+			if (!success) {
+				localDevice.removeConnection(s);
+			}
+		}
+		return s.getHandle();
+	}
+
+	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
+		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
+		try {
+			s.close(serviceRecord);
+		} finally {
+			localDevice.removeConnection(s);
+		}
 	}
 
 	public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
-		// TODO Auto-generated method stub
-
+		EmulatorRFCOMMService s;
+		try {
+			s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
+		} catch (IOException e) {
+			throw new ServiceRegistrationException(e.getMessage());
+		}
+		s.updateServiceRecord(serviceRecord);
 	}
 
-	public int searchServices(int[] attrSet, UUID[] uuidSet, RemoteDevice device, DiscoveryListener listener)
-			throws BluetoothStateException {
-		// TODO Auto-generated method stub
-		return 0;
+	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException {
+		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
+		long connectionHandle = s.accept();
+		EmulatorRFCOMMClient c = localDevice.createRFCOMMClient();
+		c.connect(connectionHandle);
+		return c.getHandle();
 	}
 
-	public int runSearchServices(SearchServicesThread sst, int[] attrSet, UUID[] uuidSet, RemoteDevice device,
-			DiscoveryListener listener) throws BluetoothStateException {
-		// TODO Auto-generated method stub
-		return 0;
+	public void connectionRfCloseServerConnection(long handle) throws IOException {
+		connectionRfCloseClientConnection(handle);
 	}
 
+	// --- Shared Client and Server RFCOMM connections
+
+	public int connectionRfRead(long handle) throws IOException {
+		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).read();
+	}
+
+	public int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException {
+		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).read(b, off, len);
+	}
+
+	public int connectionRfReadAvailable(long handle) throws IOException {
+		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).available();
+	}
+
+	public void connectionRfWrite(long handle, int b) throws IOException {
+		((EmulatorRFCOMMClient) localDevice.getConnection(handle)).write(b);
+	}
+
+	public void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException {
+		((EmulatorRFCOMMClient) localDevice.getConnection(handle)).write(b, off, len);
+	}
+
+	public void connectionRfFlush(long handle) throws IOException {
+		((EmulatorRFCOMMClient) localDevice.getConnection(handle)).flush();
+	}
+
+	public long getConnectionRfRemoteAddress(long handle) throws IOException {
+		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).getRemoteAddress();
+	}
+
+	// --- Client and Server L2CAP connections
+
+	private void validateMTU(int receiveMTU, int transmitMTU) {
+		// if (receiveMTU > receiveMTUMAX()) {
+		// throw new IllegalArgumentException("invalid ReceiveMTU value " +
+		// receiveMTU);
+		// }
+	}
+
+	private native long l2OpenClientConnectionImpl(long address, int channel, boolean authenticate, boolean encrypt,
+			int receiveMTU, int transmitMTU, int timeout) throws IOException;
+
+	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
+			throws IOException {
+		validateMTU(receiveMTU, transmitMTU);
+		Object lock = RemoteDeviceHelper.createRemoteDevice(this, params.address, null, false);
+		synchronized (lock) {
+			return l2OpenClientConnectionImpl(params.address, params.channel, params.authenticate, params.encrypt,
+					receiveMTU, transmitMTU, params.timeout);
+		}
+	}
+
+	public native void l2CloseClientConnection(long handle) throws IOException;
+
+	private native long l2ServerOpenImpl(byte[] uuidValue, boolean authenticate, boolean encrypt, String name,
+			int receiveMTU, int transmitMTU, int assignPsm) throws IOException;
+
+	public native int l2ServerPSM(long handle) throws IOException;
+
+	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
+			ServiceRecordImpl serviceRecord) throws IOException {
+		validateMTU(receiveMTU, transmitMTU);
+		byte[] uuidValue = Utils.UUIDToByteArray(params.uuid);
+		long handle = l2ServerOpenImpl(uuidValue, params.authenticate, params.encrypt, params.name, receiveMTU,
+				transmitMTU, params.bluecove_ext_psm);
+
+		int channel = l2ServerPSM(handle);
+
+		int serviceRecordHandle = (int) handle;
+
+		serviceRecord.populateL2CAPAttributes(serviceRecordHandle, channel, params.uuid, params.name);
+
+		return handle;
+	}
+
+	public void l2ServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
+			throws ServiceRegistrationException {
+		// sdpServiceUpdateServiceRecord(handle, 'L', serviceRecord);
+	}
+
+	public native long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException;
+
+	public void l2CloseServerConnection(long handle) throws IOException {
+		l2CloseClientConnection(handle);
+	}
+
+	private native void l2ServerCloseImpl(long handle) throws IOException;
+
+	public void l2ServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
+		l2ServerCloseImpl(handle);
+	}
+
+	public int l2GetSecurityOpt(long handle, int expected) throws IOException {
+		return expected;
+	}
+
+	public native boolean l2Ready(long handle) throws IOException;
+
+	public native int l2Receive(long handle, byte[] inBuf) throws IOException;
+
+	public native void l2Send(long handle, byte[] data) throws IOException;
+
+	public native int l2GetReceiveMTU(long handle) throws IOException;
+
+	public native int l2GetTransmitMTU(long handle) throws IOException;
+
+	public native long l2RemoteAddress(long handle) throws IOException;
 }

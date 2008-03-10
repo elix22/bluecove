@@ -21,12 +21,15 @@
  */
 package com.intel.bluetooth.emu;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.ServiceRegistrationException;
+
+import com.intel.bluetooth.RemoteDeviceHelper;
 
 public class DeviceManagerServiceImpl implements DeviceManagerService {
 
@@ -35,6 +38,8 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	private static EmulatorConfiguration configuration = new EmulatorConfiguration();
 
 	private static Hashtable devices = new Hashtable();
+
+	private static Hashtable devicesSDP = new Hashtable();
 
 	public DeviceManagerServiceImpl() {
 
@@ -47,7 +52,8 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress) {
 		synchronized (devices) {
 			long address = getNextAvailableBTAddress();
-			DeviceDescriptor descriptor = new DeviceDescriptor(address, "Device" + address, MAJOR_COMPUTER);
+			DeviceDescriptor descriptor = new DeviceDescriptor(address, configuration.getDeviceNamePrefix()
+					+ RemoteDeviceHelper.getBluetoothAddress(address), MAJOR_COMPUTER);
 			devices.put(new Long(address), descriptor);
 			return descriptor;
 		}
@@ -115,17 +121,65 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		return getDevice(address).getName();
 	}
 
-	long getNextAvailableBTAddress() {
-		Object[] addresses = devices.keySet().toArray();
-		Arrays.sort(addresses);
-		if (addresses.length == 0) {
-			return 1;
-		}
-		for (int i = 0; i < addresses.length; i++) {
-			if (((Long) addresses[i]).longValue() != i + 1) {
-				return (long) i + 1;
+	private long getNextAvailableBTAddress() {
+		return EmulatorUtils.getNextAvailable(devices.keySet(), configuration.getFirstDeviceAddress(), 1);
+	}
+
+	private DeviceSDP getDeviceSDP(long address, boolean create) {
+		synchronized (devicesSDP) {
+			DeviceSDP ds = ((DeviceSDP) devicesSDP.get(new Long(address)));
+			if (create && (ds == null)) {
+				ds = new DeviceSDP();
+				devicesSDP.put(new Long(address), ds);
 			}
+			return ds;
 		}
-		return ((Long) addresses[addresses.length - 1]).longValue() + 1;
+	}
+
+	public void updateServiceRecord(long address, long handle, ServicesDescriptor sdpData)
+			throws ServiceRegistrationException {
+		if (getDevice(address) == null) {
+			throw new ServiceRegistrationException("No such device");
+		}
+		DeviceSDP ds = getDeviceSDP(address, true);
+		ds.updateServiceRecord(handle, sdpData);
+	}
+
+	public void removeServiceRecord(long address, long handle) {
+		DeviceSDP ds = getDeviceSDP(address, false);
+		if (ds != null) {
+			ds.removeServiceRecord(handle);
+		}
+	}
+
+	public long[] searchServices(long address, String[] uuidSet) {
+		if (getDevice(address) == null) {
+			return null;
+		}
+		DeviceSDP ds = getDeviceSDP(address, false);
+		if (ds == null) {
+			return new long[0];
+		}
+		return ds.searchServices(uuidSet);
+	}
+
+	public byte[] getServicesRecordBinary(long address, long handle) throws IOException {
+		DeviceSDP ds = getDeviceSDP(address, false);
+		if (ds == null) {
+			throw new IOException("No such device");
+		}
+		ServicesDescriptor sd = ds.getServicesDescriptor(handle);
+		if (sd == null) {
+			throw new IOException("No such service");
+		}
+		return sd.getSdpBinary();
+	}
+
+	public long rfAccept(long address, int channel, boolean authenticate, boolean encrypt) throws IOException {
+		try {
+			Thread.sleep(20 * 1000);
+		} catch (InterruptedException e) {
+		}
+		throw new IOException("TODO");
 	}
 }

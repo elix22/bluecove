@@ -31,7 +31,7 @@ import com.pyx4j.rpcoverhttp.client.ServiceProxy;
 import com.pyx4j.rpcoverhttp.common.RoHRuntimeException;
 import com.pyx4j.rpcoverhttp.server.HTTPServer;
 
-public class EmulatorHelper {
+class EmulatorHelper {
 
 	private static URL url;
 

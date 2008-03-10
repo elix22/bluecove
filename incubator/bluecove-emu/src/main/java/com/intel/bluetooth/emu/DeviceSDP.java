@@ -1,0 +1,71 @@
+/**
+ *  BlueCove - Java library for Bluetooth
+ *  Copyright (C) 2008 Michael Lifshits
+ *  Copyright (C) 2008 Vlad Skarzhevskyy
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  @version $Id$
+ */
+package com.intel.bluetooth.emu;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+/**
+ * @author vlads
+ * 
+ */
+class DeviceSDP {
+
+	private static Hashtable services = new Hashtable();
+
+	public synchronized void updateServiceRecord(long handle, ServicesDescriptor sdpData) {
+		services.put(new Long(handle), sdpData);
+	}
+
+	public synchronized void removeServiceRecord(long handle) {
+		services.remove(new Long(handle));
+	}
+
+	public ServicesDescriptor getServicesDescriptor(long handle) {
+		return (ServicesDescriptor) services.get(new Long(handle));
+	}
+
+	public synchronized long[] searchServices(String[] uuidSet) {
+		Vector handles = new Vector();
+
+		for (Enumeration iterator = services.keys(); iterator.hasMoreElements();) {
+			Long key = (Long) iterator.nextElement();
+			ServicesDescriptor service = (ServicesDescriptor) services.get(key);
+			serviceLoop: for (int i = 0; i < service.getUuidSet().length; i++) {
+				for (int k = 0; k < uuidSet.length; k++) {
+					if (uuidSet[k].equals(service.getUuidSet()[i])) {
+						handles.addElement(key);
+						break serviceLoop;
+					}
+				}
+			}
+		}
+
+		long[] h = new long[handles.size()];
+		int i = 0;
+		for (Enumeration e = handles.elements(); e.hasMoreElements();) {
+			h[i++] = ((Long) e.nextElement()).intValue();
+		}
+		return h;
+	}
+}
