@@ -217,7 +217,7 @@ public abstract class BluetoothTypesInfo {
 			return "attributes " + NULL;
 		}
 		if (ids.length == 0) {
-			return "not attributes";
+			return "no attributes";
 		}
 		Vector sorted = new Vector();
 		for (int i = 0; i < ids.length; i++) {
@@ -987,7 +987,7 @@ public abstract class BluetoothTypesInfo {
 				break;
 			}
 
-			buf.append("/(");
+			buf.append("(");
 
 			boolean comma = false;
 
