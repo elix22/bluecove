@@ -23,8 +23,6 @@ package com.intel.bluetooth.emu;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 /**
  * @author vlads
@@ -79,11 +77,12 @@ class ServiceListener {
 
 	long connect(Device clientDevice, boolean authenticate, boolean encrypt) throws IOException {
 		try {
-			PipedInputStream cis = new PipedInputStream();
-			PipedOutputStream sos = new PipedOutputStream(cis);
+			int bsize = DeviceManagerServiceImpl.configuration.getConnectioBufferSize();
+			ConnectedInputStream cis = new ConnectedInputStream(bsize);
+			ConnectedOutputStream sos = new ConnectedOutputStream(cis);
 
-			PipedInputStream sis = new PipedInputStream();
-			PipedOutputStream cos = new PipedOutputStream(sis);
+			ConnectedInputStream sis = new ConnectedInputStream(bsize);
+			ConnectedOutputStream cos = new ConnectedOutputStream(sis);
 
 			ConnectionBuffer cb = new ConnectionBufferRFCOMM(serverDevice.getDescriptor().getAddress(), cis, cos);
 			ConnectionBuffer sb = new ConnectionBufferRFCOMM(clientDevice.getDescriptor().getAddress(), sis, sos);

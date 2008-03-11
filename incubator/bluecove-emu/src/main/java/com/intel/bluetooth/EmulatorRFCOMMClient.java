@@ -53,7 +53,7 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 		if (len == -1) {
 			return -1;
 		}
-		return buf[0];
+		return buf[0] & 0xFF;
 	}
 
 	public int read(byte[] b, int off, int len) throws IOException {

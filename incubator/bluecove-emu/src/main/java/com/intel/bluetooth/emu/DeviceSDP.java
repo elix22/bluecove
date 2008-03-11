@@ -69,13 +69,18 @@ class DeviceSDP {
 			Long key = (Long) iterator.nextElement();
 			ServicesDescriptor service = (ServicesDescriptor) services.get(key);
 			String[] serviceUuidSet = service.getUuidSet();
-			serviceLoop: for (int i = 0; i < serviceUuidSet.length; i++) {
+			// No duplicate values in any set!
+			int match = 0;
+			for (int i = 0; i < serviceUuidSet.length; i++) {
 				for (int k = 0; k < uuidSet.length; k++) {
 					if (uuidSet[k].equals(serviceUuidSet[i])) {
-						handles.addElement(key);
-						break serviceLoop;
+						match++;
+						break;
 					}
 				}
+			}
+			if (match == uuidSet.length) {
+				handles.addElement(key);
 			}
 		}
 

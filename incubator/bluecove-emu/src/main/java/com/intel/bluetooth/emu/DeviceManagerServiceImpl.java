@@ -35,7 +35,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	public static final int MAJOR_COMPUTER = 0x0100;
 
-	private static EmulatorConfiguration configuration = new EmulatorConfiguration();
+	static final EmulatorConfiguration configuration = new EmulatorConfiguration();
 
 	private static Hashtable devices = new Hashtable();
 

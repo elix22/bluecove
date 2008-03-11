@@ -45,6 +45,8 @@ public class EmulatorConfiguration implements Serializable {
 
 	private boolean deviceInquiryRandomDelay = true;
 
+	private int connectioBufferSize = 8 * 1024;
+
 	private Map/* <String,String> */propertiesMap;
 
 	public EmulatorConfiguration() {
@@ -112,5 +114,13 @@ public class EmulatorConfiguration implements Serializable {
 
 	public void setDeviceDiscoverable(boolean deviceDiscoverable) {
 		this.deviceDiscoverable = deviceDiscoverable;
+	}
+
+	public int getConnectioBufferSize() {
+		return connectioBufferSize;
+	}
+
+	public void setConnectioBufferSize(int connectioBufferSize) {
+		this.connectioBufferSize = connectioBufferSize;
 	}
 }
