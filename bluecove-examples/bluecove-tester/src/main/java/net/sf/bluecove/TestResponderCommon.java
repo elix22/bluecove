@@ -25,7 +25,6 @@ import javax.bluetooth.L2CAPConnection;
 import javax.bluetooth.LocalDevice;
 
 import junit.framework.Assert;
-
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.StringUtils;
 
@@ -82,7 +81,12 @@ public class TestResponderCommon {
 
 			Configuration.stackWIDCOMM = StringUtils.equalsIgnoreCase("WIDCOMM", LocalDevice
 					.getProperty("bluecove.stack"));
-			Configuration.supportL2CAP = Configuration.stackWIDCOMM || Configuration.macOSx || Configuration.linux;
+			String featureL2cap = LocalDevice.getProperty("bluecove.feature.l2cap");
+			if (featureL2cap == null) {
+				Configuration.supportL2CAP = Configuration.stackWIDCOMM || Configuration.macOSx || Configuration.linux;
+			} else {
+				Configuration.supportL2CAP = "true".equals(featureL2cap);
+			}
 		}
 
 		String receiveMTUstr = LocalDevice.getProperty("bluetooth.l2cap.receiveMTU.max");
