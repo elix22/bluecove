@@ -61,7 +61,7 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 		if (buf == null) {
 			return -1;
 		}
-		System.arraycopy(buf, 0, b, off, len);
+		System.arraycopy(buf, 0, b, off, buf.length);
 		return buf.length;
 	}
 

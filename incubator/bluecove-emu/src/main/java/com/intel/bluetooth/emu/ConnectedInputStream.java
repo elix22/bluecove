@@ -93,6 +93,9 @@ public class ConnectedInputStream extends InputStream {
 	}
 
 	synchronized void receive(int b) throws IOException {
+		if (closed) {
+			throw new IOException("Connection closed");
+		}
 		if (available == buffer.length) {
 			waitFreeBuffer();
 		}
