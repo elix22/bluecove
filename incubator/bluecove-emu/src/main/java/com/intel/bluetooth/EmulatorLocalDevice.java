@@ -46,6 +46,8 @@ class EmulatorLocalDevice {
 
 	private int bluetooth_sd_attr_retrievable_max = 0;
 
+	private int bluetooth_l2cap_receiveMTU_max = 0;
+
 	private EmulatorConfiguration configuration;
 
 	private Map/* <String,String> */propertiesMap;
@@ -81,6 +83,8 @@ class EmulatorLocalDevice {
 		configuration = service.getEmulatorConfiguration();
 		bluetooth_sd_attr_retrievable_max = Integer.valueOf(
 				configuration.getProperty("bluetooth.sd.attr.retrievable.max")).intValue();
+		bluetooth_l2cap_receiveMTU_max = Integer.valueOf(configuration.getProperty("bluetooth.l2cap.receiveMTU.max"))
+				.intValue();
 
 		String[] property = { "bluetooth.master.switch", "bluetooth.sd.attr.retrievable.max",
 				"bluetooth.connected.devices.max", "bluetooth.l2cap.receiveMTU.max", "bluetooth.sd.trans.max",
@@ -108,6 +112,7 @@ class EmulatorLocalDevice {
 		c &= DeviceClassConsts.MAJOR_MASK | DeviceClassConsts.MINOR_MASK;
 		c |= classOfDevice;
 		deviceDescriptor.setDeviceClass(c);
+		service.setLocalDeviceServiceClasses(deviceDescriptor.getAddress(), c);
 	}
 
 	public boolean isLocalDevicePowerOn() {
@@ -120,6 +125,10 @@ class EmulatorLocalDevice {
 
 	public int getBluetooth_sd_attr_retrievable_max() {
 		return bluetooth_sd_attr_retrievable_max;
+	}
+
+	public int getBluetooth_l2cap_receiveMTU_max() {
+		return this.bluetooth_l2cap_receiveMTU_max;
 	}
 
 	public int getLocalDeviceDiscoverable() {
@@ -170,4 +179,27 @@ class EmulatorLocalDevice {
 		}
 		return c;
 	}
+
+	EmulatorL2CAPService createL2CAPService(int bluecove_ext_psm) {
+		EmulatorL2CAPService s;
+		synchronized (connections) {
+			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			int pcm = (int) EmulatorUtils.getNextAvailable(pcms, 0x1001, 2);
+			s = new EmulatorL2CAPService(this, handle, pcm);
+			connections.put(new Long(handle), s);
+			pcms.addElement(new Long(pcm));
+		}
+		return s;
+	}
+
+	EmulatorL2CAPClient createL2CAPClient() {
+		EmulatorL2CAPClient c;
+		synchronized (connections) {
+			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			c = new EmulatorL2CAPClient(this, handle);
+			connections.put(new Long(handle), c);
+		}
+		return c;
+	}
+
 }

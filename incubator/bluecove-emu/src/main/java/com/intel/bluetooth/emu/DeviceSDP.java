@@ -37,11 +37,11 @@ class DeviceSDP {
 
 	private static Hashtable services = new Hashtable();
 
-	public DeviceSDP(long address) {
+	DeviceSDP(long address) {
 		this.address = address;
 	}
 
-	public synchronized void updateServiceRecord(long handle, ServicesDescriptor sdpData) {
+	synchronized void updateServiceRecord(long handle, ServicesDescriptor sdpData) {
 		Long key = new Long(handle);
 		boolean update = (services.get(key) != null);
 		services.put(key, sdpData);
@@ -54,15 +54,15 @@ class DeviceSDP {
 		}
 	}
 
-	public synchronized void removeServiceRecord(long handle) {
+	synchronized void removeServiceRecord(long handle) {
 		services.remove(new Long(handle));
 	}
 
-	public ServicesDescriptor getServicesDescriptor(long handle) {
+	ServicesDescriptor getServicesDescriptor(long handle) {
 		return (ServicesDescriptor) services.get(new Long(handle));
 	}
 
-	public synchronized long[] searchServices(String[] uuidSet) {
+	synchronized long[] searchServices(String[] uuidSet) {
 		Vector handles = new Vector();
 
 		for (Enumeration iterator = services.keys(); iterator.hasMoreElements();) {

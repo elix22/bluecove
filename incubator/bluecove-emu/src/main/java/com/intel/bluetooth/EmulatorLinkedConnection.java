@@ -19,34 +19,32 @@
  *
  *  @version $Id$
  */
-package com.intel.bluetooth.emu;
+package com.intel.bluetooth;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author vlads
  * 
  */
-public class ConnectedOutputStream extends OutputStream {
+abstract class EmulatorLinkedConnection extends EmulatorConnection {
 
-	private ConnectedInputStream receiver;
+	protected long remoteAddress;
 
-	public ConnectedOutputStream(ConnectedInputStream receiver) {
-		this.receiver = receiver;
+	public EmulatorLinkedConnection(EmulatorLocalDevice localDevice, long handle) {
+		super(localDevice, handle);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.OutputStream#write(int)
-	 */
-	public void write(int b) throws IOException {
-		receiver.receive(b);
+	public void connect(long remoteAddress, long connectionHandle) throws IOException {
+		this.connectionHandle = connectionHandle;
+		this.remoteAddress = remoteAddress;
+	}
+
+	public long getRemoteAddress() throws IOException {
+		return remoteAddress;
 	}
 
 	public void close() throws IOException {
-		receiver.receiverClose();
+		localDevice.getDeviceManagerService().closeConnection(localDevice.getAddress(), this.connectionHandle);
 	}
-
 }

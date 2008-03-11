@@ -27,17 +27,35 @@ import java.io.IOException;
  * @author vlads
  * 
  */
-class EmulatorRFCOMMService extends EmulatorServiceConnection {
+public class EmulatorL2CAPService extends EmulatorServiceConnection {
 
-	private int channel;
+	private int receiveMTU;
 
-	EmulatorRFCOMMService(EmulatorLocalDevice localDevice, long handle, int channel) {
+	private int transmitMTU;
+
+	int pcm;
+
+	EmulatorL2CAPService(EmulatorLocalDevice localDevice, long handle, int pcm) {
 		super(localDevice, handle);
-		this.channel = channel;
+		this.pcm = pcm;
 	}
 
-	void open(BluetoothConnectionNotifierParams params) throws IOException {
+	public int getPcm() {
+		return this.pcm;
+	}
+
+	int getReceiveMTU() throws IOException {
+		return receiveMTU;
+	}
+
+	int getTransmitMTU() throws IOException {
+		return transmitMTU;
+	}
+
+	public void open(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU) throws IOException {
 		this.params = params;
+		this.receiveMTU = receiveMTU;
+		this.transmitMTU = transmitMTU;
 	}
 
 	/**
@@ -45,18 +63,13 @@ class EmulatorRFCOMMService extends EmulatorServiceConnection {
 	 * @return connectionHandle on server
 	 * @throws IOException
 	 */
-	long accept() throws IOException {
-		return localDevice.getDeviceManagerService().rfAccept(localDevice.getAddress(), this.channel,
-				this.params.authenticate, this.params.encrypt);
+	public long accept() throws IOException {
+		return localDevice.getDeviceManagerService().l2Accept(localDevice.getAddress(), this.pcm,
+				this.params.authenticate, this.params.encrypt, this.receiveMTU);
 	}
 
-	int getChannel() {
-		return channel;
-	}
-
-	void close(ServiceRecordImpl serviceRecord) throws IOException {
+	public void close(ServiceRecordImpl serviceRecord) throws IOException {
 		localDevice.getDeviceManagerService().removeServiceRecord(localDevice.getAddress(), serviceRecord.getHandle());
-		localDevice.getDeviceManagerService().rfCloseService(localDevice.getAddress(), channel);
+		localDevice.getDeviceManagerService().l2CloseService(localDevice.getAddress(), this.pcm);
 	}
-
 }

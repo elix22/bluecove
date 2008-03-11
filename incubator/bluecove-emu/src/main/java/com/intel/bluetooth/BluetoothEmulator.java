@@ -238,15 +238,20 @@ class BluetoothEmulator implements BluetoothStack {
 		}
 	}
 
-	public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
+	private void serverUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
-		EmulatorRFCOMMService s;
+		EmulatorServiceConnection s;
 		try {
-			s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
+			s = ((EmulatorServiceConnection) localDevice.getConnection(handle));
 		} catch (IOException e) {
 			throw new ServiceRegistrationException(e.getMessage());
 		}
 		s.updateServiceRecord(serviceRecord);
+	}
+
+	public void rfServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
+			throws ServiceRegistrationException {
+		serverUpdateServiceRecord(handle, serviceRecord, acceptAndOpen);
 	}
 
 	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException {
@@ -296,78 +301,108 @@ class BluetoothEmulator implements BluetoothStack {
 	// --- Client and Server L2CAP connections
 
 	private void validateMTU(int receiveMTU, int transmitMTU) {
-		// if (receiveMTU > receiveMTUMAX()) {
-		// throw new IllegalArgumentException("invalid ReceiveMTU value " +
-		// receiveMTU);
-		// }
+		if (receiveMTU > localDevice.getBluetooth_l2cap_receiveMTU_max()) {
+			throw new IllegalArgumentException("invalid ReceiveMTU value " + receiveMTU);
+		}
 	}
-
-	private native long l2OpenClientConnectionImpl(long address, int channel, boolean authenticate, boolean encrypt,
-			int receiveMTU, int transmitMTU, int timeout) throws IOException;
 
 	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
 			throws IOException {
 		validateMTU(receiveMTU, transmitMTU);
-		Object lock = RemoteDeviceHelper.createRemoteDevice(this, params.address, null, false);
-		synchronized (lock) {
-			return l2OpenClientConnectionImpl(params.address, params.channel, params.authenticate, params.encrypt,
-					receiveMTU, transmitMTU, params.timeout);
+		EmulatorL2CAPClient c = localDevice.createL2CAPClient();
+		boolean success = false;
+		try {
+			c.connect(params, receiveMTU, transmitMTU);
+			success = true;
+		} finally {
+			if (!success) {
+				localDevice.removeConnection(c);
+			}
 		}
+		return c.getHandle();
 	}
 
-	public native void l2CloseClientConnection(long handle) throws IOException;
-
-	private native long l2ServerOpenImpl(byte[] uuidValue, boolean authenticate, boolean encrypt, String name,
-			int receiveMTU, int transmitMTU, int assignPsm) throws IOException;
-
-	public native int l2ServerPSM(long handle) throws IOException;
+	public void l2CloseClientConnection(long handle) throws IOException {
+		EmulatorL2CAPClient c = ((EmulatorL2CAPClient) localDevice.getConnection(handle));
+		try {
+			c.close();
+		} finally {
+			localDevice.removeConnection(c);
+		}
+	}
 
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
 		validateMTU(receiveMTU, transmitMTU);
-		byte[] uuidValue = Utils.UUIDToByteArray(params.uuid);
-		long handle = l2ServerOpenImpl(uuidValue, params.authenticate, params.encrypt, params.name, receiveMTU,
-				transmitMTU, params.bluecove_ext_psm);
-
-		int channel = l2ServerPSM(handle);
-
-		int serviceRecordHandle = (int) handle;
-
-		serviceRecord.populateL2CAPAttributes(serviceRecordHandle, channel, params.uuid, params.name);
-
-		return handle;
+		EmulatorL2CAPService s = localDevice.createL2CAPService(params.bluecove_ext_psm);
+		boolean success = false;
+		try {
+			s.open(params, receiveMTU, transmitMTU);
+			serviceRecord.setHandle(s.getHandle());
+			serviceRecord.populateL2CAPAttributes((int) s.getHandle(), s.getPcm(), params.uuid, params.name);
+			s.updateServiceRecord(serviceRecord);
+			success = true;
+		} finally {
+			if (!success) {
+				localDevice.removeConnection(s);
+			}
+		}
+		return s.getHandle();
 	}
 
 	public void l2ServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
-		// sdpServiceUpdateServiceRecord(handle, 'L', serviceRecord);
+		serverUpdateServiceRecord(handle, serviceRecord, acceptAndOpen);
 	}
 
-	public native long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException;
+	public long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException {
+		EmulatorL2CAPService s = ((EmulatorL2CAPService) localDevice.getConnection(handle));
+		long connectionHandle = s.accept();
+		long remoteAddress = localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(),
+				connectionHandle);
+		EmulatorL2CAPClient c = localDevice.createL2CAPClient();
+		c.connect(remoteAddress, connectionHandle, s.getReceiveMTU(), s.getTransmitMTU());
+		return c.getHandle();
+	}
 
 	public void l2CloseServerConnection(long handle) throws IOException {
 		l2CloseClientConnection(handle);
 	}
 
-	private native void l2ServerCloseImpl(long handle) throws IOException;
-
 	public void l2ServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
-		l2ServerCloseImpl(handle);
+		EmulatorL2CAPService s = ((EmulatorL2CAPService) localDevice.getConnection(handle));
+		try {
+			s.close(serviceRecord);
+		} finally {
+			localDevice.removeConnection(s);
+		}
 	}
 
 	public int l2GetSecurityOpt(long handle, int expected) throws IOException {
 		return expected;
 	}
 
-	public native boolean l2Ready(long handle) throws IOException;
+	public boolean l2Ready(long handle) throws IOException {
+		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).ready();
+	}
 
-	public native int l2Receive(long handle, byte[] inBuf) throws IOException;
+	public int l2Receive(long handle, byte[] inBuf) throws IOException {
+		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).receive(inBuf);
+	}
 
-	public native void l2Send(long handle, byte[] data) throws IOException;
+	public void l2Send(long handle, byte[] data) throws IOException {
+		((EmulatorL2CAPClient) localDevice.getConnection(handle)).send(data);
+	}
 
-	public native int l2GetReceiveMTU(long handle) throws IOException;
+	public int l2GetReceiveMTU(long handle) throws IOException {
+		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).getReceiveMTU();
+	}
 
-	public native int l2GetTransmitMTU(long handle) throws IOException;
+	public int l2GetTransmitMTU(long handle) throws IOException {
+		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).getTransmitMTU();
+	}
 
-	public native long l2RemoteAddress(long handle) throws IOException;
+	public long l2RemoteAddress(long handle) throws IOException {
+		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).getRemoteAddress();
+	}
 }

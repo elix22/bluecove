@@ -31,14 +31,17 @@ public class ServicesDescriptor implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private int deviceServiceClasses;
+
 	private String[] uuidSet;
 
 	private byte[] sdpBinary;
 
-	public ServicesDescriptor(String[] uuidSet, byte[] sdpBinary) {
+	public ServicesDescriptor(String[] uuidSet, byte[] sdpBinary, int deviceServiceClasses) {
 		super();
 		this.uuidSet = uuidSet;
 		this.sdpBinary = sdpBinary;
+		this.deviceServiceClasses = deviceServiceClasses;
 	}
 
 	public String[] getUuidSet() {
@@ -47,6 +50,10 @@ public class ServicesDescriptor implements Serializable {
 
 	public byte[] getSdpBinary() {
 		return sdpBinary;
+	}
+
+	public int getDeviceServiceClasses() {
+		return this.deviceServiceClasses;
 	}
 
 }

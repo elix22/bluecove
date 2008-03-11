@@ -27,27 +27,20 @@ import java.io.IOException;
  * @author vlads
  * 
  */
-class EmulatorRFCOMMClient extends EmulatorConnection {
+class EmulatorRFCOMMClient extends EmulatorLinkedConnection {
 
-	private long remoteAddress;
-
-	public EmulatorRFCOMMClient(EmulatorLocalDevice localDevice, long handle) {
+	EmulatorRFCOMMClient(EmulatorLocalDevice localDevice, long handle) {
 		super(localDevice, handle);
 
 	}
 
-	public void connect(long remoteAddress, long connectionHandle) throws IOException {
-		this.connectionHandle = connectionHandle;
-		this.remoteAddress = remoteAddress;
-	}
-
-	public void connect(BluetoothConnectionParams params) throws IOException {
+	void connect(BluetoothConnectionParams params) throws IOException {
 		this.connectionHandle = localDevice.getDeviceManagerService().rfConnect(localDevice.getAddress(),
 				params.address, params.channel, params.authenticate, params.encrypt);
 		this.remoteAddress = params.address;
 	}
 
-	public int read() throws IOException {
+	int read() throws IOException {
 		byte buf[] = new byte[1];
 		int len = read(buf, 0, 1);
 		if (len == -1) {
@@ -56,7 +49,7 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 		return buf[0] & 0xFF;
 	}
 
-	public int read(byte[] b, int off, int len) throws IOException {
+	int read(byte[] b, int off, int len) throws IOException {
 		byte buf[] = localDevice.getDeviceManagerService().rfRead(localDevice.getAddress(), this.connectionHandle, len);
 		if (buf == null) {
 			return -1;
@@ -65,17 +58,17 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 		return buf.length;
 	}
 
-	public int available() throws IOException {
+	int available() throws IOException {
 		return localDevice.getDeviceManagerService().rfAvailable(localDevice.getAddress(), this.connectionHandle);
 	}
 
-	public void write(int b) throws IOException {
+	void write(int b) throws IOException {
 		byte buf[] = new byte[1];
 		buf[0] = (byte) (b & 0xFF);
 		write(buf, 0, 1);
 	}
 
-	public void write(byte[] b, int off, int len) throws IOException {
+	void write(byte[] b, int off, int len) throws IOException {
 		byte buf[];
 		if ((b.length == len) && (off == 0)) {
 			buf = b;
@@ -86,14 +79,7 @@ class EmulatorRFCOMMClient extends EmulatorConnection {
 		localDevice.getDeviceManagerService().rfWrite(localDevice.getAddress(), this.connectionHandle, buf);
 	}
 
-	public void flush() throws IOException {
+	void flush() throws IOException {
 	}
 
-	public long getRemoteAddress() throws IOException {
-		return remoteAddress;
-	}
-
-	public void close() throws IOException {
-		localDevice.getDeviceManagerService().closeConnection(localDevice.getAddress(), this.connectionHandle);
-	}
 }

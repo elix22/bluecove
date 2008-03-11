@@ -128,16 +128,20 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		}
 	}
 
-	public int getLocalDeviceDiscoverable(long address) {
-		DeviceDescriptor device = getDeviceDescriptor(address);
+	public int getLocalDeviceDiscoverable(long localAddress) {
+		DeviceDescriptor device = getDeviceDescriptor(localAddress);
 		// Update mode if it was LIAC
 		isDiscoverable(device);
 		return device.getDiscoverableMode();
 	}
 
-	public boolean setLocalDeviceDiscoverable(long address, int mode) {
-		getDeviceDescriptor(address).setDiscoverableMode(mode);
+	public boolean setLocalDeviceDiscoverable(long localAddress, int mode) {
+		getDeviceDescriptor(localAddress).setDiscoverableMode(mode);
 		return true;
+	}
+
+	public void setLocalDeviceServiceClasses(long localAddress, int classOfDevice) {
+		getDeviceDescriptor(localAddress).setDeviceClass(classOfDevice);
 	}
 
 	public String getRemoteDeviceFriendlyName(long address) {
@@ -204,42 +208,45 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	public long rfAccept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException {
-		return accept(localAddress, ServiceListener.rfPrefix(channel), authenticate, encrypt);
+		return accept(localAddress, ServiceListener.rfPrefix(channel), authenticate, encrypt, 0);
 	}
 
 	public long rfConnect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
 			throws IOException {
-		return connect(localAddress, remoteAddress, ServiceListener.rfPrefix(channel), authenticate, encrypt);
+		return connect(localAddress, remoteAddress, ServiceListener.rfPrefix(channel), authenticate, encrypt, 0);
 	}
 
 	public void rfCloseService(long address, int channel) {
 		closeService(address, ServiceListener.rfPrefix(channel));
 	}
 
-	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException {
-		return accept(localAddress, ServiceListener.l2Prefix(channel), authenticate, encrypt);
+	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt, int receiveMTU)
+			throws IOException {
+		return accept(localAddress, ServiceListener.l2Prefix(channel), authenticate, encrypt, receiveMTU);
 	}
 
-	public long l2Connect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
-			throws IOException {
-		return connect(localAddress, remoteAddress, ServiceListener.l2Prefix(channel), authenticate, encrypt);
+	public long l2Connect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt,
+			int receiveMTU) throws IOException {
+		return connect(localAddress, remoteAddress, ServiceListener.l2Prefix(channel), authenticate, encrypt,
+				receiveMTU);
 	}
 
 	public void l2CloseService(long address, int channel) {
 		closeService(address, ServiceListener.l2Prefix(channel));
 	}
 
-	private long accept(long localAddress, String channelID, boolean authenticate, boolean encrypt) throws IOException {
+	private long accept(long localAddress, String channelID, boolean authenticate, boolean encrypt, int receiveMTU)
+			throws IOException {
 		Device device;
 		if ((device = getDevice(localAddress)) == null) {
 			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
 		}
 		ServiceListener sl = device.createServiceListener(channelID);
-		return sl.accept(device, authenticate, encrypt);
+		return sl.accept(device, authenticate, encrypt, receiveMTU);
 	}
 
-	private long connect(long localAddress, long remoteAddress, String channelID, boolean authenticate, boolean encrypt)
-			throws IOException {
+	private long connect(long localAddress, long remoteAddress, String channelID, boolean authenticate,
+			boolean encrypt, int receiveMTU) throws IOException {
 		Device remoteDevice = getDevice(remoteAddress);
 		if (remoteDevice == null) {
 			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(remoteAddress));
@@ -252,7 +259,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		if (sl == null) {
 			throw new IOException("No such service " + channelID);
 		}
-		return sl.connect(localDevice, authenticate, encrypt);
+		return sl.connect(localDevice, authenticate, encrypt, receiveMTU);
 	}
 
 	private void closeService(long address, String channelID) {
@@ -300,5 +307,21 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
 		}
 		localDevice.closeConnection(connectionId);
+	}
+
+	public int l2RemoteDeviceReceiveMTU(long localAddress, long connectionId) throws IOException {
+		return ((ConnectionBufferL2CAP) getConnectionBuffer(localAddress, connectionId)).getRemoteReceiveMTU();
+	}
+
+	public boolean l2Ready(long localAddress, long connectionId) throws IOException {
+		return ((ConnectionBufferL2CAP) getConnectionBuffer(localAddress, connectionId)).ready();
+	}
+
+	public byte[] l2Receive(long localAddress, long connectionId, int len) throws IOException {
+		return ((ConnectionBufferL2CAP) getConnectionBuffer(localAddress, connectionId)).receive(len);
+	}
+
+	public void l2Send(long localAddress, long connectionId, byte[] data) throws IOException {
+		((ConnectionBufferL2CAP) getConnectionBuffer(localAddress, connectionId)).send(data);
 	}
 }

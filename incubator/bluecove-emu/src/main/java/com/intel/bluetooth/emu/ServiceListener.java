@@ -24,6 +24,8 @@ package com.intel.bluetooth.emu;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
+import com.intel.bluetooth.RemoteDeviceHelper;
+
 /**
  * @author vlads
  * 
@@ -36,6 +38,8 @@ class ServiceListener {
 
 	private String portID;
 
+	private boolean rfcomm;
+
 	private Object lock = new Object();
 
 	private Device serverDevice;
@@ -44,24 +48,28 @@ class ServiceListener {
 
 	private long connectionId = 0;
 
+	private int serverReceiveMTU;
+
 	static String rfPrefix(int channel) {
 		return RFCOMM_PREFIX + channel;
 	}
 
-	static String l2Prefix(int channel) {
-		return L2CAP_PREFIX + channel;
+	static String l2Prefix(int pcm) {
+		return L2CAP_PREFIX + Integer.toHexString(pcm);
 	}
 
 	ServiceListener(String portID) {
 		this.portID = portID;
+		this.rfcomm = this.portID.startsWith(RFCOMM_PREFIX);
 	}
 
 	String getPortID() {
 		return this.portID;
 	}
 
-	long accept(Device serverDevice, boolean authenticate, boolean encrypt) throws IOException {
+	long accept(Device serverDevice, boolean authenticate, boolean encrypt, int serverReceiveMTU) throws IOException {
 		this.serverDevice = serverDevice;
+		this.serverReceiveMTU = serverReceiveMTU;
 		synchronized (lock) {
 			try {
 				lock.wait();
@@ -75,7 +83,7 @@ class ServiceListener {
 		return connectionId;
 	}
 
-	long connect(Device clientDevice, boolean authenticate, boolean encrypt) throws IOException {
+	long connect(Device clientDevice, boolean authenticate, boolean encrypt, int cilentReceiveMTU) throws IOException {
 		try {
 			int bsize = DeviceManagerServiceImpl.configuration.getConnectioBufferSize();
 			ConnectedInputStream cis = new ConnectedInputStream(bsize);
@@ -84,8 +92,16 @@ class ServiceListener {
 			ConnectedInputStream sis = new ConnectedInputStream(bsize);
 			ConnectedOutputStream cos = new ConnectedOutputStream(sis);
 
-			ConnectionBuffer cb = new ConnectionBufferRFCOMM(serverDevice.getDescriptor().getAddress(), cis, cos);
-			ConnectionBuffer sb = new ConnectionBufferRFCOMM(clientDevice.getDescriptor().getAddress(), sis, sos);
+			ConnectionBuffer cb;
+			ConnectionBuffer sb;
+			if (this.rfcomm) {
+				cb = new ConnectionBufferRFCOMM(serverDevice.getDescriptor().getAddress(), cis, cos);
+				sb = new ConnectionBufferRFCOMM(clientDevice.getDescriptor().getAddress(), sis, sos);
+			} else {
+				cb = new ConnectionBufferL2CAP(serverDevice.getDescriptor().getAddress(), cis, cos,
+						this.serverReceiveMTU);
+				sb = new ConnectionBufferL2CAP(clientDevice.getDescriptor().getAddress(), sis, sos, cilentReceiveMTU);
+			}
 
 			long id;
 			synchronized (ServiceListener.class) {
@@ -94,6 +110,14 @@ class ServiceListener {
 			}
 			clientDevice.addConnectionBuffer(id, cb);
 			serverDevice.addConnectionBuffer(id, sb);
+
+			StringBuffer logMsg = new StringBuffer();
+			logMsg.append(RemoteDeviceHelper.getBluetoothAddress(clientDevice.getDescriptor().getAddress()));
+			logMsg.append(" connected to ");
+			logMsg.append(RemoteDeviceHelper.getBluetoothAddress(serverDevice.getDescriptor().getAddress()));
+			logMsg.append(" ").append(this.portID);
+
+			System.out.println(logMsg.toString());
 
 			connectionId = id;
 			return id;

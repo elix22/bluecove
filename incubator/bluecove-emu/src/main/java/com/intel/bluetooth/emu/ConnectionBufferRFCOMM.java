@@ -29,28 +29,22 @@ import java.io.OutputStream;
  * @author vlads
  * 
  */
-public class ConnectionBufferRFCOMM extends ConnectionBuffer {
+class ConnectionBufferRFCOMM extends ConnectionBuffer {
 
-	private InputStream is;
-
-	private OutputStream os;
-
-	public ConnectionBufferRFCOMM(long remoteAddress, InputStream is, OutputStream os) {
-		super(remoteAddress);
-		this.is = is;
-		this.os = os;
+	ConnectionBufferRFCOMM(long remoteAddress, InputStream is, OutputStream os) {
+		super(remoteAddress, is, os);
 	}
 
-	public void rfWrite(byte[] b) throws IOException {
+	void rfWrite(byte[] b) throws IOException {
 		os.write(b);
 		os.flush();
 	}
 
-	public int rfAvailable() throws IOException {
+	int rfAvailable() throws IOException {
 		return is.available();
 	}
 
-	public byte[] rfRead(int len) throws IOException {
+	byte[] rfRead(int len) throws IOException {
 		byte[] b = new byte[len];
 		int rc = is.read(b);
 		if (rc == -1) {
@@ -64,11 +58,4 @@ public class ConnectionBufferRFCOMM extends ConnectionBuffer {
 		}
 	}
 
-	public void close() throws IOException {
-		try {
-			os.close();
-		} finally {
-			is.close();
-		}
-	}
 }

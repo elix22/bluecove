@@ -156,7 +156,7 @@ class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
 		return true;
 	}
 
-	public boolean cancelInquiry(DiscoveryListener listener) {
+	boolean cancelInquiry(DiscoveryListener listener) {
 		if (discoveryListener != listener) {
 			return false;
 		}

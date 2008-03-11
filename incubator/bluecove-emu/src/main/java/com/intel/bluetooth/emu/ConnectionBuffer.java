@@ -22,6 +22,8 @@
 package com.intel.bluetooth.emu;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author vlads
@@ -29,16 +31,28 @@ import java.io.IOException;
  */
 abstract class ConnectionBuffer {
 
-	long remoteAddress;
+	protected long remoteAddress;
 
-	public ConnectionBuffer(long remoteAddress) {
+	protected InputStream is;
+
+	protected OutputStream os;
+
+	protected ConnectionBuffer(long remoteAddress, InputStream is, OutputStream os) {
 		super();
 		this.remoteAddress = remoteAddress;
+		this.is = is;
+		this.os = os;
 	}
 
-	public long getRemoteAddress() throws IOException {
+	long getRemoteAddress() throws IOException {
 		return remoteAddress;
 	}
 
-	public abstract void close() throws IOException;
+	void close() throws IOException {
+		try {
+			os.close();
+		} finally {
+			is.close();
+		}
+	}
 }

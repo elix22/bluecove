@@ -39,6 +39,8 @@ public interface DeviceManagerService extends RoHService {
 
 	public boolean setLocalDeviceDiscoverable(long localAddress, int mode);
 
+	public void setLocalDeviceServiceClasses(long localAddress, int classOfDevice);
+
 	public DeviceDescriptor[] getDiscoveredDevices(long localAddress);
 
 	public String getRemoteDeviceFriendlyName(long remoteAddress);
@@ -61,10 +63,13 @@ public interface DeviceManagerService extends RoHService {
 
 	public void closeConnection(long localAddress, long connectionId) throws IOException;
 
-	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException;
-
-	public long l2Connect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
+	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt, int receiveMTU)
 			throws IOException;
+
+	public long l2Connect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt,
+			int receiveMTU) throws IOException;
+
+	public int l2RemoteDeviceReceiveMTU(long localAddress, long connectionId) throws IOException;
 
 	public void l2CloseService(long localAddress, int channel);
 
@@ -75,4 +80,10 @@ public interface DeviceManagerService extends RoHService {
 	public int rfAvailable(long localAddress, long connectionId) throws IOException;
 
 	public byte[] rfRead(long localAddress, long connectionId, int len) throws IOException;
+
+	public boolean l2Ready(long localAddress, long connectionId) throws IOException;
+
+	public byte[] l2Receive(long localAddress, long connectionId, int len) throws IOException;
+
+	public void l2Send(long localAddress, long connectionId, byte[] data) throws IOException;
 }

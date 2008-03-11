@@ -33,7 +33,7 @@ import javax.bluetooth.UUID;
  * @author vlads
  * 
  */
-public class EmulatorSearchServices implements SearchServicesRunnable {
+class EmulatorSearchServices implements SearchServicesRunnable {
 
 	private EmulatorLocalDevice localDevice;
 

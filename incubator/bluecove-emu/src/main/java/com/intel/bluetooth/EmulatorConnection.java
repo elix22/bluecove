@@ -27,11 +27,11 @@ package com.intel.bluetooth;
  */
 abstract class EmulatorConnection {
 
-	EmulatorLocalDevice localDevice;
+	protected EmulatorLocalDevice localDevice;
 
-	long handle;
+	protected long handle;
 
-	long connectionHandle;
+	protected long connectionHandle;
 
 	public EmulatorConnection(EmulatorLocalDevice localDevice, long handle) {
 		super();

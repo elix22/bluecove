@@ -43,7 +43,7 @@ class EmulatorHelper {
 		}
 	}
 
-	public static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {
+	static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {
 		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
 		DeviceDescriptor deviceDescriptor;
 		try {
@@ -56,12 +56,12 @@ class EmulatorHelper {
 		return device;
 	}
 
-	public static void releaseDevice(EmulatorLocalDevice device) {
+	static void releaseDevice(EmulatorLocalDevice device) {
 		device.getDeviceManagerService().releaseDevice(device.getAddress());
 		device.destroy();
 	}
 
-	public static String getRemoteDeviceFriendlyName(EmulatorLocalDevice localDevice, long address) {
+	static String getRemoteDeviceFriendlyName(EmulatorLocalDevice localDevice, long address) {
 		return localDevice.getDeviceManagerService().getRemoteDeviceFriendlyName(address);
 	}
 
