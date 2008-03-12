@@ -45,7 +45,7 @@ public class EmulatorConfiguration implements Serializable {
 
 	private boolean deviceInquiryRandomDelay = true;
 
-	private int connectioBufferSize = 8 * 1024;
+	private int connectionBufferSize = 8 * 1024;
 
 	private Map/* <String,String> */propertiesMap;
 
@@ -59,9 +59,9 @@ public class EmulatorConfiguration implements Serializable {
 		propertiesMap.put("bluetooth.connected.page.scan", TRUE);
 		propertiesMap.put("bluetooth.connected.inquiry", TRUE);
 		propertiesMap.put("bluetooth.connected.page", TRUE);
-		propertiesMap.put("bluetooth.sd.attr.retrievable.max", "10");
+		propertiesMap.put("bluetooth.sd.attr.retrievable.max", "255");
 		propertiesMap.put("bluetooth.master.switch", FALSE);
-		propertiesMap.put("bluetooth.l2cap.receiveMTU.max", "65535");
+		propertiesMap.put("bluetooth.l2cap.receiveMTU.max", "2048");
 	}
 
 	public int getDurationLIAC() {
@@ -116,11 +116,11 @@ public class EmulatorConfiguration implements Serializable {
 		this.deviceDiscoverable = deviceDiscoverable;
 	}
 
-	public int getConnectioBufferSize() {
-		return connectioBufferSize;
+	public int getConnectionBufferSize() {
+		return connectionBufferSize;
 	}
 
-	public void setConnectioBufferSize(int connectioBufferSize) {
-		this.connectioBufferSize = connectioBufferSize;
+	public void setConnectionBufferSize(int connectionBufferSize) {
+		this.connectionBufferSize = connectionBufferSize;
 	}
 }

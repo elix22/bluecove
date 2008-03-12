@@ -86,7 +86,7 @@ class ServiceListener {
 
 	long connect(Device clientDevice, boolean authenticate, boolean encrypt, int cilentReceiveMTU) throws IOException {
 		try {
-			int bsize = DeviceManagerServiceImpl.configuration.getConnectioBufferSize();
+			int bsize = DeviceManagerServiceImpl.configuration.getConnectionBufferSize();
 			ConnectedInputStream cis = new ConnectedInputStream(bsize);
 			ConnectedOutputStream sos = new ConnectedOutputStream(cis);
 

@@ -60,7 +60,8 @@ class EmulatorLocalDevice {
 
 	private Map connections = new Hashtable();
 
-	public EmulatorLocalDevice(DeviceManagerService service, DeviceDescriptor deviceDescriptor) {
+	public EmulatorLocalDevice(DeviceManagerService service, DeviceDescriptor deviceDescriptor)
+			throws BluetoothStateException {
 		this.service = service;
 		this.deviceDescriptor = deviceDescriptor;
 
@@ -81,12 +82,16 @@ class EmulatorLocalDevice {
 		return service;
 	}
 
-	public void updateConfiguration() {
+	public void updateConfiguration() throws BluetoothStateException {
 		configuration = service.getEmulatorConfiguration();
 		bluetooth_sd_attr_retrievable_max = Integer.valueOf(
 				configuration.getProperty("bluetooth.sd.attr.retrievable.max")).intValue();
 		bluetooth_l2cap_receiveMTU_max = Integer.valueOf(configuration.getProperty("bluetooth.l2cap.receiveMTU.max"))
 				.intValue();
+
+		if (bluetooth_l2cap_receiveMTU_max + 2 > configuration.getConnectionBufferSize()) {
+			throw new BluetoothStateException("l2cap.receiveMTU.max larger then connection buffer");
+		}
 
 		String[] property = { "bluetooth.master.switch", "bluetooth.sd.attr.retrievable.max",
 				"bluetooth.connected.devices.max", "bluetooth.l2cap.receiveMTU.max", "bluetooth.sd.trans.max",
