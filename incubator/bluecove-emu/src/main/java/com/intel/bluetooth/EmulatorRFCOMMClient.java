@@ -36,7 +36,7 @@ class EmulatorRFCOMMClient extends EmulatorLinkedConnection {
 
 	void connect(BluetoothConnectionParams params) throws IOException {
 		this.connectionHandle = localDevice.getDeviceManagerService().rfConnect(localDevice.getAddress(),
-				params.address, params.channel, params.authenticate, params.encrypt);
+				params.address, params.channel, params.authenticate, params.encrypt, params.timeout);
 		this.remoteAddress = params.address;
 	}
 

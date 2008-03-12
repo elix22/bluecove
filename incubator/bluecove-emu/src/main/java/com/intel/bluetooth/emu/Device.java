@@ -36,7 +36,11 @@ class Device {
 
 	private DeviceSDP sdp;
 
+	private Hashtable servicesOpen = new Hashtable();
+
 	private Vector serviceListeners;
+
+	private Object serviceNotification = new Object();
 
 	private Hashtable connections = new Hashtable();
 
@@ -54,6 +58,18 @@ class Device {
 			sdp = new DeviceSDP(descriptor.getAddress());
 		}
 		return sdp;
+	}
+
+	void openService(String portID) {
+		servicesOpen.put(portID, portID);
+	}
+
+	void closeService(String portID) {
+		servicesOpen.remove(portID);
+		ServiceListener sl;
+		while ((sl = removeServiceListener(portID)) != null) {
+			sl.close();
+		}
 	}
 
 	ServiceListener createServiceListener(String portID) {
@@ -75,6 +91,38 @@ class Device {
 					break;
 				}
 			}
+		}
+		return sl;
+	}
+
+	void serviceListenerAccepting(String portID) {
+		synchronized (serviceNotification) {
+			serviceNotification.notifyAll();
+		}
+	}
+
+	ServiceListener connectService(String portID, long timeout) throws IOException {
+		if (servicesOpen.get(portID) == null) {
+			return null;
+		}
+		ServiceListener sl = removeServiceListener(portID);
+		long endOfDellay = System.currentTimeMillis() + timeout;
+		while ((sl == null) && (timeout > 0)) {
+			long timeleft = endOfDellay - System.currentTimeMillis();
+			if (timeleft <= 0) {
+				throw new IOException("Service " + portID + " not accepting");
+			}
+			try {
+				synchronized (serviceNotification) {
+					serviceNotification.wait(timeleft);
+				}
+			} catch (InterruptedException e) {
+				break;
+			}
+			if (servicesOpen.get(portID) == null) {
+				break;
+			}
+			sl = removeServiceListener(portID);
 		}
 		return sl;
 	}

@@ -55,7 +55,10 @@ class DeviceSDP {
 	}
 
 	synchronized void removeServiceRecord(long handle) {
-		services.remove(new Long(handle));
+		ServicesDescriptor srv = (ServicesDescriptor) services.remove(new Long(handle));
+		if (srv != null) {
+			System.out.println("Remove Srv on " + RemoteDeviceHelper.getBluetoothAddress(address) + " " + handle);
+		}
 	}
 
 	ServicesDescriptor getServicesDescriptor(long handle) {

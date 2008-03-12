@@ -54,24 +54,28 @@ public interface DeviceManagerService /* extends RoHService */{
 
 	public byte[] getServicesRecordBinary(long remoteAddress, long handle) throws IOException;
 
+	public void rfOpenService(long localAddress, int channel) throws IOException;
+
 	public long rfAccept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException;
 
-	public long rfConnect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt)
-			throws IOException;
+	public long rfConnect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt,
+			int timeout) throws IOException;
 
 	public void rfCloseService(long localAddress, int channel);
 
 	public void closeConnection(long localAddress, long connectionId) throws IOException;
 
-	public long l2Accept(long localAddress, int channel, boolean authenticate, boolean encrypt, int receiveMTU)
+	public void l2OpenService(long localAddress, int pcm) throws IOException;
+
+	public long l2Accept(long localAddress, int pcm, boolean authenticate, boolean encrypt, int receiveMTU)
 			throws IOException;
 
-	public long l2Connect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt,
-			int receiveMTU) throws IOException;
+	public long l2Connect(long localAddress, long remoteAddress, int pcm, boolean authenticate, boolean encrypt,
+			int receiveMTU, int timeout) throws IOException;
 
 	public int l2RemoteDeviceReceiveMTU(long localAddress, long connectionId) throws IOException;
 
-	public void l2CloseService(long localAddress, int channel);
+	public void l2CloseService(long localAddress, int pcm);
 
 	public long getRemoteAddress(long localAddress, long connectionId) throws IOException;
 

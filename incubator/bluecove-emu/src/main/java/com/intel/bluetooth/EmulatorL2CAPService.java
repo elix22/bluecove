@@ -56,6 +56,7 @@ public class EmulatorL2CAPService extends EmulatorServiceConnection {
 		this.params = params;
 		this.receiveMTU = receiveMTU;
 		this.transmitMTU = transmitMTU;
+		localDevice.getDeviceManagerService().l2OpenService(localDevice.getAddress(), this.pcm);
 	}
 
 	/**

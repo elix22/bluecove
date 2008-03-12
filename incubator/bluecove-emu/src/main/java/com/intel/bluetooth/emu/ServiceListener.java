@@ -70,6 +70,7 @@ class ServiceListener {
 	long accept(Device serverDevice, boolean authenticate, boolean encrypt, int serverReceiveMTU) throws IOException {
 		this.serverDevice = serverDevice;
 		this.serverReceiveMTU = serverReceiveMTU;
+		serverDevice.serviceListenerAccepting(this.portID);
 		synchronized (lock) {
 			try {
 				lock.wait();

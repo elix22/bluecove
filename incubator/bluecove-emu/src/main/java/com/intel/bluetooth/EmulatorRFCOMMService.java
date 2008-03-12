@@ -38,6 +38,7 @@ class EmulatorRFCOMMService extends EmulatorServiceConnection {
 
 	void open(BluetoothConnectionNotifierParams params) throws IOException {
 		this.params = params;
+		localDevice.getDeviceManagerService().rfOpenService(localDevice.getAddress(), this.channel);
 	}
 
 	/**
