@@ -88,6 +88,40 @@ public class ConnectedInputStream extends InputStream {
 		return r;
 	}
 
+	/**
+	 * Reads up to <code>len</code> bytes of data from this input stream into
+	 * an array of bytes. Less than <code>len</code> bytes will be read if the
+	 * end of the data stream is reached. This method blocks until at least one
+	 * byte of input is available.
+	 */
+	public synchronized int read(byte b[], int off, int len) throws IOException {
+		if (off < 0 || len < 0 || off + len > b.length) {
+			throw new IndexOutOfBoundsException();
+		}
+		if (len == 0) {
+			if ((closed) && (available == 0)) {
+				throw new IOException("Stream closed");
+			}
+			return 0;
+		}
+		// wait only on first byte
+		int c = read();
+		if (c < 0) {
+			return -1;
+		}
+		b[off] = (byte) (c & 0xFF);
+		int rlen = 1;
+		while ((available > 0) && (--len > 0)) {
+			b[off + rlen] = buffer[read++];
+			rlen++;
+			if (read >= buffer.length) {
+				read = 0;
+			}
+			available--;
+		}
+		return rlen;
+	}
+
 	public synchronized int available() throws IOException {
 		return available;
 	}

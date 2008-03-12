@@ -56,6 +56,8 @@ class EmulatorLocalDevice {
 
 	private Vector pcms = new Vector();
 
+	private long connectionCount = 0;
+
 	private Map connections = new Hashtable();
 
 	public EmulatorLocalDevice(DeviceManagerService service, DeviceDescriptor deviceDescriptor) {
@@ -155,13 +157,24 @@ class EmulatorLocalDevice {
 		connections.remove(new Long(c.getHandle()));
 		if (c instanceof EmulatorRFCOMMService) {
 			channels.remove(new Long(((EmulatorRFCOMMService) c).getChannel()));
+		} else if (c instanceof EmulatorL2CAPService) {
+			pcms.remove(new Long(((EmulatorL2CAPService) c).getPcm()));
 		}
+	}
+
+	private long nextConnectionId() {
+		long id;
+		synchronized (connections) {
+			connectionCount++;
+			id = connectionCount;
+		}
+		return id;
 	}
 
 	EmulatorRFCOMMService createRFCOMMService() {
 		EmulatorRFCOMMService s;
 		synchronized (connections) {
-			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			long handle = nextConnectionId();
 			int channel = (int) EmulatorUtils.getNextAvailable(channels, 1, 1);
 			s = new EmulatorRFCOMMService(this, handle, channel);
 			connections.put(new Long(handle), s);
@@ -173,7 +186,7 @@ class EmulatorLocalDevice {
 	EmulatorRFCOMMClient createRFCOMMClient() {
 		EmulatorRFCOMMClient c;
 		synchronized (connections) {
-			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			long handle = nextConnectionId();
 			c = new EmulatorRFCOMMClient(this, handle);
 			connections.put(new Long(handle), c);
 		}
@@ -183,7 +196,7 @@ class EmulatorLocalDevice {
 	EmulatorL2CAPService createL2CAPService(int bluecove_ext_psm) {
 		EmulatorL2CAPService s;
 		synchronized (connections) {
-			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			long handle = nextConnectionId();
 			int pcm = (int) EmulatorUtils.getNextAvailable(pcms, 0x1001, 2);
 			s = new EmulatorL2CAPService(this, handle, pcm);
 			connections.put(new Long(handle), s);
@@ -195,7 +208,7 @@ class EmulatorLocalDevice {
 	EmulatorL2CAPClient createL2CAPClient() {
 		EmulatorL2CAPClient c;
 		synchronized (connections) {
-			long handle = EmulatorUtils.getNextAvailable(connections.keySet(), 1, 1);
+			long handle = nextConnectionId();
 			c = new EmulatorL2CAPClient(this, handle);
 			connections.put(new Long(handle), c);
 		}

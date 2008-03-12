@@ -37,6 +37,8 @@ import com.intel.bluetooth.emu.DeviceDescriptor;
  */
 class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
 
+	private static final int MIN_DISCOVERY_DURATION = 200;
+
 	private EmulatorLocalDevice localDevice;
 
 	private BluetoothStack bluetoothStack;
@@ -126,6 +128,9 @@ class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
 
 	private boolean randomWait(long start, int device) {
 		long duration = localDevice.getConfiguration().getDeviceInquiryDuration() * 1000;
+		if (duration <= 0) {
+			duration = MIN_DISCOVERY_DURATION;
+		}
 		long now = System.currentTimeMillis();
 		if ((duration == 0) || (now > start + duration)) {
 			return false;

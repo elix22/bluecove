@@ -35,7 +35,7 @@ class DeviceSDP {
 
 	private long address;
 
-	private static Hashtable services = new Hashtable();
+	private Hashtable services = new Hashtable();
 
 	DeviceSDP(long address) {
 		this.address = address;

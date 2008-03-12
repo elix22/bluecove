@@ -144,10 +144,12 @@ class Device {
 	}
 
 	void release() {
+		servicesOpen.clear();
 		for (Enumeration iterator = serviceListeners.elements(); iterator.hasMoreElements();) {
 			ServiceListener s = (ServiceListener) iterator.nextElement();
 			s.close();
 		}
+		serviceListeners.clear();
 		for (Enumeration iterator = connections.elements(); iterator.hasMoreElements();) {
 			ConnectionBuffer c = (ConnectionBuffer) iterator.nextElement();
 			try {
@@ -155,5 +157,6 @@ class Device {
 			} catch (IOException e) {
 			}
 		}
+		connections.clear();
 	}
 }
