@@ -46,6 +46,12 @@ class ServiceListener {
 
 	private static long connectionCount = 0;
 
+	private boolean connected = false;
+
+	private boolean closed = false;
+
+	private boolean interrupted = false;
+
 	private long connectionId = 0;
 
 	private int serverReceiveMTU;
@@ -71,14 +77,16 @@ class ServiceListener {
 		this.serverDevice = serverDevice;
 		this.serverReceiveMTU = serverReceiveMTU;
 		serverDevice.serviceListenerAccepting(this.portID);
-		synchronized (lock) {
-			try {
-				lock.wait();
-			} catch (InterruptedException e) {
-				throw new InterruptedIOException();
+		while ((!closed) && (!interrupted) && (!connected)) {
+			synchronized (lock) {
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					throw new InterruptedIOException();
+				}
 			}
 		}
-		if (connectionId <= 0) {
+		if (closed || interrupted || !connected) {
 			throw new InterruptedIOException();
 		}
 		return connectionId;
@@ -121,18 +129,22 @@ class ServiceListener {
 			System.out.println(logMsg.toString());
 
 			connectionId = id;
+			connected = true;
 			return id;
 		} finally {
+			if (!connected) {
+				interrupted = true;
+			}
 			synchronized (lock) {
-				lock.notify();
+				lock.notifyAll();
 			}
 		}
 	}
 
 	void close() {
-		connectionId = -1;
+		closed = true;
 		synchronized (lock) {
-			lock.notify();
+			lock.notifyAll();
 		}
 	}
 }
