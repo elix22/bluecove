@@ -2,7 +2,7 @@
  *  $HeadURL$
  *
  *
- *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved. 
+ *  Copyright (c) 2001-2008 Motorola, Inc.  All rights reserved. 
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,8 +56,13 @@ public class BluetoothTCKAgent extends MIDlet {
             return;
         }
 
+        // Get the "bluetooth.agent_mtu" configuration
+        String agentMtu = System.getProperty(L2CAPThread.BLUETOOTH_AGENT_MTU);
+        if (agentMtu == null) {
+        	agentMtu = getAppProperty(L2CAPThread.BLUETOOTH_AGENT_MTU);
+        }
         rfcommthread = new RFCOMMThread("RFCOMM Thread");
-        l2capthread = new L2CAPThread("L2CAP Thread");
+        l2capthread = new L2CAPThread("L2CAP Thread", agentMtu);
         goepthread = new GOEPThread("GOEP Thread");
 
         // Retreive the port number on which the PushBTConnectionThread should

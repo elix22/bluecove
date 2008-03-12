@@ -2,7 +2,7 @@
  *  $HeadURL$
  *
  *
- *  Copyright (c) 2001-2007 Motorola, Inc.  All rights reserved. 
+ *  Copyright (c) 2001-2008 Motorola, Inc.  All rights reserved. 
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,36 +26,47 @@
  *
  */
 
-
 package BluetoothTCKAgent;
 
-import javax.bluetooth.*;
+import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.LocalDevice;
 
 public class BluetoothTCKAgentApp {
 
-    private static RFCOMMThread rfcommthread;
-    private static L2CAPThread l2capthread;
-    private static GOEPThread goepthread;
+	private static RFCOMMThread rfcommthread;
 
-    public static void main (String[] args) {
-        System.out.println("BluetoothTCKAgentApp: " + 
-                            "Setting Device to Discoverable");
-        try {
-            (LocalDevice.getLocalDevice()).setDiscoverable(
-                                                DiscoveryAgent.GIAC);
-        } catch (BluetoothStateException ex) {
-            System.out.println("BluetoothTCKAgentApp: " + 
-                                "Exception Occured :" + ex);
-            System.out.println("BluetoothTCKAgent: Unable to continue.");
-            return;
-        }
+	private static L2CAPThread l2capthread;
 
-        rfcommthread = new RFCOMMThread("RFCOMM Thread");
-        l2capthread = new L2CAPThread("L2CAP Thread");
-        goepthread = new GOEPThread("GOEP Thread");
+	private static GOEPThread goepthread;
 
-        rfcommthread.start();
-        l2capthread.start();
-        goepthread.start();
-    }
+	public static void main(String[] args) {
+
+		System.out.println("BluetoothTCKAgentApp: "
+				+ "Setting Device to Discoverable");
+		try {
+			(LocalDevice.getLocalDevice()).setDiscoverable(DiscoveryAgent.GIAC);
+		} catch (BluetoothStateException ex) {
+			System.out.println("BluetoothTCKAgentApp: " + "Exception Occured :"
+					+ ex);
+			System.out.println("BluetoothTCKAgent: Unable to continue.");
+			return;
+		}
+
+		String agentMtu = System.getProperty(L2CAPThread.BLUETOOTH_AGENT_MTU);
+		for (int i = 0; i < args.length - 1; i++) {
+			System.out.println("args[" + i + "] is: " + args[i]);
+			if (args[i].equals(L2CAPThread.BLUETOOTH_AGENT_MTU)) {
+				agentMtu = args[i + 1];
+			}
+		}
+
+		rfcommthread = new RFCOMMThread("RFCOMM Thread");
+		l2capthread = new L2CAPThread("L2CAP Thread", agentMtu);
+		goepthread = new GOEPThread("GOEP Thread");
+
+		rfcommthread.start();
+		l2capthread.start();
+		goepthread.start();
+	}
 }
