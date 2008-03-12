@@ -84,6 +84,11 @@ class EmulatorL2CAPClient extends EmulatorLinkedConnection {
 	}
 
 	void send(byte[] data) throws IOException {
+		if (data.length > transmitMTU) {
+			byte[] b = new byte[transmitMTU];
+			System.arraycopy(data, 0, b, 0, transmitMTU);
+			data = b;
+		}
 		localDevice.getDeviceManagerService().l2Send(localDevice.getAddress(), this.connectionHandle, data);
 	}
 
