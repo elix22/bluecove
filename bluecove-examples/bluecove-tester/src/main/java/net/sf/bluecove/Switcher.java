@@ -30,6 +30,7 @@ import javax.bluetooth.LocalDevice;
 
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.CollectionUtils;
+import BluetoothTCKAgent.System;
 
 /**
  * @author vlads
@@ -230,7 +231,8 @@ public class Switcher implements Runnable {
 				tckRFCOMMThread.start();
 
 				try {
-					tckL2CALthread = new BluetoothTCKAgent.L2CAPThread("L2CAPThread");
+					String agentMtu = System.getProperty("bluetooth.agent_mtu");
+					tckL2CALthread = new BluetoothTCKAgent.L2CAPThread("L2CAPThread", agentMtu);
 					if (tckL2CALthread != null) {
 						tckL2CALthread.start();
 					}
