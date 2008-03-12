@@ -19,28 +19,40 @@
  *
  *  @version $Id$
  */
-package com.intel.bluetooth.emu;
+package com.intel.bluetooth.rmi;
 
-import com.intel.bluetooth.rmi.Server;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
-public class EmuServer /* extends HTTPServer */{
+public class Server {
 
-	// private final static Logger logger = Logger.getLogger(EmuServer.class);
-	//
-	// public EmuServer() throws Exception {
-	// super();
-	// }
-	//
+	static int rmiRegistryPort = 8090;
 
-	public static void main(String[] args) throws Exception {
-		// try {
-		// new EmuServer().start();
-		// } catch (IOException ioe) {
-		// logger.error("Couldn't start server:", ioe);
-		// System.exit(-1);
-		// }
+	private Registry registry = null;
 
-		Server.main(args);
+	public static void main(String[] args) {
+		new Server().run();
 	}
 
+	private void run() {
+		startRMIRegistry();
+		startRMIService();
+	}
+
+	private void startRMIRegistry() {
+		try {
+			registry = LocateRegistry.createRegistry(rmiRegistryPort);
+		} catch (RemoteException e) {
+			throw new Error("Fails to start RMIRegistry", e);
+		}
+	}
+
+	private void startRMIService() {
+		try {
+			registry.rebind(RemoteService.SERVICE_NAME, new RemoteServiceImpl());
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
 }

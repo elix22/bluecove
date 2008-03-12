@@ -19,28 +19,15 @@
  *
  *  @version $Id$
  */
-package com.intel.bluetooth.emu;
+package com.intel.bluetooth.rmi;
 
-import com.intel.bluetooth.rmi.Server;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
-public class EmuServer /* extends HTTPServer */{
+public interface RemoteService extends Remote {
 
-	// private final static Logger logger = Logger.getLogger(EmuServer.class);
-	//
-	// public EmuServer() throws Exception {
-	// super();
-	// }
-	//
+	public static final String SERVICE_NAME = "BlueCoveRMIService";
 
-	public static void main(String[] args) throws Exception {
-		// try {
-		// new EmuServer().start();
-		// } catch (IOException ioe) {
-		// logger.error("Couldn't start server:", ioe);
-		// System.exit(-1);
-		// }
-
-		Server.main(args);
-	}
+	ServiceResponse execute(ServiceRequest request) throws RemoteException;
 
 }

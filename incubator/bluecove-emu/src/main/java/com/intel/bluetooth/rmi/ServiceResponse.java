@@ -19,28 +19,41 @@
  *
  *  @version $Id$
  */
-package com.intel.bluetooth.emu;
+package com.intel.bluetooth.rmi;
 
-import com.intel.bluetooth.rmi.Server;
+import java.io.Serializable;
 
-public class EmuServer /* extends HTTPServer */{
+public class ServiceResponse implements Serializable {
 
-	// private final static Logger logger = Logger.getLogger(EmuServer.class);
-	//
-	// public EmuServer() throws Exception {
-	// super();
-	// }
-	//
+	private static final long serialVersionUID = 1L;
 
-	public static void main(String[] args) throws Exception {
-		// try {
-		// new EmuServer().start();
-		// } catch (IOException ioe) {
-		// logger.error("Couldn't start server:", ioe);
-		// System.exit(-1);
-		// }
+	private Object returnValue;
 
-		Server.main(args);
+	private Throwable exception;
+
+	public ServiceResponse() {
+		super();
+	}
+
+	public ServiceResponse(Throwable exception) {
+		super();
+		this.exception = exception;
+	}
+
+	public Object getReturnValue() {
+		return returnValue;
+	}
+
+	public void setReturnValue(Object returnValue) {
+		this.returnValue = returnValue;
+	}
+
+	public Throwable getException() {
+		return exception;
+	}
+
+	public void setException(Throwable exception) {
+		this.exception = exception;
 	}
 
 }

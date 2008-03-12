@@ -21,35 +21,21 @@
  */
 package com.intel.bluetooth;
 
-import java.net.URL;
-
 import javax.bluetooth.BluetoothStateException;
 
 import com.intel.bluetooth.emu.DeviceDescriptor;
 import com.intel.bluetooth.emu.DeviceManagerService;
-import com.pyx4j.rpcoverhttp.client.ServiceProxy;
-import com.pyx4j.rpcoverhttp.common.RoHRuntimeException;
-import com.pyx4j.rpcoverhttp.server.HTTPServer;
+import com.intel.bluetooth.rmi.Client;
 
 class EmulatorHelper {
 
-	private static URL url;
-
-	static {
-		try {
-			url = new URL("http://localhost:" + HTTPServer.port);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {
-		DeviceManagerService service = (DeviceManagerService) ServiceProxy.getService(DeviceManagerService.class, url);
+		DeviceManagerService service = (DeviceManagerService) Client.getService(DeviceManagerService.class);
 		DeviceDescriptor deviceDescriptor;
 		try {
 			deviceDescriptor = service.createNewDevice(BlueCoveImpl.getConfigProperty("bluecove.deviceID"),
 					BlueCoveImpl.getConfigProperty("bluecove.deviceAddress"));
-		} catch (RoHRuntimeException e) {
+		} catch (Exception e) {
 			throw (BluetoothStateException) UtilsJavaSE.initCause(new BluetoothStateException(e.getMessage()), e);
 		}
 		EmulatorLocalDevice device = new EmulatorLocalDevice(service, deviceDescriptor);

@@ -132,6 +132,7 @@
             <optional>true</optional>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -143,6 +144,7 @@
             <artifactId>pyx4j-rpc-over-http</artifactId>
  			<version>1.0.2-SNAPSHOT</version>
         </dependency>
+        -->
 
     </dependencies>
 

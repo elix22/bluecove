@@ -25,9 +25,9 @@ import java.io.IOException;
 
 import javax.bluetooth.ServiceRegistrationException;
 
-import com.pyx4j.rpcoverhttp.common.RoHService;
+// import com.pyx4j.rpcoverhttp.common.RoHService;
 
-public interface DeviceManagerService extends RoHService {
+public interface DeviceManagerService /* extends RoHService */{
 
 	public EmulatorConfiguration getEmulatorConfiguration();
 
