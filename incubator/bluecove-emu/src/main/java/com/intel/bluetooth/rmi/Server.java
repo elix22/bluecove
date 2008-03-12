@@ -21,6 +21,7 @@
  */
 package com.intel.bluetooth.rmi;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -29,15 +30,26 @@ public class Server {
 
 	static int rmiRegistryPort = 8090;
 
+	// Prevents GC
+	private static Server server;
+
 	private Registry registry = null;
 
+	private Remote srv;
+
 	public static void main(String[] args) {
-		new Server().run();
+		server = new Server();
+		server.run();
 	}
 
 	private void run() {
 		startRMIRegistry();
 		startRMIService();
+		// wit for RMI threads to start up
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+		}
 	}
 
 	private void startRMIRegistry() {
@@ -50,7 +62,8 @@ public class Server {
 
 	private void startRMIService() {
 		try {
-			registry.rebind(RemoteService.SERVICE_NAME, new RemoteServiceImpl());
+			srv = new RemoteServiceImpl();
+			registry.rebind(RemoteService.SERVICE_NAME, srv);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
