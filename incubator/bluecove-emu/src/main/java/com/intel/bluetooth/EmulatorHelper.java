@@ -30,9 +30,12 @@ import com.intel.bluetooth.rmi.Client;
 class EmulatorHelper {
 
 	static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {
-		DeviceManagerService service = (DeviceManagerService) Client.getService(DeviceManagerService.class);
+		String host = BlueCoveImpl.getConfigProperty("bluecove.emu.rmiRegistryHost");
+		String port = BlueCoveImpl.getConfigProperty("bluecove.emu.rmiRegistryPort");
 		DeviceDescriptor deviceDescriptor;
+		DeviceManagerService service;
 		try {
+			service = (DeviceManagerService) Client.getService(DeviceManagerService.class, host, port);
 			deviceDescriptor = service.createNewDevice(BlueCoveImpl.getConfigProperty("bluecove.deviceID"),
 					BlueCoveImpl.getConfigProperty("bluecove.deviceAddress"));
 		} catch (Exception e) {

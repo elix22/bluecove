@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.bluetooth.BluetoothConnectionException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.ServiceRegistrationException;
 
@@ -258,15 +259,18 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 			int receiveMTU, int timeout) throws IOException {
 		Device remoteDevice = getDevice(remoteAddress);
 		if (remoteDevice == null) {
-			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(remoteAddress));
+			throw new BluetoothConnectionException(BluetoothConnectionException.FAILED_NOINFO, "No such device "
+					+ RemoteDeviceHelper.getBluetoothAddress(remoteAddress));
 		}
 		Device localDevice = getDevice(localAddress);
 		if (localDevice == null) {
-			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
+			throw new BluetoothConnectionException(BluetoothConnectionException.FAILED_NOINFO, "No such device "
+					+ RemoteDeviceHelper.getBluetoothAddress(localAddress));
 		}
 		ServiceListener sl = remoteDevice.connectService(portID, timeout);
 		if (sl == null) {
-			throw new IOException("No such service " + portID);
+			throw new BluetoothConnectionException(BluetoothConnectionException.UNKNOWN_PSM, "No such service "
+					+ portID);
 		}
 		return sl.connect(localDevice, authenticate, encrypt, receiveMTU);
 	}

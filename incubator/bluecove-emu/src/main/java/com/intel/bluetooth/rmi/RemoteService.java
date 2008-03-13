@@ -28,6 +28,8 @@ public interface RemoteService extends Remote {
 
 	public static final String SERVICE_NAME = "BlueCoveRMIService";
 
-	ServiceResponse execute(ServiceRequest request) throws RemoteException;
+	public boolean verify(String interfaceName) throws RemoteException;
+
+	public ServiceResponse execute(ServiceRequest request) throws RemoteException;
 
 }

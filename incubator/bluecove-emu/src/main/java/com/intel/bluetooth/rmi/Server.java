@@ -54,6 +54,11 @@ public class Server {
 
 	private void startRMIRegistry() {
 		try {
+			String port = System.getProperty("bluecove.emu.rmiRegistryPort");
+			if ((port != null) && (port.length() > 0)) {
+				rmiRegistryPort = Integer.parseInt(port);
+			}
+
 			registry = LocateRegistry.createRegistry(rmiRegistryPort);
 		} catch (RemoteException e) {
 			throw new Error("Fails to start RMIRegistry", e);

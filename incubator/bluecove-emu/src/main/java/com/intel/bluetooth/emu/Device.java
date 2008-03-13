@@ -26,6 +26,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.bluetooth.BluetoothConnectionException;
+
 /**
  * @author vlads
  * 
@@ -110,7 +112,8 @@ class Device {
 		while ((sl == null) && (timeout > 0)) {
 			long timeleft = endOfDellay - System.currentTimeMillis();
 			if (timeleft <= 0) {
-				throw new IOException("Service " + portID + " not accepting");
+				throw new BluetoothConnectionException(BluetoothConnectionException.TIMEOUT, "Service " + portID
+						+ " not accepting");
 			}
 			try {
 				synchronized (serviceNotification) {

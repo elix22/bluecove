@@ -24,6 +24,8 @@ package com.intel.bluetooth.rmi;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -49,7 +51,12 @@ public class Client {
 		}
 	}
 
-	public static Object getService(Class interfaceClass) {
+	public synchronized static Object getService(Class interfaceClass, String host, String port)
+			throws RemoteException, NotBoundException {
+		if (remoteService == null) {
+			remoteService = getRemoteService(host, port);
+			remoteService.verify(interfaceClass.getCanonicalName());
+		}
 		Class[] allInterfaces = new Class[interfaceClass.getInterfaces().length + 1];
 		allInterfaces[0] = interfaceClass;
 		System.arraycopy(interfaceClass.getInterfaces(), 0, allInterfaces, 1, interfaceClass.getInterfaces().length);
@@ -57,16 +64,20 @@ public class Client {
 	}
 
 	private static ServiceResponse execute(ServiceRequest request, Method method) throws Throwable {
-		synchronized (Client.class) {
-			if (remoteService == null) {
-				remoteService = getRemoteService();
-			}
-		}
 		return remoteService.execute(request);
 	}
 
-	private static RemoteService getRemoteService() throws Throwable {
-		Registry registry = LocateRegistry.getRegistry(rmiRegistryHost, rmiRegistryPort);
+	private static RemoteService getRemoteService(String host, String port) throws RemoteException, NotBoundException {
+		String rmiHost = rmiRegistryHost;
+		if ((host != null) && (host.length() > 0)) {
+			rmiHost = host;
+		}
+		int rmiPort = rmiRegistryPort;
+		if ((port != null) && (port.length() > 0)) {
+			rmiPort = Integer.parseInt(port);
+		}
+
+		Registry registry = LocateRegistry.getRegistry(rmiHost, rmiPort);
 		return (RemoteService) registry.lookup(RemoteService.SERVICE_NAME);
 	}
 }

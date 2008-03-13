@@ -33,6 +33,15 @@ public class RemoteServiceImpl extends UnicastRemoteObject implements RemoteServ
 	public RemoteServiceImpl() throws RemoteException {
 	}
 
+	public boolean verify(String interfaceName) throws RemoteException {
+		try {
+			Class.forName(interfaceName + "Impl");
+		} catch (Throwable e) {
+			throw new RemoteException("Service for " + interfaceName + " not ready", e);
+		}
+		return true;
+	}
+
 	public ServiceResponse execute(ServiceRequest request) {
 		try {
 			Class c = Class.forName(request.getClassName() + "Impl");
