@@ -223,6 +223,12 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		throw new NotSupportedRuntimeException(getStackID());
 	}
 
+	// --- Remote Device authentication
+
+	public boolean authenticateRemoteDevice(long address) throws IOException {
+		return false;
+	}
+
 	// --- Device Inquiry
 
 	public boolean startInquiry(int accessCode, DiscoveryListener listener) throws BluetoothStateException {
