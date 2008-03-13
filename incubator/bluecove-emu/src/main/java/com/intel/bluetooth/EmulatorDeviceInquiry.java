@@ -49,7 +49,7 @@ class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
 
 	private Object canceledEvent = new Object();
 
-	private Random rnd;
+	private static Random rnd;
 
 	EmulatorDeviceInquiry(EmulatorLocalDevice localDevice, BluetoothStack bluetoothStack,
 			DiscoveryListener discoveryListener) {
@@ -141,14 +141,16 @@ class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
 				rnd = new Random();
 			}
 			long timeleft = start + duration - now;
-			timeout = rnd.nextInt((int) timeleft);
+			if (timeleft > 0) {
+				timeout = rnd.nextInt((int) timeleft);
+			}
 		}
 
 		// Limit wait till the end of the duration period
 		if (now + timeout > start + duration) {
 			timeout = start + duration - now;
 		}
-		if (timeout == 0) {
+		if (timeout <= 0) {
 			return true;
 		}
 		synchronized (canceledEvent) {
