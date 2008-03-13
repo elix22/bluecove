@@ -90,10 +90,13 @@ public class TestResponderCommon {
 		}
 
 		String receiveMTUstr = LocalDevice.getProperty("bluetooth.l2cap.receiveMTU.max");
-		if (receiveMTUstr != null) {
-			int max = Integer.valueOf(receiveMTUstr).intValue();
-			if (max < receiveMTU_max) {
-				receiveMTU_max = max;
+		if ((receiveMTUstr != null) && (receiveMTUstr.length() > 0)) {
+			try {
+				int max = Integer.valueOf(receiveMTUstr).intValue();
+				if (max < receiveMTU_max) {
+					receiveMTU_max = max;
+				}
+			} catch (NumberFormatException ignore) {
 			}
 		}
 	}
