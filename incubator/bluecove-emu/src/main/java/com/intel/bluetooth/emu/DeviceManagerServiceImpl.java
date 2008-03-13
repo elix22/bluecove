@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothConnectionException;
+import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.ServiceRegistrationException;
 
@@ -77,8 +78,17 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		return ((Device) devices.get(new Long(address)));
 	}
 
+	private Device getActiveDevice(long address) {
+		Device d = getDevice(address);
+		if ((d != null) && (!d.getDescriptor().isPoweredOn())) {
+			return null;
+		} else {
+			return d;
+		}
+	}
+
 	private DeviceDescriptor getDeviceDescriptor(long address) {
-		Device device = ((Device) devices.get(new Long(address)));
+		Device device = getDevice(address);
 		if (device == null) {
 			throw new RuntimeException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
 		}
@@ -86,7 +96,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	private DeviceSDP getDeviceSDP(long address) {
-		Device device = ((Device) devices.get(new Long(address)));
+		Device device = getActiveDevice(address);
 		if (device == null) {
 			return null;
 		}
@@ -110,6 +120,9 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	private boolean isDiscoverable(DeviceDescriptor device) {
+		if (!device.isPoweredOn()) {
+			return false;
+		}
 		int discoverableMode = device.getDiscoverableMode();
 		switch (discoverableMode) {
 		case DiscoveryAgent.NOT_DISCOVERABLE:
@@ -129,15 +142,34 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		}
 	}
 
-	public int getLocalDeviceDiscoverable(long localAddress) {
-		DeviceDescriptor device = getDeviceDescriptor(localAddress);
-		// Update mode if it was LIAC
-		isDiscoverable(device);
-		return device.getDiscoverableMode();
+	public boolean isLocalDevicePowerOn(long localAddress) {
+		return getDeviceDescriptor(localAddress).isPoweredOn();
 	}
 
-	public boolean setLocalDeviceDiscoverable(long localAddress, int mode) {
-		getDeviceDescriptor(localAddress).setDiscoverableMode(mode);
+	public void setLocalDevicePower(long localAddress, boolean on) {
+		Device device = getDevice(localAddress);
+		if (device == null) {
+			throw new RuntimeException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
+		}
+		device.setDevicePower(on);
+	}
+
+	public int getLocalDeviceDiscoverable(long localAddress) {
+		DeviceDescriptor dd = getDeviceDescriptor(localAddress);
+		if (!dd.isPoweredOn()) {
+			return DiscoveryAgent.NOT_DISCOVERABLE;
+		}
+		// Update mode if it was LIAC
+		isDiscoverable(dd);
+		return dd.getDiscoverableMode();
+	}
+
+	public boolean setLocalDeviceDiscoverable(long localAddress, int mode) throws BluetoothStateException {
+		DeviceDescriptor dd = getDeviceDescriptor(localAddress);
+		if (!dd.isPoweredOn()) {
+			throw new BluetoothStateException("Device power is off");
+		}
+		dd.setDiscoverableMode(mode);
 		return true;
 	}
 
@@ -145,8 +177,12 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		getDeviceDescriptor(localAddress).setDeviceClass(classOfDevice);
 	}
 
-	public String getRemoteDeviceFriendlyName(long address) {
-		return getDeviceDescriptor(address).getName();
+	public String getRemoteDeviceFriendlyName(long address) throws IOException {
+		DeviceDescriptor dd = getDeviceDescriptor(address);
+		if (!dd.isPoweredOn()) {
+			throw new IOException("Remote device power is off");
+		}
+		return dd.getName();
 	}
 
 	private long getNextAvailableBTAddress(String deviceID, String deviceAddress) {
@@ -170,7 +206,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	public void updateServiceRecord(long address, long handle, ServicesDescriptor sdpData)
 			throws ServiceRegistrationException {
-		Device device = getDevice(address);
+		Device device = getActiveDevice(address);
 		if (device == null) {
 			throw new ServiceRegistrationException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
 		}
@@ -186,7 +222,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	public long[] searchServices(long address, String[] uuidSet) {
-		if (getDevice(address) == null) {
+		if (getActiveDevice(address) == null) {
 			return null;
 		}
 		DeviceSDP ds = getDeviceSDP(address);
@@ -248,7 +284,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	private long accept(long localAddress, String channelID, boolean authenticate, boolean encrypt, int receiveMTU)
 			throws IOException {
 		Device device;
-		if ((device = getDevice(localAddress)) == null) {
+		if ((device = getActiveDevice(localAddress)) == null) {
 			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
 		}
 		ServiceListener sl = device.createServiceListener(channelID);
@@ -257,12 +293,12 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	private long connect(long localAddress, long remoteAddress, String portID, boolean authenticate, boolean encrypt,
 			int receiveMTU, int timeout) throws IOException {
-		Device remoteDevice = getDevice(remoteAddress);
+		Device remoteDevice = getActiveDevice(remoteAddress);
 		if (remoteDevice == null) {
 			throw new BluetoothConnectionException(BluetoothConnectionException.FAILED_NOINFO, "No such device "
 					+ RemoteDeviceHelper.getBluetoothAddress(remoteAddress));
 		}
-		Device localDevice = getDevice(localAddress);
+		Device localDevice = getActiveDevice(localAddress);
 		if (localDevice == null) {
 			throw new BluetoothConnectionException(BluetoothConnectionException.FAILED_NOINFO, "No such device "
 					+ RemoteDeviceHelper.getBluetoothAddress(localAddress));
@@ -276,7 +312,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	private void openService(long address, String channelID) throws IOException {
-		Device device = getDevice(address);
+		Device device = getActiveDevice(address);
 		if (device == null) {
 			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
 		}
@@ -292,7 +328,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	private ConnectionBuffer getConnectionBuffer(long localAddress, long connectionId) throws IOException {
-		Device localDevice = getDevice(localAddress);
+		Device localDevice = getActiveDevice(localAddress);
 		if (localDevice == null) {
 			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
 		}

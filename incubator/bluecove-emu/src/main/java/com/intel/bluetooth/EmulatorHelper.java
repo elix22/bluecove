@@ -50,8 +50,4 @@ class EmulatorHelper {
 		device.destroy();
 	}
 
-	static String getRemoteDeviceFriendlyName(EmulatorLocalDevice localDevice, long address) {
-		return localDevice.getDeviceManagerService().getRemoteDeviceFriendlyName(address);
-	}
-
 }

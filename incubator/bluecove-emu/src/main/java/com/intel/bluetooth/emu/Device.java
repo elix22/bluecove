@@ -146,7 +146,18 @@ class Device {
 		c.close();
 	}
 
+	void setDevicePower(boolean on) {
+		this.descriptor.setPoweredOn(on);
+		if (!on) {
+			close();
+		}
+	}
+
 	void release() {
+		close();
+	}
+
+	void close() {
 		servicesOpen.clear();
 		for (Enumeration iterator = serviceListeners.elements(); iterator.hasMoreElements();) {
 			ServiceListener s = (ServiceListener) iterator.nextElement();

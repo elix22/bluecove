@@ -23,6 +23,7 @@ package com.intel.bluetooth.emu;
 
 import java.io.IOException;
 
+import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.ServiceRegistrationException;
 
 // import com.pyx4j.rpcoverhttp.common.RoHService;
@@ -35,15 +36,19 @@ public interface DeviceManagerService /* extends RoHService */{
 
 	public void releaseDevice(long localAddress);
 
+	public boolean isLocalDevicePowerOn(long localAddress);
+
+	public void setLocalDevicePower(long localAddress, boolean on);
+
 	public int getLocalDeviceDiscoverable(long localAddress);
 
-	public boolean setLocalDeviceDiscoverable(long localAddress, int mode);
+	public boolean setLocalDeviceDiscoverable(long localAddress, int mode) throws BluetoothStateException;
 
 	public void setLocalDeviceServiceClasses(long localAddress, int classOfDevice);
 
 	public DeviceDescriptor[] getDiscoveredDevices(long localAddress);
 
-	public String getRemoteDeviceFriendlyName(long remoteAddress);
+	public String getRemoteDeviceFriendlyName(long remoteAddress) throws IOException;
 
 	public void updateServiceRecord(long localAddress, long handle, ServicesDescriptor sdpData)
 			throws ServiceRegistrationException;

@@ -60,8 +60,7 @@ class EmulatorLocalDevice {
 
 	private Map connections = new Hashtable();
 
-	public EmulatorLocalDevice(DeviceManagerService service, DeviceDescriptor deviceDescriptor)
-			throws BluetoothStateException {
+	EmulatorLocalDevice(DeviceManagerService service, DeviceDescriptor deviceDescriptor) throws BluetoothStateException {
 		this.service = service;
 		this.deviceDescriptor = deviceDescriptor;
 
@@ -78,11 +77,11 @@ class EmulatorLocalDevice {
 		deviceDescriptor = null;
 	}
 
-	public DeviceManagerService getDeviceManagerService() {
+	DeviceManagerService getDeviceManagerService() {
 		return service;
 	}
 
-	public void updateConfiguration() throws BluetoothStateException {
+	void updateConfiguration() throws BluetoothStateException {
 		configuration = service.getEmulatorConfiguration();
 		bluetooth_sd_attr_retrievable_max = Integer.valueOf(
 				configuration.getProperty("bluetooth.sd.attr.retrievable.max")).intValue();
@@ -102,19 +101,19 @@ class EmulatorLocalDevice {
 		}
 	}
 
-	public long getAddress() {
+	long getAddress() {
 		return deviceDescriptor.getAddress();
 	}
 
-	public String getName() {
+	String getName() {
 		return deviceDescriptor.getName();
 	}
 
-	public int getDeviceClass() {
+	int getDeviceClass() {
 		return deviceDescriptor.getDeviceClass();
 	}
 
-	public void setLocalDeviceServiceClasses(int classOfDevice) {
+	void setLocalDeviceServiceClasses(int classOfDevice) {
 		int c = deviceDescriptor.getDeviceClass();
 		c &= DeviceClassConsts.MAJOR_MASK | DeviceClassConsts.MINOR_MASK;
 		c |= classOfDevice;
@@ -122,31 +121,35 @@ class EmulatorLocalDevice {
 		service.setLocalDeviceServiceClasses(deviceDescriptor.getAddress(), c);
 	}
 
-	public boolean isLocalDevicePowerOn() {
-		return true;
+	boolean isActive() {
+		return deviceDescriptor.isPoweredOn();
 	}
 
-	public String getLocalDeviceProperty(String property) {
+	boolean isLocalDevicePowerOn() {
+		return service.isLocalDevicePowerOn(deviceDescriptor.getAddress());
+	}
+
+	String getLocalDeviceProperty(String property) {
 		return (String) propertiesMap.get(property);
 	}
 
-	public int getBluetooth_sd_attr_retrievable_max() {
+	int getBluetooth_sd_attr_retrievable_max() {
 		return bluetooth_sd_attr_retrievable_max;
 	}
 
-	public int getBluetooth_l2cap_receiveMTU_max() {
+	int getBluetooth_l2cap_receiveMTU_max() {
 		return this.bluetooth_l2cap_receiveMTU_max;
 	}
 
-	public int getLocalDeviceDiscoverable() {
+	int getLocalDeviceDiscoverable() {
 		return service.getLocalDeviceDiscoverable(getAddress());
 	}
 
-	public boolean setLocalDeviceDiscoverable(int mode) throws BluetoothStateException {
+	boolean setLocalDeviceDiscoverable(int mode) throws BluetoothStateException {
 		return service.setLocalDeviceDiscoverable(getAddress(), mode);
 	}
 
-	public EmulatorConfiguration getConfiguration() {
+	EmulatorConfiguration getConfiguration() {
 		return configuration;
 	}
 

@@ -33,6 +33,8 @@ public class DeviceDescriptor implements Serializable {
 
 	private String name;
 
+	private boolean poweredOn = true;
+
 	private int deviceClass;
 
 	private int discoverableMode;
@@ -80,6 +82,14 @@ public class DeviceDescriptor implements Serializable {
 
 	public long getLimitedDiscoverableStart() {
 		return limitedDiscoverableStart;
+	}
+
+	public boolean isPoweredOn() {
+		return this.poweredOn;
+	}
+
+	public void setPoweredOn(boolean poweredOn) {
+		this.poweredOn = poweredOn;
 	}
 
 }

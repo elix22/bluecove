@@ -114,6 +114,13 @@ class BluetoothEmulator implements BluetoothStack {
 		return localDevice.setLocalDeviceDiscoverable(mode);
 	}
 
+	private EmulatorLocalDevice activeLocalDevice() throws BluetoothStateException {
+		if (!localDevice.isActive()) {
+			throw new BluetoothStateException("Bluetooth system is off");
+		}
+		return localDevice;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -129,7 +136,7 @@ class BluetoothEmulator implements BluetoothStack {
 		if (deviceInquiry != null) {
 			throw new BluetoothStateException("Another inquiry already running");
 		}
-		deviceInquiry = new EmulatorDeviceInquiry(localDevice, this, listener);
+		deviceInquiry = new EmulatorDeviceInquiry(activeLocalDevice(), this, listener);
 		return DeviceInquiryThread.startInquiry(deviceInquiry, accessCode, listener);
 	}
 
@@ -146,15 +153,15 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public String getRemoteDeviceFriendlyName(long address) throws IOException {
-		return EmulatorHelper.getRemoteDeviceFriendlyName(localDevice, address);
+		return activeLocalDevice().getDeviceManagerService().getRemoteDeviceFriendlyName(address);
 	}
 
 	// --- Service search
 
 	public int searchServices(int[] attrSet, UUID[] uuidSet, RemoteDevice device, DiscoveryListener listener)
 			throws BluetoothStateException {
-		return SearchServicesThread.startSearchServices(this, new EmulatorSearchServices(localDevice, this), attrSet,
-				uuidSet, device, listener);
+		return SearchServicesThread.startSearchServices(this, new EmulatorSearchServices(activeLocalDevice(), this),
+				attrSet, uuidSet, device, listener);
 	}
 
 	public boolean cancelServiceSearch(int transID) {
@@ -175,14 +182,14 @@ class BluetoothEmulator implements BluetoothStack {
 		if (attrIDs.length > localDevice.getBluetooth_sd_attr_retrievable_max()) {
 			throw new IllegalArgumentException();
 		}
-		return EmulatorSearchServices.populateServicesRecordAttributeValues(localDevice, serviceRecord, attrIDs,
-				RemoteDeviceHelper.getAddress(serviceRecord.getHostDevice()), serviceRecord.getHandle());
+		return EmulatorSearchServices.populateServicesRecordAttributeValues(activeLocalDevice(), serviceRecord,
+				attrIDs, RemoteDeviceHelper.getAddress(serviceRecord.getHostDevice()), serviceRecord.getHandle());
 	}
 
 	// --- Client RFCOMM connections
 
 	public long connectionRfOpenClientConnection(BluetoothConnectionParams params) throws IOException {
-		EmulatorRFCOMMClient c = localDevice.createRFCOMMClient();
+		EmulatorRFCOMMClient c = activeLocalDevice().createRFCOMMClient();
 		boolean success = false;
 		try {
 			c.connect(params);
@@ -212,7 +219,7 @@ class BluetoothEmulator implements BluetoothStack {
 
 	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
 			throws IOException {
-		EmulatorRFCOMMService s = localDevice.createRFCOMMService();
+		EmulatorRFCOMMService s = activeLocalDevice().createRFCOMMService();
 		boolean success = false;
 		try {
 			s.open(params);
@@ -242,7 +249,7 @@ class BluetoothEmulator implements BluetoothStack {
 			throws ServiceRegistrationException {
 		EmulatorServiceConnection s;
 		try {
-			s = ((EmulatorServiceConnection) localDevice.getConnection(handle));
+			s = ((EmulatorServiceConnection) activeLocalDevice().getConnection(handle));
 		} catch (IOException e) {
 			throw new ServiceRegistrationException(e.getMessage());
 		}
@@ -255,7 +262,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException {
-		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
+		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) activeLocalDevice().getConnection(handle));
 		long connectionHandle = s.accept();
 		long remoteAddress = localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(),
 				connectionHandle);
@@ -271,31 +278,31 @@ class BluetoothEmulator implements BluetoothStack {
 	// --- Shared Client and Server RFCOMM connections
 
 	public int connectionRfRead(long handle) throws IOException {
-		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).read();
+		return ((EmulatorRFCOMMClient) activeLocalDevice().getConnection(handle)).read();
 	}
 
 	public int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException {
-		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).read(b, off, len);
+		return ((EmulatorRFCOMMClient) activeLocalDevice().getConnection(handle)).read(b, off, len);
 	}
 
 	public int connectionRfReadAvailable(long handle) throws IOException {
-		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).available();
+		return ((EmulatorRFCOMMClient) activeLocalDevice().getConnection(handle)).available();
 	}
 
 	public void connectionRfWrite(long handle, int b) throws IOException {
-		((EmulatorRFCOMMClient) localDevice.getConnection(handle)).write(b);
+		((EmulatorRFCOMMClient) activeLocalDevice().getConnection(handle)).write(b);
 	}
 
 	public void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException {
-		((EmulatorRFCOMMClient) localDevice.getConnection(handle)).write(b, off, len);
+		((EmulatorRFCOMMClient) activeLocalDevice().getConnection(handle)).write(b, off, len);
 	}
 
 	public void connectionRfFlush(long handle) throws IOException {
-		((EmulatorRFCOMMClient) localDevice.getConnection(handle)).flush();
+		((EmulatorRFCOMMClient) activeLocalDevice().getConnection(handle)).flush();
 	}
 
 	public long getConnectionRfRemoteAddress(long handle) throws IOException {
-		return ((EmulatorRFCOMMClient) localDevice.getConnection(handle)).getRemoteAddress();
+		return ((EmulatorRFCOMMClient) activeLocalDevice().getConnection(handle)).getRemoteAddress();
 	}
 
 	// --- Client and Server L2CAP connections
@@ -309,7 +316,7 @@ class BluetoothEmulator implements BluetoothStack {
 	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
 			throws IOException {
 		validateMTU(receiveMTU, transmitMTU);
-		EmulatorL2CAPClient c = localDevice.createL2CAPClient();
+		EmulatorL2CAPClient c = activeLocalDevice().createL2CAPClient();
 		boolean success = false;
 		try {
 			c.connect(params, receiveMTU, transmitMTU);
@@ -334,7 +341,7 @@ class BluetoothEmulator implements BluetoothStack {
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
 		validateMTU(receiveMTU, transmitMTU);
-		EmulatorL2CAPService s = localDevice.createL2CAPService(params.bluecove_ext_psm);
+		EmulatorL2CAPService s = activeLocalDevice().createL2CAPService(params.bluecove_ext_psm);
 		boolean success = false;
 		try {
 			s.open(params, receiveMTU, transmitMTU);
@@ -356,7 +363,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException {
-		EmulatorL2CAPService s = ((EmulatorL2CAPService) localDevice.getConnection(handle));
+		EmulatorL2CAPService s = ((EmulatorL2CAPService) activeLocalDevice().getConnection(handle));
 		long connectionHandle = s.accept();
 		long remoteAddress = localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(),
 				connectionHandle);
@@ -383,26 +390,26 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public boolean l2Ready(long handle) throws IOException {
-		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).ready();
+		return ((EmulatorL2CAPClient) activeLocalDevice().getConnection(handle)).ready();
 	}
 
 	public int l2Receive(long handle, byte[] inBuf) throws IOException {
-		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).receive(inBuf);
+		return ((EmulatorL2CAPClient) activeLocalDevice().getConnection(handle)).receive(inBuf);
 	}
 
 	public void l2Send(long handle, byte[] data) throws IOException {
-		((EmulatorL2CAPClient) localDevice.getConnection(handle)).send(data);
+		((EmulatorL2CAPClient) activeLocalDevice().getConnection(handle)).send(data);
 	}
 
 	public int l2GetReceiveMTU(long handle) throws IOException {
-		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).getReceiveMTU();
+		return ((EmulatorL2CAPClient) activeLocalDevice().getConnection(handle)).getReceiveMTU();
 	}
 
 	public int l2GetTransmitMTU(long handle) throws IOException {
-		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).getTransmitMTU();
+		return ((EmulatorL2CAPClient) activeLocalDevice().getConnection(handle)).getTransmitMTU();
 	}
 
 	public long l2RemoteAddress(long handle) throws IOException {
-		return ((EmulatorL2CAPClient) localDevice.getConnection(handle)).getRemoteAddress();
+		return ((EmulatorL2CAPClient) activeLocalDevice().getConnection(handle)).getRemoteAddress();
 	}
 }
