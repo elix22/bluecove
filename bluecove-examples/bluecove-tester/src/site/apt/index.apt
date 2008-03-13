@@ -116,7 +116,7 @@ java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:bluecove-tester.jar:j
 ---
 
 ---
-java -cp avetanaBluetooth.jar;bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecove.awt.Main
+java -cp avetanaBluetooth.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecove.awt.Main
 ---
 
     bluecove-tester-app.jar is the same application as bluecove-tester.jar only JUnit and BlueCove classes are included.
