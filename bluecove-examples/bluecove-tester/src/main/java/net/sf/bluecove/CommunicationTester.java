@@ -378,6 +378,8 @@ public class CommunicationTester extends CommunicationData {
 			} else {
 				Logger.debug("isAuthenticated OK " + isAuthenticated);
 			}
+		} else {
+			Logger.debug("isAuthenticated " + isAuthenticated);
 		}
 		if (remoreIsAuthenticated != isAuthenticated) {
 			Logger.error("this Authenticated " + isAuthenticated + " != remote " + remoreIsAuthenticated);
@@ -426,17 +428,28 @@ public class CommunicationTester extends CommunicationData {
 		boolean remoreIsAuthenticated = dis.readBoolean();
 		boolean remoreIsEncrypted = dis.readBoolean();
 
-		if (Configuration.authenticate.booleanValue() == device.isAuthenticated()) {
+		if (Configuration.authenticate.booleanValue() == isAuthenticated) {
 			Logger.debug("isAuthenticated OK " + Configuration.authenticate);
-		} else {
-			// if (!isAuthenticated) {
+		} else if (Configuration.authenticate.booleanValue() && !isAuthenticated) {
 			Logger.error("wrong isAuthenticated " + isAuthenticated);
-			// }
+		} else {
+			Logger.debug("isAuthenticated OK " + isAuthenticated);
 		}
+		if (remoreIsAuthenticated != isAuthenticated) {
+			Logger.error("this Authenticated " + isAuthenticated + " != remote " + remoreIsAuthenticated);
+			testStatus.isError = true;
+		}
+
 		if (Configuration.encrypt.booleanValue() == isEncrypted) {
 			Logger.debug("isEncrypted OK " + Configuration.encrypt);
-		} else {
+		} else if (Configuration.encrypt.booleanValue() && !isEncrypted) {
 			Logger.error("wrong isEncrypted " + isEncrypted);
+		} else {
+			Logger.debug("isEncrypted OK " + isEncrypted);
+		}
+		if (remoreIsEncrypted != isEncrypted) {
+			Logger.error("this Encrypted " + isEncrypted + " != remote " + remoreIsEncrypted);
+			testStatus.isError = true;
 		}
 	}
 
