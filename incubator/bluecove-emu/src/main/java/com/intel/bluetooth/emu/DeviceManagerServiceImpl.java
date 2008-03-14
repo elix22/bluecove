@@ -363,6 +363,14 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		localDevice.closeConnection(connectionId);
 	}
 
+	public int getSecurityOpt(long localAddress, long connectionId, int expected) throws IOException {
+		return ((ConnectionBuffer) getConnectionBuffer(localAddress, connectionId)).getSecurityOpt(expected);
+	}
+
+	public boolean encrypt(long localAddress, long connectionId, long remoteAddress, boolean on) throws IOException {
+		return ((ConnectionBuffer) getConnectionBuffer(localAddress, connectionId)).encrypt(remoteAddress, on);
+	}
+
 	public int l2RemoteDeviceReceiveMTU(long localAddress, long connectionId) throws IOException {
 		return ((ConnectionBufferL2CAP) getConnectionBuffer(localAddress, connectionId)).getRemoteReceiveMTU();
 	}

@@ -218,7 +218,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public int rfGetSecurityOpt(long handle, int expected) throws IOException {
-		return expected;
+		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).getSecurityOpt(expected);
 	}
 
 	/*
@@ -227,7 +227,7 @@ class BluetoothEmulator implements BluetoothStack {
 	 * @see com.intel.bluetooth.BluetoothStack#l2Encrypt(long,long,boolean)
 	 */
 	public boolean rfEncrypt(long address, long handle, boolean on) throws IOException {
-		return false;
+		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).encrypt(address, on);
 	}
 
 	// --- Server RFCOMM connections
@@ -401,7 +401,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public int l2GetSecurityOpt(long handle, int expected) throws IOException {
-		return expected;
+		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).getSecurityOpt(expected);
 	}
 
 	public boolean l2Ready(long handle) throws IOException {
@@ -434,6 +434,6 @@ class BluetoothEmulator implements BluetoothStack {
 	 * @see com.intel.bluetooth.BluetoothStack#l2Encrypt(long,long,boolean)
 	 */
 	public boolean l2Encrypt(long address, long handle, boolean on) throws IOException {
-		return false;
+		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).encrypt(address, on);
 	}
 }

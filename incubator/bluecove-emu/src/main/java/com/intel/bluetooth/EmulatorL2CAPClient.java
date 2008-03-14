@@ -54,7 +54,7 @@ class EmulatorL2CAPClient extends EmulatorLinkedConnection {
 		}
 	}
 
-	public void connect(long remoteAddress, long connectionHandle, int receiveMTU, int transmitMTU) throws IOException {
+	void connect(long remoteAddress, long connectionHandle, int receiveMTU, int transmitMTU) throws IOException {
 		super.connect(remoteAddress, connectionHandle);
 		this.receiveMTU = receiveMTU;
 		this.transmitMTU = transmitMTU;

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 
 import com.intel.bluetooth.RemoteDeviceHelper;
+import com.intel.bluetooth.Utils;
 
 /**
  * @author vlads
@@ -54,6 +55,8 @@ class ServiceListener {
 
 	private long connectionId = 0;
 
+	private int serverSecurityOpt;
+
 	private int serverReceiveMTU;
 
 	static String rfPrefix(int channel) {
@@ -76,6 +79,8 @@ class ServiceListener {
 	long accept(Device serverDevice, boolean authenticate, boolean encrypt, int serverReceiveMTU) throws IOException {
 		this.serverDevice = serverDevice;
 		this.serverReceiveMTU = serverReceiveMTU;
+		this.serverSecurityOpt = Utils.securityOpt(authenticate, encrypt);
+
 		serverDevice.serviceListenerAccepting(this.portID);
 		while ((!closed) && (!interrupted) && (!connected)) {
 			synchronized (lock) {
@@ -94,6 +99,11 @@ class ServiceListener {
 
 	long connect(Device clientDevice, boolean authenticate, boolean encrypt, int cilentReceiveMTU) throws IOException {
 		try {
+			int securityOpt = Utils.securityOpt(authenticate, encrypt);
+			if (this.serverSecurityOpt > securityOpt) {
+				securityOpt = this.serverSecurityOpt;
+			}
+
 			int bsize = DeviceManagerServiceImpl.configuration.getConnectionBufferSize();
 			ConnectedInputStream cis = new ConnectedInputStream(bsize);
 			ConnectedOutputStream sos = new ConnectedOutputStream(cis);
@@ -111,6 +121,9 @@ class ServiceListener {
 						this.serverReceiveMTU);
 				sb = new ConnectionBufferL2CAP(clientDevice.getDescriptor().getAddress(), sis, sos, cilentReceiveMTU);
 			}
+			cb.connect(sb);
+			cb.setSecurityOpt(securityOpt);
+			sb.setSecurityOpt(securityOpt);
 
 			long id;
 			synchronized (ServiceListener.class) {

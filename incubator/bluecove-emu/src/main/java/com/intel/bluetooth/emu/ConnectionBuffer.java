@@ -33,9 +33,13 @@ abstract class ConnectionBuffer {
 
 	protected long remoteAddress;
 
+	protected int securityOpt;
+
 	protected InputStream is;
 
 	protected OutputStream os;
+
+	protected ConnectionBuffer connected;
 
 	protected ConnectionBuffer(long remoteAddress, InputStream is, OutputStream os) {
 		super();
@@ -44,8 +48,28 @@ abstract class ConnectionBuffer {
 		this.os = os;
 	}
 
+	void connect(ConnectionBuffer pair) {
+		connected = pair;
+		pair.connected = this;
+	}
+
 	long getRemoteAddress() throws IOException {
 		return remoteAddress;
+	}
+
+	void setSecurityOpt(int securityOpt) {
+		this.securityOpt = securityOpt;
+	}
+
+	int getSecurityOpt(int expected) throws IOException {
+		return securityOpt;
+	}
+
+	boolean encrypt(long remoteAddress, boolean on) throws IOException {
+		if (this.remoteAddress != remoteAddress) {
+			throw new IllegalArgumentException("Connection not to this device");
+		}
+		return false;
 	}
 
 	void close() throws IOException {

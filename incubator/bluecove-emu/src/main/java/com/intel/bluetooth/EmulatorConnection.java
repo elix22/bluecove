@@ -21,6 +21,7 @@
  */
 package com.intel.bluetooth;
 
+
 /**
  * @author vlads
  * 

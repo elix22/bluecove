@@ -31,20 +31,30 @@ abstract class EmulatorLinkedConnection extends EmulatorConnection {
 
 	protected long remoteAddress;
 
-	public EmulatorLinkedConnection(EmulatorLocalDevice localDevice, long handle) {
+	EmulatorLinkedConnection(EmulatorLocalDevice localDevice, long handle) {
 		super(localDevice, handle);
 	}
 
-	public void connect(long remoteAddress, long connectionHandle) throws IOException {
+	void connect(long remoteAddress, long connectionHandle) throws IOException {
 		this.connectionHandle = connectionHandle;
 		this.remoteAddress = remoteAddress;
 	}
 
-	public long getRemoteAddress() throws IOException {
+	int getSecurityOpt(int expected) throws IOException {
+		return localDevice.getDeviceManagerService().getSecurityOpt(localDevice.getAddress(), this.connectionHandle,
+				expected);
+	}
+
+	boolean encrypt(long address, boolean on) throws IOException {
+		return localDevice.getDeviceManagerService().encrypt(localDevice.getAddress(), this.connectionHandle, address,
+				on);
+	}
+
+	long getRemoteAddress() throws IOException {
 		return remoteAddress;
 	}
 
-	public void close() throws IOException {
+	void close() throws IOException {
 		localDevice.getDeviceManagerService().closeConnection(localDevice.getAddress(), this.connectionHandle);
 	}
 }

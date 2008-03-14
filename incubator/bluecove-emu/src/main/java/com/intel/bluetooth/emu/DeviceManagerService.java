@@ -70,6 +70,10 @@ public interface DeviceManagerService /* extends RoHService */{
 
 	public void closeConnection(long localAddress, long connectionId) throws IOException;
 
+	public int getSecurityOpt(long localAddress, long connectionId, int expected) throws IOException;
+
+	public boolean encrypt(long localAddress, long connectionId, long remoteAddress, boolean on) throws IOException;
+
 	public void l2OpenService(long localAddress, int pcm) throws IOException;
 
 	public long l2Accept(long localAddress, int pcm, boolean authenticate, boolean encrypt, int receiveMTU)
