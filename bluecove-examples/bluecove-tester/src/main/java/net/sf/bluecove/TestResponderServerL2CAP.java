@@ -118,9 +118,9 @@ public class TestResponderServerL2CAP extends Thread {
 				try {
 					Logger.info("Accepting L2CAP connections");
 					if (showServiceRecordOnce) {
-						Logger.debug("Url:"
+						Logger.debug("L2Url:"
 								+ LocalDevice.getLocalDevice().getRecord(serverConnection).getConnectionURL(
-										ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
+										Configuration.getRequiredSecurity(), false));
 						showServiceRecordOnce = false;
 					}
 					channel = serverConnection.acceptAndOpen();

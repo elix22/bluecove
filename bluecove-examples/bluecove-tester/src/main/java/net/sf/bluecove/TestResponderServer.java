@@ -349,9 +349,9 @@ public class TestResponderServer implements CanShutdown, Runnable {
 					}
 					Logger.info("Accepting RFCOMM connections");
 					if (showServiceRecordOnce) {
-						Logger.debug("Url:"
+						Logger.debug("RfUrl:"
 								+ LocalDevice.getLocalDevice().getRecord(serverConnection).getConnectionURL(
-										ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
+										Configuration.getRequiredSecurity(), false));
 					}
 					StreamConnection conn = serverConnection.acceptAndOpen();
 					if (!stoped) {

@@ -354,6 +354,7 @@ public class CommunicationTester extends CommunicationData {
 		RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
 		Logger.debug("is connected to BTAddress " + device.getBluetoothAddress());
 		DataInputStream dis = new DataInputStream(is);
+		DataOutputStream dos = new DataOutputStream(os);
 		String gotBluetoothAddress = dis.readUTF();
 		Assert.assertEquals("PairBTAddress", gotBluetoothAddress.toUpperCase(), device.getBluetoothAddress()
 				.toUpperCase());
@@ -363,6 +364,12 @@ public class CommunicationTester extends CommunicationData {
 
 		boolean isAuthenticated = device.isAuthenticated();
 		boolean isEncrypted = device.isEncrypted();
+
+		dos.writeBoolean(isAuthenticated);
+		dos.writeBoolean(isEncrypted);
+		if (dataOutputStreamFlush) {
+			dos.flush();
+		}
 
 		if (Configuration.authenticate.booleanValue()) {
 			if (!isAuthenticated) {
@@ -400,6 +407,7 @@ public class CommunicationTester extends CommunicationData {
 		RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
 		Logger.debug("is connected toBTAddress " + device.getBluetoothAddress());
 		DataOutputStream dos = new DataOutputStream(os);
+		DataInputStream dis = new DataInputStream(is);
 		dos.writeUTF(LocalDevice.getLocalDevice().getBluetoothAddress());
 		if (dataOutputStreamFlush) {
 			dos.flush();
@@ -412,11 +420,18 @@ public class CommunicationTester extends CommunicationData {
 
 		dos.writeBoolean(isAuthenticated);
 		dos.writeBoolean(isEncrypted);
+		if (dataOutputStreamFlush) {
+			dos.flush();
+		}
+		boolean remoreIsAuthenticated = dis.readBoolean();
+		boolean remoreIsEncrypted = dis.readBoolean();
 
 		if (Configuration.authenticate.booleanValue() == device.isAuthenticated()) {
 			Logger.debug("isAuthenticated OK " + Configuration.authenticate);
 		} else {
+			// if (!isAuthenticated) {
 			Logger.error("wrong isAuthenticated " + isAuthenticated);
+			// }
 		}
 		if (Configuration.encrypt.booleanValue() == isEncrypted) {
 			Logger.debug("isEncrypted OK " + Configuration.encrypt);

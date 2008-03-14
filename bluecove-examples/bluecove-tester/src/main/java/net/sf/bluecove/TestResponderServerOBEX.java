@@ -181,9 +181,9 @@ public class TestResponderServerOBEX implements Runnable {
 					count++;
 					Logger.info("Accepting OBEX connections");
 					if (showServiceRecordOnce) {
-						Logger.debug("Url:"
+						Logger.debug("OxUrl:"
 								+ localDevice.getRecord(serverConnection).getConnectionURL(
-										ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false));
+										Configuration.getRequiredSecurity(), false));
 						showServiceRecordOnce = false;
 					}
 					if (Configuration.authenticateOBEX.getValue() != 0) {
