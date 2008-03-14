@@ -448,6 +448,15 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return rfGetSecurityOptImpl(handle);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#l2Encrypt(long,long,boolean)
+	 */
+	public boolean rfEncrypt(long address, long handle, boolean on) throws IOException {
+		return false;
+	}
+
 	private native long rfServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
 			boolean encrypt, boolean master, boolean timeouts, int backlog) throws IOException;
 
@@ -663,4 +672,13 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * @see com.intel.bluetooth.BluetoothStack#l2GetSecurityOpt(long, int)
 	 */
 	public native int l2GetSecurityOpt(long handle, int expected) throws IOException;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#l2Encrypt(long,long,boolean)
+	 */
+	public boolean l2Encrypt(long address, long handle, boolean on) throws IOException {
+		return false;
+	}
 }
