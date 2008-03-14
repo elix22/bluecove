@@ -22,8 +22,9 @@
 package com.intel.bluetooth.emu;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothConnectionException;
@@ -39,14 +40,10 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	static final EmulatorConfiguration configuration = new EmulatorConfiguration();
 
-	private static Hashtable devices = new Hashtable();
+	private static Map<Long, Device> devices = new Hashtable<Long, Device>();
 
 	public DeviceManagerServiceImpl() {
 
-	}
-
-	public EmulatorConfiguration getEmulatorConfiguration() {
-		return configuration;
 	}
 
 	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress) {
@@ -64,6 +61,11 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		}
 	}
 
+	public EmulatorConfiguration getEmulatorConfiguration(long localAddress) {
+		// TODO create device specific properties
+		return configuration;
+	}
+
 	public void releaseDevice(long address) {
 		Device device;
 		synchronized (devices) {
@@ -72,6 +74,14 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		if (device != null) {
 			device.release();
 		}
+	}
+
+	public DeviceCommand pollCommand(long address) {
+		Device device = getDevice(address);
+		if (device == null) {
+			throw new RuntimeException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
+		}
+		return device.pollCommand();
 	}
 
 	private Device getDevice(long address) {
@@ -87,7 +97,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		}
 	}
 
-	private DeviceDescriptor getDeviceDescriptor(long address) {
+	public DeviceDescriptor getDeviceDescriptor(long address) {
 		Device device = getDevice(address);
 		if (device == null) {
 			throw new RuntimeException("No such device " + RemoteDeviceHelper.getBluetoothAddress(address));
@@ -104,10 +114,10 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	public DeviceDescriptor[] getDiscoveredDevices(long address) {
-		Vector discoveredDevice = new Vector();
+		Vector<DeviceDescriptor> discoveredDevice = new Vector<DeviceDescriptor>();
 		synchronized (devices) {
-			for (Enumeration iterator = devices.elements(); iterator.hasMoreElements();) {
-				Device device = (Device) iterator.nextElement();
+			for (Iterator<Device> iterator = devices.values().iterator(); iterator.hasNext();) {
+				Device device = iterator.next();
 				if (device.getDescriptor().getAddress() == address) {
 					continue;
 				}

@@ -42,7 +42,7 @@ abstract class EmulatorServiceConnection extends EmulatorConnection {
 		super(localDevice, handle);
 	}
 
-	private void addServiceClassUUID(Vector uuids, ServiceRecordImpl serviceRecord) {
+	private void addServiceClassUUID(Vector<String> uuids, ServiceRecordImpl serviceRecord) {
 		DataElement attrDataElement = serviceRecord.getAttributeValue(BluetoothConsts.ServiceClassIDList);
 		if ((attrDataElement == null) || (attrDataElement.getDataType() != DataElement.DATSEQ)
 				|| attrDataElement.getSize() == 0) {
@@ -65,7 +65,7 @@ abstract class EmulatorServiceConnection extends EmulatorConnection {
 		}
 	}
 
-	private void addProtocolDescriptorUUID(Vector uuids, ServiceRecordImpl serviceRecord) {
+	private void addProtocolDescriptorUUID(Vector<String> uuids, ServiceRecordImpl serviceRecord) {
 		DataElement protocolDescriptor = serviceRecord.getAttributeValue(BluetoothConsts.ProtocolDescriptorList);
 		if ((protocolDescriptor == null) || (protocolDescriptor.getDataType() != DataElement.DATSEQ)) {
 			return;
@@ -88,7 +88,7 @@ abstract class EmulatorServiceConnection extends EmulatorConnection {
 	}
 
 	void updateServiceRecord(ServiceRecordImpl serviceRecord) throws ServiceRegistrationException {
-		Vector uuids = new Vector();
+		Vector<String> uuids = new Vector<String>();
 		addServiceClassUUID(uuids, serviceRecord);
 		addProtocolDescriptorUUID(uuids, serviceRecord);
 		byte[] sdpBinary;

@@ -109,7 +109,7 @@ class EmulatorDeviceInquiry implements DeviceInquiryRunnable {
 	private DeviceDescriptor[] updateDiscoveredDevices(DeviceDescriptor[] devices) {
 		DeviceDescriptor[] newDevices = localDevice.getDeviceManagerService().getDiscoveredDevices(
 				localDevice.getAddress());
-		Vector discoveredDevice = new Vector();
+		Vector<DeviceDescriptor> discoveredDevice = new Vector<DeviceDescriptor>();
 		// Old device unchanged
 		for (int i = 0; i < devices.length; i++) {
 			discoveredDevice.addElement(devices[i]);

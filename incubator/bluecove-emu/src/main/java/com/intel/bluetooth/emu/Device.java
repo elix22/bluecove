@@ -24,6 +24,8 @@ package com.intel.bluetooth.emu;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothConnectionException;
@@ -34,21 +36,25 @@ import javax.bluetooth.BluetoothConnectionException;
  */
 class Device {
 
+	private boolean isReleased = false;
+
 	private DeviceDescriptor descriptor;
 
 	private DeviceSDP sdp;
 
-	private Hashtable servicesOpen = new Hashtable();
+	private Hashtable<String, String> servicesOpen = new Hashtable<String, String>();
 
-	private Vector serviceListeners;
+	private Vector<ServiceListener> serviceListeners;
 
 	private Object serviceNotification = new Object();
 
-	private Hashtable connections = new Hashtable();
+	private Hashtable<Long, ConnectionBuffer> connections = new Hashtable<Long, ConnectionBuffer>();
+
+	private Queue<DeviceCommand> commandQueue = new LinkedList<DeviceCommand>();
 
 	Device(DeviceDescriptor descriptor) {
 		this.descriptor = descriptor;
-		this.serviceListeners = new Vector();
+		this.serviceListeners = new Vector<ServiceListener>();
 	}
 
 	DeviceDescriptor getDescriptor() {
@@ -85,7 +91,7 @@ class Device {
 	private ServiceListener removeServiceListener(String portID) {
 		ServiceListener sl = null;
 		synchronized (serviceListeners) {
-			for (Enumeration iterator = serviceListeners.elements(); iterator.hasMoreElements();) {
+			for (Enumeration<ServiceListener> iterator = serviceListeners.elements(); iterator.hasMoreElements();) {
 				ServiceListener s = (ServiceListener) iterator.nextElement();
 				if (s.getPortID().equals(portID)) {
 					serviceListeners.removeElement(s);
@@ -151,20 +157,49 @@ class Device {
 		if (!on) {
 			close();
 		}
+		putCommand(new DeviceCommand(DeviceCommand.DeviceCommandType.chagePowerState, new Boolean(on)));
+	}
+
+	void putCommand(DeviceCommand command) {
+		synchronized (commandQueue) {
+			commandQueue.add(command);
+			commandQueue.notifyAll();
+		}
+	}
+
+	DeviceCommand pollCommand() {
+		DeviceCommand command = null;
+		synchronized (commandQueue) {
+			while (command == null && !isReleased) {
+				command = commandQueue.poll();
+				if (command == null) {
+					try {
+						commandQueue.wait();
+					} catch (InterruptedException e) {
+						break;
+					}
+				}
+			}
+		}
+		return command;
 	}
 
 	void release() {
+		isReleased = true;
 		close();
 	}
 
 	void close() {
+		synchronized (commandQueue) {
+			commandQueue.notifyAll();
+		}
 		servicesOpen.clear();
-		for (Enumeration iterator = serviceListeners.elements(); iterator.hasMoreElements();) {
+		for (Enumeration<ServiceListener> iterator = serviceListeners.elements(); iterator.hasMoreElements();) {
 			ServiceListener s = (ServiceListener) iterator.nextElement();
 			s.close();
 		}
 		serviceListeners.clear();
-		for (Enumeration iterator = connections.elements(); iterator.hasMoreElements();) {
+		for (Enumeration<ConnectionBuffer> iterator = connections.elements(); iterator.hasMoreElements();) {
 			ConnectionBuffer c = (ConnectionBuffer) iterator.nextElement();
 			try {
 				c.close();

@@ -50,21 +50,21 @@ class EmulatorLocalDevice {
 
 	private EmulatorConfiguration configuration;
 
-	private Map/* <String,String> */propertiesMap;
+	private Map<String, String> propertiesMap;
 
-	private Vector channels = new Vector();
+	private Vector<Long> channels = new Vector<Long>();
 
-	private Vector pcms = new Vector();
+	private Vector<Long> pcms = new Vector<Long>();
 
 	private long connectionCount = 0;
 
-	private Map connections = new Hashtable();
+	private Map<Long, EmulatorConnection> connections = new Hashtable<Long, EmulatorConnection>();
 
 	EmulatorLocalDevice(DeviceManagerService service, DeviceDescriptor deviceDescriptor) throws BluetoothStateException {
 		this.service = service;
 		this.deviceDescriptor = deviceDescriptor;
 
-		propertiesMap = new Hashtable();
+		propertiesMap = new Hashtable<String, String>();
 		propertiesMap.put("bluecove.radio.version", BlueCoveImpl.version);
 		propertiesMap.put("bluecove.radio.manufacturer", "pyx4j.com");
 		propertiesMap.put("bluecove.stack.version", BlueCoveImpl.version);
@@ -82,7 +82,7 @@ class EmulatorLocalDevice {
 	}
 
 	void updateConfiguration() throws BluetoothStateException {
-		configuration = service.getEmulatorConfiguration();
+		configuration = service.getEmulatorConfiguration(deviceDescriptor.getAddress());
 		bluetooth_sd_attr_retrievable_max = Integer.valueOf(
 				configuration.getProperty("bluetooth.sd.attr.retrievable.max")).intValue();
 		bluetooth_l2cap_receiveMTU_max = Integer.valueOf(configuration.getProperty("bluetooth.l2cap.receiveMTU.max"))
@@ -98,6 +98,14 @@ class EmulatorLocalDevice {
 				"bluetooth.connected.page" };
 		for (int i = 0; i < property.length; i++) {
 			propertiesMap.put(property[i], configuration.getProperty(property[i]));
+		}
+	}
+
+	void updateLocalDeviceProperties() {
+		this.deviceDescriptor = service.getDeviceDescriptor(deviceDescriptor.getAddress());
+		try {
+			updateConfiguration();
+		} catch (BluetoothStateException ignore) {
 		}
 	}
 
@@ -129,7 +137,12 @@ class EmulatorLocalDevice {
 	}
 
 	boolean isLocalDevicePowerOn() {
-		return service.isLocalDevicePowerOn(deviceDescriptor.getAddress());
+		deviceDescriptor.setPoweredOn(service.isLocalDevicePowerOn(deviceDescriptor.getAddress()));
+		return deviceDescriptor.isPoweredOn();
+	}
+
+	void setLocalDevicePower(boolean on) {
+		deviceDescriptor.setPoweredOn(on);
 	}
 
 	String getLocalDeviceProperty(String property) {

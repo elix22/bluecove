@@ -47,10 +47,10 @@ public class EmulatorConfiguration implements Serializable {
 
 	private int connectionBufferSize = 8 * 1024;
 
-	private Map/* <String,String> */propertiesMap;
+	private Map<String, String> propertiesMap;
 
 	public EmulatorConfiguration() {
-		propertiesMap = new Hashtable();
+		propertiesMap = new Hashtable<String, String>();
 		final String TRUE = "true";
 		final String FALSE = "false";
 		propertiesMap.put("bluetooth.connected.devices.max", "7");

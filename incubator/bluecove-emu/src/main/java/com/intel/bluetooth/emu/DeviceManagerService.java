@@ -30,11 +30,15 @@ import javax.bluetooth.ServiceRegistrationException;
 
 public interface DeviceManagerService /* extends RoHService */{
 
-	public EmulatorConfiguration getEmulatorConfiguration();
-
 	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress);
 
+	public EmulatorConfiguration getEmulatorConfiguration(long localAddress);
+
 	public void releaseDevice(long localAddress);
+
+	public DeviceDescriptor getDeviceDescriptor(long localAddress);
+
+	public DeviceCommand pollCommand(long localAddress);
 
 	public boolean isLocalDevicePowerOn(long localAddress);
 

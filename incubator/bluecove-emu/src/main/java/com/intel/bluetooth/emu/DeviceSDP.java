@@ -35,7 +35,7 @@ class DeviceSDP {
 
 	private long address;
 
-	private Hashtable services = new Hashtable();
+	private Hashtable<Long, ServicesDescriptor> services = new Hashtable<Long, ServicesDescriptor>();
 
 	DeviceSDP(long address) {
 		this.address = address;
@@ -66,9 +66,9 @@ class DeviceSDP {
 	}
 
 	synchronized long[] searchServices(String[] uuidSet) {
-		Vector handles = new Vector();
+		Vector<Long> handles = new Vector<Long>();
 
-		for (Enumeration iterator = services.keys(); iterator.hasMoreElements();) {
+		for (Enumeration<Long> iterator = services.keys(); iterator.hasMoreElements();) {
 			Long key = (Long) iterator.nextElement();
 			ServicesDescriptor service = (ServicesDescriptor) services.get(key);
 			String[] serviceUuidSet = service.getUuidSet();
@@ -89,7 +89,7 @@ class DeviceSDP {
 
 		long[] h = new long[handles.size()];
 		int i = 0;
-		for (Enumeration e = handles.elements(); e.hasMoreElements();) {
+		for (Enumeration<Long> e = handles.elements(); e.hasMoreElements();) {
 			h[i++] = ((Long) e.nextElement()).intValue();
 		}
 		return h;

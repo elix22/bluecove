@@ -21,6 +21,9 @@
  */
 package com.intel.bluetooth;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.bluetooth.BluetoothStateException;
 
 import com.intel.bluetooth.emu.DeviceDescriptor;
@@ -28,6 +31,8 @@ import com.intel.bluetooth.emu.DeviceManagerService;
 import com.intel.bluetooth.rmi.Client;
 
 class EmulatorHelper {
+
+	private static Map<EmulatorLocalDevice, EmulatorCommandReceiver> receivers = new HashMap<EmulatorLocalDevice, EmulatorCommandReceiver>();
 
 	static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {
 		String host = BlueCoveImpl.getConfigProperty("bluecove.emu.rmiRegistryHost");
@@ -42,10 +47,16 @@ class EmulatorHelper {
 			throw (BluetoothStateException) UtilsJavaSE.initCause(new BluetoothStateException(e.getMessage()), e);
 		}
 		EmulatorLocalDevice device = new EmulatorLocalDevice(service, deviceDescriptor);
+		EmulatorCommandReceiver receiver = new EmulatorCommandReceiver(device);
+		receivers.put(device, receiver);
 		return device;
 	}
 
 	static void releaseDevice(EmulatorLocalDevice device) {
+		EmulatorCommandReceiver receiver = receivers.remove(device);
+		if (receiver != null) {
+			receiver.shutdownReceiver();
+		}
 		device.getDeviceManagerService().releaseDevice(device.getAddress());
 		device.destroy();
 	}
