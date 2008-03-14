@@ -122,6 +122,9 @@ class EmulatorLocalDevice {
 	}
 
 	boolean isActive() {
+		if (deviceDescriptor == null) {
+			return false;
+		}
 		return deviceDescriptor.isPoweredOn();
 	}
 
