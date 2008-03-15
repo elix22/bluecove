@@ -110,7 +110,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				try {
 					BlueCoveImpl.instance().setBluetoothStack(args[i]);
 				} catch (BluetoothStateException e) {
-					Logger.error("cna't init stack", e);
+					Logger.error("can't init stack", e);
 				}
 				app.updateTitle();
 			} else if (args[i].equalsIgnoreCase("--runonce")) {
