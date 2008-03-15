@@ -122,8 +122,16 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	private boolean deviceInquiryCanceled = false;
 
 	public static String CONST_ADAPTER_PREFIX = "/org/bluez/hci";
+
+	private class DiscoveryData {
+		public DeviceClass deviceClass;
+		public String name;
+	}
 	
-	private Map<Long, DeviceClass> address2DeviceClass;
+	// Different signal handlers get different device attributes
+	// so we cache the data until device discovery is finished
+	// and then create the RemoteDevice objects.
+	private Map<Long, DiscoveryData> address2DiscoveryData;
 	
 	// Used mainly in Unit Tests
 	static {
@@ -305,7 +313,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 		localDeviceBTAddress = convertBTAddress(adapter.GetAddress());
 		//deviceDescriptor = nativeOpenDevice(deviceID);
 		
-		address2DeviceClass = new HashMap<Long, DeviceClass>();
+		address2DiscoveryData = new HashMap<Long, DiscoveryData>();
 		
 		propertiesMap = new TreeMap<String, String>();
 		propertiesMap.put("bluetooth.api.version", "1.1");
@@ -527,7 +535,12 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 					devicesDiscovered.put(s.address, s);
 					DeviceClass deviceClass = new DeviceClass(s.deviceClass.intValue());
 					long longAddress = convertBTAddress(s.address);
-					address2DeviceClass.put(longAddress, deviceClass);
+					DiscoveryData discoveryData = address2DiscoveryData.get(longAddress);
+					if (discoveryData == null) {
+						discoveryData = new DiscoveryData();
+						address2DiscoveryData.put(longAddress, discoveryData);
+					}
+					discoveryData.deviceClass = deviceClass;
 				}
 			};
 			dbusConn.addSigHandler(Adapter.RemoteDeviceFound.class, remoteDeviceFound);
@@ -542,21 +555,12 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 						return; // ignore springer
 					}
 					long longAddress = convertBTAddress(s.address);
-					DeviceClass deviceClass = address2DeviceClass.get(longAddress);
-					if (deviceClass == null) {
-						DebugLog.debug("received remoteNameUpdated but we haven't received the corresponding deviceDiscovered signal yet.");
-						return;
+					DiscoveryData discoveryData = address2DiscoveryData.get(longAddress);
+					if (discoveryData == null) {
+						discoveryData = new DiscoveryData();
+						address2DiscoveryData.put(longAddress, discoveryData);
 					}
-					boolean paired = true; // TODO: how do I choose?
-
-					if (s.name.contains("springer")) {
-						DebugLog.debug("Ignoring springer. address:" + s.address);
-						devicesDiscovered.remove(s.address);
-						return;
-					}
-					RemoteDevice remoteDevice = RemoteDeviceHelper.createRemoteDevice(BluetoothStackBlueZ.this,
-						longAddress, s.name, paired);
-					listener.deviceDiscovered(remoteDevice, deviceClass);
+					discoveryData.name = s.name;
 				}
 			};
 			dbusConn.addSigHandler(Adapter.RemoteNameUpdated.class, remoteNameUpdated);
@@ -569,6 +573,19 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 				try {
 					discoveryCompletedEvent.wait();
 					DebugLog.debug(devicesDiscovered.size() +  " device(s) found");
+					
+					boolean paired = true; // TODO: how do I choose?
+
+					for (Long address : address2DiscoveryData.keySet()) {
+						DiscoveryData discoveryData = address2DiscoveryData.get(address);
+						if (discoveryData.name.contains("springer")) {
+							DebugLog.debug("Ignoring springer.");
+							continue;
+						}
+						RemoteDevice remoteDevice = RemoteDeviceHelper.createRemoteDevice(BluetoothStackBlueZ.this,
+								address, discoveryData.name, paired);
+						listener.deviceDiscovered(remoteDevice, discoveryData.deviceClass);
+					}
 					//adapter.CancelDiscovery(); // not authorized
 					// No, the SearchServicesThread will notify the listener.
 					//listener.inquiryCompleted(DiscoveryListener.INQUIRY_COMPLETED);
