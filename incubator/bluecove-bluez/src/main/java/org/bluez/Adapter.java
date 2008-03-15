@@ -680,27 +680,32 @@ boolean GetPeriodicDiscoveryNameResolving()
 
 	Possible error: Error.InvalidArguments
 
-array{UInt32} GetRemoteServiceHandles(String address, String match)
+*/
+	
+//array{UInt32} GetRemoteServiceHandles(String address, String match)
 
+/**
+ * 
 	This method will request the SDP database of a remote
 	device and retrieve the service record handles. To
 	request service browse send an empty match String.
+ */
+public UInt32[] GetRemoteServiceHandles(String address, String match)
+	throws Error.InvalidArguments,
+		 Error.InProgress,
+		 Error.ConnectionAttemptFailed,
+		 Error.Failed;
 
-	throws Error.InvalidArguments
-			 Error.InProgress
-			 Error.ConnectionAttemptFailed
-			 Error.Failed
+/**
+ * This method will request the SDP database of a remote
+ * device for a service record and return the binary
+ * stream of it.
+ *
+ */
+public byte[] GetRemoteServiceRecord(String address, UInt32 handle)
+	throws Error.InvalidArguments, Error.InProgress, Error.Failed;
 
-array{byte} GetRemoteServiceRecord(String address, UInt32 handle)
-
-	This method will request the SDP database of a remote
-	device for a service record and return the binary
-	stream of it.
-
-	throws Error.InvalidArguments
-			 Error.InProgress
-			 Error.Failed
-
+/*
 String GetRemoteServiceRecordAsXML(String address, UInt32 handle)
 
 	This method will request the SDP database of a remote
