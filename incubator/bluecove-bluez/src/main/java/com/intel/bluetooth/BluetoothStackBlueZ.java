@@ -741,14 +741,12 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 				ServiceRecordImpl serviceRecordImpl = new ServiceRecordImpl(this,
 					remoteDevice, handle.intValue());
 				serviceRecordImpl.loadByteArray(serviceRecordBytes);
-				int[] attributeIDs = serviceRecordImpl.getAttributeIDs();
+				/*int[] attributeIDs = serviceRecordImpl.getAttributeIDs();
 				for (int j=0; j < attributeIDs.length; ++j) {
 					DataElement dataElement = serviceRecordImpl.getAttributeValue(attributeIDs[j]);
 					DebugLog.debug("dataElement:" + ((Object)dataElement).toString());
-				}
-				ServiceRecord serviceRecord = new ServiceRecordImpl(this,
-					remoteDevice, handle.intValue());
-				sst.addServicesRecords(serviceRecord);
+				}*/
+				sst.addServicesRecords(serviceRecordImpl);
 			} catch (IOException e) {
 				DebugLog.debug("Failed to load serviceRecordBytes", e);
 				// TODO: Is there any logical reason to parse other records?
