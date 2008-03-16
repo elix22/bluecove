@@ -1,5 +1,6 @@
 /**
- * BlueCove Linux module - Java library for Bluetooth on Linux
+ * BlueCove BlueZ module - Java library for Bluetooth on Linux
+ *  Copyright (C) 2008 Mina Shokry
  *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  *  Licensed to the Apache Software Foundation (ASF) under one
@@ -20,7 +21,7 @@
  *  under the License.
  *
  * Author: vlads
- * Created on Jan 31, 2008, extracted from bluecove code
+ * Created on Java 15, 2008, extracted from bluecove code
  *
  * @version $Id$
  */
@@ -72,6 +73,20 @@ void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, 
 jmethodID getGetMethodID(JNIEnv * env, jclass clazz, const char *name, const char *sig);
 
 bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer);
+
+struct DeviceInquiryCallback {
+    jobject peer;
+    jmethodID deviceDiscoveredCallbackMethod;
+
+    jobject startedNotify;
+    jmethodID startedNotifyNotifyMethod;
+};
+
+void DeviceInquiryCallback_Init(struct DeviceInquiryCallback* callback);
+bool DeviceInquiryCallback_builDeviceInquiryCallbacks(JNIEnv * env, struct DeviceInquiryCallback* callback, jobject peer, jobject startedNotify);
+bool DeviceInquiryCallback_callDeviceInquiryStartedCallback(JNIEnv * env, struct DeviceInquiryCallback* callback);
+bool DeviceInquiryCallback_callDeviceDiscovered(JNIEnv * env, struct DeviceInquiryCallback* callback, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired);
+
 
 #endif  /* _BLUECOVE_COMMON_H */
 

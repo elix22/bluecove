@@ -172,7 +172,8 @@
                             <outputDirectory>${native.source.dir}</outputDirectory>
                             <classNames>
                                 <className>com.intel.bluetooth.BluetoothStackBlueZ</className>
-                                <!--className>com.intel.bluetooth.BluetoothStackBlueZConsts</className>
+								<className>com.intel.bluetooth.BluetoothStackBlueZConsts</className>
+                                <!--
                                 <className>com.intel.bluetooth.BluetoothStackBlueZNativeTests</className-->
                             </classNames>
                         </configuration>
@@ -190,17 +191,17 @@
                                 <source>
                                     <directory>${native.source.dir}</directory>
                                     <fileNames>
-                                        <fileName>common.c</fileName>
-                                        <!--
                                         <fileName>BlueCoveBlueZ.c</fileName>
-                                        <fileName>BlueCoveBlueZ_LocalDevice.c</fileName>
-                                        <fileName>BlueCoveBlueZ_Discovery.c</fileName>
-                                        <fileName>BlueCoveBlueZ_SDPServer.c</fileName>
-                                        <fileName>BlueCoveBlueZ_SDPQuery.c</fileName>
+                                        <fileName>common.c</fileName>
                                         <fileName>BlueCoveBlueZ_RFCOMM.c</fileName>
                                         <fileName>BlueCoveBlueZ_RFCOMMServer.c</fileName>
                                         <fileName>BlueCoveBlueZ_L2CAP.c</fileName>
                                         <fileName>BlueCoveBlueZ_L2CAPServer.c</fileName>
+                                        <fileName>BlueCoveBlueZ_LocalDevice.c</fileName>
+                                        <!--
+                                        <fileName>BlueCoveBlueZ_Discovery.c</fileName>
+                                        <fileName>BlueCoveBlueZ_SDPServer.c</fileName>
+                                        <fileName>BlueCoveBlueZ_SDPQuery.c</fileName>
                                         <fileName>BlueCoveBlueZ_Tests.c</fileName>
                                         -->
                                     </fileNames>
@@ -215,6 +216,8 @@
                             </compilerStartOptions>
                             <linkerStartOptions>
                                 <linkerStartOption>-shared</linkerStartOption>
+                                <linkerStartOption>-nodefaultlibs</linkerStartOption>
+                                <linkerStartOption>-lstdc++</linkerStartOption>
                                 <linkerStartOption>-nodefaultlibs</linkerStartOption>
                             </linkerStartOptions>
                         </configuration>

@@ -104,7 +104,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	//private int deviceDescriptor;
 
 	/**
-	 * The parsed long value of the BT 00:00:... address.
+	 * The parsed long value of the adapter's BT 00:00:... address.
 	 */
 	private long localDeviceBTAddress = -1;
 
@@ -122,6 +122,10 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	private boolean deviceInquiryCanceled = false;
 
 	public static String CONST_ADAPTER_PREFIX = "/org/bluez/hci";
+	
+	// This native lib contains the rfcomm and l2cap linux-specific
+	// implementation for this bluez d-bus implementation.
+	public static String NATIVE_BLUEZ_LINUX_LIB = "bluecovebluez";
 
 	private class DiscoveryData {
 		public DeviceClass deviceClass;
@@ -136,8 +140,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	// Used mainly in Unit Tests
 	static {
 		NativeLibLoader.isAvailable("unix-java", UnixSocket.class);
-		String sysName = System.getProperty("os.name");
-		System.out.println("os.name:" + sysName);
+		//String sysName = System.getProperty("os.name");
+		//System.out.println("os.name:" + sysName);
 		try {
 			NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_BLUEZ, BluetoothStackBlueZ.class);
 		} catch(Throwable ex) {
@@ -154,7 +158,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 		return BlueCoveImpl.STACK_BLUEZ;
 	}
 
-	//public native int getLibraryVersionNative();
+	public native int getLibraryVersionNative();
 
 	public int getLibraryVersion() throws BluetoothStateException {
 		DebugLog.debug("for breakpoint");
@@ -1016,57 +1020,24 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 
 	// --- Shared Client and Server RFCOMM connections
 
-	//public native int connectionRfRead(long handle) throws IOException;
-	public int connectionRfRead(long handle) throws IOException {
+	public native int connectionRfRead(long handle) throws IOException;
 
-		throw new IOException("connectionRfRead() Not supported yet.");
-	}
+	public native int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException;
 
-	//public native int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException;
-	public int connectionRfRead(long handle, byte[] b, int off, int len) throws IOException {
+	public native int connectionRfReadAvailable(long handle) throws IOException;
 
-		throw new IOException("connectionRfRead() Not supported yet.");
-	}
+	public native void connectionRfWrite(long handle, int b) throws IOException;
 
-	//public native int connectionRfReadAvailable(long handle) throws IOException;
-	public int connectionRfReadAvailable(long handle) throws IOException {
+	public native void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException;
 
-		throw new IOException("connectionRfReadAvailable() Not supported yet.");
-	}
+	public native void connectionRfFlush(long handle) throws IOException;
 
-	//public native void connectionRfWrite(long handle, int b) throws IOException;
-	public void connectionRfWrite(long handle, int b) throws IOException {
-
-		throw new IOException("connectionRfWrite() Not supported yet.");
-	}
-
-	//public native void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException;
-	public void connectionRfWrite(long handle, byte[] b, int off, int len) throws IOException {
-
-		throw new IOException("connectionRfWrite() Not supported yet.");
-	}
-
-	//public native void connectionRfFlush(long handle) throws IOException;
-	public void connectionRfFlush(long handle) throws IOException {
-
-		throw new IOException("connectionRfFlush() Not supported yet.");
-	}
-
-	//public native long getConnectionRfRemoteAddress(long handle) throws IOException;
-	public long getConnectionRfRemoteAddress(long handle) throws IOException {
-
-		throw new IOException("getConnectionRfRemoteAddress() Not supported yet.");
-	}
+	public native long getConnectionRfRemoteAddress(long handle) throws IOException;
 
 	// --- Client and Server L2CAP connections
 
-	//private native long l2OpenClientConnectionImpl(long localDeviceBTAddress, long address, int channel,
-			//boolean authenticate, boolean encrypt, int receiveMTU, int transmitMTU, int timeout) throws IOException;
-	private long l2OpenClientConnectionImpl(long address, int channel,
-		boolean authenticate, boolean encrypt, int receiveMTU, int transmitMTU, int timeout) throws IOException {
-
-		throw new IOException("l2OpenClientConnectionImpl() Not supported yet.");
-	}
+	private native long l2OpenClientConnectionImpl(long localDeviceBTAddress, long address, int channel,
+			boolean authenticate, boolean encrypt, int receiveMTU, int transmitMTU, int timeout) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -1076,7 +1047,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	 */
 	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
 		throws IOException {
-		return l2OpenClientConnectionImpl(params.address, params.channel,
+		
+		return l2OpenClientConnectionImpl(localDeviceBTAddress, params.address, params.channel,
 				params.authenticate, params.encrypt, receiveMTU, transmitMTU, params.timeout);
 	}
 
@@ -1085,27 +1057,13 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2CloseClientConnection(long)
 	 */
-	//public native void l2CloseClientConnection(long handle) throws IOException;
-	public void l2CloseClientConnection(long handle) throws IOException {
+	public native void l2CloseClientConnection(long handle) throws IOException;
 
-		throw new IOException("l2CloseClientConnection() Not supported yet.");
-	}
-
-	//private native long l2ServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
-			//boolean encrypt, boolean master, boolean timeouts, int backlog, int receiveMTU, int transmitMTU)
-			//throws IOException;
-	private long l2ServerOpenImpl(boolean authorize, boolean authenticate,
+	private native long l2ServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
 			boolean encrypt, boolean master, boolean timeouts, int backlog, int receiveMTU, int transmitMTU)
-			throws IOException {
+			throws IOException;
 
-		throw new IOException("l2ServerOpenImpl() Not supported yet.");
-	}
-
-	//public native int l2ServerGetPSMImpl(long handle) throws IOException;
-	public int l2ServerGetPSMImpl(long handle) throws IOException {
-
-		throw new IOException("l2ServerGetPSMImpl() Not supported yet.");
-	}
+	public native int l2ServerGetPSMImpl(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -1116,7 +1074,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
 		final int listen_backlog = 1;
-		long socket = l2ServerOpenImpl(params.authorize, params.authenticate,
+		long socket = l2ServerOpenImpl(this.localDeviceBTAddress, params.authorize, params.authenticate,
 				params.encrypt, params.master, params.timeouts, listen_backlog, receiveMTU, transmitMTU);
 		boolean success = false;
 		try {
@@ -1148,11 +1106,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2ServerAcceptAndOpenServerConnection(long)
 	 */
-	//public native long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException;
-	public long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException {
-
-		throw new IOException("l2ServerAcceptAndOpenServerConnection() Not supported yet.");
-	}
+	public native long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -1163,11 +1117,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 		l2CloseClientConnection(handle);
 	}
 
-	//private native void l2ServerCloseImpl(long handle, boolean quietly) throws IOException;
-	private void l2ServerCloseImpl(long handle, boolean quietly) throws IOException {
-
-		throw new IOException("l2ServerCloseImpl() Not supported yet.");
-	}
+	private native void l2ServerCloseImpl(long handle, boolean quietly) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -1189,11 +1139,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2Ready(long)
 	 */
-	//public native boolean l2Ready(long handle) throws IOException;
-	public boolean l2Ready(long handle) throws IOException {
-
-		throw new IOException("l2Ready() Not supported yet.");
-	}
+	public native boolean l2Ready(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
@@ -1211,55 +1157,35 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2send(long, byte[])
 	 */
-	//public native void l2Send(long handle, byte[] data) throws IOException;
-	public void l2Send(long handle, byte[] data) throws IOException {
-
-		throw new IOException("l2Send() Not supported yet.");
-	}
+	public native void l2Send(long handle, byte[] data) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2GetReceiveMTU(long)
 	 */
-	//public native int l2GetReceiveMTU(long handle) throws IOException;
-	public int l2GetReceiveMTU(long handle) throws IOException {
-
-		throw new IOException("l2GetReceiveMTU() Not supported yet.");
-	}
+	public native int l2GetReceiveMTU(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2GetTransmitMTU(long)
 	 */
-	//public native int l2GetTransmitMTU(long handle) throws IOException;
-	public int l2GetTransmitMTU(long handle) throws IOException {
-
-		throw new IOException("l2GetTransmitMTU() Not supported yet.");
-	}
+	public native int l2GetTransmitMTU(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2RemoteAddress(long)
 	 */
-	//public native long l2RemoteAddress(long handle) throws IOException;
-	public long l2RemoteAddress(long handle) throws IOException {
-
-		throw new IOException("l2RemoteAddress() Not supported yet.");
-	}
+	public native long l2RemoteAddress(long handle) throws IOException;
 
 	/*
 	 * (non-Javadoc)
 	 *
 	 * @see com.intel.bluetooth.BluetoothStack#l2GetSecurityOpt(long, int)
 	 */
-	//public native int l2GetSecurityOpt(long handle, int expected) throws IOException;
-	public int l2GetSecurityOpt(long handle, int expected) throws IOException {
-
-		throw new IOException("l2GetSecurityOpt() Not supported yet.");
-	}
+	public native int l2GetSecurityOpt(long handle, int expected) throws IOException;
 
 
 	@Override

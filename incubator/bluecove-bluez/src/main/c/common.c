@@ -1,5 +1,6 @@
 /**
- * BlueCove Linux module - Java library for Bluetooth on Linux
+ * BlueCove BlueZ module - Java library for Bluetooth on Linux
+ *  Copyright (C) 2008 Mina Shokry
  *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  *  Licensed to the Apache Software Foundation (ASF) under one
@@ -19,12 +20,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- * Author: vlads
- * Created on Jan 31, 2008, extracted from bluecove code
- *
  * @version $Id$
  */
-
 #define CPP__FILE "common.c"
 
 #include "common.h"
@@ -226,4 +223,69 @@ jmethodID getGetMethodID(JNIEnv * env, jclass clazz, const char *name, const cha
     return methodID;
 }
 
+void DeviceInquiryCallback_Init(struct DeviceInquiryCallback* callback) {
+    callback->peer = NULL;
+    callback->deviceDiscoveredCallbackMethod = NULL;
+    callback->startedNotify = NULL;
+    callback->startedNotifyNotifyMethod = NULL;
+}
+
+bool DeviceInquiryCallback_builDeviceInquiryCallbacks(JNIEnv * env, struct DeviceInquiryCallback* callback, jobject peer, jobject startedNotify) {
+    jclass peerClass = (*env)->GetObjectClass(env, peer);
+
+    if (peerClass == NULL) {
+        throwRuntimeException(env, "Fail to get Object Class");
+        return false;
+    }
+
+    jmethodID deviceDiscoveredCallbackMethod = (*env)->GetMethodID(env, peerClass, "deviceDiscoveredCallback", "(Ljavax/bluetooth/DiscoveryListener;JILjava/lang/String;Z)V");
+    if (deviceDiscoveredCallbackMethod == NULL) {
+        throwRuntimeException(env, "Fail to get MethodID deviceDiscoveredCallback");
+        return false;
+    }
+
+    jclass notifyClass = (*env)->GetObjectClass(env, startedNotify);
+    if (notifyClass == NULL) {
+        throwRuntimeException(env, "Fail to get Object Class");
+        return false;
+    }
+    jmethodID notifyMethod = (*env)->GetMethodID(env, notifyClass, "deviceInquiryStartedCallback", "()V");
+    if (notifyMethod == NULL) {
+        throwRuntimeException(env, "Fail to get MethodID deviceInquiryStartedCallback");
+        return false;
+    }
+
+    callback->peer = peer;
+    callback->deviceDiscoveredCallbackMethod = deviceDiscoveredCallbackMethod;
+    callback->startedNotify = startedNotify;
+    callback->startedNotifyNotifyMethod = notifyMethod;
+
+    return true;
+}
+
+bool DeviceInquiryCallback_callDeviceInquiryStartedCallback(JNIEnv * env, struct DeviceInquiryCallback* callback) {
+    if ((callback->startedNotify == NULL) || (callback->startedNotifyNotifyMethod == NULL)) {
+        throwRuntimeException(env, "DeviceInquiryCallback not initialized");
+        return false;
+    }
+    (*env)->CallVoidMethod(env, callback->startedNotify, callback->startedNotifyNotifyMethod);
+    if ((*env)->ExceptionCheck(env)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+bool DeviceInquiryCallback_callDeviceDiscovered(JNIEnv * env, struct DeviceInquiryCallback* callback, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired) {
+    if ((callback->peer == NULL) || (callback->deviceDiscoveredCallbackMethod == NULL)) {
+        throwRuntimeException(env, "DeviceInquiryCallback not initialized");
+        return false;
+    }
+    (*env)->CallVoidMethod(env, callback->peer, callback->deviceDiscoveredCallbackMethod, listener, deviceAddr, deviceClass, name, paired);
+    if ((*env)->ExceptionCheck(env)) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
