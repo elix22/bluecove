@@ -706,6 +706,10 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 		// TODO: services discovery
 		
 		// 1. uuidValues need to be converted somehow to a match String.
+		// http://wiki.bluez.org/wiki/HOWTO/DiscoveringServices states:
+		// "Currently, the BlueZ D-Bus API supports only a single pattern."
+		// So, instead we match everything and do our own matching further
+		// down.
 		String match = "";
 		for (int j=0; j < uuidValues.length; ++j) {
 			// I expect something like this:
@@ -714,7 +718,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 			String hex = bi.abs().toString(16);
 			//if (hex.length() == 33)
 				//hex = hex.substring(1); // minus sign
-			DebugLog.debug("service uuid:" + hex);
+			//DebugLog.debug("service uuid:" + hex);
 			UUID protocolUUID = new UUID(hex, false);
 		}
 
@@ -745,12 +749,24 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 				ServiceRecordImpl serviceRecordImpl = new ServiceRecordImpl(this,
 					remoteDevice, handle.intValue());
 				serviceRecordImpl.loadByteArray(serviceRecordBytes);
+				for (int j=0; j < uuidValues.length; ++j) {
+					// I expect something like this:
+					// 000000020000100080000002ee000002
+					BigInteger bi = new BigInteger(uuidValues[j]);
+					String hex = bi.abs().toString(16);
+					UUID protocolUUID = new UUID(hex, false);
+					if (!serviceRecordImpl.hasServiceClassUUID(protocolUUID)) {
+						DebugLog.debug("ignoring service uuid:" + hex);
+						continue;
+					}
+					DebugLog.debug("found service uuid:" + hex);
+					sst.addServicesRecords(serviceRecordImpl);
+				}
 				/*int[] attributeIDs = serviceRecordImpl.getAttributeIDs();
 				for (int j=0; j < attributeIDs.length; ++j) {
 					DataElement dataElement = serviceRecordImpl.getAttributeValue(attributeIDs[j]);
 					DebugLog.debug("dataElement:" + ((Object)dataElement).toString());
 				}*/
-				sst.addServicesRecords(serviceRecordImpl);
 			} catch (IOException e) {
 				DebugLog.debug("Failed to load serviceRecordBytes", e);
 				// TODO: Is there any logical reason to parse other records?
@@ -933,50 +949,35 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 
 	// --- Client RFCOMM connections
 
-	//private native long connectionRfOpenClientConnectionImpl(long localDeviceBTAddress, long address, int channel,
-			//boolean authenticate, boolean encrypt, int timeout) throws IOException;
-	private long connectionRfOpenClientConnectionImpl(long address, int channel,
-		boolean authenticate, boolean encrypt, int timeout) throws IOException {
-		throw new IOException("connectionRfOpenClientConnectionImpl() Not supported yet.");
-	}
+	private native long connectionRfOpenClientConnectionImpl(long localDeviceBTAddress, long address, int channel,
+		boolean authenticate, boolean encrypt, int timeout) throws IOException;
 
 	public long connectionRfOpenClientConnection(BluetoothConnectionParams params) throws IOException {
 		DebugLog.debug("connectionRfOpenClientConnection()");
-		return connectionRfOpenClientConnectionImpl(params.address, params.channel,
-				params.authenticate, params.encrypt, params.timeout);
+		return connectionRfOpenClientConnectionImpl(this.localDeviceBTAddress,
+			params.address, params.channel, params.authenticate,
+			params.encrypt, params.timeout);
 	}
 
-	//public native void connectionRfCloseClientConnection(long handle) throws IOException;
-	public void connectionRfCloseClientConnection(long handle) throws IOException {
-		throw new IOException("connectionRfCloseClientConnection() Not supported yet.");
-	}
+	public native void connectionRfCloseClientConnection(long handle) throws IOException;
 
-	//public native int rfGetSecurityOptImpl(long handle) throws IOException;
-	public int rfGetSecurityOptImpl(long handle) throws IOException {
-		throw new IOException("rfGetSecurityOptImpl() Not supported yet.");
-	}
+	public native int rfGetSecurityOptImpl(long handle) throws IOException;
 
 	public int rfGetSecurityOpt(long handle, int expected) throws IOException {
 		return rfGetSecurityOptImpl(handle);
 	}
 
-	//private native long rfServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
-			//boolean encrypt, boolean master, boolean timeouts, int backlog) throws IOException;
-	private long rfServerOpenImpl(boolean authorize, boolean authenticate,
-		boolean encrypt, boolean master, boolean timeouts, int backlog) throws IOException {
-		throw new IOException("rfServerOpenImpl() Not supported yet.");
-	}
+	private native long rfServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
+		boolean encrypt, boolean master, boolean timeouts, int backlog) throws IOException;
 
-	//private native int rfServerGetChannelIDImpl(long handle) throws IOException;
-	private int rfServerGetChannelIDImpl(long handle) throws IOException {
-		throw new IOException("rfServerGetChannelIDImpl() Not supported yet.");
-	}
+	private native int rfServerGetChannelIDImpl(long handle) throws IOException;
 
 	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
 		throws IOException {
 		final int listen_backlog = 1;
-		long socket = rfServerOpenImpl(params.authorize, params.authenticate,
-				params.encrypt, params.master, params.timeouts, listen_backlog);
+		long socket = rfServerOpenImpl(this.localDeviceBTAddress,
+			params.authorize, params.authenticate, params.encrypt,
+			params.master, params.timeouts, listen_backlog);
 		boolean success = false;
 		try {
 			int channel = rfServerGetChannelIDImpl(socket);
@@ -991,10 +992,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 		}
 	}
 
-	//private native void rfServerCloseImpl(long handle, boolean quietly) throws IOException;
-	private void rfServerCloseImpl(long handle, boolean quietly) throws IOException {
-		throw new IOException("rfServerCloseImpl() Not supported yet.");
-	}
+	private native void rfServerCloseImpl(long handle, boolean quietly) throws IOException;
 
 	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
 		try {
