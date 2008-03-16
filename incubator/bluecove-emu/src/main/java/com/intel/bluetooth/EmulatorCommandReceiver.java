@@ -24,6 +24,7 @@ package com.intel.bluetooth;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -68,8 +69,11 @@ class EmulatorCommandReceiver extends Thread {
 		case updateLocalDeviceProperties:
 			localDevice.updateLocalDeviceProperties();
 			break;
-		case createThreadDump:
-			threadDump();
+		case createThreadDumpStdOut:
+			threadDump(false);
+			break;
+		case createThreadDumpFile:
+			threadDump(true);
 			break;
 		case shutdownJVM:
 			System.exit(0);
@@ -78,12 +82,17 @@ class EmulatorCommandReceiver extends Thread {
 		}
 	}
 
-	static void threadDump() {
+	static void threadDump(boolean useFile) {
 		SimpleDateFormat fmt = new SimpleDateFormat("MM-dd_HH-mm-ss");
-		FileWriter out = null;
+		OutputStreamWriter out = null;
 		try {
-			File file = new File("ThreadDump-" + fmt.format(new Date()) + ".log");
-			out = new FileWriter(file);
+			File file = null;
+			if (useFile) {
+				file = new File("ThreadDump-" + fmt.format(new Date()) + ".log");
+				out = new FileWriter(file);
+			} else {
+				out = new OutputStreamWriter(System.out);
+			}
 			Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
 			for (Iterator<Map.Entry<Thread, StackTraceElement[]>> iterator = traces.entrySet().iterator(); iterator
 					.hasNext();) {
@@ -102,7 +111,10 @@ class EmulatorCommandReceiver extends Thread {
 				out.write("---------------------------------\n");
 			}
 			out.close();
-			System.err.println("Full ThreadDump created " + file.getAbsolutePath());
+			out = null;
+			if (useFile) {
+				System.err.println("Full ThreadDump created " + file.getAbsolutePath());
+			}
 		} catch (IOException ignore) {
 		} finally {
 			try {
