@@ -28,6 +28,7 @@ import javax.bluetooth.DataElement;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 
+import net.sf.bluecove.Configuration;
 import net.sf.bluecove.RemoteDeviceInfo;
 import net.sf.bluecove.TestResponderCommon;
 import net.sf.bluecove.util.CollectionUtils;
@@ -73,7 +74,13 @@ public class ServiceRecords {
 		String info = choice.getSelectedItem();
 		int k = info.indexOf(';');
 		if (k != -1) {
-			return info.substring(0, k);
+			String url = info.substring(0, k);
+			if (Configuration.encrypt.booleanValue()) {
+				url += ";authenticate=true;encrypt=true";
+			} else if (Configuration.authenticate.booleanValue()) {
+				url += ";authenticate=true";
+			}
+			return url;
 		}
 		return null;
 	}
