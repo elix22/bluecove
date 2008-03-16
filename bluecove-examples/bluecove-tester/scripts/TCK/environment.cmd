@@ -13,12 +13,12 @@ set BLUECOVE_JAR=%BLUECOVE_HOME%\bluecove\target\bluecove-%VERSION%.jar
 set MICROEMULATOR_HOME=%BLUECOVE_HOME%\3p\microemulator
 
 
-set TCK_VERSION_ID=1-1_006
+set TCK_VERSION_ID=1-1_007
 
 set TCK_JSR82_HOME=%BLUECOVE_HOME%\3p\TCK\JSR82_%TCK_VERSION_ID%_TCK
 
 
-set GATLING_HOME=%BLUECOVE_HOME%\3p\TCK\gatling-1.0.03
+set GATLING_HOME=%BLUECOVE_HOME%\3p\TCK\gatling-1.0.04
 
 set GATLING_CORE_ROOT=%GATLING_HOME%\plugins\com.motorola.test.tckui_0.1.0\gatling_core
 
