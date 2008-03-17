@@ -27,6 +27,7 @@ public class BluecoveUI extends JFrame {
 	private Action exitAction;
 	private Action aboutAction;
 	
+	private EmulatorPane emulatorPane;
 	
 	BluecoveUI() {
 
@@ -55,7 +56,7 @@ public class BluecoveUI extends JFrame {
 
 		createApplication();
 		setBounds(50, 50, screenSize.width - 100, screenSize.height - 100);
-		splashWindow.setVisible(false);
+		splashWindow.dispose();
 		setVisible(true);
 	}
 
@@ -64,7 +65,8 @@ public class BluecoveUI extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Bluecove Sim");
 		setJMenuBar(createMenuBar());
-		//		getContentPane().add(getGraphicsEngine().getGLCanvas()); 
+		emulatorPane = new EmulatorPane();
+		getContentPane().add(emulatorPane); 
 	}
 
 	private void createActions() {
