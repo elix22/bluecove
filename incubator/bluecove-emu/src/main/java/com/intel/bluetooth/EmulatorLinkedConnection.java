@@ -23,6 +23,8 @@ package com.intel.bluetooth;
 
 import java.io.IOException;
 
+import javax.bluetooth.BluetoothConnectionException;
+
 /**
  * @author vlads
  * 
@@ -33,6 +35,13 @@ abstract class EmulatorLinkedConnection extends EmulatorConnection {
 
 	EmulatorLinkedConnection(EmulatorLocalDevice localDevice, long handle) {
 		super(localDevice, handle);
+	}
+
+	void connectVerify(BluetoothConnectionParams params) throws IOException {
+		if ((params.encrypt) && (!localDevice.getConfiguration().isLinkEncryptionSupported())) {
+			throw new BluetoothConnectionException(BluetoothConnectionException.SECURITY_BLOCK,
+					"encrypt mode not supported");
+		}
 	}
 
 	void connect(long remoteAddress, long connectionHandle) throws IOException {

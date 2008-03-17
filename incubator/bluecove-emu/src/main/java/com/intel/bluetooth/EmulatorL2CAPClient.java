@@ -38,6 +38,7 @@ class EmulatorL2CAPClient extends EmulatorLinkedConnection {
 	}
 
 	void connect(BluetoothConnectionParams params, int receiveMTU, int transmitMTU) throws IOException {
+		connectVerify(params);
 		this.connectionHandle = localDevice.getDeviceManagerService().l2Connect(localDevice.getAddress(),
 				params.address, params.channel, params.authenticate, params.encrypt, receiveMTU, params.timeout);
 		this.remoteAddress = params.address;

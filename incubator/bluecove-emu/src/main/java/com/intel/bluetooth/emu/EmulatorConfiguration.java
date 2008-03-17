@@ -47,6 +47,8 @@ public class EmulatorConfiguration implements Serializable {
 
 	private int connectionBufferSize = 8 * 1024;
 
+	private boolean linkEncryptionSupported = true;
+
 	private Map<String, String> propertiesMap;
 
 	public EmulatorConfiguration() {
@@ -122,5 +124,13 @@ public class EmulatorConfiguration implements Serializable {
 
 	public void setConnectionBufferSize(int connectionBufferSize) {
 		this.connectionBufferSize = connectionBufferSize;
+	}
+
+	public boolean isLinkEncryptionSupported() {
+		return this.linkEncryptionSupported;
+	}
+
+	public void setLinkEncryptionSupported(boolean linkEncryptionSupported) {
+		this.linkEncryptionSupported = linkEncryptionSupported;
 	}
 }
