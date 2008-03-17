@@ -346,11 +346,11 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 		//nativeCloseDevice(deviceDescriptor);
 	}
 
-	//public native void enableNativeDebug(Class nativeDebugCallback, boolean on);
-	public void enableNativeDebug(Class nativeDebugCallback, boolean on) {
+	public native void enableNativeDebug(Class nativeDebugCallback, boolean on);
+	/*public void enableNativeDebug(Class nativeDebugCallback, boolean on) {
 
 		DebugLog.debug("enableNativeDebug()");
-	}
+	}*/
 
 	/*
 	 * (non-Javadoc)
@@ -358,7 +358,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable,
 	 * @see com.intel.bluetooth.BluetoothStack#isCurrentThreadInterruptedCallback()
 	 */
 	public boolean isCurrentThreadInterruptedCallback() {
-		DebugLog.debug("isCurrentThreadInterruptedCallback()");
+		//DebugLog.debug("isCurrentThreadInterruptedCallback()");
 		return Thread.interrupted();
 	}
 
