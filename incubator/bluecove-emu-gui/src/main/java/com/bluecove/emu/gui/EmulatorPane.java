@@ -49,7 +49,7 @@ public class EmulatorPane extends JPanel {
 		splitPane.setBorder(null);
 		splitPane.setFocusable(false);
 		splitPane.setOneTouchExpandable(true);
-		splitPane.setResizeWeight(0.4);
+		splitPane.setResizeWeight(0.2);
 		return splitPane;
 	}
 

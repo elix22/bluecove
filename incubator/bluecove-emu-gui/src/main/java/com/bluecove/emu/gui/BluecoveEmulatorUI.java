@@ -12,7 +12,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
 
-public class BluecoveUI extends JFrame {
+public class BluecoveEmulatorUI extends JFrame {
 
 	/**
 	 * Global static product identifier.
@@ -29,7 +29,7 @@ public class BluecoveUI extends JFrame {
 	
 	private EmulatorPane emulatorPane;
 	
-	BluecoveUI() {
+	BluecoveEmulatorUI() {
 
 		try {
 			UIManager
@@ -78,7 +78,7 @@ public class BluecoveUI extends JFrame {
 		
 		aboutAction = new AbstractAction("About") {
 			public void actionPerformed(ActionEvent event) {
-				Splash.createSplashDialog(BluecoveUI.this);
+				Splash.createSplashDialog(BluecoveEmulatorUI.this);
 			}
 		};
 	}
@@ -102,6 +102,6 @@ public class BluecoveUI extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new BluecoveUI();
+		new BluecoveEmulatorUI();
 	}
 }

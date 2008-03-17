@@ -39,13 +39,13 @@ public class Splash {
 	private static JLabel createSplash() {
 		JLabel image = null;
 		try {
-			image = new JLabel(new ImageIcon(ImageIO.read(BluecoveUI.class
+			image = new JLabel(new ImageIcon(ImageIO.read(BluecoveEmulatorUI.class
 					.getResource("/images/splash.png"))));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		image.setBorder(BorderFactory.createRaisedBevelBorder());
-		JLabel label = new JLabel("v" + BluecoveUI.VERSION_NUMBER);
+		JLabel label = new JLabel("v" + BluecoveEmulatorUI.VERSION_NUMBER);
 		image.setLayout(null);
 		image.add(label);
 		label.setFont(label.getFont().deriveFont(Font.BOLD));
