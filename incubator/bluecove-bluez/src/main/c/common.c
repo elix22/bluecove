@@ -1,6 +1,5 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
- *  Copyright (C) 2008 Mina Shokry
  *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  *  Licensed to the Apache Software Foundation (ASF) under one
@@ -20,7 +19,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- * @version $Id$
+ * @version $Id: BlueCoveBlueZ_Tests.c 1721 2008-01-31 01:12:08Z skarzhevskyy $
  */
 #define CPP__FILE "common.c"
 

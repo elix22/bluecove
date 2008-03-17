@@ -1,6 +1,5 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
- *  Copyright (C) 2008 Mina Shokry
  *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  *  Licensed to the Apache Software Foundation (ASF) under one
