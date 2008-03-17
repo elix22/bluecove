@@ -63,34 +63,3 @@ JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_t
 	}
 	(*env)->ReleaseStringUTFChars(env, message, c);
 }
-
-JNIEXPORT jbyteArray JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZNativeTests_testServiceRecordConvert
-  (JNIEnv *env, jclass peer, jbyteArray record) {
-    int length = (*env)->GetArrayLength(env, record);
-	jbyte *bytes = (*env)->GetByteArrayElements(env, record, 0);
-
-	int length_scanned = length;
-    sdp_record_t *rec = sdp_extract_pdu((uint8_t*)bytes, &length_scanned);
-    debug("pdu scanned %i -> %i", length, length_scanned);
-    if (rec == NULL) {
-        throwServiceRegistrationException(env, "Can not convert SDP record. [%d] %s", errno, strerror(errno));
-        (*env)->ReleaseByteArrayElements(env, record, bytes, 0);
-        return NULL;
-    }
-    debugServiceRecord(env, rec);
-
-    sdp_buf_t pdu;
-    sdp_gen_record_pdu(rec, &pdu);
-    debug("pdu.data_size %i -> %i", length, pdu.data_size);
-
-    // construct byte array to hold pdu
-	jbyteArray result = (*env)->NewByteArray(env, pdu.data_size);
-    jbyte *result_bytes = (*env)->GetByteArrayElements(env, result, 0);
-	memcpy(result_bytes, pdu.data, pdu.data_size);
-	(*env)->ReleaseByteArrayElements(env, result, result_bytes, 0);
-
-    free(pdu.data);
-
-	(*env)->ReleaseByteArrayElements(env, record, bytes, 0);
-    return result;
-}
