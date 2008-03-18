@@ -113,7 +113,7 @@ public class TestResponderServerL2CAP extends Thread {
 			int errorCount = 0;
 			isRunning = true;
 			boolean showServiceRecordOnce = true;
-			while (!isStoped) {
+			serviceRunLoop: while (!isStoped) {
 				L2CAPConnection channel;
 				try {
 					Logger.info("Accepting L2CAP connections");
@@ -128,14 +128,15 @@ public class TestResponderServerL2CAP extends Thread {
 					isStoped = true;
 					break;
 				} catch (Throwable e) {
-					if (errorCount > 3) {
+					Logger.error("acceptAndOpen ", e);
+					if (!(isStoped) && (errorCount > 3)) {
 						isStoped = true;
+						Logger.error("L2CAP Server stoped, too many errors");
 					}
 					if (isStoped) {
-						return;
+						break serviceRunLoop;
 					}
 					errorCount++;
-					Logger.error("acceptAndOpen ", e);
 					continue;
 				}
 				errorCount = 0;
