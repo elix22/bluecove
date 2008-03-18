@@ -11,8 +11,10 @@ public class EmulatorPane extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private MapPane mapPane;
-	
+	private GraphPane graphPane;
+
+	private GraphModel graphModel;
+
 	private JPanel detailsPane;
 
 	private JPanel connectionsPane;
@@ -20,8 +22,10 @@ public class EmulatorPane extends JPanel {
 	public EmulatorPane() {
 		super();
 		setLayout(new BorderLayout());
-		mapPane = new MapPane();
-		mapPane.add(new JLabel("MAP"));
+		
+		graphModel = new GraphModel();
+		
+		graphPane = new GraphPane(graphModel);
 		detailsPane = new JPanel();
 		detailsPane.add(new JLabel("DETAILS"));
 		connectionsPane = new JPanel();
@@ -33,7 +37,7 @@ public class EmulatorPane extends JPanel {
 		upperPanel.setLayout(new BorderLayout());
 		
 		JSplitPane horisontalSplit = createSplitPane(
-				mapPane, detailsPane, JSplitPane.HORIZONTAL_SPLIT);
+				graphPane, detailsPane, JSplitPane.HORIZONTAL_SPLIT);
 		upperPanel.add(horisontalSplit, BorderLayout.CENTER);
 		
 		JSplitPane verticalSplit = createSplitPane(
