@@ -67,6 +67,8 @@ public interface DeviceManagerService /* extends RoHService */{
 
 	public long rfAccept(long localAddress, int channel, boolean authenticate, boolean encrypt) throws IOException;
 
+	public void connectionAccepted(long localAddress, long connectionId) throws IOException;
+
 	public long rfConnect(long localAddress, long remoteAddress, int channel, boolean authenticate, boolean encrypt,
 			int timeout) throws IOException;
 

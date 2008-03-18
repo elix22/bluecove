@@ -24,6 +24,8 @@ package com.intel.bluetooth.emu;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
+import javax.bluetooth.BluetoothConnectionException;
+
 import com.intel.bluetooth.RemoteDeviceHelper;
 import com.intel.bluetooth.Utils;
 
@@ -97,7 +99,10 @@ class ServiceListener {
 		return connectionId;
 	}
 
-	long connect(Device clientDevice, boolean authenticate, boolean encrypt, int cilentReceiveMTU) throws IOException {
+	long connect(Device clientDevice, boolean authenticate, boolean encrypt, int cilentReceiveMTU, long timeout)
+			throws IOException {
+		ConnectionBuffer cb = null;
+		boolean clientConnected = false;
 		try {
 			int securityOpt = Utils.securityOpt(authenticate, encrypt);
 			if (this.serverSecurityOpt > securityOpt) {
@@ -111,7 +116,6 @@ class ServiceListener {
 			ConnectedInputStream sis = new ConnectedInputStream(bsize);
 			ConnectedOutputStream cos = new ConnectedOutputStream(sis);
 
-			ConnectionBuffer cb;
 			ConnectionBuffer sb;
 			if (this.rfcomm) {
 				cb = new ConnectionBufferRFCOMM(serverDevice.getDescriptor().getAddress(), cis, cos);
@@ -136,25 +140,51 @@ class ServiceListener {
 					.getDescriptor().getAddress(), portID);
 			cb.setMonitor(monitor.getClientBuffer());
 			sb.setMonitor(monitor.getServerBuffer());
-			MonitoringServiceImpl.registerConnection(monitor);
 
-			clientDevice.addConnectionBuffer(id, cb);
 			serverDevice.addConnectionBuffer(id, sb);
+			connectionId = id;
+			connected = true;
+			synchronized (lock) {
+				lock.notifyAll();
+			}
+			long endOfDellay = System.currentTimeMillis() + timeout;
+			while ((!sb.isServerAccepted()) && (!sb.isClosed())) {
+				long timeleft = endOfDellay - System.currentTimeMillis();
+				if (timeleft <= 0) {
+					throw new BluetoothConnectionException(BluetoothConnectionException.TIMEOUT, "Service " + portID
+							+ " not ready");
+				}
+				synchronized (sb) {
+					try {
+						sb.wait(timeleft);
+					} catch (InterruptedException e) {
+						throw new InterruptedIOException();
+					}
+				}
+			}
+			if (!sb.isServerAccepted()) {
+				throw new BluetoothConnectionException(BluetoothConnectionException.FAILED_NOINFO,
+						"Connection rejected");
+			}
+
+			MonitoringServiceImpl.registerConnection(monitor);
+			clientDevice.addConnectionBuffer(id, cb);
+			clientConnected = true;
 
 			StringBuffer logMsg = new StringBuffer();
 			logMsg.append(RemoteDeviceHelper.getBluetoothAddress(clientDevice.getDescriptor().getAddress()));
 			logMsg.append(" connected to ");
 			logMsg.append(RemoteDeviceHelper.getBluetoothAddress(serverDevice.getDescriptor().getAddress()));
 			logMsg.append(" ").append(this.portID);
-
 			System.out.println(logMsg.toString());
 
-			connectionId = id;
-			connected = true;
 			return id;
 		} finally {
 			if (!connected) {
 				interrupted = true;
+			}
+			if (!clientConnected) {
+				cb.close();
 			}
 			synchronized (lock) {
 				lock.notifyAll();

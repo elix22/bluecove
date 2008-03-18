@@ -195,7 +195,7 @@ class BluetoothEmulator implements BluetoothStack {
 	// --- Client RFCOMM connections
 
 	public long connectionRfOpenClientConnection(BluetoothConnectionParams params) throws IOException {
-		EmulatorRFCOMMClient c = activeLocalDevice().createRFCOMMClient();
+		EmulatorRFCOMMClient c = activeLocalDevice().createRFCOMMClient(params.address);
 		boolean success = false;
 		try {
 			c.connect(params);
@@ -278,12 +278,31 @@ class BluetoothEmulator implements BluetoothStack {
 
 	public long rfServerAcceptAndOpenRfServerConnection(long handle) throws IOException {
 		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) activeLocalDevice().getConnection(handle));
-		long connectionHandle = s.accept();
-		long remoteAddress = localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(),
-				connectionHandle);
-		EmulatorRFCOMMClient c = localDevice.createRFCOMMClient();
-		c.connect(remoteAddress, connectionHandle);
-		return c.getHandle();
+		if (!localDevice.isConnectable()) {
+			throw new BluetoothStateException("Local device is not connectable");
+		}
+		long clientHandle = 0;
+		boolean success = false;
+		while (!success) {
+			long connectionHandle = s.accept();
+			try {
+				long remoteAddress = localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(),
+						connectionHandle);
+				EmulatorRFCOMMClient c = localDevice.createRFCOMMClient(remoteAddress);
+				c.connect(remoteAddress, connectionHandle);
+				localDevice.getDeviceManagerService().connectionAccepted(localDevice.getAddress(), connectionHandle);
+				success = true;
+				clientHandle = c.getHandle();
+			} catch (IOException e) {
+				DebugLog.debug("fail to accept connection", e);
+				continue;
+			} finally {
+				if (!success) {
+					localDevice.getDeviceManagerService().closeConnection(localDevice.getAddress(), connectionHandle);
+				}
+			}
+		}
+		return clientHandle;
 	}
 
 	public void connectionRfCloseServerConnection(long handle) throws IOException {
@@ -331,7 +350,7 @@ class BluetoothEmulator implements BluetoothStack {
 	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
 			throws IOException {
 		validateMTU(receiveMTU, transmitMTU);
-		EmulatorL2CAPClient c = activeLocalDevice().createL2CAPClient();
+		EmulatorL2CAPClient c = activeLocalDevice().createL2CAPClient(params.address);
 		boolean success = false;
 		try {
 			c.connect(params, receiveMTU, transmitMTU);
@@ -379,12 +398,31 @@ class BluetoothEmulator implements BluetoothStack {
 
 	public long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException {
 		EmulatorL2CAPService s = ((EmulatorL2CAPService) activeLocalDevice().getConnection(handle));
-		long connectionHandle = s.accept();
-		long remoteAddress = localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(),
-				connectionHandle);
-		EmulatorL2CAPClient c = localDevice.createL2CAPClient();
-		c.connect(remoteAddress, connectionHandle, s.getReceiveMTU(), s.getTransmitMTU());
-		return c.getHandle();
+		if (!localDevice.isConnectable()) {
+			throw new BluetoothStateException("Local device is not connectable");
+		}
+		long clientHandle = 0;
+		boolean success = false;
+		while (!success) {
+			long connectionHandle = s.accept();
+			try {
+				long remoteAddress = localDevice.getDeviceManagerService().getRemoteAddress(localDevice.getAddress(),
+						connectionHandle);
+				EmulatorL2CAPClient c = localDevice.createL2CAPClient(remoteAddress);
+				c.connect(remoteAddress, connectionHandle, s.getReceiveMTU(), s.getTransmitMTU());
+				localDevice.getDeviceManagerService().connectionAccepted(localDevice.getAddress(), connectionHandle);
+				success = true;
+				clientHandle = c.getHandle();
+			} catch (IOException e) {
+				DebugLog.debug("fail to accept connection", e);
+				continue;
+			} finally {
+				if (!success) {
+					localDevice.getDeviceManagerService().closeConnection(localDevice.getAddress(), connectionHandle);
+				}
+			}
+		}
+		return clientHandle;
 	}
 
 	public void l2CloseServerConnection(long handle) throws IOException {

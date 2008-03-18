@@ -37,6 +37,8 @@ public class DeviceDescriptor implements Serializable {
 
 	private int deviceClass;
 
+	private boolean connectable = true;
+
 	private int discoverableMode;
 
 	private long limitedDiscoverableStart = 0;
@@ -90,6 +92,14 @@ public class DeviceDescriptor implements Serializable {
 
 	public void setPoweredOn(boolean poweredOn) {
 		this.poweredOn = poweredOn;
+	}
+
+	public boolean isConnectable() {
+		return connectable;
+	}
+
+	public void setConnectable(boolean connectable) {
+		this.connectable = connectable;
 	}
 
 }

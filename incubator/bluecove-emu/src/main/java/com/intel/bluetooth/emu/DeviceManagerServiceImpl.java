@@ -331,7 +331,19 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 			throw new BluetoothConnectionException(BluetoothConnectionException.UNKNOWN_PSM, "No such service "
 					+ portID);
 		}
-		return sl.connect(localDevice, authenticate, encrypt, receiveMTU);
+		return sl.connect(localDevice, authenticate, encrypt, receiveMTU, timeout);
+	}
+
+	public void connectionAccepted(long localAddress, long connectionId) throws IOException {
+		Device device;
+		if ((device = getActiveDevice(localAddress)) == null) {
+			throw new IOException("No such device " + RemoteDeviceHelper.getBluetoothAddress(localAddress));
+		}
+		ConnectionBuffer c = device.getConnectionBuffer(connectionId);
+		if (c == null) {
+			throw new IOException("No such connection " + connectionId);
+		}
+		c.accepted();
 	}
 
 	private void openService(long address, String channelID) throws IOException {

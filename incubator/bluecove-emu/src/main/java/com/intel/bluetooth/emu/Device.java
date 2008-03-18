@@ -170,7 +170,10 @@ class Device {
 	}
 
 	void closeConnection(long connectionId) throws IOException {
-		ConnectionBuffer c = getConnectionBuffer(connectionId);
+		ConnectionBuffer c;
+		synchronized (connections) {
+			c = connections.remove(new Long(connectionId));
+		}
 		if (c == null) {
 			throw new IOException("No such connection " + connectionId);
 		}

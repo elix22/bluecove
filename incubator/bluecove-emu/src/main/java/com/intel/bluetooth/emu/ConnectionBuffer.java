@@ -39,9 +39,13 @@ abstract class ConnectionBuffer {
 
 	protected OutputStream os;
 
+	protected boolean closed;
+
 	protected ConnectionBuffer connected;
 
 	protected boolean serverSide;
+
+	protected boolean serverAccepted;
 
 	protected MonitorConnectionBuffer monitor;
 
@@ -55,6 +59,15 @@ abstract class ConnectionBuffer {
 	void connect(ConnectionBuffer pair) {
 		connected = pair;
 		pair.connected = this;
+	}
+
+	synchronized void accepted() {
+		this.serverAccepted = true;
+		this.notifyAll();
+	}
+
+	boolean isServerAccepted() {
+		return serverAccepted;
 	}
 
 	long getRemoteAddress() {
@@ -76,24 +89,31 @@ abstract class ConnectionBuffer {
 		return false;
 	}
 
-	void close() throws IOException {
+	synchronized void close() throws IOException {
+		closed = true;
 		monitor.closedTimeStamp = System.currentTimeMillis();
 		try {
 			os.close();
 		} finally {
 			is.close();
 		}
+		this.notifyAll();
 	}
 
-	public boolean isServerSide() {
+	boolean isServerSide() {
 		return serverSide;
 	}
 
-	public void setServerSide(boolean serverSide) {
+	void setServerSide(boolean serverSide) {
 		this.serverSide = serverSide;
 	}
 
-	public void setMonitor(MonitorConnectionBuffer monitor) {
+	void setMonitor(MonitorConnectionBuffer monitor) {
 		this.monitor = monitor;
 	}
+
+	boolean isClosed() {
+		return closed;
+	}
+
 }

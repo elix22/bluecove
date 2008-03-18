@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.bluetooth.BluetoothConnectionException;
 import javax.bluetooth.BluetoothStateException;
 
 import com.intel.bluetooth.BluetoothConsts.DeviceClassConsts;
@@ -47,6 +48,8 @@ class EmulatorLocalDevice {
 	private int bluetooth_sd_attr_retrievable_max = 0;
 
 	private int bluetooth_l2cap_receiveMTU_max = 0;
+
+	private int bluetooth_connected_devices_max = 0;
 
 	private EmulatorConfiguration configuration;
 
@@ -83,10 +86,9 @@ class EmulatorLocalDevice {
 
 	void updateConfiguration() throws BluetoothStateException {
 		configuration = service.getEmulatorConfiguration(deviceDescriptor.getAddress());
-		bluetooth_sd_attr_retrievable_max = Integer.valueOf(
-				configuration.getProperty("bluetooth.sd.attr.retrievable.max")).intValue();
-		bluetooth_l2cap_receiveMTU_max = Integer.valueOf(configuration.getProperty("bluetooth.l2cap.receiveMTU.max"))
-				.intValue();
+		bluetooth_sd_attr_retrievable_max = configuration.getIntProperty("bluetooth.sd.attr.retrievable.max");
+		bluetooth_l2cap_receiveMTU_max = configuration.getIntProperty("bluetooth.l2cap.receiveMTU.max");
+		bluetooth_connected_devices_max = configuration.getIntProperty("bluetooth.connected.devices.max");
 
 		if (bluetooth_l2cap_receiveMTU_max + 2 > configuration.getConnectionBufferSize()) {
 			throw new BluetoothStateException("l2cap.receiveMTU.max larger then connection buffer");
@@ -143,6 +145,10 @@ class EmulatorLocalDevice {
 
 	void setLocalDevicePower(boolean on) {
 		deviceDescriptor.setPoweredOn(on);
+	}
+
+	public boolean isConnectable() {
+		return deviceDescriptor.isPoweredOn() && deviceDescriptor.isConnectable();
 	}
 
 	String getLocalDeviceProperty(String property) {
@@ -207,7 +213,16 @@ class EmulatorLocalDevice {
 		return s;
 	}
 
-	EmulatorRFCOMMClient createRFCOMMClient() {
+	private void validateCanConnect(long remoteAddress) throws IOException {
+		if ((RemoteDeviceHelper.connectedDevices() >= bluetooth_connected_devices_max)
+				&& RemoteDeviceHelper.openConnections(remoteAddress) == 0) {
+			throw new BluetoothConnectionException(BluetoothConnectionException.NO_RESOURCES,
+					"Number of connected device exceeded");
+		}
+	}
+
+	EmulatorRFCOMMClient createRFCOMMClient(long remoteAddress) throws IOException {
+		validateCanConnect(remoteAddress);
 		EmulatorRFCOMMClient c;
 		synchronized (connections) {
 			long handle = nextConnectionId();
@@ -229,7 +244,8 @@ class EmulatorLocalDevice {
 		return s;
 	}
 
-	EmulatorL2CAPClient createL2CAPClient() {
+	EmulatorL2CAPClient createL2CAPClient(long remoteAddress) throws IOException {
+		validateCanConnect(remoteAddress);
 		EmulatorL2CAPClient c;
 		synchronized (connections) {
 			long handle = nextConnectionId();

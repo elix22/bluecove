@@ -102,6 +102,10 @@ public class EmulatorConfiguration implements Serializable {
 		return (String) propertiesMap.get(property);
 	}
 
+	public int getIntProperty(String property) {
+		return Integer.valueOf(getProperty(property)).intValue();
+	}
+
 	public String getDeviceNamePrefix() {
 		return deviceNamePrefix;
 	}
