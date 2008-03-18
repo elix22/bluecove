@@ -39,10 +39,26 @@ public class MonitorDevice implements MonitorItem {
 
 	private boolean listening;
 
-	private long[] connectedTo;
+	private Long[] connectedTo;
+
+	public MonitorDevice() {
+
+	}
+
+	MonitorDevice(Device device) {
+		this.device = device;
+	}
 
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		updateFields();
 		out.defaultWriteObject();
+	}
+
+	protected void updateFields() {
+		deviceDescriptor = device.getDescriptor();
+		hasServices = device.isHasServices();
+		listening = device.isListening();
+		connectedTo = device.getConnectedTo();
 	}
 
 	public DeviceDescriptor getDeviceDescriptor() {
@@ -57,7 +73,7 @@ public class MonitorDevice implements MonitorItem {
 		return listening;
 	}
 
-	public long[] getConnectedTo() {
+	public Long[] getConnectedTo() {
 		return connectedTo;
 	}
 

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
 
@@ -59,6 +60,28 @@ class Device {
 
 	DeviceDescriptor getDescriptor() {
 		return this.descriptor;
+	}
+
+	boolean isHasServices() {
+		return !servicesOpen.isEmpty();
+	}
+
+	boolean isListening() {
+		return !serviceListeners.isEmpty();
+	}
+
+	Long[] getConnectedTo() {
+		List<Long> connectedTo = new Vector<Long>();
+		synchronized (connections) {
+			for (Enumeration<ConnectionBuffer> iterator = connections.elements(); iterator.hasMoreElements();) {
+				ConnectionBuffer c = (ConnectionBuffer) iterator.nextElement();
+				if (!c.isServerSide()) {
+					connectedTo.add(new Long(c.getRemoteAddress()));
+				}
+
+			}
+		}
+		return connectedTo.toArray(new Long[connectedTo.size()]);
 	}
 
 	synchronized DeviceSDP getDeviceSDP(boolean create) {
@@ -137,7 +160,9 @@ class Device {
 	}
 
 	void addConnectionBuffer(long connectionId, ConnectionBuffer c) {
-		connections.put(new Long(connectionId), c);
+		synchronized (connections) {
+			connections.put(new Long(connectionId), c);
+		}
 	}
 
 	ConnectionBuffer getConnectionBuffer(long connectionId) {
@@ -199,13 +224,15 @@ class Device {
 			s.close();
 		}
 		serviceListeners.clear();
-		for (Enumeration<ConnectionBuffer> iterator = connections.elements(); iterator.hasMoreElements();) {
-			ConnectionBuffer c = (ConnectionBuffer) iterator.nextElement();
-			try {
-				c.close();
-			} catch (IOException e) {
+		synchronized (connections) {
+			for (Enumeration<ConnectionBuffer> iterator = connections.elements(); iterator.hasMoreElements();) {
+				ConnectionBuffer c = (ConnectionBuffer) iterator.nextElement();
+				try {
+					c.close();
+				} catch (IOException e) {
+				}
 			}
+			connections.clear();
 		}
-		connections.clear();
 	}
 }

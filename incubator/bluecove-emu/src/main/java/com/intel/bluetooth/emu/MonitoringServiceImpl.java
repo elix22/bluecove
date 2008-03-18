@@ -21,12 +21,43 @@
  */
 package com.intel.bluetooth.emu;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.WeakHashMap;
+
 /**
  * @author vlads
  * 
  */
-public abstract class MonitoringServiceImpl implements MonitoringService {
+public class MonitoringServiceImpl implements MonitoringService {
 
-	// TODO
+	private static Map<MonitorConnection, Object> connections = new WeakHashMap<MonitorConnection, Object>();
+
+	private static Map<MonitorService, Object> servicess = new WeakHashMap<MonitorService, Object>();
+
+	static void registerService(MonitorService monitorService) {
+		servicess.put(monitorService, null);
+	}
+
+	static void registerConnection(MonitorConnection monitorConnection) {
+		connections.put(monitorConnection, null);
+	}
+
+	public List<MonitorDevice> getDevices() {
+		return DeviceManagerServiceImpl.getMonitorDevices();
+	}
+
+	public List<MonitorService> getServices() {
+		List<MonitorService> r = new Vector<MonitorService>();
+		r.addAll(servicess.keySet());
+		return r;
+	}
+
+	public List<MonitorConnection> getConnections() {
+		List<MonitorConnection> r = new Vector<MonitorConnection>();
+		r.addAll(connections.keySet());
+		return r;
+	}
 
 }

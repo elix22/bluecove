@@ -125,11 +125,19 @@ class ServiceListener {
 			cb.setSecurityOpt(securityOpt);
 			sb.setSecurityOpt(securityOpt);
 
+			sb.setServerSide(true);
+
 			long id;
 			synchronized (ServiceListener.class) {
 				connectionCount++;
 				id = connectionCount;
 			}
+			MonitorConnection monitor = new MonitorConnection(clientDevice.getDescriptor().getAddress(), serverDevice
+					.getDescriptor().getAddress(), portID);
+			cb.setMonitor(monitor.getClientBuffer());
+			sb.setMonitor(monitor.getServerBuffer());
+			MonitoringServiceImpl.registerConnection(monitor);
+
 			clientDevice.addConnectionBuffer(id, cb);
 			serverDevice.addConnectionBuffer(id, sb);
 

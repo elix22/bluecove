@@ -44,6 +44,10 @@ class ConnectionBufferL2CAP extends ConnectionBuffer {
 	}
 
 	void send(byte[] data) throws IOException {
+		monitor.writeTimeStamp = System.currentTimeMillis();
+		monitor.writeOperations++;
+		monitor.writeBytes += data.length;
+
 		byte[] packet = new byte[data.length + 2];
 		packet[0] = (byte) ((data.length >> 8) & 0xFF);
 		packet[1] = (byte) (0xFF & data.length);
@@ -79,6 +83,9 @@ class ConnectionBufferL2CAP extends ConnectionBuffer {
 			packetData = new byte[packetLen];
 			readFully(is, packetData, 0, packetLen);
 		}
+		monitor.readTimeStamp = System.currentTimeMillis();
+		monitor.readOperations++;
+		monitor.readBytes += packetLen;
 
 		if (packetLen == len) {
 			return packetData;

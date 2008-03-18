@@ -36,6 +36,9 @@ class ConnectionBufferRFCOMM extends ConnectionBuffer {
 	}
 
 	void rfWrite(byte[] b) throws IOException {
+		monitor.writeTimeStamp = System.currentTimeMillis();
+		monitor.writeOperations++;
+		monitor.writeBytes += b.length;
 		os.write(b);
 		os.flush();
 	}
@@ -49,7 +52,12 @@ class ConnectionBufferRFCOMM extends ConnectionBuffer {
 		int rc = is.read(b);
 		if (rc == -1) {
 			return null;
-		} else if (rc == len) {
+		}
+		monitor.readTimeStamp = System.currentTimeMillis();
+		monitor.readOperations++;
+		monitor.readBytes += rc;
+
+		if (rc == len) {
 			return b;
 		} else {
 			byte[] b2 = new byte[rc];

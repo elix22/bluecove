@@ -24,6 +24,7 @@ package com.intel.bluetooth.emu;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -113,6 +114,18 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		return device.getDeviceSDP(false);
 	}
 
+	public static List<MonitorDevice> getMonitorDevices() {
+		Vector<MonitorDevice> monitorDevices = new Vector<MonitorDevice>();
+		synchronized (devices) {
+			for (Iterator<Device> iterator = devices.values().iterator(); iterator.hasNext();) {
+				Device device = iterator.next();
+				isDiscoverable(device.getDescriptor());
+				monitorDevices.add(new MonitorDevice(device));
+			}
+		}
+		return monitorDevices;
+	}
+
 	public DeviceDescriptor[] getDiscoveredDevices(long address) {
 		Vector<DeviceDescriptor> discoveredDevice = new Vector<DeviceDescriptor>();
 		synchronized (devices) {
@@ -129,7 +142,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		return (DeviceDescriptor[]) discoveredDevice.toArray(new DeviceDescriptor[discoveredDevice.size()]);
 	}
 
-	private boolean isDiscoverable(DeviceDescriptor device) {
+	private static boolean isDiscoverable(DeviceDescriptor device) {
 		if (!device.isPoweredOn()) {
 			return false;
 		}

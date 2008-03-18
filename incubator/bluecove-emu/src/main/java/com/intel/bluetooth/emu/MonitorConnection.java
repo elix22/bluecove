@@ -41,9 +41,10 @@ public class MonitorConnection implements MonitorItem {
 
 	private MonitorConnectionBuffer serverBuffer;
 
-	MonitorConnection(long clientDevice, long serverDevice) {
+	MonitorConnection(long clientDevice, long serverDevice, String portId) {
 		this.clientDevice = clientDevice;
 		this.serverDevice = serverDevice;
+		this.portId = portId;
 		this.connectedTimeStamp = System.currentTimeMillis();
 		this.clientBuffer = new MonitorConnectionBuffer();
 		this.serverBuffer = new MonitorConnectionBuffer();
