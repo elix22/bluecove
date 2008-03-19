@@ -29,7 +29,7 @@
 
 <global-metadata>
 	<!-- Specify the bluetooth address of the machine that runs the OBEX TCK Agent -->
-	<property name="obex.address" value="localhost"/>
+	<property name="obex.address" value="127.1.1.1"/>
 
 	<!-- Specify the obex scheme -->
 	<property name="obex.scheme" value="tcpobex"/>
