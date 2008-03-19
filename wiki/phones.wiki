@@ -39,6 +39,8 @@
 || Motorola || MOTOROKR U9 ||
 || Motorola || MOTORIZR Z3 ||
 || Motorola || MOTORIZR Z8 ||
+|| Motorola || MOTO Z8 ||
+|| Motorola || MOTO Z10 ||
 || Motorola || E770 ||
 || Motorola || V1100 ||
 || Motorola || V197 ||
@@ -54,19 +56,23 @@
 || Motorola || i615 ||
 || Motorola || i870 ||
 || Motorola || i875 ||
+|| Motorola || i876 ||
 || Motorola || i880 ||
 || Motorola || ic902 ||
 || ||  ||
+|| Nokia || 2600 ||
 || Nokia || 2630 ||
 || Nokia || 2660 ||
 || Nokia || 2760 ||
 || Nokia || 2865 ||
 || Nokia || 2865i ||
 || Nokia || 3109 ||
-|| Nokia || 3110 Classic ||
+|| Nokia || 3110 classic ||
+|| Nokia || 3120 classic ||
 || Nokia || 3230 ||
 || Nokia || 3250 ||
 || Nokia || 3500 ||
+|| Nokia || 3555 ||
 || Nokia || 5200 ||
 || Nokia || 5300 ||
 || Nokia || 5500 ||
@@ -80,6 +86,7 @@
 || Nokia || 6111 ||
 || Nokia || 6120 ||
 || Nokia || 6121 ||
+|| Nokia || 6124 classic ||
 || Nokia || 6125 ||
 || Nokia || 6126 ||
 || Nokia || 6131 ||
@@ -87,12 +94,15 @@
 || Nokia || 6136 ||
 || Nokia || 6151 ||
 || Nokia || 6155 ||
+|| Nokia || 6210 Navigator  ||
+|| Nokia || 6220 classic ||
 || Nokia || 6230 ||
 || Nokia || 6230i ||
 || Nokia || 6233 ||
 || Nokia || 6234 ||
 || Nokia || 6255 ||
 || Nokia || 6260 ||
+|| Nokia || 6263 ||
 || Nokia || 6265 ||
 || Nokia || 6265i ||
 || Nokia || 6267 ||
@@ -144,13 +154,16 @@
 || Nokia || N75 ||
 || Nokia || N76 ||
 || Nokia || N77 ||
+|| Nokia || N78 ||
 || Nokia || N80 ||
 || Nokia || N81 ||
+|| Nokia || N82 ||
 || Nokia || N90 ||
 || Nokia || N91 ||
 || Nokia || N92 ||
 || Nokia || N93 ||
 || Nokia || N95 ||
+|| Nokia || N96 ||
 || ||  ||
 || Sony-Ericsson || D750 ||
 || Sony-Ericsson || K320 ||
@@ -195,6 +208,8 @@
 || Sony-Ericsson || W900 ||
 || Sony-Ericsson || W910 ||
 || Sony-Ericsson || W950 ||
+|| Sony-Ericsson || W960 ||
+|| Sony-Ericsson || W980 ||
 || Sony-Ericsson || V600i ||
 || Sony-Ericsson || Z520 ||
 || Sony-Ericsson || Z525 ||
@@ -205,6 +220,8 @@
 || Sony-Ericsson || Z750 ||
 || Sony-Ericsson || Z710 ||
 || Sony-Ericsson || X710 ||
+|| Sony-Ericsson || Z750 ||
+|| Sony-Ericsson || Z770 ||
 || || Sony-Ericsson JP-5, JP-6, JP-7 and JP-8 phones support JSR 82 ||
 || ||  ||
 || Siemens ||	C65 ||
