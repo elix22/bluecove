@@ -1,4 +1,4 @@
-package com.bluecove.emu.gui;
+package com.bluecove.emu.gui.graph;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
@@ -19,44 +19,8 @@ public class GraphModel extends DefaultGraphModel {
 
 	public GraphModel() {
 		super();
-		updateModel();
 	}
 
-	public void updateModel() {
-		ConnectionSet cs = new ConnectionSet();
-		Map<DefaultGraphCell, Map> attributes = new Hashtable<DefaultGraphCell, Map>();
-	
-		AttributeMap connectionStyle = new AttributeMap();
-		GraphConstants.setLineBegin(connectionStyle,
-				GraphConstants.ARROW_TECHNICAL);
-		GraphConstants.setBeginSize(connectionStyle, 10);
-		GraphConstants.setDashPattern(connectionStyle, new float[] { 3, 3 });
-		if (GraphConstants.DEFAULTFONT != null) {
-			GraphConstants.setFont(connectionStyle, GraphConstants.DEFAULTFONT
-					.deriveFont(10));
-		}
-
-		DefaultGraphCell dev1 = new DefaultGraphCell("dev1");
-		attributes.put(dev1, JGraph.createBounds(new AttributeMap(), 180, 100,
-				Color.green));
-		dev1.addPort(null, "JGraph/Center");
-
-		DefaultGraphCell dev2 = new DefaultGraphCell("dev2");
-		attributes.put(dev2, JGraph.createBounds(new AttributeMap(), 280, 200,
-				Color.green));
-		dev2.addPort(null, "JGraph/Center");
-
-		DefaultEdge dev1ConnDev2 = new DefaultEdge("model");
-		cs.connect(dev1ConnDev2, dev1.getChildAt(0), dev2.getChildAt(0));
-		attributes.put(dev1ConnDev2, connectionStyle);
-
-		
-		
-		Object[] cells = new Object[] { dev1, dev2, dev1ConnDev2 };
-		insert(cells, attributes, cs, null, null);	
-	}
-
-	
 	public void updateModel2() {
 		ConnectionSet cs = new ConnectionSet();
 		Map attributes = new Hashtable();

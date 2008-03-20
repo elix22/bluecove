@@ -7,6 +7,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import com.bluecove.emu.gui.graph.GraphModel;
+import com.bluecove.emu.gui.graph.GraphPane;
+
 public class EmulatorPane extends JPanel {
 
 	private static final long serialVersionUID = 1L;
