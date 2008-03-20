@@ -36,6 +36,7 @@
 || Motorola || MOTOROKR E1 ||
 || Motorola || MOTOROKR E2 ||
 || Motorola || MOTOROKR E6 ||
+|| Motorola || MOTOROKR E8 ||
 || Motorola || MOTOROKR U9 ||
 || Motorola || MOTORIZR Z3 ||
 || Motorola || MOTORIZR Z8 ||
