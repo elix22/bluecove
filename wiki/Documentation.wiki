@@ -123,6 +123,7 @@ Configuration options
     Since v2.0.3
 
         * `bluecove.inquiry.duration` Device Inquiry time in seconds defaults to 11 seconds. MS Stack and OS X only.
+        * `bluecove.inquiry.report_asap` Set true to make Device Inquiry call DiscoveryListener.deviceDiscovered without waiting for updated service class.  WIDCOMM only.
 
 == Compilation ==
 
