@@ -40,7 +40,7 @@ public class DeviceCell extends DefaultGraphCell {
 		GraphConstants.setSizeable(attributes,false); 
 		GraphConstants.setAutoSize(attributes, true);
 		
-		DeviceCellViewFactory.setViewClass(attributes, "com.bluecove.emu.gui.graph.JGraphEllipseView");
+		DeviceCellViewFactory.setViewClass(attributes, DeviceCellView.class.getCanonicalName());
 	}
 	
 	public void beforeInsert() {

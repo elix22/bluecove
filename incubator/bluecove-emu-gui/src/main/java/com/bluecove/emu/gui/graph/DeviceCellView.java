@@ -6,6 +6,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -19,6 +20,10 @@ public class DeviceCellView extends VertexView {
 
 	public static transient JGraphEllipseRenderer renderer = new JGraphEllipseRenderer();
 
+	private static final int IMAGE_HEIGHT = 48;
+	private static final int IMAGE_WIDTH = 48;
+	private static final int IMAGE_VERTICAL_OFFSET = 16;
+	
 	public DeviceCellView() {
 		super();
 	}
@@ -27,13 +32,15 @@ public class DeviceCellView extends VertexView {
 		super(cell);
 	}
 
+	private Rectangle2D getImageBounds() {
+		Rectangle2D original = getBounds();
+		int x = (int)(original.getX() + (original.getWidth() - IMAGE_WIDTH)/2);
+		int y = (int)(original.getY()) + IMAGE_VERTICAL_OFFSET;
+		return new Rectangle(x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
+	}
+	
 	public Point2D getPerimeterPoint(EdgeView edge, Point2D source, Point2D p) {
-		Rectangle2D r = getBounds();
-
-//		double x = r.getX();
-//		double y = r.getY();
-//		double a = (r.getWidth() + 1) / 2;
-//		double b = (r.getHeight() + 1) / 2;
+		Rectangle2D r = getImageBounds();
 
 		double x = r.getX();
 		double y = r.getY();
@@ -44,9 +51,6 @@ public class DeviceCellView extends VertexView {
 		double x0 = x + a;
 		double y0 = y + b;
 
-		a = 20;
-		b = 30;
-		
 		// x1, y1 - point
 		double x1 = p.getX();
 		double y1 = p.getY();
@@ -119,7 +123,10 @@ public class DeviceCellView extends VertexView {
 		public void paint(Graphics g) {
 			int b = borderWidth;
 			Graphics2D g2 = (Graphics2D) g;
-			Dimension d = getSize();
+			
+			int x = (int)((getSize().getWidth() - IMAGE_WIDTH)/2);
+			int y = IMAGE_VERTICAL_OFFSET;
+		
 			boolean tmp = selected;
 			if (super.isOpaque()) {
 				g.setColor(super.getBackground());
@@ -128,7 +135,7 @@ public class DeviceCellView extends VertexView {
 					g2.setPaint(new GradientPaint(0, 0, getBackground(),
 							getWidth(), getHeight(), gradientColor, true));
 				}
-				g.fillOval(b - 1, b - 1, d.width - b, d.height - b);
+				g.fillOval(x + b - 1, y + b - 1, IMAGE_WIDTH - b, IMAGE_HEIGHT - b);
 			}
 			try {
 				setBorder(null);
@@ -141,12 +148,12 @@ public class DeviceCellView extends VertexView {
 			if (bordercolor != null) {
 				g.setColor(bordercolor);
 				g2.setStroke(new BasicStroke(b));
-				g.drawOval(b - 1, b - 1, d.width - b, d.height - b);
+				g.drawOval(x + b - 1, y + b - 1, IMAGE_WIDTH - b, IMAGE_HEIGHT - b);
 			}
 			if (selected) {
 				g2.setStroke(GraphConstants.SELECTION_STROKE);
 				g.setColor(highlightColor);
-				g.drawOval(b - 1, b - 1, d.width - b, d.height - b);
+				g.drawOval(x + b - 1, y + b - 1, IMAGE_WIDTH - b, IMAGE_HEIGHT - b);
 			}
 		}
 	}
