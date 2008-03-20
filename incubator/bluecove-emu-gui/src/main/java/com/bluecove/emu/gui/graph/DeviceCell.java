@@ -21,6 +21,8 @@ public class DeviceCell extends DefaultGraphCell {
 
 	private static ArrayList<Spot> spots = new ArrayList<Spot>();
 	
+	private static double positionRadians[] = {0, Math.PI, Math.PI/2, Math.PI*3/2, Math.PI/4, Math.PI*5/4, Math.PI*3/4, Math.PI*7/4};
+	
 	public DeviceCell(String name)  {
 		super(" " + name);
 		attributes = new AttributeMap();
@@ -66,8 +68,13 @@ public class DeviceCell extends DefaultGraphCell {
 	}
 	
 	private static Rectangle calculateSpotBounds(int index) {
-		
-    	return new Rectangle(index*100+30, index*100+30 ,48, 64); 
+		int x = 0;
+		int y = 0;
+		if (index < 8) {
+			x = (int)(GraphPane.PANE_WIDTH/2 - Math.cos(positionRadians[index])*(GraphPane.PANE_WIDTH/2-10));
+			y = (int)(GraphPane.PANE_HEIGHT/2 - Math.sin(positionRadians[index])*(GraphPane.PANE_HEIGHT/2-10));
+		}
+    	return new Rectangle(x, y ,DeviceCellView.IMAGE_WIDTH, DeviceCellView.IMAGE_HEIGHT); 
     } 
 	
 	private static synchronized void deallocateSpot(DeviceCell device) {

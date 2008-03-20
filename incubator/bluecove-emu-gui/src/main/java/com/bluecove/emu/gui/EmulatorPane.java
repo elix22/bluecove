@@ -5,6 +5,7 @@ import java.awt.Component;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import com.bluecove.emu.gui.graph.GraphModel;
@@ -40,7 +41,7 @@ public class EmulatorPane extends JPanel {
 		upperPanel.setLayout(new BorderLayout());
 		
 		JSplitPane horisontalSplit = createSplitPane(
-				graphPane, detailsPane, JSplitPane.HORIZONTAL_SPLIT);
+				new JScrollPane(graphPane), detailsPane, JSplitPane.HORIZONTAL_SPLIT);
 		upperPanel.add(horisontalSplit, BorderLayout.CENTER);
 		
 		JSplitPane verticalSplit = createSplitPane(

@@ -20,8 +20,8 @@ public class DeviceCellView extends VertexView {
 
 	public static transient JGraphEllipseRenderer renderer = new JGraphEllipseRenderer();
 
-	private static final int IMAGE_HEIGHT = 48;
-	private static final int IMAGE_WIDTH = 48;
+	public static final int IMAGE_HEIGHT = 48;
+	public static final int IMAGE_WIDTH = 48;
 	private static final int IMAGE_VERTICAL_OFFSET = 16;
 	
 	public DeviceCellView() {
