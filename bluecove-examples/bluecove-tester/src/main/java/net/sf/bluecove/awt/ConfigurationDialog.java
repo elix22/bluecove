@@ -146,6 +146,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("clientContinuousDiscoveryDevices");
 		addConfig("clientContinuousServicesSearch");
 		addConfig("clientTestConnections");
+		addConfig("clientTestConnectionsMultipleThreads", "concurrent connections");
 
 		panelItems.setLayout(new GridLayout(configItems.size(), 2));
 
