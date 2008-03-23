@@ -92,6 +92,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/b
     SDK provided by IVT is very limited. We just implemented what we can on top of it.
 
     * !BlueCove on !BlueSoleil Bluetooth stack only support RFCOMM and OBEX connections
+    * Only RFCOMM services can be created. No OBEX services
     * L2CAP not supported
     * Service attributes are not supported in Service search of when creating Server, `LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max") == "0"`
     * `DiscoveryAgent.searchServices()` can only find 128bits-GUID service with specific UUID. You can't list all service on remote device.
