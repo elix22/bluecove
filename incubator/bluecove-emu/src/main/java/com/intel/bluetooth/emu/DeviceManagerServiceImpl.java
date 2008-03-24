@@ -85,7 +85,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		return device.pollCommand();
 	}
 
-	private Device getDevice(long address) {
+	static Device getDevice(long address) {
 		return ((Device) devices.get(new Long(address)));
 	}
 

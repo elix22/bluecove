@@ -137,7 +137,7 @@ class ServiceListener {
 				id = connectionCount;
 			}
 			MonitorConnection monitor = new MonitorConnection(clientDevice.getDescriptor().getAddress(), serverDevice
-					.getDescriptor().getAddress(), portID);
+					.getDescriptor().getAddress(), portID, id);
 			cb.setMonitor(monitor.getClientBuffer());
 			sb.setMonitor(monitor.getServerBuffer());
 

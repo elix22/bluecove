@@ -29,6 +29,8 @@ public class MonitorConnection implements MonitorItem {
 
 	private static final long serialVersionUID = 1L;
 
+	private long connectionId;
+
 	private long connectedTimeStamp;
 
 	private long clientDevice;
@@ -41,10 +43,11 @@ public class MonitorConnection implements MonitorItem {
 
 	private MonitorConnectionBuffer serverBuffer;
 
-	MonitorConnection(long clientDevice, long serverDevice, String portId) {
+	MonitorConnection(long clientDevice, long serverDevice, String portId, long connectionId) {
 		this.clientDevice = clientDevice;
 		this.serverDevice = serverDevice;
 		this.portId = portId;
+		this.connectionId = connectionId;
 		this.connectedTimeStamp = System.currentTimeMillis();
 		this.clientBuffer = new MonitorConnectionBuffer();
 		this.serverBuffer = new MonitorConnectionBuffer();
@@ -72,6 +75,10 @@ public class MonitorConnection implements MonitorItem {
 
 	public MonitorConnectionBuffer getServerBuffer() {
 		return serverBuffer;
+	}
+
+	public long getConnectionId() {
+		return this.connectionId;
 	}
 
 }

@@ -34,4 +34,17 @@ public interface MonitoringService {
 	public List<MonitorService> getServices();
 
 	public List<MonitorConnection> getConnections();
+
+	public void setDevicePower(long address, boolean on);
+
+	public void setDeviceDiscoverable(long address, int mode);
+
+	public void createThreadDumpFile(long address);
+
+	public void shutdownJVM(long address);
+
+	public void connectionDellayDelivery(long address, long connectionId, int msecDelay);
+
+	public void connectionBreak(long address, long connectionId);
+
 }

@@ -60,4 +60,40 @@ public class MonitoringServiceImpl implements MonitoringService {
 		return r;
 	}
 
+	public void setDevicePower(long address, boolean on) {
+		Device d = DeviceManagerServiceImpl.getDevice(address);
+		if (d != null) {
+			d.setDevicePower(on);
+		}
+	}
+
+	public void setDeviceDiscoverable(long address, int mode) {
+		Device d = DeviceManagerServiceImpl.getDevice(address);
+		if (d != null) {
+			d.getDescriptor().setDiscoverableMode(mode);
+		}
+	}
+
+	public void createThreadDumpFile(long address) {
+		Device d = DeviceManagerServiceImpl.getDevice(address);
+		if (d != null) {
+			d.putCommand(new DeviceCommand(DeviceCommand.DeviceCommandType.createThreadDumpFile));
+		}
+	}
+
+	public void shutdownJVM(long address) {
+		Device d = DeviceManagerServiceImpl.getDevice(address);
+		if (d != null) {
+			d.putCommand(new DeviceCommand(DeviceCommand.DeviceCommandType.shutdownJVM));
+		}
+	}
+
+	public void connectionDellayDelivery(long address, long connectionId, int msecDelay) {
+		// TODO
+	}
+
+	public void connectionBreak(long address, long connectionId) {
+		// TODO
+	}
+
 }
