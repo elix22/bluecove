@@ -63,6 +63,8 @@ class EmulatorCommandReceiver extends Thread {
 
 	private void execute(DeviceCommand command) {
 		switch (command.getType()) {
+		case keepAlive:
+			break;
 		case chagePowerState:
 			localDevice.setLocalDevicePower((Boolean) command.getParameters()[0]);
 			break;

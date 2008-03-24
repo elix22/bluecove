@@ -32,8 +32,10 @@ public class DeviceCommand implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static enum DeviceCommandType {
-		chagePowerState, updateLocalDeviceProperties, createThreadDumpStdOut, createThreadDumpFile, shutdownJVM
+		keepAlive, chagePowerState, updateLocalDeviceProperties, createThreadDumpStdOut, createThreadDumpFile, shutdownJVM
 	};
+
+	final static DeviceCommand keepAliveCommand = new DeviceCommand(DeviceCommandType.keepAlive);
 
 	private DeviceCommandType type;
 

@@ -86,7 +86,15 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	}
 
 	static Device getDevice(long address) {
-		return ((Device) devices.get(new Long(address)));
+		Device d = ((Device) devices.get(new Long(address)));
+		if ((d != null) && (!d.isAlive())) {
+			synchronized (devices) {
+				devices.remove(new Long(address));
+			}
+			d.release();
+			return null;
+		}
+		return d;
 	}
 
 	private Device getActiveDevice(long address) {
@@ -119,6 +127,11 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		synchronized (devices) {
 			for (Iterator<Device> iterator = devices.values().iterator(); iterator.hasNext();) {
 				Device device = iterator.next();
+				if (!device.isAlive()) {
+					iterator.remove();
+					device.release();
+					continue;
+				}
 				isDiscoverable(device.getDescriptor());
 				monitorDevices.add(new MonitorDevice(device));
 			}
@@ -131,6 +144,11 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		synchronized (devices) {
 			for (Iterator<Device> iterator = devices.values().iterator(); iterator.hasNext();) {
 				Device device = iterator.next();
+				if (!device.isAlive()) {
+					iterator.remove();
+					device.release();
+					continue;
+				}
 				if (device.getDescriptor().getAddress() == address) {
 					continue;
 				}
@@ -211,13 +229,13 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 	private long getNextAvailableBTAddress(String deviceID, String deviceAddress) {
 		if (deviceID != null) {
 			long id = configuration.getFirstDeviceAddress() + Long.parseLong(deviceID);
-			if (devices.containsKey(new Long(id))) {
+			if (getDevice(id) != null) {
 				throw new RuntimeException("Device already reserved " + RemoteDeviceHelper.getBluetoothAddress(id));
 			}
 			return id;
 		} else if (deviceAddress != null) {
 			long id = Long.parseLong(deviceAddress);
-			if (devices.containsKey(new Long(id))) {
+			if (getDevice(id) != null) {
 				throw new RuntimeException("Device already reserved " + RemoteDeviceHelper.getBluetoothAddress(id));
 			}
 			return id;

@@ -53,6 +53,8 @@ class Device {
 
 	private Queue<DeviceCommand> commandQueue = new LinkedList<DeviceCommand>();
 
+	private long lastEvent = System.currentTimeMillis();
+
 	Device(DeviceDescriptor descriptor) {
 		this.descriptor = descriptor;
 		this.serviceListeners = new Vector<ServiceListener>();
@@ -196,13 +198,18 @@ class Device {
 	}
 
 	DeviceCommand pollCommand() {
+		lastEvent = System.currentTimeMillis();
 		DeviceCommand command = null;
 		synchronized (commandQueue) {
-			while (command == null && !isReleased) {
+			while (command == null && (!isReleased)) {
 				command = commandQueue.poll();
 				if (command == null) {
 					try {
-						commandQueue.wait();
+						commandQueue.wait(15 * 1000);
+						if ((!isReleased) && commandQueue.isEmpty()) {
+							command = DeviceCommand.keepAliveCommand;
+							break;
+						}
 					} catch (InterruptedException e) {
 						break;
 					}
@@ -210,6 +217,10 @@ class Device {
 			}
 		}
 		return command;
+	}
+
+	boolean isAlive() {
+		return System.currentTimeMillis() < (lastEvent + 30 * 1000);
 	}
 
 	void release() {

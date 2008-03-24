@@ -49,6 +49,8 @@ class EmulatorHelper {
 		EmulatorLocalDevice device = new EmulatorLocalDevice(service, deviceDescriptor);
 		EmulatorCommandReceiver receiver = new EmulatorCommandReceiver(device);
 		receivers.put(device, receiver);
+		receiver.setDaemon(true);
+		receiver.start();
 		return device;
 	}
 
