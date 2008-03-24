@@ -33,7 +33,7 @@ public class MonitorDevice implements MonitorItem {
 
 	private transient Device device;
 
-	private DeviceDescriptor deviceDescriptor;
+	protected DeviceDescriptor deviceDescriptor;
 
 	private boolean hasServices;
 
@@ -41,7 +41,7 @@ public class MonitorDevice implements MonitorItem {
 
 	private Long[] connectedTo;
 
-	public MonitorDevice() {
+	protected MonitorDevice() {
 
 	}
 
@@ -55,10 +55,12 @@ public class MonitorDevice implements MonitorItem {
 	}
 
 	protected void updateFields() {
-		deviceDescriptor = device.getDescriptor();
-		hasServices = device.isHasServices();
-		listening = device.isListening();
-		connectedTo = device.getConnectedTo();
+		if (device != null) {
+			deviceDescriptor = device.getDescriptor();
+			hasServices = device.isHasServices();
+			listening = device.isListening();
+			connectedTo = device.getConnectedTo();
+		}
 	}
 
 	public DeviceDescriptor getDeviceDescriptor() {
