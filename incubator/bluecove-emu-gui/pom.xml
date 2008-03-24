@@ -121,7 +121,12 @@
             <groupId>net.sf.bluecove</groupId>
             <artifactId>bluecove</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove-emu</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

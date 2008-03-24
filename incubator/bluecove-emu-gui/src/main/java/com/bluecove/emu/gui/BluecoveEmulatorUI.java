@@ -63,7 +63,7 @@ public class BluecoveEmulatorUI extends JFrame {
 	private void createApplication() {
 		createActions();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("Bluecove Sim");
+		setTitle("Bluecove Emulator Monitor");
 		setJMenuBar(createMenuBar());
 		emulatorPane = new EmulatorPane();
 		getContentPane().add(emulatorPane); 

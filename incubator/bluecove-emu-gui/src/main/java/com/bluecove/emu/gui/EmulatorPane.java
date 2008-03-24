@@ -8,7 +8,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import com.bluecove.emu.gui.graph.GraphModel;
+import org.jgraph.graph.GraphLayoutCache;
+
+import com.bluecove.emu.gui.graph.GraphView;
 import com.bluecove.emu.gui.graph.GraphPane;
 
 public class EmulatorPane extends JPanel {
@@ -17,7 +19,7 @@ public class EmulatorPane extends JPanel {
 
 	private GraphPane graphPane;
 
-	private GraphModel graphModel;
+	private GraphView graphView;
 
 	private JPanel detailsPane;
 
@@ -27,9 +29,9 @@ public class EmulatorPane extends JPanel {
 		super();
 		setLayout(new BorderLayout());
 		
-		graphModel = new GraphModel();
+		graphView = new GraphView();
 		
-		graphPane = new GraphPane(graphModel);
+		graphPane = new GraphPane(graphView);
 		detailsPane = new JPanel();
 		detailsPane.add(new JLabel("DETAILS"));
 		connectionsPane = new JPanel();

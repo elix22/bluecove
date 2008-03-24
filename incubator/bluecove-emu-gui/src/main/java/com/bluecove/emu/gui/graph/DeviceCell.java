@@ -14,17 +14,21 @@ import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
 
 import com.bluecove.emu.gui.BluecoveEmulatorUI;
+import com.bluecove.emu.gui.model.Device;
 
 public class DeviceCell extends DefaultGraphCell {
 
 	private static final long serialVersionUID = 1L;
 
+	private Device device;
+	
 	private static ArrayList<Spot> spots = new ArrayList<Spot>();
 	
 	private static double positionRadians[] = {0, Math.PI, Math.PI/2, Math.PI*3/2, Math.PI/4, Math.PI*5/4, Math.PI*3/4, Math.PI*7/4};
 	
-	public DeviceCell(String name)  {
-		super(" " + name);
+	public DeviceCell(Device device)  {
+		super(" " + device.getId());
+		this.device = device;
 		attributes = new AttributeMap();
 		addPort(null, "JGraph/Center");
 		GraphConstants.setVerticalTextPosition (attributes, SwingConstants.BOTTOM);
@@ -73,6 +77,8 @@ public class DeviceCell extends DefaultGraphCell {
 		if (index < 8) {
 			x = (int)(GraphPane.PANE_WIDTH/2 - Math.cos(positionRadians[index])*(GraphPane.PANE_WIDTH/2-10));
 			y = (int)(GraphPane.PANE_HEIGHT/2 - Math.sin(positionRadians[index])*(GraphPane.PANE_HEIGHT/2-10));
+		} else {
+			throw new Error("Max 8 devices is currently supported.");
 		}
     	return new Rectangle(x, y ,DeviceCellView.IMAGE_WIDTH, DeviceCellView.IMAGE_HEIGHT); 
     } 
@@ -111,5 +117,9 @@ public class DeviceCell extends DefaultGraphCell {
 			return bounds;
 		}
 		
+	}
+
+	public Device getDevice() {
+		return device;
 	}
 }
