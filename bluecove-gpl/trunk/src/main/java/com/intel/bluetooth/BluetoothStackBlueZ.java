@@ -229,6 +229,16 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#authenticateRemoteDevice(long,
+	 *      java.lang.String)
+	 */
+	public boolean authenticateRemoteDevice(long address, String passkey) throws IOException {
+		return false;
+	}
+
 	// --- Device Inquiry
 
 	public boolean startInquiry(int accessCode, DiscoveryListener listener) throws BluetoothStateException {
