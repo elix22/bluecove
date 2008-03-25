@@ -15,6 +15,7 @@
 
   <security>
       <all-permissions/>
+      <!--property name="bluecove.debug" value="true" /-->
   </security>
   <update check="always"/>
 

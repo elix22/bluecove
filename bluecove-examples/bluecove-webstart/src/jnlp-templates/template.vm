@@ -20,6 +20,7 @@
 
   <resources>
     <j2se version="1.4+"/>
+    <!--property name="bluecove.debug" value="true" /-->
     $dependencies
   </resources>
 
