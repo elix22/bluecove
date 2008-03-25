@@ -37,14 +37,23 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.bluetooth.RemoteDevice;
+
 import net.sf.bluecove.Configuration;
+import net.sf.bluecove.Logger;
+import net.sf.bluecove.RemoteDeviceIheritance;
+import net.sf.bluecove.TestResponderCommon;
+import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.J2MEStringTokenizer;
 import net.sf.bluecove.util.Storage;
+
+import com.intel.bluetooth.RemoteDeviceHelper;
 
 /**
  * @author vlads
@@ -125,6 +134,8 @@ public class ClientConnectionDialog extends Dialog {
 
 	public ClientConnectionDialog(Frame owner) {
 		super(owner, "Client Connection", false);
+
+		TestResponderCommon.initLocalDevice();
 
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
@@ -255,6 +266,16 @@ public class ClientConnectionDialog extends Dialog {
 		});
 		btnDisconnect.setEnabled(false);
 
+		if (Configuration.isBlueCove) {
+			Button btnBond = new Button("Bond");
+			panelBtns.add(btnBond);
+			btnBond.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					onBond();
+				}
+			});
+		}
+
 		panelBtns.add(btnCancel = new Button("Cancel"));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -363,6 +384,31 @@ public class ClientConnectionDialog extends Dialog {
 		} catch (Throwable java11) {
 		}
 		setVisible(false);
+	}
+
+	private void onBond() {
+		String url = tfURL.getText();
+		String pinStr = tfData.getText();
+		if (pinStr.equals("null")) {
+			pinStr = null;
+		}
+		final String pin = pinStr;
+		String deviceAddress = BluetoothTypesInfo.extractBluetoothAddress(url);
+		final RemoteDevice device = new RemoteDeviceIheritance(deviceAddress);
+		Logger.debug("authenticate:" + deviceAddress + " pin:" + pin);
+		Thread t = new Thread("Authenticate") {
+			public void run() {
+				try {
+					boolean rc = RemoteDeviceHelper.authenticate(device, pin);
+					Logger.info("authenticate returns: " + rc);
+				} catch (IOException e) {
+					Logger.error("can't authenticate", e);
+				} catch (Throwable e) {
+					Logger.error("authenticate error", e);
+				}
+			}
+		};
+		t.start();
 	}
 
 }

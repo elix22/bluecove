@@ -43,12 +43,24 @@ public class TestResponderCommon {
 		}
 	}
 
-	public static void startLocalDevice() throws BluetoothStateException {
+	public static void initLocalDevice() {
+		if (!Configuration.isConfigured) {
+			try {
+				initLocalDeviceConfig();
+			} catch (BluetoothStateException e) {
+				Logger.error("can't init LocalDevice", e);
+			}
+		}
+	}
 
+	public static void startLocalDevice() throws BluetoothStateException {
 		if (!Configuration.initializeLocalDevice) {
 			return;
 		}
+		initLocalDeviceConfig();
+	}
 
+	private static void initLocalDeviceConfig() throws BluetoothStateException {
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());
@@ -99,6 +111,7 @@ public class TestResponderCommon {
 			} catch (NumberFormatException ignore) {
 			}
 		}
+		Configuration.isConfigured = true;
 	}
 
 	public static String niceDeviceName(String bluetoothAddress) {

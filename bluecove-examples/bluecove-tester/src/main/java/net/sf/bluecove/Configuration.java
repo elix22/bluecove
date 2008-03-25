@@ -171,6 +171,8 @@ public class Configuration {
 
 	public static boolean isJ2ME = false;
 
+	public static boolean isConfigured = false;
+
 	public static boolean isBlueCove = false;
 
 	public static boolean windowsXP = false;
