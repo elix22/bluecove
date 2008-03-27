@@ -404,12 +404,13 @@ public class TestResponderServerOBEX implements Runnable {
 				if (name != null) {
 					message += "\nYou ask for [" + name + "]";
 				}
+				byte[] messageBytes = message.getBytes();
 				if (name != null) {
 					HeaderSet sendHeaders = createHeaderSet();
 					sendHeaders.setHeader(HeaderSet.DESCRIPTION, name);
+					sendHeaders.setHeader(HeaderSet.LENGTH, new Long(messageBytes.length));
 					op.sendHeaders(sendHeaders);
 				}
-				byte[] messageBytes = message.getBytes();
 
 				OutputStream os = op.openOutputStream();
 				os.write(messageBytes);
