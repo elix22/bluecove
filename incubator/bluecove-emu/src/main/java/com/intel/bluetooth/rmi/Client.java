@@ -28,6 +28,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
+import java.util.Vector;
 
 public class Client {
 
@@ -46,18 +48,41 @@ public class Client {
 			if (response.getException() == null) {
 				return response.getReturnValue();
 			} else {
-				throw response.getException();
+				Throwable t = response.getException();
+				// Build combined StackTrace
+				StackTraceElement[] remote = t.getStackTrace();
+				StackTraceElement[] curreent = Thread.currentThread().getStackTrace();
+				List<StackTraceElement> combined = new Vector<StackTraceElement>();
+				for (int i = 0; i < remote.length; i++) {
+					combined.add(remote[i]);
+					if ((remote[i].getMethodName().equals(m.getName()))
+							&& (remote[i].getClassName().startsWith(m.getDeclaringClass().getCanonicalName()))) {
+						break;
+					}
+				}
+				int startClient = curreent.length;
+				for (int i = 0; i < curreent.length; i++) {
+					if (curreent[i].getClassName().equals(this.getClass().getName())) {
+						startClient = i + 1;
+						break;
+					}
+				}
+				for (int i = startClient; i < curreent.length; i++) {
+					combined.add(curreent[i]);
+				}
+				t.setStackTrace(combined.toArray(new StackTraceElement[combined.size()]));
+				throw t;
 			}
 		}
 	}
 
-	public synchronized static Object getService(Class interfaceClass, String host, String port)
+	public synchronized static Object getService(Class<?> interfaceClass, String host, String port)
 			throws RemoteException, NotBoundException {
 		if (remoteService == null) {
 			remoteService = getRemoteService(host, port);
 			remoteService.verify(interfaceClass.getCanonicalName());
 		}
-		Class[] allInterfaces = new Class[interfaceClass.getInterfaces().length + 1];
+		Class<?>[] allInterfaces = new Class[interfaceClass.getInterfaces().length + 1];
 		allInterfaces[0] = interfaceClass;
 		System.arraycopy(interfaceClass.getInterfaces(), 0, allInterfaces, 1, interfaceClass.getInterfaces().length);
 		return Proxy.newProxyInstance(interfaceClass.getClassLoader(), allInterfaces, new ServiceProxy());
