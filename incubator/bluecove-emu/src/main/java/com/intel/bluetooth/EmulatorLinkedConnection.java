@@ -38,6 +38,10 @@ abstract class EmulatorLinkedConnection extends EmulatorConnection {
 	}
 
 	void connectVerify(BluetoothConnectionParams params) throws IOException {
+		if (params.address == localDevice.getAddress()) {
+			throw new BluetoothConnectionException(BluetoothConnectionException.FAILED_NOINFO,
+					"Can't connect to local device");
+		}
 		if ((params.encrypt) && (!localDevice.getConfiguration().isLinkEncryptionSupported())) {
 			throw new BluetoothConnectionException(BluetoothConnectionException.SECURITY_BLOCK,
 					"encrypt mode not supported");
