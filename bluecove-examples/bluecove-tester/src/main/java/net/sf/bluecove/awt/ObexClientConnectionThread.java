@@ -100,6 +100,7 @@ public class ObexClientConnectionThread extends Thread {
 			}
 			if (isPut) {
 				byte data[] = text.getBytes("iso-8859-1");
+				hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
 				status = "Putting";
 				Operation po = clientSession.put(hsOperation);
 
