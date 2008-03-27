@@ -374,7 +374,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 							while (r.isRunning) {
 								synchronized (r) {
 									try {
-										t.wait();
+										r.wait();
 									} catch (InterruptedException e) {
 										break;
 									}
