@@ -49,6 +49,10 @@ public class EmulatorConfiguration implements Serializable {
 
 	private boolean linkEncryptionSupported = true;
 
+	// RMI timeout is up to 10 minutes. This enables killing application and
+	// recovery faster.
+	private int keepAliveSeconds = 5;
+
 	private Map<String, String> propertiesMap;
 
 	public EmulatorConfiguration() {
@@ -136,5 +140,20 @@ public class EmulatorConfiguration implements Serializable {
 
 	public void setLinkEncryptionSupported(boolean linkEncryptionSupported) {
 		this.linkEncryptionSupported = linkEncryptionSupported;
+	}
+
+	/**
+	 * @return the keepAliveSeconds
+	 */
+	public int getKeepAliveSeconds() {
+		return keepAliveSeconds;
+	}
+
+	/**
+	 * @param keepAliveSeconds
+	 *            the keepAliveSeconds to set
+	 */
+	public void setKeepAliveSeconds(int keepAliveSeconds) {
+		this.keepAliveSeconds = keepAliveSeconds;
 	}
 }

@@ -26,6 +26,7 @@ import java.io.InterruptedIOException;
 
 import javax.bluetooth.BluetoothConnectionException;
 
+import com.intel.bluetooth.DebugLog;
 import com.intel.bluetooth.RemoteDeviceHelper;
 import com.intel.bluetooth.Utils;
 
@@ -176,7 +177,7 @@ class ServiceListener {
 			logMsg.append(" connected to ");
 			logMsg.append(RemoteDeviceHelper.getBluetoothAddress(serverDevice.getDescriptor().getAddress()));
 			logMsg.append(" ").append(this.portID);
-			System.out.println(logMsg.toString());
+			DebugLog.debug(logMsg.toString());
 
 			return id;
 		} finally {

@@ -91,7 +91,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 			synchronized (devices) {
 				devices.remove(new Long(address));
 			}
-			d.release();
+			d.died();
 			return null;
 		}
 		return d;
@@ -129,7 +129,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 				Device device = iterator.next();
 				if (!device.isAlive()) {
 					iterator.remove();
-					device.release();
+					device.died();
 					continue;
 				}
 				isDiscoverable(device.getDescriptor());
@@ -146,7 +146,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 				Device device = iterator.next();
 				if (!device.isAlive()) {
 					iterator.remove();
-					device.release();
+					device.died();
 					continue;
 				}
 				if (device.getDescriptor().getAddress() == address) {
@@ -255,7 +255,7 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		ds.updateServiceRecord(handle, sdpData);
 	}
 
-	public void removeServiceRecord(long address, long handle) {
+	public void removeServiceRecord(long address, long handle) throws IOException {
 		DeviceSDP ds = getDeviceSDP(address);
 		if (ds != null) {
 			ds.removeServiceRecord(handle);

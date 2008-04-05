@@ -26,6 +26,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import com.intel.bluetooth.DebugLog;
+
 public class Server {
 
 	static int rmiRegistryPort = 8090;
@@ -45,7 +47,10 @@ public class Server {
 	private void run() {
 		startRMIRegistry();
 		startRMIService();
-		// wit for RMI threads to start up
+
+		DebugLog.debug("Emulator RMI Service listening on port " + rmiRegistryPort);
+
+		// wait for RMI threads to start up
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
@@ -60,6 +65,7 @@ public class Server {
 			}
 
 			registry = LocateRegistry.createRegistry(rmiRegistryPort);
+
 		} catch (RemoteException e) {
 			throw new Error("Fails to start RMIRegistry", e);
 		}

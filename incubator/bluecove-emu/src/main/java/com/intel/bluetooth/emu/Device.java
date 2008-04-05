@@ -31,6 +31,9 @@ import java.util.Vector;
 
 import javax.bluetooth.BluetoothConnectionException;
 
+import com.intel.bluetooth.DebugLog;
+import com.intel.bluetooth.RemoteDeviceHelper;
+
 /**
  * @author vlads
  * 
@@ -205,7 +208,7 @@ class Device {
 				command = commandQueue.poll();
 				if (command == null) {
 					try {
-						commandQueue.wait(15 * 1000);
+						commandQueue.wait(DeviceManagerServiceImpl.configuration.getKeepAliveSeconds() * 1000);
 						if ((!isReleased) && commandQueue.isEmpty()) {
 							command = DeviceCommand.keepAliveCommand;
 							break;
@@ -220,7 +223,12 @@ class Device {
 	}
 
 	boolean isAlive() {
-		return System.currentTimeMillis() < (lastEvent + 30 * 1000);
+		return System.currentTimeMillis() < (lastEvent + (DeviceManagerServiceImpl.configuration.getKeepAliveSeconds() + 2) * 1000);
+	}
+
+	void died() {
+		DebugLog.debug("device died", RemoteDeviceHelper.getBluetoothAddress(descriptor.getAddress()));
+		release();
 	}
 
 	void release() {

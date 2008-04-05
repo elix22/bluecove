@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.intel.bluetooth.DebugLog;
 import com.intel.bluetooth.RemoteDeviceHelper;
 
 /**
@@ -48,7 +49,7 @@ class DeviceSDP {
 
 		String[] serviceUuidSet = sdpData.getUuidSet();
 		for (int i = 0; i < serviceUuidSet.length; i++) {
-			System.out.println((update ? "Update" : "Create") + " Srv on "
+			DebugLog.debug((update ? "Update" : "Create") + " Srv on "
 					+ RemoteDeviceHelper.getBluetoothAddress(address) + " " + handle + " " + i + " "
 					+ serviceUuidSet[i]);
 		}
@@ -57,7 +58,7 @@ class DeviceSDP {
 	synchronized void removeServiceRecord(long handle) {
 		ServicesDescriptor srv = (ServicesDescriptor) services.remove(new Long(handle));
 		if (srv != null) {
-			System.out.println("Remove Srv on " + RemoteDeviceHelper.getBluetoothAddress(address) + " " + handle);
+			DebugLog.debug("Remove Srv on " + RemoteDeviceHelper.getBluetoothAddress(address) + " " + handle);
 		}
 	}
 

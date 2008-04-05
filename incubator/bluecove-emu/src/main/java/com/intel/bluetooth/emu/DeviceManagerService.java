@@ -57,7 +57,7 @@ public interface DeviceManagerService /* extends RoHService */{
 	public void updateServiceRecord(long localAddress, long handle, ServicesDescriptor sdpData)
 			throws ServiceRegistrationException;
 
-	public void removeServiceRecord(long localAddress, long handle);
+	public void removeServiceRecord(long localAddress, long handle) throws IOException;
 
 	public long[] searchServices(long remoteAddress, String[] uuidSet);
 

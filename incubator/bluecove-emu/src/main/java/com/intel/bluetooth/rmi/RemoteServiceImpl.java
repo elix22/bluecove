@@ -44,7 +44,7 @@ public class RemoteServiceImpl extends UnicastRemoteObject implements RemoteServ
 
 	public ServiceResponse execute(ServiceRequest request) {
 		try {
-			Class c = Class.forName(request.getClassName() + "Impl");
+			Class<?> c = Class.forName(request.getClassName() + "Impl");
 			Method m = c.getDeclaredMethod(request.getMethodName(), request.getParameterTypes());
 			ServiceResponse response = new ServiceResponse();
 			try {

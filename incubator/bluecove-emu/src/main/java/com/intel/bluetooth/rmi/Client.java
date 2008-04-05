@@ -76,11 +76,27 @@ public class Client {
 		}
 	}
 
+	private static String getRemoteExceptionMessage(RemoteException e) {
+		String message = e.getMessage();
+		int idx = message.indexOf("; nested exception is:");
+		if (idx != -1) {
+			return message.substring(0, idx);
+		}
+		return message;
+	}
+
 	public synchronized static Object getService(Class<?> interfaceClass, String host, String port)
-			throws RemoteException, NotBoundException {
+			throws RuntimeException {
 		if (remoteService == null) {
-			remoteService = getRemoteService(host, port);
-			remoteService.verify(interfaceClass.getCanonicalName());
+			try {
+				remoteService = getRemoteService(host, port);
+				remoteService.verify(interfaceClass.getCanonicalName());
+			} catch (RemoteException e) {
+				Throwable t = (e.getCause() != null) ? e.getCause() : e;
+				throw new RuntimeException(getRemoteExceptionMessage(e), t);
+			} catch (NotBoundException e) {
+				throw new RuntimeException(e.getMessage(), e);
+			}
 		}
 		Class<?>[] allInterfaces = new Class[interfaceClass.getInterfaces().length + 1];
 		allInterfaces[0] = interfaceClass;
@@ -88,8 +104,13 @@ public class Client {
 		return Proxy.newProxyInstance(interfaceClass.getClassLoader(), allInterfaces, new ServiceProxy());
 	}
 
-	private static ServiceResponse execute(ServiceRequest request, Method method) throws Throwable {
-		return remoteService.execute(request);
+	private static ServiceResponse execute(ServiceRequest request, Method method) throws RuntimeException {
+		try {
+			return remoteService.execute(request);
+		} catch (RemoteException e) {
+			Throwable t = (e.getCause() != null) ? e.getCause() : e;
+			throw new RuntimeException(getRemoteExceptionMessage(e), t);
+		}
 	}
 
 	private static RemoteService getRemoteService(String host, String port) throws RemoteException, NotBoundException {

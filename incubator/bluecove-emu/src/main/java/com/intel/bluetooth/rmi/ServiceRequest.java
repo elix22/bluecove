@@ -31,11 +31,11 @@ public class ServiceRequest implements Serializable {
 
 	private String methodName;
 
-	private Class[] parameterTypes;
+	private Class<?>[] parameterTypes;
 
 	private Object[] parameters;
 
-	public ServiceRequest(String className, String methodName, Class[] parameterTypes, Object[] parameters) {
+	public ServiceRequest(String className, String methodName, Class<?>[] parameterTypes, Object[] parameters) {
 		super();
 		this.className = className;
 		this.methodName = methodName;
@@ -59,11 +59,11 @@ public class ServiceRequest implements Serializable {
 		this.methodName = methodName;
 	}
 
-	public Class[] getParameterTypes() {
+	public Class<?>[] getParameterTypes() {
 		return parameterTypes;
 	}
 
-	public void setParameterTypes(Class[] parameterTypes) {
+	public void setParameterTypes(Class<?>[] parameterTypes) {
 		this.parameterTypes = parameterTypes;
 	}
 

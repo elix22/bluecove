@@ -43,7 +43,7 @@ class EmulatorHelper {
 			service = (DeviceManagerService) Client.getService(DeviceManagerService.class, host, port);
 			deviceDescriptor = service.createNewDevice(BlueCoveImpl.getConfigProperty("bluecove.deviceID"),
 					BlueCoveImpl.getConfigProperty("bluecove.deviceAddress"));
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			throw (BluetoothStateException) UtilsJavaSE.initCause(new BluetoothStateException(e.getMessage()), e);
 		}
 		EmulatorLocalDevice device = new EmulatorLocalDevice(service, deviceDescriptor);
