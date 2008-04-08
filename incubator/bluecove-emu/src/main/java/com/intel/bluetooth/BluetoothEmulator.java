@@ -49,7 +49,7 @@ class BluetoothEmulator implements BluetoothStack {
 
 	public String toString() {
 		if (localDevice != null) {
-			return getStackID() + ":" + localDevice.getAddress();
+			return getStackID() + ":" + RemoteDeviceHelper.getBluetoothAddress(localDevice.getAddress());
 		} else {
 			return getStackID();
 		}
