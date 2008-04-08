@@ -47,6 +47,14 @@ class BluetoothEmulator implements BluetoothStack {
 		return BlueCoveImpl.STACK_EMULATOR;
 	}
 
+	public String toString() {
+		if (localDevice != null) {
+			return getStackID() + ":" + localDevice.getAddress();
+		} else {
+			return getStackID();
+		}
+	}
+
 	public int getLibraryVersion() throws BluetoothStateException {
 		return NATIVE_LIBRARY_VERSION;
 	}
