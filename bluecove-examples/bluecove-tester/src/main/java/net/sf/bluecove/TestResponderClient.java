@@ -84,6 +84,8 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 	public Thread thread;
 
+	private Object threadLocalBluetoothStack;
+
 	private boolean stoped = false;
 
 	boolean discoveryOnce = false;
@@ -577,6 +579,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		if (logLocalDevice) {
 			TestResponderCommon.startLocalDevice();
 		}
+		threadLocalBluetoothStack = Configuration.threadLocalBluetoothStack;
 
 		String v = LocalDevice.getProperty("bluetooth.sd.attr.retrievable.max");
 		if (v != null) {
@@ -864,6 +867,8 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				}
 			}
 		}
+		Configuration.cldcStub.setThreadLocalBluetoothStack(threadLocalBluetoothStack);
+
 		Logger.debug(logID + "Client started..." + TimeUtils.timeNowToString());
 		isRunning = true;
 		try {

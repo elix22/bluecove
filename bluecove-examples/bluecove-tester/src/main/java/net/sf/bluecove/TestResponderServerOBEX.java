@@ -56,6 +56,8 @@ public class TestResponderServerOBEX implements Runnable {
 
 	private Thread thread;
 
+	private Object threadLocalBluetoothStack;
+
 	public static final UUID OBEX_OBJECT_PUSH = new UUID(0x1105);
 
 	public static final String OBEX_OBJECT_PUSH_SERVER_NAME = "OBEX Object Push";
@@ -66,6 +68,7 @@ public class TestResponderServerOBEX implements Runnable {
 
 	public static TestResponderServerOBEX startServer() {
 		TestResponderServerOBEX srv = new TestResponderServerOBEX();
+		srv.threadLocalBluetoothStack = Configuration.threadLocalBluetoothStack;
 		srv.thread = Configuration.cldcStub.createNamedThread(srv, "ServerOBEX");
 		srv.thread.start();
 		return srv;
@@ -78,6 +81,7 @@ public class TestResponderServerOBEX implements Runnable {
 	public void run() {
 		isStoped = false;
 		boolean deviceServiceClassesUpdated = false;
+		Configuration.cldcStub.setThreadLocalBluetoothStack(threadLocalBluetoothStack);
 		LocalDevice localDevice;
 		try {
 			localDevice = LocalDevice.getLocalDevice();

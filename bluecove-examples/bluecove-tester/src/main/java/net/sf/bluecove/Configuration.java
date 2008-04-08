@@ -193,6 +193,8 @@ public class Configuration {
 
 	public static boolean screenSizeSmall = false;
 
+	public static Object threadLocalBluetoothStack;
+
 	static {
 		testDeviceNames = new Hashtable();
 		ignoreDevices = new Hashtable();

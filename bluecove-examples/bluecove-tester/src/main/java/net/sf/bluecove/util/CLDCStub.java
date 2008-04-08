@@ -29,4 +29,5 @@ public interface CLDCStub {
 
 	public Thread createNamedThread(Runnable target, String name);
 
+	public void setThreadLocalBluetoothStack(Object id);
 }

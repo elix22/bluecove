@@ -61,6 +61,7 @@ public class TestResponderCommon {
 	}
 
 	private static void initLocalDeviceConfig() throws BluetoothStateException {
+		Configuration.cldcStub.setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 		LocalDevice localDevice = LocalDevice.getLocalDevice();
 		Logger.info("address:" + localDevice.getBluetoothAddress());
 		Logger.info("name:" + localDevice.getFriendlyName());

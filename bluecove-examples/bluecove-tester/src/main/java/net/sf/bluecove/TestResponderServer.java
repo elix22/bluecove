@@ -60,6 +60,8 @@ public class TestResponderServer implements CanShutdown, Runnable {
 
 	public Thread thread;
 
+	private Object threadLocalBluetoothStack;
+
 	private long lastActivityTime;
 
 	private boolean stoped = false;
@@ -277,6 +279,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	}
 
 	public TestResponderServer() throws BluetoothStateException {
+		threadLocalBluetoothStack = Configuration.threadLocalBluetoothStack;
 		TestResponderCommon.startLocalDevice();
 	}
 
@@ -287,6 +290,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			lastActivityTime = System.currentTimeMillis();
 			monitorServer = TestTimeOutMonitor.create("ServerUp", this, Consts.serverUpTimeOutSec);
 		}
+		Configuration.cldcStub.setThreadLocalBluetoothStack(threadLocalBluetoothStack);
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			if ((localDevice.getDiscoverable() == DiscoveryAgent.NOT_DISCOVERABLE)

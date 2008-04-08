@@ -339,6 +339,22 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 		menuMore.add(menuLocalDevice);
 
+		Menu threadLocalStack = new Menu("ThreadLocalStack");
+
+		addMenu(threadLocalStack, "Set 'winsock'", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.setUseWINSOCK();
+			}
+		});
+
+		addMenu(threadLocalStack, "Set 'widcomm'", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.setUseWIDCOMM();
+			}
+		});
+
+		menuMore.add(threadLocalStack);
+
 		menuBar.add(menuMore);
 
 		setMenuBar(menuBar);
@@ -422,11 +438,15 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		String bluecoveVersion = LocalDevice.getProperty("bluecove");
 		if (StringUtils.isStringSet(bluecoveVersion)) {
 			title += " " + bluecoveVersion;
-			String stack = LocalDevice.getProperty("bluecove.stack");
-			if (StringUtils.isStringSet(stack)) {
-				title += " on [" + stack + "]";
+			if (Configuration.threadLocalBluetoothStack != null) {
+				title += " on [" + Configuration.threadLocalBluetoothStack.toString() + ", ...]";
 			} else {
-				title += " on [winsock]";
+				String stack = LocalDevice.getProperty("bluecove.stack");
+				if (StringUtils.isStringSet(stack)) {
+					title += " on [" + stack + "]";
+				} else {
+					title += " on [winsock]";
+				}
 			}
 		}
 		this.setTitle(title);

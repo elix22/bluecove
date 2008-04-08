@@ -63,4 +63,13 @@ public class JavaSECommon implements CLDCStub {
 	public Thread createNamedThread(Runnable target, String name) {
 		return new Thread(target, name);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sf.bluecove.util.CLDCStub#setThreadLocalBluetoothStack(java.lang.Object)
+	 */
+	public void setThreadLocalBluetoothStack(Object id) {
+		LocalDeviceManager.setThreadLocalBluetoothStack(id);
+	}
 }
