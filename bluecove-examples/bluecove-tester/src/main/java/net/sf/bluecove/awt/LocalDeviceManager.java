@@ -39,6 +39,10 @@ public class LocalDeviceManager {
 
 	private static Object threadLocalBluetoothStackWIDCOMM;
 
+	private static Object threadLocalBluetoothStack0;
+
+	private static Object threadLocalBluetoothStack1;
+
 	public static void setNotDiscoverable() {
 		TestResponderServer.setNotDiscoverable();
 		getDiscoverable();
@@ -84,7 +88,7 @@ public class LocalDeviceManager {
 		}
 	}
 
-	public static void setUseWINSOCK() {
+	static void setUseWINSOCK() {
 		if (threadLocalBluetoothStackWINSOCK == null) {
 			try {
 				BlueCoveImpl.useThreadLocalBluetoothStack();
@@ -96,10 +100,9 @@ public class LocalDeviceManager {
 			}
 		}
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStackWINSOCK;
-
 	}
 
-	public static void setUseWIDCOMM() {
+	static void setUseWIDCOMM() {
 		if (threadLocalBluetoothStackWIDCOMM == null) {
 			try {
 				BlueCoveImpl.useThreadLocalBluetoothStack();
@@ -111,7 +114,34 @@ public class LocalDeviceManager {
 			}
 		}
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStackWIDCOMM;
+	}
 
+	static void setUseDevice0() {
+		if (threadLocalBluetoothStack0 == null) {
+			try {
+				BlueCoveImpl.useThreadLocalBluetoothStack();
+				BlueCoveImpl.setThreadBluetoothStackID(null);
+				BlueCoveImpl.setConfigProperty("bluecove.deviceID", "0");
+				threadLocalBluetoothStack0 = BlueCoveImpl.getThreadBluetoothStackID();
+			} catch (Throwable e) {
+				Logger.error("error", e);
+			}
+		}
+		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStack0;
+	}
+
+	static void setUseDevice1() {
+		if (threadLocalBluetoothStack1 == null) {
+			try {
+				BlueCoveImpl.useThreadLocalBluetoothStack();
+				BlueCoveImpl.setThreadBluetoothStackID(null);
+				BlueCoveImpl.setConfigProperty("bluecove.deviceID", "1");
+				threadLocalBluetoothStack1 = BlueCoveImpl.getThreadBluetoothStackID();
+			} catch (Throwable e) {
+				Logger.error("error", e);
+			}
+		}
+		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStack1;
 	}
 
 }

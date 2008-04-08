@@ -353,6 +353,18 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		});
 
+		addMenu(threadLocalStack, "Set 'deviceID=0'", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.setUseDevice0();
+			}
+		});
+
+		addMenu(threadLocalStack, "Set 'deviceID=1'", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.setUseDevice1();
+			}
+		});
+
 		menuMore.add(threadLocalStack);
 
 		menuBar.add(menuMore);
