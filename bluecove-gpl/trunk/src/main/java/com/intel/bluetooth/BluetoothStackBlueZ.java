@@ -46,7 +46,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	// TODO what is the real number for Attributes retrievable ?
 	private final static int ATTR_RETRIEVABLE_MAX = 256;
 
-	private int deviceID;
+	private int deviceID = -1;
 
 	private int deviceDescriptor;
 
@@ -77,6 +77,14 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public String getStackID() {
 		return BlueCoveImpl.STACK_BLUEZ;
+	}
+
+	public String toString() {
+		if (deviceID >= 0) {
+			return getStackID() + ":" + deviceID;
+		} else {
+			return getStackID();
+		}
 	}
 
 	public native int getLibraryVersionNative();
