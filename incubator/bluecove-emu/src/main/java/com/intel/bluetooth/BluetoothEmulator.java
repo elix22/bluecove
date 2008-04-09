@@ -161,7 +161,7 @@ class BluetoothEmulator implements BluetoothStack {
 			throw new BluetoothStateException("Another inquiry already running");
 		}
 		deviceInquiry = new EmulatorDeviceInquiry(activeLocalDevice(), this, listener);
-		return DeviceInquiryThread.startInquiry(deviceInquiry, accessCode, listener);
+		return DeviceInquiryThread.startInquiry(this, deviceInquiry, accessCode, listener);
 	}
 
 	public boolean cancelInquiry(DiscoveryListener listener) {

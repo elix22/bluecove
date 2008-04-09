@@ -223,7 +223,7 @@ class Device {
 	}
 
 	boolean isAlive() {
-		return System.currentTimeMillis() < (lastEvent + (DeviceManagerServiceImpl.configuration.getKeepAliveSeconds() + 2) * 1000);
+		return System.currentTimeMillis() < (lastEvent + (DeviceManagerServiceImpl.configuration.getKeepAliveSeconds() + 7) * 1000);
 	}
 
 	void died() {
