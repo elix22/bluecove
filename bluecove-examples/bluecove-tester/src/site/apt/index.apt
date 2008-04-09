@@ -164,7 +164,7 @@ java -cp avetanaBluetooth.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecov
 
    The same AWT {{{./bluecove-tester-mobile.jar}bluecove-tester-mobile.jar}} or {{{./bluecove-tester-phone.jar}bluecove-tester-phone.jar}} application that you just run on Windows can be uploaded to your mobile and started there.
 
-   Those jars been made smaller to exclude Max OS X code.
+   Those jars been made smaller to exclude Linux and Max OS X code.
 
    Start application like this:
 
