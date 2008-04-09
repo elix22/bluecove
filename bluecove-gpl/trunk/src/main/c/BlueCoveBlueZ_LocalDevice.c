@@ -28,7 +28,7 @@
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceID
 (JNIEnv *env, jobject peer, jint id, jlong findLocalDeviceBTAddress) {
-	bool findDevice = (id >=0) || (findLocalDeviceBTAddress > 0);
+	bool findDevice = (id >= 0) || (findLocalDeviceBTAddress > 0);
 	if (findDevice) {
 	    int s = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
 	    if (s < 0) {
@@ -79,7 +79,11 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDev
 	    free(dl);
 	    close(s);
 	    if (dev_id < 0) {
-	        throwBluetoothStateException(env, "Bluetooth Device is not found");
+	        if (id >= 0) {
+	            throwBluetoothStateException(env, "Bluetooth Device %i not found", id);
+	        } else {
+	            throwBluetoothStateException(env, "Bluetooth Device %X not found", findLocalDeviceBTAddress);
+	        }
 	    }
         return dev_id;
     } else {
