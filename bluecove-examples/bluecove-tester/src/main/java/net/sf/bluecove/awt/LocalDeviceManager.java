@@ -97,8 +97,10 @@ public class LocalDeviceManager {
 				threadLocalBluetoothStackWINSOCK = BlueCoveImpl.getThreadBluetoothStackID();
 			} catch (Throwable e) {
 				Logger.error("error", e);
+				return;
 			}
 		}
+		Logger.info("will use stack " + threadLocalBluetoothStackWINSOCK);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStackWINSOCK;
 	}
 
@@ -111,8 +113,10 @@ public class LocalDeviceManager {
 				threadLocalBluetoothStackWIDCOMM = BlueCoveImpl.getThreadBluetoothStackID();
 			} catch (Throwable e) {
 				Logger.error("error", e);
+				return;
 			}
 		}
+		Logger.info("will use stack " + threadLocalBluetoothStackWIDCOMM);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStackWIDCOMM;
 	}
 
@@ -125,8 +129,10 @@ public class LocalDeviceManager {
 				threadLocalBluetoothStack0 = BlueCoveImpl.getThreadBluetoothStackID();
 			} catch (Throwable e) {
 				Logger.error("error", e);
+				return;
 			}
 		}
+		Logger.info("will use stack " + threadLocalBluetoothStack0);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStack0;
 	}
 
@@ -139,8 +145,10 @@ public class LocalDeviceManager {
 				threadLocalBluetoothStack1 = BlueCoveImpl.getThreadBluetoothStackID();
 			} catch (Throwable e) {
 				Logger.error("error", e);
+				return;
 			}
 		}
+		Logger.info("will use stack " + threadLocalBluetoothStack1);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStack1;
 	}
 

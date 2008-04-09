@@ -39,6 +39,8 @@ import net.sf.bluecove.util.TimeUtils;
  */
 public class TestResponderServerL2CAP extends Thread {
 
+	private Object threadLocalBluetoothStack;
+
 	private L2CAPConnectionNotifier serverConnection;
 
 	private boolean isStoped = false;
@@ -69,7 +71,7 @@ public class TestResponderServerL2CAP extends Thread {
 	}
 
 	private TestResponderServerL2CAP() {
-
+		threadLocalBluetoothStack = Configuration.threadLocalBluetoothStack;
 	}
 
 	public static TestResponderServerL2CAP startServer() {
@@ -85,6 +87,7 @@ public class TestResponderServerL2CAP extends Thread {
 	public void run() {
 		isStoped = false;
 		try {
+			Configuration.cldcStub.setThreadLocalBluetoothStack(threadLocalBluetoothStack);
 			serverConnection = (L2CAPConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_L2CAP
 					+ "://localhost:" + Configuration.blueCoveL2CAPUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
 					+ "_l2" + (Configuration.useShortUUID ? "s" : "") + Configuration.serverURLParams()

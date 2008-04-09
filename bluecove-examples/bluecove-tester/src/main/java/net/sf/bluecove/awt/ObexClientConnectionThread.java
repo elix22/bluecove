@@ -37,6 +37,8 @@ import net.sf.bluecove.util.IOUtils;
 
 public class ObexClientConnectionThread extends Thread {
 
+	private Object threadLocalBluetoothStack;
+
 	private String serverURL;
 
 	private String name;
@@ -62,6 +64,7 @@ public class ObexClientConnectionThread extends Thread {
 		this.name = name;
 		this.text = text;
 		this.isPut = isPut;
+		threadLocalBluetoothStack = Configuration.threadLocalBluetoothStack;
 		count++;
 	}
 
@@ -71,6 +74,8 @@ public class ObexClientConnectionThread extends Thread {
 
 		isRunning = true;
 		try {
+			Configuration.cldcStub.setThreadLocalBluetoothStack(threadLocalBluetoothStack);
+
 			status = "Connecting...";
 			clientSession = (ClientSession) Connector.open(serverURL, Connector.READ_WRITE, timeouts);
 			if (stoped) {

@@ -780,6 +780,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 		}
 
 		public void run() {
+			Configuration.cldcStub.setThreadLocalBluetoothStack(threadLocalBluetoothStack);
 			started = connectAndTest(url);
 		}
 	}

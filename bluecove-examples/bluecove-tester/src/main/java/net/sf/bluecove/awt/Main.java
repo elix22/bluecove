@@ -344,24 +344,28 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		addMenu(threadLocalStack, "Set 'winsock'", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LocalDeviceManager.setUseWINSOCK();
+				updateTitle();
 			}
 		});
 
 		addMenu(threadLocalStack, "Set 'widcomm'", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LocalDeviceManager.setUseWIDCOMM();
+				updateTitle();
 			}
 		});
 
 		addMenu(threadLocalStack, "Set 'deviceID=0'", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LocalDeviceManager.setUseDevice0();
+				updateTitle();
 			}
 		});
 
 		addMenu(threadLocalStack, "Set 'deviceID=1'", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LocalDeviceManager.setUseDevice1();
+				updateTitle();
 			}
 		});
 
@@ -455,6 +459,12 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			} else {
 				String stack = LocalDevice.getProperty("bluecove.stack");
 				if (StringUtils.isStringSet(stack)) {
+					if (stack.equals("emulator") || stack.equals("bluez")) {
+						try {
+							stack += ":" + LocalDevice.getLocalDevice().getBluetoothAddress();
+						} catch (BluetoothStateException ignore) {
+						}
+					}
 					title += " on [" + stack + "]";
 				} else {
 					title += " on [winsock]";
