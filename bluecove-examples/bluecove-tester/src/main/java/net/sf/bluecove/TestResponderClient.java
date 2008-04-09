@@ -904,7 +904,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 						Logger.error(logID + "Cannot selectService", e);
 					}
 				} else if ((!bluetoothInquirer.hasServers())
-						|| (Configuration.clientContinuousDiscovery && (connectURL == null))
+						|| (Configuration.clientContinuousDiscovery.booleanValue() && (connectURL == null))
 						|| (!Configuration.clientTestConnections)) {
 					if (!bluetoothInquirer.runDeviceInquiry()) {
 						if (stoped) {

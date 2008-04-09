@@ -144,7 +144,7 @@ public class TestResponderServerL2CAP extends Thread {
 				}
 				errorCount = 0;
 				Logger.info("Received L2CAP connection");
-				if (!Configuration.serverAcceptWhileConnected) {
+				if (!Configuration.serverAcceptWhileConnected.booleanValue()) {
 					try {
 						receive(channel);
 						if (!isStoped) {

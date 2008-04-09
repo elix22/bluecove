@@ -23,8 +23,8 @@ package net.sf.bluecove;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Choice;
+import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
@@ -85,10 +85,12 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 
 		// addConfig("useShortUUID");
 		addConfig("clientContinuous", Configuration.clientContinuous);
-		// addConfig("clientContinuousDiscovery");
+		addConfig("clientContinuousDiscovery", Configuration.clientContinuousDiscovery);
 		// addConfig("clientContinuousDiscoveryDevices");
 		// addConfig("clientContinuousServicesSearch");
 		// addConfig("clientTestConnections");
+
+		addConfig("srvConnectedAccept", Configuration.serverAcceptWhileConnected);
 
 		addConfig("authenticate", Configuration.authenticate);
 		addConfig("encrypt", Configuration.encrypt);

@@ -77,7 +77,7 @@ public class Configuration {
 
 	public static Hashtable useDevices = null;
 
-	public static boolean serverAcceptWhileConnected = false;
+	public static BooleanVar serverAcceptWhileConnected = new BooleanVar(false);
 
 	public static boolean serverAcceptWhileConnectedOnJavaSE = true;
 
@@ -85,7 +85,7 @@ public class Configuration {
 
 	public static BooleanVar clientContinuous = new BooleanVar(true);
 
-	public static boolean clientContinuousDiscovery = true;
+	public static BooleanVar clientContinuousDiscovery = new BooleanVar(true);;
 
 	public static boolean clientContinuousDiscoveryDevices = true;
 

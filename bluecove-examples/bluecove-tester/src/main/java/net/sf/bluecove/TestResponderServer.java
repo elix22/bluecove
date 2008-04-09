@@ -374,7 +374,7 @@ public class TestResponderServer implements CanShutdown, Runnable {
 						ServerConnectionRunnable r = new ServerConnectionRunnable(conn);
 						Thread t = Configuration.cldcStub.createNamedThread(r, r.getName());
 						t.start();
-						if (!Configuration.serverAcceptWhileConnected) {
+						if (!Configuration.serverAcceptWhileConnected.booleanValue()) {
 							while (r.isRunning) {
 								synchronized (r) {
 									try {

@@ -36,12 +36,8 @@ public class JavaSECommon implements CLDCStub {
 		Configuration.logTimeStamp = true;
 		Logger.addAppender(new LoggerJavaSEAppender());
 
-		// System.getProperties().put("bluecove.debug", "true");
-		// System.getProperties().put("bluecove.native.path",
-		// "../../bluecove/target/obj");
-
 		if (Configuration.serverAcceptWhileConnectedOnJavaSE) {
-			Configuration.serverAcceptWhileConnected = true;
+			Configuration.serverAcceptWhileConnected.setValue(true);
 			// Configuration.testIgnoreNotWorkingServiceAttributes = false;
 		}
 
