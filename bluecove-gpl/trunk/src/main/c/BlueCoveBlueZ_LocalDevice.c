@@ -177,19 +177,37 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeSetLoc
 
 	uint8_t lap[3];
 	lap[0] = mode & 0xff;
-	lap[1] = (mode & 0xff00)>>8;
-	lap[2] = (mode & 0xff0000)>>16;
+	lap[1] = (mode & 0xff00) >> 8;
+	lap[2] = (mode & 0xff0000) >> 16;
+
 	return hci_write_current_iac_lap(deviceDescriptor, 1, lap, LOCALDEVICE_ACCESS_TIMEOUT);
 }
 
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetLocalDeviceDiscoverable
 (JNIEnv *env, jobject peer, jint deviceDescriptor) {
-	uint8_t lap[3];
-	uint8_t num_iac;
-	int error = hci_read_current_iac_lap(deviceDescriptor,&num_iac,lap,LOCALDEVICE_ACCESS_TIMEOUT);
+	uint8_t lap[3  * MAX_IAC_LAP];
+	uint8_t num_iac = 1;
+	read_scan_enable_rp rp;
+	struct hci_request rq;
+	int error;
+
+	memset(&rq, 0, sizeof(rq));
+	rq.ogf    = OGF_HOST_CTL;
+	rq.ocf    = OCF_READ_SCAN_ENABLE;
+	rq.rparam = &rp;
+	rq.rlen   = READ_SCAN_ENABLE_RP_SIZE;
+    if ((hci_send_req(deviceDescriptor, &rq, LOCALDEVICE_ACCESS_TIMEOUT) < 0) || (rp.status)) {
+        throwRuntimeException(env, "Unable to retrieve the local scan mode.");
+        return 0;
+    }
+    if ((rp.enable & SCAN_INQUIRY) == 0) {
+        return NOT_DISCOVERABLE;
+    }
+
+	error = hci_read_current_iac_lap(deviceDescriptor, &num_iac, lap, LOCALDEVICE_ACCESS_TIMEOUT);
     //M.S.	I don't know why to check for num_iac to be less than or equal to one but avetana to this.
 	if ((error < 0) || (num_iac > 1)) {
-		throwRuntimeException(env, "Unable to retrieve the local discovery mode. It may be because you are not root");
+		throwRuntimeException(env, "Unable to retrieve the local discovery mode.");
 		return 0;
 	}
 	return (lap[0] & 0xff) | ((lap[1] & 0xff) << 8) | ((lap[2] & 0xff) << 16);
