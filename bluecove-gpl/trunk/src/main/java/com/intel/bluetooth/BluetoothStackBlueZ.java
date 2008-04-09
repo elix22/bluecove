@@ -47,6 +47,10 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	// TODO what is the real number for Attributes retrievable ?
 	private final static int ATTR_RETRIEVABLE_MAX = 256;
 
+	private final static int LISTEN_BACKLOG_RFCOMM = 4;
+	
+	private final static int LISTEN_BACKLOG_L2CAP = 4;
+	
 	private final static List devicesUsed = new Vector();
 
 	private int deviceID = -1;
@@ -508,9 +512,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public long rfServerOpen(BluetoothConnectionNotifierParams params, ServiceRecordImpl serviceRecord)
 			throws IOException {
-		final int listen_backlog = 1;
 		long socket = rfServerOpenImpl(this.localDeviceBTAddress, params.authorize, params.authenticate,
-				params.encrypt, params.master, params.timeouts, listen_backlog);
+				params.encrypt, params.master, params.timeouts, LISTEN_BACKLOG_RFCOMM);
 		boolean success = false;
 		try {
 			int channel = rfServerGetChannelIDImpl(socket);
@@ -607,9 +610,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 */
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
-		final int listen_backlog = 1;
 		long socket = l2ServerOpenImpl(this.localDeviceBTAddress, params.authorize, params.authenticate,
-				params.encrypt, params.master, params.timeouts, listen_backlog, receiveMTU, transmitMTU);
+				params.encrypt, params.master, params.timeouts, LISTEN_BACKLOG_L2CAP, receiveMTU, transmitMTU);
 		boolean success = false;
 		try {
 			int channel = l2ServerGetPSMImpl(socket);
