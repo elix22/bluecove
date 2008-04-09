@@ -226,12 +226,26 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private native int nativeSetLocalDeviceDiscoverable(int deviceDescriptor, int mode);
 
+	/**
+	 * From JSR-82 docs
+	 * 
+	 * @return <code>true</code> if the request succeeded, otherwise
+	 *         <code>false</code> if the request failed because the BCC denied
+	 *         the request; <code>false</code> if the Bluetooth system does
+	 *         not support the access mode specified in <code>mode</code>
+	 */
 	public boolean setLocalDeviceDiscoverable(int mode) throws BluetoothStateException {
-		int error = nativeSetLocalDeviceDiscoverable(deviceDescriptor, mode);
-		if (error != 0) {
-			throw new BluetoothStateException("Unable to change discovery mode. It may be because you aren't root");
+		int curentMode = getLocalDeviceDiscoverable();
+		if (curentMode == mode) {
+			return true;
+		} else {
+			int error = nativeSetLocalDeviceDiscoverable(deviceDescriptor, mode);
+			if (error != 0) {
+				DebugLog.error("Unable to change discovery mode. It may be because you aren't root; " + error);
+				return false;
+			}
+			return true;
 		}
-		return true;
 	}
 
 	/*
