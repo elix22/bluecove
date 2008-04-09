@@ -1,7 +1,7 @@
 /**
  * BlueCove BlueZ module - Java library for Bluetooth on Linux
  *  Copyright (C) 2008 Mina Shokry
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 package com.intel.bluetooth;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -45,6 +46,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	// TODO what is the real number for Attributes retrievable ?
 	private final static int ATTR_RETRIEVABLE_MAX = 256;
+
+	private final static List devicesUsed = new Vector();
 
 	private int deviceID = -1;
 
@@ -116,7 +119,12 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		if (deviceAddressStr != null) {
 			findLocalDeviceBTAddress = Long.parseLong(deviceAddressStr, 16);
 		}
-		deviceID = nativeGetDeviceID(findID, findLocalDeviceBTAddress);
+		int foundDeviceID = nativeGetDeviceID(findID, findLocalDeviceBTAddress);
+		if (devicesUsed.contains(new Long(foundDeviceID))) {
+			throw new BluetoothStateException("LocalDevice " + foundDeviceID + " alredy in use");
+		}
+
+		this.deviceID = foundDeviceID;
 		DebugLog.debug("localDeviceID", deviceID);
 		deviceDescriptor = nativeOpenDevice(deviceID);
 		localDeviceBTAddress = getLocalDeviceBluetoothAddressImpl(deviceDescriptor);
@@ -149,6 +157,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 			}
 		}
 		nativeCloseDevice(deviceDescriptor);
+		if (deviceID >= 0) {
+			devicesUsed.remove(new Long(deviceID));
+		}
 	}
 
 	public native void enableNativeDebug(Class nativeDebugCallback, boolean on);
@@ -256,7 +267,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		discoveryListener = listener;
 		discoveredDevices = new Vector();
 		deviceInquiryCanceled = false;
-		return DeviceInquiryThread.startInquiry(this, accessCode, listener);
+		return DeviceInquiryThread.startInquiry(this, this, accessCode, listener);
 	}
 
 	private native int runDeviceInquiryImpl(DeviceInquiryThread startedNotify, int deviceID, int deviceDescriptor,
