@@ -1,7 +1,10 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
-* 2.0.3 to released 2008-XX-XX
+* 2.0.3 to be released 2008-XX-XX
+
+    2008-04-08
+    * Support Multiple Adapters and Bluetooth Stacks in same JVM
 
     2008-03-06
     * Fixed OBEX bug reciving Time Headers (Nokia)
