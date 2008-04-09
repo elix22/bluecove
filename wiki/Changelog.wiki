@@ -16,7 +16,7 @@
     2008-01-30 Vlad Skarzhevskyy
     * Fixed major start problem on Mac OS X
     * Fixed SDP SEQ8, SEQ16, UUID 16 and 36 bit
-    * Allow to load _x64 libraries on Windows and Linux
+    * Allow to load x64 libraries on Windows and Linux
 
     2008-01-19 Vlad Skarzhevskyy
     * bluecove-gpl: RFCOMM and L2CAP client and services on Linux BlueZ
@@ -161,7 +161,7 @@
 
 = 1.2.0 =
 
-    2006-03-01 Paul Tötterman
+    2006-03-01 Paul Tï¿½tterman
     * javax.bluetooth.LocalDevice.getFriendlyName(): Now returns a real name
     * Migrated to Visual C++ 2005 Express Edition
     * Migrated to Subversion, CVS exists only for archival now
@@ -179,7 +179,5 @@
 = Beginning =
 
     2004 James Scott, Eben Upton and Christophe Diot at Intel Research Cambridge
-
-
 
 
