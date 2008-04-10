@@ -62,17 +62,8 @@ public class LocalDeviceManager {
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			int mode = localDevice.getDiscoverable();
-			String modeStr;
-			if (DiscoveryAgent.GIAC == mode) {
-				modeStr = "GIAC";
-			} else if (DiscoveryAgent.LIAC == mode) {
-				modeStr = "LIAC";
-			} else if (DiscoveryAgent.NOT_DISCOVERABLE == mode) {
-				modeStr = "NOT_DISCOVERABLE";
-			} else {
-				modeStr = "0x" + Integer.toHexString(mode);
-			}
-			Logger.debug("LocalDevice Discoverable " + modeStr);
+			Logger.debug("LocalDevice " + localDevice.getBluetoothAddress() + " Discoverable "
+					+ TestResponderServer.discoverableModeString(mode));
 		} catch (Throwable e) {
 			Logger.error("getDiscoverable error", e);
 		}
@@ -102,6 +93,7 @@ public class LocalDeviceManager {
 		}
 		Logger.info("will use stack " + threadLocalBluetoothStackWINSOCK);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStackWINSOCK;
+		setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 	}
 
 	static void setUseWIDCOMM() {
@@ -118,6 +110,7 @@ public class LocalDeviceManager {
 		}
 		Logger.info("will use stack " + threadLocalBluetoothStackWIDCOMM);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStackWIDCOMM;
+		setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 	}
 
 	static void setUseDevice0() {
@@ -134,6 +127,7 @@ public class LocalDeviceManager {
 		}
 		Logger.info("will use stack " + threadLocalBluetoothStack0);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStack0;
+		setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 	}
 
 	static void setUseDevice1() {
@@ -150,6 +144,7 @@ public class LocalDeviceManager {
 		}
 		Logger.info("will use stack " + threadLocalBluetoothStack1);
 		Configuration.threadLocalBluetoothStack = threadLocalBluetoothStack1;
+		setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 	}
 
 }
