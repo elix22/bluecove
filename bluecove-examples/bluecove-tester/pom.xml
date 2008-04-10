@@ -189,6 +189,15 @@
                     </dependencies>
 
                 </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.microemu</groupId>
+                        <artifactId>midpapi20</artifactId>
+                        <version>${me2Version}</version>
+                    </dependency>
+                </dependencies>
+
             </plugin>
 
             <!--
