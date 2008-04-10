@@ -31,7 +31,7 @@
 
     <scm>
         <connection>scm:svn:http://bluecove.googlecode.com/svn/bluecove-emu-gui</connection>
-        <developerConnection>scm:svn:http://bluecove.googlecode.com/svn/bluecove-emu-gui</developerConnection>
+        <developerConnection>scm:svn:https://bluecove.googlecode.com/svn/bluecove-emu-gui</developerConnection>
         <url>http://bluecove.googlecode.com/svn/bluecove-emu-gui</url>
     </scm>
 
