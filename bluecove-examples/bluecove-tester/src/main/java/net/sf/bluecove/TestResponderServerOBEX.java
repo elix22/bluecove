@@ -295,6 +295,17 @@ public class TestResponderServerOBEX implements Runnable {
 			}
 		}
 
+		private void operationRemoteDevice(String name, Operation op) {
+			if (Configuration.isBlueCove && !Configuration.testServerOBEX_TCP) {
+				try {
+					RemoteDevice d = RemoteDevice.getRemoteDevice(op);
+					Logger.debug(name + " connected to " + d.getBluetoothAddress());
+				} catch (Throwable e) {
+					Logger.error(name + " remoteDevice", e);
+				}
+			}
+		}
+
 		void notConnectedClose() {
 			if (!isConnected) {
 				Logger.debug("OBEX connection timeout");
@@ -357,6 +368,7 @@ public class TestResponderServerOBEX implements Runnable {
 		public int onPut(Operation op) {
 			Logger.debug("OBEX onPut");
 			try {
+				operationRemoteDevice("put", op);
 				HeaderSet hs = op.getReceivedHeaders();
 				debugHeaderSet(hs);
 				String name = (String) hs.getHeader(HeaderSet.NAME);
@@ -401,6 +413,7 @@ public class TestResponderServerOBEX implements Runnable {
 			Logger.debug("OBEX onGet");
 			String message = "Hello client! now " + new Date().toString();
 			try {
+				operationRemoteDevice("get", op);
 				HeaderSet hs = op.getReceivedHeaders();
 				debugHeaderSet(hs);
 				String name = (String) hs.getHeader(HeaderSet.NAME);
