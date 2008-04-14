@@ -19,7 +19,7 @@ Support for BlueZ is added in !BlueCove version 2.0.3 as additional [http://www.
 == Runtime Requirements ==
 
   * WIDCOMM (Broadcom) BTW Stack software version 1.4.2.10 SP5 or above
-  * !BlueSoleil version 1.6.0 or above
+  * !BlueSoleil version 1.6.0, 2.3 or 3.2.2.8. Version 5.0.5 not supported.
   * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
   * PowerPC- or Intel-based Mac OS X 10.4 (Bluetooth v1.2) or late (Since v2.0.2)
   * Linux with BlueZ Bluetooth stack
@@ -29,11 +29,11 @@ Support for BlueZ is added in !BlueCove version 2.0.3 as additional [http://www.
 
 == Limitations ==
 
-L2CAP support available only on WIDCOMM Stack and Mac OS X since !BlueCove version 2.0.2.
+L2CAP support available only on Windows WIDCOMM Stack, Linux BlueZ and Mac OS X Stack.
 
-Due to the Microsoft Bluetooth stack only supporting RFCOMM connections,
-!BlueCove also only supports RFCOMM connections on this stack. The operating system support is
-currently limited to Windows XP SP2 and newer, because the Microsoft Bluetooth
+  Since Microsoft Bluetooth stack only supporting RFCOMM connections,
+!BlueCove also supports only RFCOMM connections on this stack. The Microsoft operating system support is
+currently limited to Windows XP SP2, Windows Mobile 2003 and newer, because the Microsoft Bluetooth
 stack is not available on other operating systems.
 
 If someone writes code to support another stack and/or operating system, it will be considered for
@@ -103,6 +103,7 @@ IBM J9 MIDP 2.0 Profile
 
     Tested on
         * !WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
+        * !WebSphere Everyplace Micro Environment 6.1.1, CLDC 1.1, MIDP 2.0 for Windows XP/X86
 
 Debug
 
@@ -114,7 +115,9 @@ Debug
 
 Configuration options
 
-    System properties: (Since v2.0.2)
+    System properties:
+
+    Since v2.0.2
 
         * `bluecove.connect.timeout` The amount of time in milliseconds for which the implementation will attempt to establish connection RFCOMM or L2CAP before it throws !BluetoothConnectionException. Defaults to 2 minutes. WIDCOMM and OS X only.
         * `bluecove.obex.timeout` The amount of time in milliseconds for which the implementation will attempt to successfully transmit a packet before it throws InterruptedIOException. Defaults to 2 minutes.
@@ -146,11 +149,20 @@ You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition SP1 a
  Visual Visual C++ 2005 used to build intelbth.dll for winsock and BlueSoleil
  More detail on building native code `src\main\c\intelbth\ReadMe.txt`
 
+On Mac OS X
+
+  Xcode 2.5 or later can be used duirng build on Mac.
+  We use Xcode 3.0 on OSX 2.5.1 to build distribution.
+
  Ant or maven2 are used as the build tool for java.
 
   # [http://code.google.com/p/bluecove/downloads/list Download] !BlueCove source release
   # Unzip the source
   # Run `ant` or `mvn`
+  # When using maven native Dlls are build as well
+
+  If you are using `ant`:
+
   # Go into `src\main\c\intelbth`
   # Open `intelbth.sln`
   # Compile the project for your platform (e.g. 'Winsock' for 'Win32')
