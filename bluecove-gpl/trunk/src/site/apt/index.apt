@@ -38,6 +38,14 @@ java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:yourApp.jar org.your.
 
         * `bluecove.deviceAddress=btaddr` select local devices by Bluetooth address
 
+* Documentation
+
+    API-Documentation for BlueCove {{{../apidocs/index.html}Java docs}}. For application it is not recommended to use any classes or API other than defined in JSR-82.
+
+    API that enables the use of Multiple Adapters and Bluetooth Stacks in parallel in the same JVM is BlueCove and documentation can be found {{{./apidocs/com/intel/bluetooth/BlueCoveImpl.html#useThreadLocalBluetoothStack()}here}}.
+
+    BlueCove {{{http://code.google.com/p/bluecove/wiki/Documentation}Installation and configuration instructions}}
+
 * Legal
 
   BlueCove-gpl is licensed under {{{http://www.gnu.org/licenses/gpl.html}GNU General Public License}}.
