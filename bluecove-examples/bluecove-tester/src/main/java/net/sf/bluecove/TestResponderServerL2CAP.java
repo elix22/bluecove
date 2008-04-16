@@ -99,7 +99,7 @@ public class TestResponderServerL2CAP extends Thread {
 			url.append(";ReceiveMTU=").append(TestResponderCommon.receiveMTU_max);
 			if ((Configuration.isBlueCove) && (Configuration.bluecovepsm != null)
 					&& (Configuration.bluecovepsm.length() > 0)) {
-				url.append(";bluecovepsm").append(Configuration.bluecovepsm);
+				url.append(";bluecovepsm=").append(Configuration.bluecovepsm);
 			}
 			serverConnection = (L2CAPConnectionNotifier) Connector.open(url.toString());
 			if (Configuration.testServiceAttributes.booleanValue()) {
