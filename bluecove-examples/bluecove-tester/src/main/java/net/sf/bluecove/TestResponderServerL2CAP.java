@@ -88,11 +88,20 @@ public class TestResponderServerL2CAP extends Thread {
 		isStoped = false;
 		try {
 			Configuration.cldcStub.setThreadLocalBluetoothStack(threadLocalBluetoothStack);
-			serverConnection = (L2CAPConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_L2CAP
-					+ "://localhost:" + Configuration.blueCoveL2CAPUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
-					+ "_l2" + (Configuration.useShortUUID ? "s" : "") + Configuration.serverURLParams()
-					+ ";TransmitMTU=" + TestResponderCommon.receiveMTU_max + ";ReceiveMTU="
-					+ TestResponderCommon.receiveMTU_max);
+			StringBuffer url = new StringBuffer(BluetoothTypesInfo.PROTOCOL_SCHEME_L2CAP);
+			url.append("://localhost:").append(Configuration.blueCoveL2CAPUUID());
+			url.append(";name=").append(Consts.RESPONDER_SERVERNAME).append("_l2");
+			if (Configuration.useShortUUID) {
+				url.append("s");
+			}
+			url.append(Configuration.serverURLParams());
+			url.append(";TransmitMTU=").append(TestResponderCommon.receiveMTU_max);
+			url.append(";ReceiveMTU=").append(TestResponderCommon.receiveMTU_max);
+			if ((Configuration.isBlueCove) && (Configuration.bluecovepsm != null)
+					&& (Configuration.bluecovepsm.length() > 0)) {
+				url.append(";bluecovepsm").append(Configuration.bluecovepsm);
+			}
+			serverConnection = (L2CAPConnectionNotifier) Connector.open(url.toString());
 			if (Configuration.testServiceAttributes.booleanValue()) {
 				ServiceRecord record = LocalDevice.getLocalDevice().getRecord(serverConnection);
 				if (record == null) {
