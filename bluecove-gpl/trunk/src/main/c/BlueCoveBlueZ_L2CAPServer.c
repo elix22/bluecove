@@ -24,7 +24,7 @@
 #include <bluetooth/l2cap.h>
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpenImpl
-  (JNIEnv* env, jobject peer, jlong localDeviceBTAddress, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog, jint receiveMTU, jint transmitMTU) {
+  (JNIEnv* env, jobject peer, jlong localDeviceBTAddress, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog, jint receiveMTU, jint transmitMTU, int assignPsm) {
 
     // allocate socket
     int handle = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
@@ -37,6 +37,10 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpe
     //bind local address
     localAddr.l2_family = AF_BLUETOOTH;
     localAddr.l2_psm = 0;
+    if (assignPsm != 0) {
+        localAddr.l2_psm = assignPsm;
+    }
+
     //bacpy(&localAddr.l2_bdaddr, BDADDR_ANY);
     longToDeviceAddr(localDeviceBTAddress, &localAddr.l2_bdaddr);
 

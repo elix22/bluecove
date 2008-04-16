@@ -48,9 +48,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	private final static int ATTR_RETRIEVABLE_MAX = 256;
 
 	private final static int LISTEN_BACKLOG_RFCOMM = 4;
-	
+
 	private final static int LISTEN_BACKLOG_L2CAP = 4;
-	
+
 	private final static List devicesUsed = new Vector();
 
 	private int deviceID = -1;
@@ -597,8 +597,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	public native void l2CloseClientConnection(long handle) throws IOException;
 
 	private native long l2ServerOpenImpl(long localDeviceBTAddress, boolean authorize, boolean authenticate,
-			boolean encrypt, boolean master, boolean timeouts, int backlog, int receiveMTU, int transmitMTU)
-			throws IOException;
+			boolean encrypt, boolean master, boolean timeouts, int backlog, int receiveMTU, int transmitMTU,
+			int assignPsm) throws IOException;
 
 	public native int l2ServerGetPSMImpl(long handle) throws IOException;
 
@@ -611,7 +611,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
 		long socket = l2ServerOpenImpl(this.localDeviceBTAddress, params.authorize, params.authenticate,
-				params.encrypt, params.master, params.timeouts, LISTEN_BACKLOG_L2CAP, receiveMTU, transmitMTU);
+				params.encrypt, params.master, params.timeouts, LISTEN_BACKLOG_L2CAP, receiveMTU, transmitMTU,
+				params.bluecove_ext_psm);
 		boolean success = false;
 		try {
 			int channel = l2ServerGetPSMImpl(socket);
