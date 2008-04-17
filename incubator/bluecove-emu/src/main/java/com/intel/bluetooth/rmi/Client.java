@@ -122,8 +122,12 @@ public class Client {
 		if ((port != null) && (port.length() > 0)) {
 			rmiPort = Integer.parseInt(port);
 		}
-
-		Registry registry = LocateRegistry.getRegistry(rmiHost, rmiPort);
-		return (RemoteService) registry.lookup(RemoteService.SERVICE_NAME);
+		if (rmiPort == 0) {
+			// in process server
+			return new RemoteServiceImpl();
+		} else {
+			Registry registry = LocateRegistry.getRegistry(rmiHost, rmiPort);
+			return (RemoteService) registry.lookup(RemoteService.SERVICE_NAME);
+		}
 	}
 }

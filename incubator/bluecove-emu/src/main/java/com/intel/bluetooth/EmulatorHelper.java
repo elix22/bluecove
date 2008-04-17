@@ -34,15 +34,20 @@ class EmulatorHelper {
 
 	private static Map<EmulatorLocalDevice, EmulatorCommandReceiver> receivers = new HashMap<EmulatorLocalDevice, EmulatorCommandReceiver>();
 
+	static DeviceManagerService getService() {
+		String host = BlueCoveImpl.getConfigProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_HOST);
+		String port = BlueCoveImpl.getConfigProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_PORT);
+		return (DeviceManagerService) Client.getService(DeviceManagerService.class, host, port);
+	}
+
 	static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {
-		String host = BlueCoveImpl.getConfigProperty("bluecove.emu.rmiRegistryHost");
-		String port = BlueCoveImpl.getConfigProperty("bluecove.emu.rmiRegistryPort");
 		DeviceDescriptor deviceDescriptor;
 		DeviceManagerService service;
 		try {
-			service = (DeviceManagerService) Client.getService(DeviceManagerService.class, host, port);
-			deviceDescriptor = service.createNewDevice(BlueCoveImpl.getConfigProperty("bluecove.deviceID"),
-					BlueCoveImpl.getConfigProperty("bluecove.deviceAddress"));
+			service = getService();
+			deviceDescriptor = service.createNewDevice(BlueCoveImpl
+					.getConfigProperty(BlueCoveConfigProperties.PROPERTY_LOCAL_DEVICE_ID), BlueCoveImpl
+					.getConfigProperty(BlueCoveConfigProperties.PROPERTY_LOCAL_DEVICE_ADDRESS));
 		} catch (RuntimeException e) {
 			throw (BluetoothStateException) UtilsJavaSE.initCause(new BluetoothStateException(e.getMessage()), e);
 		}

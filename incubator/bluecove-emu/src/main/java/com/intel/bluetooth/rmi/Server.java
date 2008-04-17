@@ -26,6 +26,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import com.intel.bluetooth.BlueCoveConfigProperties;
 import com.intel.bluetooth.DebugLog;
 
 public class Server {
@@ -59,7 +60,7 @@ public class Server {
 
 	private void startRMIRegistry() {
 		try {
-			String port = System.getProperty("bluecove.emu.rmiRegistryPort");
+			String port = System.getProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_PORT);
 			if ((port != null) && (port.length() > 0)) {
 				rmiRegistryPort = Integer.parseInt(port);
 			}

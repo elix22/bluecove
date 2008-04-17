@@ -47,7 +47,17 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 
 	}
 
-	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress) {
+	public void shutdown() {
+		synchronized (devices) {
+			for (Iterator<Device> iterator = devices.values().iterator(); iterator.hasNext();) {
+				Device device = iterator.next();
+				device.release();
+			}
+			devices.clear();
+		}
+	}
+
+	public DeviceDescriptor createNewDevice(String deviceID, String deviceAddress) throws BluetoothStateException {
 		synchronized (devices) {
 			long address = getNextAvailableBTAddress(deviceID, deviceAddress);
 			DeviceDescriptor descriptor = new DeviceDescriptor(address, configuration.getDeviceNamePrefix()
@@ -226,17 +236,19 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 		return dd.getName();
 	}
 
-	private long getNextAvailableBTAddress(String deviceID, String deviceAddress) {
+	private long getNextAvailableBTAddress(String deviceID, String deviceAddress) throws BluetoothStateException {
 		if (deviceID != null) {
 			long id = configuration.getFirstDeviceAddress() + Long.parseLong(deviceID);
 			if (getDevice(id) != null) {
-				throw new RuntimeException("Device already reserved " + RemoteDeviceHelper.getBluetoothAddress(id));
+				throw new BluetoothStateException("Device already reserved "
+						+ RemoteDeviceHelper.getBluetoothAddress(id));
 			}
 			return id;
 		} else if (deviceAddress != null) {
 			long id = Long.parseLong(deviceAddress);
 			if (getDevice(id) != null) {
-				throw new RuntimeException("Device already reserved " + RemoteDeviceHelper.getBluetoothAddress(id));
+				throw new BluetoothStateException("Device already reserved "
+						+ RemoteDeviceHelper.getBluetoothAddress(id));
 			}
 			return id;
 		} else {

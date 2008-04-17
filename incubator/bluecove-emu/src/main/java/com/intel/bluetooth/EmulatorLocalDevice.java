@@ -232,11 +232,19 @@ class EmulatorLocalDevice {
 		return c;
 	}
 
-	EmulatorL2CAPService createL2CAPService(int bluecove_ext_psm) {
+	EmulatorL2CAPService createL2CAPService(int bluecove_ext_psm) throws IOException {
 		EmulatorL2CAPService s;
 		synchronized (connections) {
+			int pcm;
+			if (bluecove_ext_psm != 0) {
+				if (pcms.contains(new Long(bluecove_ext_psm))) {
+					throw new IOException("Server PCM " + Integer.toHexString(bluecove_ext_psm) + " already reserved");
+				}
+				pcm = bluecove_ext_psm;
+			} else {
+				pcm = (int) EmulatorUtils.getNextAvailable(pcms, 0x1001, 2);
+			}
 			long handle = nextConnectionId();
-			int pcm = (int) EmulatorUtils.getNextAvailable(pcms, 0x1001, 2);
 			s = new EmulatorL2CAPService(this, handle, pcm);
 			connections.put(new Long(handle), s);
 			pcms.addElement(new Long(pcm));
