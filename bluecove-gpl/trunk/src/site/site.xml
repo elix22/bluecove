@@ -23,7 +23,7 @@
 
             <item name="BlueCove" href="../" />
             <item name="Project site" href="http://bluecove.googlecode.com" />
-
+            <item name="Introduction" href="index.html" />
             <item name="Download" href="#">
                 <item name="Releases" href="http://sourceforge.net/project/showfiles.php?group_id=114020"/>
                 <item name="Snapshot" href="http://www.pyx4me.com/maven2-snapshot/net/sf/bluecove/bluecove-gpl/#version#/"/>
