@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -17,14 +17,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove.util;
 
 import junit.framework.TestCase;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class TestStatistic extends TestCase {
 
@@ -42,7 +42,7 @@ public class TestStatistic extends TestCase {
 		assertEquals("avg", "1.3333", c.avg());
 		assertEquals("avgPrc", "133.3333%", c.avgPrc());
 	}
-	
+
 	public void testCountStatisticPrc1() {
 		CountStatistic c = new CountStatistic();
 		c.add(1);
@@ -54,15 +54,17 @@ public class TestStatistic extends TestCase {
 		c.add(4);
 		assertEquals("avg", "2.0000", c.avg());
 		assertEquals("avgPrc", "200.0000%", c.avgPrc());
-		c.add(2); c.add(2); c.add(2);
+		c.add(2);
+		c.add(2);
+		c.add(2);
 		assertEquals("avg", "2.0000", c.avg());
 		assertEquals("avgPrc", "200.0000%", c.avgPrc());
-		
+
 		c.add(3);
 		assertEquals("avg", "2.1428", c.avg());
 		assertEquals("avgPrc", "214.2857%", c.avgPrc());
 	}
-	
+
 	public void testCountStatisticPrc2() {
 		CountStatistic c = new CountStatistic();
 		c.add(0);
@@ -75,5 +77,5 @@ public class TestStatistic extends TestCase {
 		assertEquals("avg", "0.3333", c.avg());
 		assertEquals("avgPrc", "33.3333%", c.avgPrc());
 	}
-	
+
 }
