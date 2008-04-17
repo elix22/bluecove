@@ -55,6 +55,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String NULL_VALUE = "{null}";
+
 	private Panel panelItems;
 
 	private Vector configItems = new Vector();
@@ -172,6 +174,14 @@ public class ConfigurationDialog extends OkCancelDialog {
 		updateGUI();
 	}
 
+	private static String nvl(Object o) {
+		if (o == null) {
+			return NULL_VALUE;
+		} else {
+			return o.toString();
+		}
+	}
+
 	private void updateGUI() {
 		for (Enumeration en = configItems.elements(); en.hasMoreElements();) {
 			ConfigurationComponent cc = (ConfigurationComponent) en.nextElement();
@@ -188,10 +198,10 @@ public class ConfigurationDialog extends OkCancelDialog {
 					c.setState(((BooleanVar) cc.configField.get(Configuration.class)).booleanValue());
 				} else if (type.equals(UUID.class)) {
 					TextField tf = (TextField) cc.guiComponent;
-					tf.setText(cc.configField.get(Configuration.class).toString());
+					tf.setText(nvl(cc.configField.get(Configuration.class)));
 				} else if ((type.equals(String.class)) || (type.equals(StringVar.class))) {
 					TextField tf = (TextField) cc.guiComponent;
-					tf.setText(cc.configField.get(Configuration.class).toString());
+					tf.setText(nvl(cc.configField.get(Configuration.class)));
 				} else if (type.equals(int.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					tf.setText(String.valueOf(cc.configField.getInt(Configuration.class)));
@@ -273,10 +283,18 @@ public class ConfigurationDialog extends OkCancelDialog {
 					((BooleanVar) cc.configField.get(Configuration.class)).setValue(c.getState());
 				} else if (type.equals(String.class)) {
 					TextField tf = (TextField) cc.guiComponent;
-					cc.configField.set(Configuration.class, tf.getText().trim());
+					if (NULL_VALUE.equals(tf.getText().trim())) {
+						cc.configField.set(Configuration.class, null);
+					} else {
+						cc.configField.set(Configuration.class, tf.getText().trim());
+					}
 				} else if (type.equals(StringVar.class)) {
 					TextField tf = (TextField) cc.guiComponent;
-					((StringVar) cc.configField.get(Configuration.class)).setValue(tf.getText().trim());
+					if (NULL_VALUE.equals(tf.getText().trim())) {
+						((StringVar) cc.configField.get(Configuration.class)).setValue(null);
+					} else {
+						((StringVar) cc.configField.get(Configuration.class)).setValue(tf.getText().trim());
+					}
 				} else if (type.equals(int.class)) {
 					TextField tf = (TextField) cc.guiComponent;
 					cc.configField.setInt(Configuration.class, Integer.valueOf(tf.getText().trim()).intValue());
@@ -285,7 +303,12 @@ public class ConfigurationDialog extends OkCancelDialog {
 					((IntVar) cc.configField.get(Configuration.class)).setValue(tf.getText());
 				} else if (type.equals(UUID.class)) {
 					TextField tf = (TextField) cc.guiComponent;
-					cc.configField.set(Configuration.class, BluetoothTypesInfo.UUIDConsts.getUUID(tf.getText().trim()));
+					if (NULL_VALUE.equals(tf.getText().trim())) {
+						cc.configField.set(Configuration.class, null);
+					} else {
+						cc.configField.set(Configuration.class, BluetoothTypesInfo.UUIDConsts.getUUID(tf.getText()
+								.trim()));
+					}
 				}
 			} catch (Throwable e) {
 				Logger.error("internal error for " + cc.name, e);
