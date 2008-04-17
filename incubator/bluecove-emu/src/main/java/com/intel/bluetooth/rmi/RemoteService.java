@@ -24,7 +24,7 @@ package com.intel.bluetooth.rmi;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface RemoteService extends Remote {
+interface RemoteService extends Remote {
 
 	public static final String SERVICE_NAME = "BlueCoveRMIService";
 

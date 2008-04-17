@@ -29,7 +29,7 @@ import java.io.InterruptedIOException;
  * @author vlads
  * 
  */
-public class ConnectedInputStream extends InputStream {
+class ConnectedInputStream extends InputStream {
 
 	/**
 	 * The circular buffer which receives data.

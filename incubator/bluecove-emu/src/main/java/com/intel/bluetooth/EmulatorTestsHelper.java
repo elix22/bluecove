@@ -1,7 +1,6 @@
 /**
- *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2008 Michael Lifshits
- *  Copyright (C) 2008 Vlad Skarzhevskyy
+ *  MicroEmulator
+ *  Copyright (C) 2001-2007 Bartek Teodorczyk <barteo@barteo.net>
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -19,34 +18,23 @@
  *
  *  @version $Id$
  */
-package com.intel.bluetooth.emu;
-
-import java.io.IOException;
-import java.io.OutputStream;
+package com.intel.bluetooth;
 
 /**
  * @author vlads
  * 
  */
-class ConnectedOutputStream extends OutputStream {
+public class EmulatorTestsHelper {
 
-	private ConnectedInputStream receiver;
+	public static void startInProcessServer() {
 
-	public ConnectedOutputStream(ConnectedInputStream receiver) {
-		this.receiver = receiver;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.OutputStream#write(int)
-	 */
-	public void write(int b) throws IOException {
-		receiver.receive(b);
+	public static void stopInProcessServer() {
+
 	}
 
-	public void close() throws IOException {
-		receiver.receiverClose();
+	public static Thread runNewEmulatorStack(Runnable runnable) {
+		return null;
 	}
-
 }

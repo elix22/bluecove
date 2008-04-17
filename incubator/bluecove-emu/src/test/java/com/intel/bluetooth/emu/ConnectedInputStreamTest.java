@@ -19,7 +19,7 @@
  *
  *  @version $Id$
  */
-package com.intel.bluetooth;
+package com.intel.bluetooth.emu;
 
 import java.io.IOException;
 import java.util.Random;

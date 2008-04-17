@@ -27,7 +27,7 @@ import java.io.IOException;
  * @author vlads
  * 
  */
-public class EmulatorL2CAPService extends EmulatorServiceConnection {
+class EmulatorL2CAPService extends EmulatorServiceConnection {
 
 	private int receiveMTU;
 

@@ -23,7 +23,7 @@ package com.intel.bluetooth.rmi;
 
 import java.io.Serializable;
 
-public class ServiceRequest implements Serializable {
+class ServiceRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
