@@ -90,6 +90,7 @@
     </properties>
 
     <modules>
+        <module>bluecove-site-skin</module>
         <module>bluecove-tester</module>
         <module>bluecove-webstart</module>
         <module>bluecove-microemu-starter</module>
@@ -172,7 +173,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>site-fix-css</id>
+                        <id>site-fix-version</id>
                         <phase>site</phase>
                         <goals>
                             <goal>run</goal>
@@ -184,19 +185,7 @@
                                     <include name="*.html"></include>
                                     <replacefilter token="#build#" value="${label}"/>
                                     <replacefilter token="#version#" value="${version}"/>
-                                    <replacetoken><![CDATA[</body>]]></replacetoken>
-                                    <replacevalue><![CDATA[<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct = "UA-1249205-3";urchinTracker();</script></body>]]></replacevalue>
                                 </replace>
-                                <copy overwrite="true" failonerror="false"
-                                      file="${basedir}/../target/site/css/site-child.css"
-                                      tofile="${project.build.directory}/site/css/site.css"/>
-                                <!-- this done for deep child modules  -->
-                                <copy overwrite="true" failonerror="false"
-                                      file="${basedir}/../target/site/css/site-child.css"
-                                      tofile="${project.build.directory}/site/css/site-child.css"/>
-                                <!--copy overwrite="true" todir="${project.build.directory}/site/css-images" failonerror="false">
-                                    <fileset dir="${basedir}/../target/site/css-images"/>
-                                </copy-->
                             </tasks>
                         </configuration>
                     </execution>
