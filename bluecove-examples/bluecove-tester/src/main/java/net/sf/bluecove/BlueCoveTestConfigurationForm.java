@@ -101,6 +101,7 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 		addConfig("STERSS_TEST_CASE", Configuration.STERSS_TEST_CASE);
 		addConfig("L2CAP", Configuration.testL2CAP);
 		addConfig("authenticateOBEX", Configuration.authenticateOBEX);
+		addConfig("tcp obex", Configuration.testServerOBEX_TCP);
 		addConfig("test Srvc Attr", Configuration.testServiceAttributes);
 		addConfig("test Ignore Broken Srv Attr", Configuration.testIgnoreNotWorkingServiceAttributes);
 		addConfig("test All Srv Attr", Configuration.testAllServiceAttributes);

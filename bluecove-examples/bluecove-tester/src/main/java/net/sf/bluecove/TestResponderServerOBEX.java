@@ -85,7 +85,7 @@ public class TestResponderServerOBEX implements Runnable {
 		LocalDevice localDevice;
 		try {
 			localDevice = LocalDevice.getLocalDevice();
-			if (Configuration.testServerOBEX_TCP) {
+			if (Configuration.testServerOBEX_TCP.booleanValue()) {
 				serverConnection = (SessionNotifier) Connector
 						.open(BluetoothTypesInfo.PROTOCOL_SCHEME_TCP_OBEX + "://");
 			} else {
@@ -282,7 +282,7 @@ public class TestResponderServerOBEX implements Runnable {
 		void connectionAccepted(Connection cconn) {
 			Logger.info("Received OBEX connection");
 			this.cconn = cconn;
-			if (!Configuration.testServerOBEX_TCP) {
+			if (!Configuration.testServerOBEX_TCP.booleanValue()) {
 				try {
 					remoteDevice = RemoteDevice.getRemoteDevice(cconn);
 					Logger.debug("connected toBTAddress " + remoteDevice.getBluetoothAddress());

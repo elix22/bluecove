@@ -118,7 +118,7 @@ public class Configuration {
 
 	public static String bluecovepsm;
 
-	public static boolean testServerOBEX_TCP = false;
+	public static BooleanVar testServerOBEX_TCP = new BooleanVar(false);
 
 	public static boolean testServerOBEXObjectPush = false;
 

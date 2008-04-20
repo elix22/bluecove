@@ -61,7 +61,7 @@ public class TestOBEXCilent implements Runnable {
 	private void runObecPut() throws IOException {
 
 		String serverURL;
-		if (Configuration.testServerOBEX_TCP) {
+		if (Configuration.testServerOBEX_TCP.booleanValue()) {
 			serverURL = "tcpobex://127.1.1.1:650";
 		} else {
 			DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();

@@ -250,8 +250,8 @@ public class Switcher implements Runnable {
 				}
 
 				try {
-					tckOBEXThread = new OBEXTCKAgent.OBEXTCKAgentApp("10", Configuration.testServerOBEX_TCP ? "tcpobex"
-							: "btgoep");
+					tckOBEXThread = new OBEXTCKAgent.OBEXTCKAgentApp("10", Configuration.testServerOBEX_TCP
+							.booleanValue() ? "tcpobex" : "btgoep");
 					if (tckOBEXThread != null) {
 						tckOBEXThread.start();
 					}
