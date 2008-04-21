@@ -81,6 +81,8 @@ import cx.ath.matthew.unix.UnixSocket;
  */
 class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, SearchServicesRunnable {
 
+	public static final String NATIVE_BLUECOVE_LIB_BLUEZ = "bluecove";
+
 	// Our reusable DBUS connection.
 	DBusConnection dbusConn = null;
 
@@ -149,6 +151,26 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	public String getStackID() {
 		DebugLog.debug("getStackID()");
 		return BlueCoveImpl.STACK_BLUEZ;
+	}
+
+	// --- Library initialization
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#isNativeCodeLoaded()
+	 */
+	public native boolean isNativeCodeLoaded();
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#requireNativeLibraries()
+	 */
+	public LibraryInformation[] requireNativeLibraries() {
+		LibraryInformation unixSocketLib = new LibraryInformation("unix-java");
+		unixSocketLib.stackClass = UnixSocket.class;
+		return new LibraryInformation[] { new LibraryInformation(NATIVE_BLUECOVE_LIB_BLUEZ), unixSocketLib };
 	}
 
 	public native int getLibraryVersionNative();

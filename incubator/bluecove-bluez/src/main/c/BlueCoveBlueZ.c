@@ -27,6 +27,11 @@
 
 #include <bluetooth/sdp_lib.h>
 
+JNIEXPORT jboolean JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_isNativeCodeLoaded
+  (JNIEnv *env, jobject peer) {
+    return JNI_TRUE;
+}
+
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLibraryVersionNative
   (JNIEnv *env, jobject peer) {
   	return com_intel_bluetooth_BluetoothStackBlueZ_BLUECOVE_DBUS_VERSION;
