@@ -196,12 +196,12 @@
                                         <fileName>BlueCoveBlueZ_RFCOMMServer.c</fileName>
                                         <fileName>BlueCoveBlueZ_L2CAP.c</fileName>
                                         <fileName>BlueCoveBlueZ_L2CAPServer.c</fileName>
+                                        <fileName>BlueCoveBlueZ_Tests.c</fileName>
                                         <!--
                                         <fileName>BlueCoveBlueZ_LocalDevice.c</fileName>
                                         <fileName>BlueCoveBlueZ_Discovery.c</fileName>
                                         <fileName>BlueCoveBlueZ_SDPServer.c</fileName>
                                         <fileName>BlueCoveBlueZ_SDPQuery.c</fileName>
-                                        <fileName>BlueCoveBlueZ_Tests.c</fileName>
                                         -->
                                     </fileNames>
                                 </source>
