@@ -74,11 +74,6 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private boolean deviceInquiryCanceled = false;
 
-	// Used mainly in Unit Tests
-	static {
-		NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_BLUEZ, BluetoothStackBlueZ.class);
-	}
-
 	BluetoothStackBlueZ() {
 	}
 

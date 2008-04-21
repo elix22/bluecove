@@ -20,6 +20,8 @@
  */
 package com.intel.bluetooth;
 
+import javax.bluetooth.BluetoothStateException;
+
 import com.intel.bluetooth.DebugLog.LoggerAppender;
 
 /**
@@ -38,8 +40,9 @@ public class NativeDebugTest extends NativeTestCase implements LoggerAppender {
 
 	String lastMessage;
 
-	public void testDebug() {
+	public void testDebug() throws BluetoothStateException {
 		BluetoothStack anyStack = new BluetoothStackBlueZ();
+		BlueCoveImpl.loadNativeLibraries(anyStack);
 
 		anyStack.enableNativeDebug(DebugLog.class, true);
 		DebugLog.setDebugEnabled(true);
