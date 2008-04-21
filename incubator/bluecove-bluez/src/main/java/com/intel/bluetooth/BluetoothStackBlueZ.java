@@ -133,18 +133,6 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	// and then create the RemoteDevice objects.
 	private Map<Long, DiscoveryData> address2DiscoveryData;
 
-	// Used mainly in Unit Tests
-	static {
-		NativeLibLoader.isAvailable("unix-java", UnixSocket.class);
-		// String sysName = System.getProperty("os.name");
-		// System.out.println("os.name:" + sysName);
-		try {
-			NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_BLUEZ, BluetoothStackBlueZ.class);
-		} catch (Throwable ex) {
-			NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_BLUEZ + "_x64", BluetoothStackBlueZ.class);
-		}
-	}
-
 	BluetoothStackBlueZ() {
 	}
 

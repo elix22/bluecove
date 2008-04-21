@@ -27,11 +27,11 @@ import junit.framework.TestCase;
 
 /**
  * Base class for test cases that are calling native function.
- *
+ * 
  * Native Debug automatically enabled when running tests in Eclipse
- *
+ * 
  * @author vlads
- *
+ * 
  */
 public abstract class NativeTestCase extends TestCase {
 
@@ -60,9 +60,8 @@ public abstract class NativeTestCase extends TestCase {
 			BlueCoveImpl.instance().enableNativeDebug(true);
 		}
 
-		if (!NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_BLUEZ)) {
-			throw new Error("Can't load SO");
-		}
+		BluetoothStack anyStack = new BluetoothStackBlueZ();
+		BlueCoveImpl.loadNativeLibraries(anyStack);
 	}
 
 	boolean isEclipse() {

@@ -1,4 +1,5 @@
 package com.intel.bluetooth;
+
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2007 Vlad Skarzhevskyy
@@ -22,26 +23,31 @@ package com.intel.bluetooth;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.bluetooth.BluetoothStateException;
+
 import org.bluez.Adapter;
 import org.bluez.Manager;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.DBusSigHandler;
 
-import cx.ath.matthew.unix.UnixSocket;
-
-
 /**
  * @author vlads
- *
+ * 
  */
 public class RunDBusManager {
-	
+
 	static {
 		System.getProperties().put("bluecove.debug", "true");
-		NativeLibLoader.isAvailable("unix-java", UnixSocket.class);
 	}
-	
+
 	public static void main(String[] args) {
+		try {
+			BluetoothStack anyStack = new BluetoothStackBlueZ();
+			BlueCoveImpl.loadNativeLibraries(anyStack);
+		} catch (BluetoothStateException e) {
+			throw new Error(e);
+		}
+
 		DBusConnection conn = null;
 		try {
 			conn = DBusConnection.getConnection(DBusConnection.SYSTEM);
@@ -52,39 +58,38 @@ public class RunDBusManager {
 
 			String defaultAdapter = manager.DefaultAdapter();
 			System.out.println("DefaultAdapter " + defaultAdapter);
-			
+
 			String[] adapters = manager.ListAdapters();
-			for (String adapter: adapters) {
-				System.out.println(" adapter " + adapter);	
+			for (String adapter : adapters) {
+				System.out.println(" adapter " + adapter);
 			}
-			
-//			String[] services = manager.ListServices(); 
-//			for (String service: services) {
-//				System.out.println(" service " + service);	
-//			}
-			
+
+			// String[] services = manager.ListServices();
+			// for (String service: services) {
+			// System.out.println(" service " + service);
+			// }
+
 			Adapter adapter = (Adapter) conn.getRemoteObject("org.bluez", defaultAdapter, Adapter.class);
 			System.out.println("DefaultAdapter address " + adapter.GetAddress());
-			
+
 			final Object discoveryCompletedEvent = new Object();
-			 
+
 			DBusSigHandler<Adapter.DiscoveryCompleted> discoveryCompleted = new DBusSigHandler<Adapter.DiscoveryCompleted>() {
 				public void handle(Adapter.DiscoveryCompleted s) {
-					synchronized(discoveryCompletedEvent){
+					synchronized (discoveryCompletedEvent) {
 						discoveryCompletedEvent.notifyAll();
-	                }
+					}
 				}
 			};
 			conn.addSigHandler(Adapter.DiscoveryCompleted.class, discoveryCompleted);
-			
+
 			DBusSigHandler<Adapter.DiscoveryStarted> discoveryStarted = new DBusSigHandler<Adapter.DiscoveryStarted>() {
 				public void handle(Adapter.DiscoveryStarted s) {
 					System.out.println("device discovery procedure has been started.");
 				}
 			};
-			conn.addSigHandler(Adapter.DiscoveryStarted.class, discoveryStarted);  
-			
-			
+			conn.addSigHandler(Adapter.DiscoveryStarted.class, discoveryStarted);
+
 			final Map<String, Adapter.RemoteDeviceFound> devicesDiscovered = new HashMap<String, Adapter.RemoteDeviceFound>();
 			DBusSigHandler<Adapter.RemoteDeviceFound> remoteDeviceFound = new DBusSigHandler<Adapter.RemoteDeviceFound>() {
 				public void handle(Adapter.RemoteDeviceFound s) {
@@ -95,8 +100,7 @@ public class RunDBusManager {
 				}
 			};
 			conn.addSigHandler(Adapter.RemoteDeviceFound.class, remoteDeviceFound);
-			
-			
+
 			DBusSigHandler<Adapter.RemoteNameUpdated> remoteNameUpdated = new DBusSigHandler<Adapter.RemoteNameUpdated>() {
 				public void handle(Adapter.RemoteNameUpdated s) {
 					System.out.println("device name found " + s.address + " " + s.name);
@@ -104,14 +108,13 @@ public class RunDBusManager {
 			};
 			conn.addSigHandler(Adapter.RemoteNameUpdated.class, remoteNameUpdated);
 
-			
-			synchronized(discoveryCompletedEvent) {
+			synchronized (discoveryCompletedEvent) {
 				adapter.DiscoverDevices();
 				System.out.println("wait for device inquiry to complete...");
 				discoveryCompletedEvent.wait();
-				System.out.println(devicesDiscovered.size() +  " device(s) found");
+				System.out.println(devicesDiscovered.size() + " device(s) found");
 			}
-			
+
 		} catch (Throwable e) {
 			System.out.println(e);
 			e.printStackTrace();
