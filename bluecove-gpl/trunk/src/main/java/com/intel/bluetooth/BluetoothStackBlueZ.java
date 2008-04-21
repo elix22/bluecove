@@ -42,6 +42,8 @@ import javax.bluetooth.UUID;
  */
 class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, SearchServicesRunnable {
 
+	public static final String NATIVE_BLUECOVE_LIB_BLUEZ = "bluecove";
+
 	static final int NATIVE_LIBRARY_VERSION = BlueCoveImpl.nativeLibraryVersionExpected;
 
 	// TODO what is the real number for Attributes retrievable ?
@@ -92,6 +94,22 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		} else {
 			return getStackID();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#isNativeCodeLoaded()
+	 */
+	public native boolean isNativeCodeLoaded();
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#requireNativeLibraries()
+	 */
+	public LibraryInformation[] requireNativeLibraries() {
+		return LibraryInformation.library(NATIVE_BLUECOVE_LIB_BLUEZ);
 	}
 
 	public native int getLibraryVersionNative();
