@@ -173,8 +173,7 @@
                             <classNames>
                                 <className>com.intel.bluetooth.BluetoothStackBlueZ</className>
 								<className>com.intel.bluetooth.BluetoothStackBlueZConsts</className>
-                                <!--
-                                <className>com.intel.bluetooth.BluetoothStackBlueZNativeTests</className-->
+                                <className>com.intel.bluetooth.BluetoothStackBlueZNativeTests</className>
                             </classNames>
                         </configuration>
                     </execution>
