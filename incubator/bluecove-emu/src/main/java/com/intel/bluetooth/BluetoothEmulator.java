@@ -55,6 +55,24 @@ class BluetoothEmulator implements BluetoothStack {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#isNativeCodeLoaded()
+	 */
+	public boolean isNativeCodeLoaded() {
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.intel.bluetooth.BluetoothStack#requireNativeLibraries()
+	 */
+	public LibraryInformation[] requireNativeLibraries() {
+		return null;
+	}
+
 	public int getLibraryVersion() throws BluetoothStateException {
 		return NATIVE_LIBRARY_VERSION;
 	}
