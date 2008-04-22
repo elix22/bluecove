@@ -42,6 +42,8 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/b
     * BTW Stack software version 1.4.2.10 SP5 or above on Windows32 (before Vista)
     * For AMD64 systems you need to build dll yourself
     * Broadcom wbtapi.dll required. It is installed with WIDCOMM drivers.
+    * On Windows Mobile 2003 WIDCOMM BTW-CE stack versions 1.4.1.60 or newer
+    * On Windows Mobile 5.0 any working Broadcom's WIDCOMM BTW-CE
 
 === JSR-82 Limitations ===
 
