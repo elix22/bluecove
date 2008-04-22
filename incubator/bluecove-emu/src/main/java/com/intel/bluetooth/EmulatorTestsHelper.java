@@ -1,6 +1,7 @@
 /**
- *  MicroEmulator
- *  Copyright (C) 2001-2007 Bartek Teodorczyk <barteo@barteo.net>
+ *  BlueCove - Java library for Bluetooth
+ *  Copyright (C) 2008 Michael Lifshits
+ *  Copyright (C) 2008 Vlad Skarzhevskyy
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -34,18 +35,56 @@ public class EmulatorTestsHelper {
 		return threadNumber++;
 	}
 
+	/**
+	 * Start air simulator server as in process server.
+	 */
 	public static void startInProcessServer() {
 		BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_PORT, "0");
 	}
 
+	/**
+	 * Shutdown all running Stacks and air simulator server.
+	 */
 	public static void stopInProcessServer() {
+		BlueCoveImpl.shutdown();
 		EmulatorHelper.getService().shutdown();
 	}
 
+	/**
+	 * API that enables the use of Multiple Bluetooth Adapters in parallel in
+	 * the same JVM. Each thread can call this function to initialize new
+	 * adapter.
+	 * 
+	 * @see com.intel.bluetooth.BlueCoveImpl#useThreadLocalBluetoothStack()
+	 * @throws BluetoothStateException
+	 *             if the Bluetooth system emulator could not be initialized
+	 */
 	public static void useThreadLocalEmulator() throws BluetoothStateException {
+		useThreadLocalEmulator(null, null);
+	}
+
+	/**
+	 * API that enables the use of Multiple Bluetooth Adapters in parallel in
+	 * the same JVM. Each thread can call this function to initialize new
+	 * adapter.
+	 * 
+	 * @see com.intel.bluetooth.BlueCoveImpl#useThreadLocalBluetoothStack()
+	 * 
+	 * @param deviceID
+	 *            select bluetooth adapter by its system ID, can be
+	 *            <code>null</code>
+	 * @param localAddress
+	 *            select bluetooth adapter by its Address, can be
+	 *            <code>null</code>
+	 * @throws BluetoothStateException
+	 *             if the Bluetooth system emulator could not be initialized
+	 */
+	public static void useThreadLocalEmulator(String deviceID, String localAddress) throws BluetoothStateException {
 		BlueCoveImpl.useThreadLocalBluetoothStack();
 		BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_STACK, BlueCoveImpl.STACK_EMULATOR);
 		BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_PORT, "0");
+		BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_LOCAL_DEVICE_ID, deviceID);
+		BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_LOCAL_DEVICE_ADDRESS, localAddress);
 		BlueCoveImpl.getThreadBluetoothStackID();
 	}
 
@@ -78,6 +117,15 @@ public class EmulatorTestsHelper {
 		}
 	}
 
+	/**
+	 * Helper function to execute code using different Bluetooth address
+	 * 
+	 * @param runnable
+	 *            to be executed using another stack
+	 * @return created and running Thread that will execute runnable
+	 * @throws BluetoothStateException
+	 *             if the Bluetooth system emulator could not be initialized
+	 */
 	public static Thread runNewEmulatorStack(Runnable runnable) throws BluetoothStateException {
 		RunBefore r = new RunBefore(runnable);
 		Thread t = new Thread(r, "TestHelperThread-" + nextThreadNum());

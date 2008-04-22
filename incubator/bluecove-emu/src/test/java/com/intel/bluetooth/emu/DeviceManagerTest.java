@@ -21,6 +21,9 @@
  */
 package com.intel.bluetooth.emu;
 
+import java.util.HashSet;
+
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DeviceManagerTest extends TestCase {
@@ -32,23 +35,18 @@ public class DeviceManagerTest extends TestCase {
 	}
 
 	public void tearDown() throws Exception {
+		deviceManager.shutdown();
 	}
 
 	public void testCreateNewDevice() throws Exception {
-		DeviceDescriptor descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		deviceManager.releaseDevice(1);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
-		descriptor = deviceManager.createNewDevice(null, null);
-		System.out.println(descriptor);
+		HashSet<Long> uniqueAddresses = new HashSet<Long>();
 
+		for (int i = 0; i < 20; i++) {
+			DeviceDescriptor descriptor = deviceManager.createNewDevice(null, null);
+			long addr = descriptor.getAddress();
+			Assert.assertFalse("duplicateAddress", uniqueAddresses.contains(addr));
+			uniqueAddresses.add(addr);
+		}
 	}
 
 }

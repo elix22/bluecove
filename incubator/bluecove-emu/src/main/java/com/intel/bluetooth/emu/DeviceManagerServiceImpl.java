@@ -245,12 +245,12 @@ public class DeviceManagerServiceImpl implements DeviceManagerService {
 			}
 			return id;
 		} else if (deviceAddress != null) {
-			long id = Long.parseLong(deviceAddress);
-			if (getDevice(id) != null) {
+			long address = RemoteDeviceHelper.getAddress(deviceAddress);
+			if (getDevice(address) != null) {
 				throw new BluetoothStateException("Device already reserved "
-						+ RemoteDeviceHelper.getBluetoothAddress(id));
+						+ RemoteDeviceHelper.getBluetoothAddress(address));
 			}
-			return id;
+			return address;
 		} else {
 			return EmulatorUtils.getNextAvailable(devices.keySet(), configuration.getFirstDeviceAddress(), 1);
 		}
