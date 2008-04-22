@@ -114,9 +114,10 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("discoverDevicesPhones");
 		addConfig("listedDevicesOnly");
 		addConfig("discoveryUUID");
-
 		addConfig("useShortUUID");
-
+		if (Configuration.screenSizeSmall) {
+			addConfig(null);
+		}
 		addConfig("testRFCOMM");
 		addConfig("TEST_CASE_FIRST");
 		addConfig("TEST_CASE_LAST");
@@ -125,15 +126,19 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("TEST_CASE_L2CAP_FIRST");
 		addConfig("TEST_CASE_L2CAP_LAST");
 		addConfig("bluecovepsm");
-		addConfig("testServerOBEX_TCP");
-		addConfig("testServerOBEXObjectPush");
-		addConfig("authenticateOBEX");
 
 		addConfig(null);
 
+		addConfig("testServerOBEX_TCP");
+		addConfig("testServerOBEXObjectPush");
+		addConfig("authenticateOBEX");
 		addConfig("authenticate");
 		addConfig("encrypt");
 		addConfig("authorize");
+
+		if (Configuration.screenSizeSmall) {
+			addConfig(null);
+		}
 
 		addConfig("clientSleepBetweenConnections");
 		addConfig("clientTestTimeOutSec");
@@ -143,7 +148,9 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("testAllServiceAttributes");
 
 		addConfig("testServerForceDiscoverable");
-
+		if (Configuration.screenSizeSmall) {
+			addConfig(null);
+		}
 		addConfig("clientContinuous");
 		addConfig("clientContinuousDiscovery");
 		addConfig("clientContinuousDiscoveryDevices");
