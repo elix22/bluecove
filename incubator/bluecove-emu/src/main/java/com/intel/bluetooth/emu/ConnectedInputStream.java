@@ -138,6 +138,9 @@ class ConnectedInputStream extends InputStream {
 			write = 0;
 		}
 		available++;
+		synchronized (this) {
+			notifyAll();
+		}
 	}
 
 	private void waitFreeBuffer() throws IOException {

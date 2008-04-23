@@ -24,17 +24,33 @@ package com.intel.bluetooth.rmi;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Map;
 
 class RemoteServiceImpl implements RemoteService {
 
 	private static final long serialVersionUID = 1L;
 
+	private Map<String, Class<?>> cash = new HashMap<String, Class<?>>();
+
 	public RemoteServiceImpl() throws RemoteException {
+	}
+
+	private Class<?> getClassByInterfaceName(String interfaceName) throws ClassNotFoundException {
+		Class<?> c;
+		synchronized (cash) {
+			c = cash.get(interfaceName);
+			if (c == null) {
+				c = Class.forName(interfaceName + "Impl");
+				cash.put(interfaceName, c);
+			}
+		}
+		return c;
 	}
 
 	public boolean verify(String interfaceName) throws RemoteException {
 		try {
-			Class.forName(interfaceName + "Impl");
+			getClassByInterfaceName(interfaceName);
 		} catch (Throwable e) {
 			throw new RemoteException("Service for " + interfaceName + " not ready", e);
 		}
@@ -43,7 +59,7 @@ class RemoteServiceImpl implements RemoteService {
 
 	public ServiceResponse execute(ServiceRequest request) {
 		try {
-			Class<?> c = Class.forName(request.getClassName() + "Impl");
+			Class<?> c = getClassByInterfaceName(request.getClassName());
 			Method m = c.getDeclaredMethod(request.getMethodName(), request.getParameterTypes());
 			ServiceResponse response = new ServiceResponse();
 			try {
