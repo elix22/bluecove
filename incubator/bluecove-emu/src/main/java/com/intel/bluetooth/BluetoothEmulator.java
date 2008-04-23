@@ -87,6 +87,7 @@ class BluetoothEmulator implements BluetoothStack {
 
 	public void destroy() {
 		EmulatorHelper.releaseDevice(localDevice);
+		localDevice = null;
 	}
 
 	public void enableNativeDebug(Class nativeDebugCallback, boolean on) {
@@ -112,35 +113,49 @@ class BluetoothEmulator implements BluetoothStack {
 
 	// --- LocalDevice
 
+	private void assertClosed() {
+		if (localDevice == null) {
+			throw new RuntimeException("Device Closed");
+		}
+	}
+
 	public String getLocalDeviceBluetoothAddress() throws BluetoothStateException {
+		assertClosed();
 		return RemoteDeviceHelper.getBluetoothAddress(localDevice.getAddress());
 	}
 
 	public DeviceClass getLocalDeviceClass() {
+		assertClosed();
 		return new DeviceClass(localDevice.getDeviceClass());
 	}
 
 	public String getLocalDeviceName() {
+		assertClosed();
 		return localDevice.getName();
 	}
 
 	public boolean isLocalDevicePowerOn() {
+		assertClosed();
 		return localDevice.isLocalDevicePowerOn();
 	}
 
 	public String getLocalDeviceProperty(String property) {
+		assertClosed();
 		return localDevice.getLocalDeviceProperty(property);
 	}
 
 	public int getLocalDeviceDiscoverable() {
+		assertClosed();
 		return localDevice.getLocalDeviceDiscoverable();
 	}
 
 	public boolean setLocalDeviceDiscoverable(int mode) throws BluetoothStateException {
+		assertClosed();
 		return localDevice.setLocalDeviceDiscoverable(mode);
 	}
 
 	private EmulatorLocalDevice activeLocalDevice() throws BluetoothStateException {
+		assertClosed();
 		if (!localDevice.isActive()) {
 			throw new BluetoothStateException("Bluetooth system is off");
 		}
@@ -153,6 +168,7 @@ class BluetoothEmulator implements BluetoothStack {
 	 * @see com.intel.bluetooth.BluetoothStack#setLocalDeviceServiceClasses(int)
 	 */
 	public void setLocalDeviceServiceClasses(int classOfDevice) {
+		assertClosed();
 		localDevice.setLocalDeviceServiceClasses(classOfDevice);
 	}
 
@@ -183,6 +199,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public boolean cancelInquiry(DiscoveryListener listener) {
+		assertClosed();
 		if (deviceInquiry == null) {
 			return false;
 		}
@@ -207,6 +224,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public boolean cancelServiceSearch(int transID) {
+		assertClosed();
 		SearchServicesThread sst = SearchServicesThread.getServiceSearchThread(transID);
 		if (sst != null) {
 			synchronized (sst) {
@@ -245,6 +263,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public void connectionRfCloseClientConnection(long handle) throws IOException {
+		assertClosed();
 		EmulatorRFCOMMClient c = ((EmulatorRFCOMMClient) localDevice.getConnection(handle));
 		try {
 			c.close();
@@ -254,6 +273,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public int rfGetSecurityOpt(long handle, int expected) throws IOException {
+		assertClosed();
 		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).getSecurityOpt(expected);
 	}
 
@@ -263,6 +283,7 @@ class BluetoothEmulator implements BluetoothStack {
 	 * @see com.intel.bluetooth.BluetoothStack#l2Encrypt(long,long,boolean)
 	 */
 	public boolean rfEncrypt(long address, long handle, boolean on) throws IOException {
+		assertClosed();
 		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).encrypt(address, on);
 	}
 
@@ -288,6 +309,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
+		assertClosed();
 		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
 		try {
 			s.close(serviceRecord);
@@ -400,6 +422,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public void l2CloseClientConnection(long handle) throws IOException {
+		assertClosed();
 		EmulatorL2CAPClient c = ((EmulatorL2CAPClient) localDevice.getConnection(handle));
 		try {
 			c.close();
@@ -466,6 +489,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public void l2ServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
+		assertClosed();
 		EmulatorL2CAPService s = ((EmulatorL2CAPService) localDevice.getConnection(handle));
 		try {
 			s.close(serviceRecord);
@@ -475,6 +499,7 @@ class BluetoothEmulator implements BluetoothStack {
 	}
 
 	public int l2GetSecurityOpt(long handle, int expected) throws IOException {
+		assertClosed();
 		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).getSecurityOpt(expected);
 	}
 
@@ -508,6 +533,7 @@ class BluetoothEmulator implements BluetoothStack {
 	 * @see com.intel.bluetooth.BluetoothStack#l2Encrypt(long,long,boolean)
 	 */
 	public boolean l2Encrypt(long address, long handle, boolean on) throws IOException {
+		assertClosed();
 		return ((EmulatorLinkedConnection) localDevice.getConnection(handle)).encrypt(address, on);
 	}
 }
