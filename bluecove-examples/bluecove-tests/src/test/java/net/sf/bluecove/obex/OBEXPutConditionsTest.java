@@ -20,7 +20,6 @@
  */
 package net.sf.bluecove.obex;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,11 +39,13 @@ import net.sf.bluecove.TestCaseRunnable;
  * @author vlads
  * 
  */
-public class OBEXPutStandardTest extends BaseEmulatorTestCase {
+public class OBEXPutConditionsTest extends BaseEmulatorTestCase {
 
 	static final String serverUUID = "11111111111111111111111111111123";
 
 	private HeaderSet serverPutHeaders;
+
+	private int serverDataLength;
 
 	private byte[] serverData;
 
@@ -52,6 +53,7 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		serverPutHeaders = null;
+		serverDataLength = -1;
 		serverData = null;
 	}
 
@@ -61,13 +63,23 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 		public int onPut(Operation op) {
 			try {
 				serverPutHeaders = op.getReceivedHeaders();
-				InputStream is = op.openInputStream();
-				ByteArrayOutputStream buf = new ByteArrayOutputStream();
-				int data;
-				while ((data = is.read()) != -1) {
-					buf.write(data);
+				Long dataLength = (Long) serverPutHeaders.getHeader(HeaderSet.LENGTH);
+				if (dataLength == null) {
+					return ResponseCodes.OBEX_HTTP_LENGTH_REQUIRED;
 				}
-				serverData = buf.toByteArray();
+				InputStream is = op.openInputStream();
+				int len = dataLength.intValue();
+				serverData = new byte[len];
+				int got = 0;
+				// read fully
+				while (got < len) {
+					int rc = is.read(serverData, got, len - got);
+					if (rc < 0) {
+						break;
+					}
+					got += rc;
+				}
+				serverDataLength = got;
 				op.close();
 				return ResponseCodes.OBEX_HTTP_OK;
 			} catch (IOException e) {
@@ -88,21 +100,19 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 		};
 	}
 
-	public void testPUTOperation() throws IOException {
+	public void testPUTOperationCompleate() throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
 
 		HeaderSet hsOperation = clientSession.createHeaderSet();
-		String name = "Hello.txt";
-		hsOperation.setHeader(HeaderSet.NAME, name);
+		byte data[] = "Hello world!".getBytes("iso-8859-1");
+		hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
 
 		// Create PUT Operation
 		Operation putOperation = clientSession.put(hsOperation);
 
-		// Send some text to server
-		byte data[] = "Hello world!".getBytes("iso-8859-1");
 		OutputStream os = putOperation.openOutputStream();
 		os.write(data);
 		os.close();
@@ -113,25 +123,54 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 
 		clientSession.close();
 
-		assertEquals("NAME", name, serverPutHeaders.getHeader(HeaderSet.NAME));
+		assertEquals("LENGTH", new Long(data.length), serverPutHeaders.getHeader(HeaderSet.LENGTH));
+		assertEquals("data.length", data.length, serverDataLength);
 		assertEquals("data", data, serverData);
 	}
 
-	public void testPUTOperationBigData() throws IOException {
+	public void testPUTOperationSendMore() throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
 
-		// Create PUT Operation
-		Operation putOperation = clientSession.put(null);
+		HeaderSet hsOperation = clientSession.createHeaderSet();
+		byte data[] = "Hello world!".getBytes("iso-8859-1");
+		hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
 
-		// Send big Data to server
-		int length = 0x4000;
-		byte data[] = new byte[length];
-		for (int i = 0; i < length; i++) {
-			data[i] = (byte) (i & 0xFF);
-		}
+		// Create PUT Operation
+		Operation putOperation = clientSession.put(hsOperation);
+
+		OutputStream os = putOperation.openOutputStream();
+		os.write(data);
+		os.write("More".getBytes("iso-8859-1"));
+		os.close();
+
+		putOperation.close();
+
+		clientSession.disconnect(null);
+
+		clientSession.close();
+
+		assertEquals("LENGTH", new Long(data.length), serverPutHeaders.getHeader(HeaderSet.LENGTH));
+		assertEquals("data.length", data.length, serverDataLength);
+		assertEquals("data", data, serverData);
+	}
+
+	public void testPUTOperationSendLess() throws IOException {
+
+		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
+		HeaderSet hsConnectReply = clientSession.connect(null);
+		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
+
+		HeaderSet hsOperation = clientSession.createHeaderSet();
+		byte data[] = "Hello world!".getBytes("iso-8859-1");
+		int less = 4;
+		hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length + less));
+
+		// Create PUT Operation
+		Operation putOperation = clientSession.put(hsOperation);
+
 		OutputStream os = putOperation.openOutputStream();
 		os.write(data);
 		os.close();
@@ -142,7 +181,9 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 
 		clientSession.close();
 
-		assertEquals("data", data, serverData);
+		assertEquals("LENGTH", new Long(data.length + less), serverPutHeaders.getHeader(HeaderSet.LENGTH));
+		assertEquals("data.length", data.length, serverDataLength);
+		assertEquals("data", data.length, data, serverData);
 	}
 
 }

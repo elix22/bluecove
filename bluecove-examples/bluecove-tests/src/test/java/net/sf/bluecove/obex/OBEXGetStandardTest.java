@@ -40,36 +40,37 @@ import net.sf.bluecove.TestCaseRunnable;
  * @author vlads
  * 
  */
-public class OBEXPutStandardTest extends BaseEmulatorTestCase {
+public class OBEXGetStandardTest extends BaseEmulatorTestCase {
 
 	static final String serverUUID = "11111111111111111111111111111123";
 
-	private HeaderSet serverPutHeaders;
+	private HeaderSet serverGetHeaders;
 
-	private byte[] serverData;
+	private final static byte[] simpleData = "Hello world!".getBytes();
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		serverPutHeaders = null;
-		serverData = null;
+		serverGetHeaders = null;
 	}
 
 	private class RequestHandler extends ServerRequestHandler {
 
 		@Override
-		public int onPut(Operation op) {
+		public int onGet(Operation op) {
 			try {
-				serverPutHeaders = op.getReceivedHeaders();
-				InputStream is = op.openInputStream();
-				ByteArrayOutputStream buf = new ByteArrayOutputStream();
-				int data;
-				while ((data = is.read()) != -1) {
-					buf.write(data);
-				}
-				serverData = buf.toByteArray();
+				serverGetHeaders = op.getReceivedHeaders();
+
+				HeaderSet hs = createHeaderSet();
+				hs.setHeader(HeaderSet.LENGTH, new Long(simpleData.length));
+				op.sendHeaders(hs);
+
+				OutputStream os = op.openOutputStream();
+				os.write(simpleData);
+				os.close();
+
 				op.close();
-				return ResponseCodes.OBEX_HTTP_OK;
+				return ResponseCodes.OBEX_HTTP_ACCEPTED;
 			} catch (IOException e) {
 				e.printStackTrace();
 				return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
@@ -88,61 +89,40 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 		};
 	}
 
-	public void testPUTOperation() throws IOException {
+	public void testGETOperation() throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
 
-		HeaderSet hsOperation = clientSession.createHeaderSet();
+		HeaderSet hs = clientSession.createHeaderSet();
 		String name = "Hello.txt";
-		hsOperation.setHeader(HeaderSet.NAME, name);
+		hs.setHeader(HeaderSet.NAME, name);
 
-		// Create PUT Operation
-		Operation putOperation = clientSession.put(hsOperation);
+		// Create GET Operation
+		Operation get = clientSession.get(hs);
 
-		// Send some text to server
-		byte data[] = "Hello world!".getBytes("iso-8859-1");
-		OutputStream os = putOperation.openOutputStream();
-		os.write(data);
-		os.close();
+		HeaderSet headers = get.getReceivedHeaders();
 
-		putOperation.close();
-
-		clientSession.disconnect(null);
-
-		clientSession.close();
-
-		assertEquals("NAME", name, serverPutHeaders.getHeader(HeaderSet.NAME));
-		assertEquals("data", data, serverData);
-	}
-
-	public void testPUTOperationBigData() throws IOException {
-
-		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
-		HeaderSet hsConnectReply = clientSession.connect(null);
-		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
-
-		// Create PUT Operation
-		Operation putOperation = clientSession.put(null);
-
-		// Send big Data to server
-		int length = 0x4000;
-		byte data[] = new byte[length];
-		for (int i = 0; i < length; i++) {
-			data[i] = (byte) (i & 0xFF);
+		InputStream is = get.openInputStream();
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		int data;
+		while ((data = is.read()) != -1) {
+			buf.write(data);
 		}
-		OutputStream os = putOperation.openOutputStream();
-		os.write(data);
-		os.close();
+		byte serverData[] = buf.toByteArray();
 
-		putOperation.close();
+		is.close();
+
+		get.close();
 
 		clientSession.disconnect(null);
 
 		clientSession.close();
 
-		assertEquals("data", data, serverData);
+		assertEquals("NAME", name, serverGetHeaders.getHeader(HeaderSet.NAME));
+		assertEquals("LENGTH", new Long(serverData.length), headers.getHeader(HeaderSet.LENGTH));
+		assertEquals("data", simpleData, serverData);
 	}
 
 }

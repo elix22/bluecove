@@ -39,6 +39,9 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 
 	protected Thread testServerThread;
 
+	protected ThreadGroup testServerThreadGroup;
+
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		EmulatorTestsHelper.startInProcessServer();
@@ -46,15 +49,23 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 		if (r != null) {
 			testServerThread = EmulatorTestsHelper.runNewEmulatorStack(r);
 			testServerThread.setName(this.getClass().getSimpleName() + "-ServerThread");
+			testServerThreadGroup = testServerThread.getThreadGroup();
 		}
 		EmulatorTestsHelper.useThreadLocalEmulator();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if ((testServerThread != null) && (testServerThread.isAlive())) {
-			testServerThread.interrupt();
-			testServerThread.join();
+		if (testServerThreadGroup != null) {
+			testServerThreadGroup.interrupt();
+			Thread[] active = new Thread[1];
+			while (testServerThreadGroup.enumerate(active) != 0) {
+				try {
+					active[0].join();
+				} catch (InterruptedException e) {
+				}
+			}
 		}
 		EmulatorTestsHelper.stopInProcessServer();
 	}
@@ -71,6 +82,14 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 	static public void assertEquals(String message, byte[] expected, byte[] actual) {
 		Assert.assertEquals(message + " length", expected.length, actual.length);
 		for (int i = 0; i < expected.length; i++) {
+			Assert.assertEquals(message + " byte [" + i + "]", expected[i], actual[i]);
+		}
+	}
+
+	static public void assertEquals(String message, int length, byte[] expected, byte[] actual) {
+		Assert.assertTrue(message + " expected.length", expected.length >= length);
+		Assert.assertTrue(message + " actual.length", actual.length >= length);
+		for (int i = 0; i < length; i++) {
 			Assert.assertEquals(message + " byte [" + i + "]", expected[i], actual[i]);
 		}
 	}
