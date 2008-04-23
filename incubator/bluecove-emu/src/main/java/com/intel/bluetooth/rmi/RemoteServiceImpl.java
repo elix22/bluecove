@@ -24,9 +24,8 @@ package com.intel.bluetooth.rmi;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 
-class RemoteServiceImpl extends UnicastRemoteObject implements RemoteService {
+class RemoteServiceImpl implements RemoteService {
 
 	private static final long serialVersionUID = 1L;
 

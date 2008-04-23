@@ -25,6 +25,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 import com.intel.bluetooth.BlueCoveConfigProperties;
 import com.intel.bluetooth.DebugLog;
@@ -75,7 +76,12 @@ public class Server {
 	private void startRMIService() {
 		try {
 			srv = new RemoteServiceImpl();
-			registry.rebind(RemoteService.SERVICE_NAME, srv);
+			if (srv instanceof UnicastRemoteObject) {
+				registry.rebind(RemoteService.SERVICE_NAME, srv);
+			} else {
+				Remote stub = UnicastRemoteObject.exportObject(srv, 0);
+				registry.rebind(RemoteService.SERVICE_NAME, stub);
+			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

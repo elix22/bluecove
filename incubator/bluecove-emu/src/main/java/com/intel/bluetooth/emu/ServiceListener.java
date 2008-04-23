@@ -90,12 +90,12 @@ class ServiceListener {
 				try {
 					lock.wait();
 				} catch (InterruptedException e) {
-					throw new InterruptedIOException();
+					throw new InterruptedIOException("accept interrupted");
 				}
 			}
 		}
 		if (closed || interrupted || !connected) {
-			throw new InterruptedIOException();
+			throw new InterruptedIOException("accept closed");
 		}
 		return connectionId;
 	}

@@ -131,7 +131,6 @@ public class EmulatorTestsHelper {
 		RunBefore r = new RunBefore(runnable);
 		int id = nextThreadNum();
 		ThreadGroup g = new ThreadGroup("TestHelperThreadGroup-" + id);
-		g.setDaemon(true);
 		Thread t = new Thread(g, r, "TestHelperThread-" + id);
 		synchronized (r.startedEvent) {
 			t.start();
