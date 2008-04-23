@@ -8,7 +8,7 @@
 
 BlueCove test application
 
-    This Project is used to test BlueCove. We are using it in addition to {{{../../tck}JSR 82 TCK tests}} because it is simple to start and we can add implementation specific cases.
+    This Project is used to test BlueCove. We are using this application in addition to {{{../../tck/}JSR 82 TCK tests}} because it is simple to start and we can add implementation specific cases. There are also automated set of tests {{{../bluecove-tests/}BlueCove tests}} that are executed during build.
 
     The goals of this project:
 

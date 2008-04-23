@@ -91,6 +91,7 @@
 
     <modules>
         <module>bluecove-site-skin</module>
+        <module>bluecove-tests</module>
         <module>bluecove-tester</module>
         <module>bluecove-webstart</module>
         <module>bluecove-microemu-starter</module>
