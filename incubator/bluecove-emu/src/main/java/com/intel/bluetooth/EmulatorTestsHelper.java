@@ -122,13 +122,17 @@ public class EmulatorTestsHelper {
 	 * 
 	 * @param runnable
 	 *            to be executed using another stack
-	 * @return created and running Thread that will execute runnable
+	 * @return created and running Thread that will execute runnable in a new
+	 *         ThreadGroup
 	 * @throws BluetoothStateException
 	 *             if the Bluetooth system emulator could not be initialized
 	 */
 	public static Thread runNewEmulatorStack(Runnable runnable) throws BluetoothStateException {
 		RunBefore r = new RunBefore(runnable);
-		Thread t = new Thread(r, "TestHelperThread-" + nextThreadNum());
+		int id = nextThreadNum();
+		ThreadGroup g = new ThreadGroup("TestHelperThreadGroup-" + id);
+		g.setDaemon(true);
+		Thread t = new Thread(g, r, "TestHelperThread-" + id);
 		synchronized (r.startedEvent) {
 			t.start();
 			while (!r.started) {
