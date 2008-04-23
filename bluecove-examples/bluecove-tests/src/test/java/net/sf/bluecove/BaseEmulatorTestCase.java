@@ -29,6 +29,8 @@ import javax.bluetooth.UUID;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.intel.bluetooth.BlueCoveConfigProperties;
+import com.intel.bluetooth.BlueCoveImpl;
 import com.intel.bluetooth.EmulatorTestsHelper;
 
 /**
@@ -44,6 +46,7 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_DEBUG_LOG4J, "false");
 		EmulatorTestsHelper.startInProcessServer();
 		Runnable r = createTestServer();
 		if (r != null) {
@@ -59,12 +62,11 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 		super.tearDown();
 		if (testServerThreadGroup != null) {
 			testServerThreadGroup.interrupt();
-			Thread[] active = new Thread[1];
-			while (testServerThreadGroup.enumerate(active) != 0) {
-				try {
-					active[0].join();
-				} catch (InterruptedException e) {
-				}
+			int count = testServerThreadGroup.activeCount();
+			Thread[] active = new Thread[count];
+			count = testServerThreadGroup.enumerate(active);
+			for (int i = 0; i < count; i++) {
+				active[i].join(5000);
 			}
 		}
 		EmulatorTestsHelper.stopInProcessServer();

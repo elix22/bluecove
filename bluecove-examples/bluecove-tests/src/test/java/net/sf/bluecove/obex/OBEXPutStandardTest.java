@@ -77,6 +77,27 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 		}
 	}
 
+	/*
+	 * Used for profiling
+	 */
+	public static void main(String args[]) throws Exception {
+		long start = System.currentTimeMillis();
+		OBEXPutStandardTest t = new OBEXPutStandardTest();
+		t.setUp();
+		long setUp = System.currentTimeMillis();
+		System.out.println("setUp   : " + (setUp - start));
+
+		t.testPUTOperation();
+		// t.testPUTOperationBigData();
+
+		long exec = System.currentTimeMillis();
+		System.out.println("exec    : " + (exec - setUp));
+		t.tearDown();
+		long tearDown = System.currentTimeMillis();
+		System.out.println("tearDown: " + (tearDown - exec));
+		System.out.println("total   : " + (System.currentTimeMillis() - start));
+	}
+
 	@Override
 	protected Runnable createTestServer() {
 		return new TestCaseRunnable() {
