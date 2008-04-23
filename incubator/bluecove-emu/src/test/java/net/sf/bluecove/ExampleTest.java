@@ -58,8 +58,9 @@ public class ExampleTest extends TestCase {
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (serverThread != null) {
+		if ((serverThread != null) && (serverThread.isAlive())) {
 			serverThread.interrupt();
+			serverThread.join();
 		}
 		EmulatorTestsHelper.stopInProcessServer();
 	}
