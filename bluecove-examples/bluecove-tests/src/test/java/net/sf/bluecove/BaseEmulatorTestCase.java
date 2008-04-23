@@ -104,7 +104,11 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 		DiscoveryAgent discoveryAgent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 
 		// Find service
-		String serverURL = discoveryAgent.selectService(uuid, ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+		String serverURL = null;
+		int retry = 0;
+		while ((serverURL == null) && ((retry++) < 3)) {
+			serverURL = discoveryAgent.selectService(uuid, ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+		}
 
 		Assert.assertNotNull("service not found", serverURL);
 
