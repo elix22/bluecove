@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -664,6 +664,7 @@ public class CommunicationTester extends CommunicationData {
 			} else {
 				CommunicationTester.sendUTFString(os);
 			}
+			break;
 		case TEST_STRING_UTF_BACK:
 			testStatus.setName("STRING_UTF_BACK");
 			if (!server) {
@@ -671,6 +672,7 @@ public class CommunicationTester extends CommunicationData {
 			} else {
 				CommunicationTester.sendUTFString(os);
 			}
+			break;
 		case TEST_BYTE_ARRAY:
 			testStatus.setName("BYTE_ARRAY");
 			if (server) {
