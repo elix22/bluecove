@@ -165,14 +165,41 @@
                 </configuration>
             </plugin>
 
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <configuration>
                     <outputEncoding>UTF-8</outputEncoding>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Description>BlueCove JSR-82 implementation, JSR-82 Emulator module</Description>
+                            <License>GNU Library or Lesser General Public License (LGPL)</License>
+                            <Implementation-Version>${pom.version}</Implementation-Version>
+                            <Implementation-Build>${buildLabel}</Implementation-Build>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!-- jar sources during build -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                    <id>attach-sources</id>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -202,6 +229,22 @@
         </plugins>
 
     </build>
+
+    <profiles>
+
+        <profile>
+            <id>hasBuildLabel</id>
+            <activation>
+                <property>
+                    <name>label</name>
+                </property>
+            </activation>
+            <properties>
+                <buildLabel>${label}</buildLabel>
+            </properties>
+        </profile>
+
+    </profiles>
 
     <reporting>
         <plugins>
