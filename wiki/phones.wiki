@@ -78,6 +78,7 @@
 || Nokia || 5000 ||
 || Nokia || 5200 ||
 || Nokia || 5300 ||
+|| Nokia || 5310 XpressMusic ||
 || Nokia || 5500 ||
 || Nokia || 5610 ||
 || Nokia || 5700 ||
@@ -98,6 +99,7 @@
 || Nokia || 6151 ||
 || Nokia || 6155 ||
 || Nokia || 6210 Navigator  ||
+|| Nokia || 6212 classic ||
 || Nokia || 6220 classic ||
 || Nokia || 6230 ||
 || Nokia || 6230i ||
