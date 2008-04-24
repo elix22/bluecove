@@ -63,6 +63,7 @@ class ConnectedInputStream extends InputStream {
 	 * 
 	 * @see java.io.InputStream#read()
 	 */
+	@Override
 	public synchronized int read() throws IOException {
 		while (available == 0) {
 			if (closed) {
@@ -94,6 +95,7 @@ class ConnectedInputStream extends InputStream {
 	 * end of the data stream is reached. This method blocks until at least one
 	 * byte of input is available.
 	 */
+	@Override
 	public synchronized int read(byte b[], int off, int len) throws IOException {
 		if (off < 0 || len < 0 || off + len > b.length) {
 			throw new IndexOutOfBoundsException();
@@ -143,6 +145,25 @@ class ConnectedInputStream extends InputStream {
 		}
 	}
 
+	synchronized public void receive(byte b[], int off, int len) throws IOException {
+		for (int i = 0; i < len; i++) {
+			if (closed) {
+				throw new IOException("Connection closed");
+			}
+			if (available == buffer.length) {
+				waitFreeBuffer();
+			}
+			buffer[write++] = b[off + i];
+			if (write >= buffer.length) {
+				write = 0;
+			}
+			available++;
+		}
+		synchronized (this) {
+			notifyAll();
+		}
+	}
+
 	private void waitFreeBuffer() throws IOException {
 		while (available == buffer.length) {
 			if (receiverClosed || closed) {
@@ -163,6 +184,7 @@ class ConnectedInputStream extends InputStream {
 		notifyAll();
 	}
 
+	@Override
 	public synchronized void close() throws IOException {
 		closed = true;
 		notifyAll();

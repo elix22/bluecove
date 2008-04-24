@@ -39,12 +39,24 @@ class ConnectedOutputStream extends OutputStream {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see java.io.OutputStream#write(byte[],int,int)
+	 */
+	@Override
+	public void write(byte b[], int off, int len) throws IOException {
+		receiver.receive(b, off, len);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.io.OutputStream#write(int)
 	 */
+	@Override
 	public void write(int b) throws IOException {
 		receiver.receive(b);
 	}
 
+	@Override
 	public void close() throws IOException {
 		receiver.receiverClose();
 	}
