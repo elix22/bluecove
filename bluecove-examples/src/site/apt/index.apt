@@ -19,7 +19,7 @@ BlueCove examples project
 
 * BlueCove Tests
 
-    You can help us to make BlueCove better or understand how we are testing it look {{{./bluecove-tester}here}}.
+    You can help us to make BlueCove better or understand how we are testing it look {{{./bluecove-tester}here}} for manual tests and {{{./bluecove-tests}here}} for automatic tests.
 
 * BlueCove OBEX Push J2ME application installer
 
