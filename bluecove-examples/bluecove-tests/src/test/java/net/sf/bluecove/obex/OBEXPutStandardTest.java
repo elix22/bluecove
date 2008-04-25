@@ -31,27 +31,21 @@ import javax.obex.HeaderSet;
 import javax.obex.Operation;
 import javax.obex.ResponseCodes;
 import javax.obex.ServerRequestHandler;
-import javax.obex.SessionNotifier;
 
-import net.sf.bluecove.BaseEmulatorTestCase;
-import net.sf.bluecove.TestCaseRunnable;
+import com.intel.bluetooth.DebugLog;
+import com.intel.bluetooth.obex.BlueCoveInternals;
 
 /**
  * @author vlads
  * 
  */
-public class OBEXPutStandardTest extends BaseEmulatorTestCase {
-
-	static final String serverUUID = "11111111111111111111111111111123";
-
-	private HeaderSet serverPutHeaders;
+public class OBEXPutStandardTest extends OBEXBaseEmulatorTestCase {
 
 	private byte[] serverData;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		serverPutHeaders = null;
 		serverData = null;
 	}
 
@@ -60,7 +54,8 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 		@Override
 		public int onPut(Operation op) {
 			try {
-				serverPutHeaders = op.getReceivedHeaders();
+				serverRequestHandlerInvocations++;
+				serverHeaders = op.getReceivedHeaders();
 				InputStream is = op.openInputStream();
 				ByteArrayOutputStream buf = new ByteArrayOutputStream();
 				int data;
@@ -99,21 +94,16 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 	}
 
 	@Override
-	protected Runnable createTestServer() {
-		return new TestCaseRunnable() {
-			public void execute() throws Exception {
-				SessionNotifier serverConnection = (SessionNotifier) Connector.open("btgoep://localhost:" + serverUUID
-						+ ";name=ObexTest");
-				serverConnection.acceptAndOpen(new RequestHandler());
-			}
-		};
+	protected ServerRequestHandler createRequestHandler() {
+		return new RequestHandler();
 	}
 
-	public void testPUTOperation() throws IOException {
+	private void runPUTOperation(boolean flush, int expectedPackets) throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
+		int writePacketsConnect = BlueCoveInternals.getPacketsCountWrite(clientSession);
 
 		HeaderSet hsOperation = clientSession.createHeaderSet();
 		String name = "Hello.txt";
@@ -123,19 +113,77 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 		Operation putOperation = clientSession.put(hsOperation);
 
 		// Send some text to server
-		byte data[] = "Hello world!".getBytes("iso-8859-1");
+		byte data[] = simpleData;
 		OutputStream os = putOperation.openOutputStream();
 		os.write(data);
+		if (flush) {
+			os.flush();
+		}
 		os.close();
 
 		putOperation.close();
+
+		DebugLog.debug("PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession) - writePacketsConnect);
 
 		clientSession.disconnect(null);
 
 		clientSession.close();
 
-		assertEquals("NAME", name, serverPutHeaders.getHeader(HeaderSet.NAME));
+		assertEquals("NAME", name, serverHeaders.getHeader(HeaderSet.NAME));
 		assertEquals("data", data, serverData);
+		assertEquals("invocations", 1, serverRequestHandlerInvocations);
+
+		assertEquals("c.writePackets", expectedPackets, BlueCoveInternals.getPacketsCountWrite(clientSession));
+		assertEquals("c.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(clientSession));
+		assertEquals("s.writePackets", expectedPackets, BlueCoveInternals
+				.getPacketsCountWrite(serverAcceptedConnection));
+		assertEquals("s.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(serverAcceptedConnection));
+	}
+
+	public void testPUTOperation() throws IOException {
+		runPUTOperation(false, 1 + 2 + 1);
+	}
+
+	public void testPUTOperationFlush() throws IOException {
+		runPUTOperation(true, 1 + 2 + 1 + 1);
+	}
+
+	public void testPUTOperationNoData() throws IOException {
+
+		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
+		HeaderSet hsConnectReply = clientSession.connect(null);
+		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
+		int writePacketsConnect = BlueCoveInternals.getPacketsCountWrite(clientSession);
+
+		HeaderSet hs = clientSession.createHeaderSet();
+		String name = "Hello.txt";
+		hs.setHeader(HeaderSet.NAME, name);
+
+		// Create PUT Operation
+		Operation putOperation = clientSession.put(hs);
+
+		OutputStream os = putOperation.openOutputStream();
+		os.close();
+
+		putOperation.close();
+
+		DebugLog.debug("PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession) - writePacketsConnect);
+
+		clientSession.disconnect(null);
+
+		clientSession.close();
+
+		assertEquals("NAME", name, serverHeaders.getHeader(HeaderSet.NAME));
+		assertEquals("data", new byte[0], serverData);
+		assertEquals("invocations", 1, serverRequestHandlerInvocations);
+
+		int expectedPackets = 1 + 2 + 1;
+
+		assertEquals("c.writePackets", expectedPackets, BlueCoveInternals.getPacketsCountWrite(clientSession));
+		assertEquals("c.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(clientSession));
+		assertEquals("s.writePackets", expectedPackets, BlueCoveInternals
+				.getPacketsCountWrite(serverAcceptedConnection));
+		assertEquals("s.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(serverAcceptedConnection));
 	}
 
 	public void testPUTOperationBigData() throws IOException {
@@ -143,12 +191,13 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
+		int writePacketsConnect = BlueCoveInternals.getPacketsCountWrite(clientSession);
 
 		// Create PUT Operation
 		Operation putOperation = clientSession.put(null);
 
 		// Send big Data to server
-		int length = 0x4000;
+		int length = 0x4001;
 		byte data[] = new byte[length];
 		for (int i = 0; i < length; i++) {
 			data[i] = (byte) (i & 0xFF);
@@ -159,11 +208,22 @@ public class OBEXPutStandardTest extends BaseEmulatorTestCase {
 
 		putOperation.close();
 
+		DebugLog.debug("PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession) - writePacketsConnect);
+
 		clientSession.disconnect(null);
 
 		clientSession.close();
 
 		assertEquals("data", data, serverData);
-	}
+		assertEquals("invocations", 1, serverRequestHandlerInvocations);
 
+		int mtu = BlueCoveInternals.getPacketSize(clientSession);
+		int dataNeedPackets = length / mtu;
+		if ((length % mtu) > 0) {
+			dataNeedPackets++;
+		}
+
+		assertEquals("writePackets", 1 + 1 + dataNeedPackets + 1, BlueCoveInternals.getPacketsCountWrite(clientSession));
+		assertEquals("readPackets", 1 + 1 + dataNeedPackets + 1, BlueCoveInternals.getPacketsCountRead(clientSession));
+	}
 }

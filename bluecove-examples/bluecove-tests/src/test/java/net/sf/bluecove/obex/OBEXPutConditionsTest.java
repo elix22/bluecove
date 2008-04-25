@@ -30,29 +30,25 @@ import javax.obex.HeaderSet;
 import javax.obex.Operation;
 import javax.obex.ResponseCodes;
 import javax.obex.ServerRequestHandler;
-import javax.obex.SessionNotifier;
 
-import net.sf.bluecove.BaseEmulatorTestCase;
-import net.sf.bluecove.TestCaseRunnable;
+import com.intel.bluetooth.DebugLog;
+import com.intel.bluetooth.obex.BlueCoveInternals;
 
 /**
  * @author vlads
  * 
  */
-public class OBEXPutConditionsTest extends BaseEmulatorTestCase {
-
-	static final String serverUUID = "11111111111111111111111111111123";
-
-	private HeaderSet serverPutHeaders;
+public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 
 	private int serverDataLength;
 
 	private byte[] serverData;
 
+	private static long LENGTH_NO_DATA = 0xffffffffl;
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		serverPutHeaders = null;
 		serverDataLength = -1;
 		serverData = null;
 	}
@@ -62,24 +58,32 @@ public class OBEXPutConditionsTest extends BaseEmulatorTestCase {
 		@Override
 		public int onPut(Operation op) {
 			try {
-				serverPutHeaders = op.getReceivedHeaders();
-				Long dataLength = (Long) serverPutHeaders.getHeader(HeaderSet.LENGTH);
+				serverRequestHandlerInvocations++;
+				if (serverRequestHandlerInvocations > 1) {
+					return ResponseCodes.OBEX_HTTP_BAD_REQUEST;
+				}
+				serverHeaders = op.getReceivedHeaders();
+				Long dataLength = (Long) serverHeaders.getHeader(HeaderSet.LENGTH);
 				if (dataLength == null) {
 					return ResponseCodes.OBEX_HTTP_LENGTH_REQUIRED;
 				}
-				InputStream is = op.openInputStream();
-				int len = dataLength.intValue();
-				serverData = new byte[len];
-				int got = 0;
-				// read fully
-				while (got < len) {
-					int rc = is.read(serverData, got, len - got);
-					if (rc < 0) {
-						break;
+				long length = dataLength.longValue();
+				int len = (int) length;
+				if (length != LENGTH_NO_DATA) {
+					InputStream is = op.openInputStream();
+					serverData = new byte[len];
+					int got = 0;
+					// read fully
+					while (got < len) {
+						int rc = is.read(serverData, got, len - got);
+						if (rc < 0) {
+							break;
+						}
+						got += rc;
 					}
-					got += rc;
+					is.close();
+					serverDataLength = got;
 				}
-				serverDataLength = got;
 				op.close();
 				return ResponseCodes.OBEX_HTTP_OK;
 			} catch (IOException e) {
@@ -90,100 +94,129 @@ public class OBEXPutConditionsTest extends BaseEmulatorTestCase {
 	}
 
 	@Override
-	protected Runnable createTestServer() {
-		return new TestCaseRunnable() {
-			public void execute() throws Exception {
-				SessionNotifier serverConnection = (SessionNotifier) Connector.open("btgoep://localhost:" + serverUUID
-						+ ";name=ObexTest");
-				serverConnection.acceptAndOpen(new RequestHandler());
-			}
-		};
+	protected ServerRequestHandler createRequestHandler() {
+		return new RequestHandler();
 	}
 
-	public void testPUTOperationCompleate() throws IOException {
+	private void runPUTOperation(boolean flush, long length, byte[] data1, byte[] data2, int expectedPackets)
+			throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
+		int writePacketsConnect = BlueCoveInternals.getPacketsCountWrite(clientSession);
 
 		HeaderSet hsOperation = clientSession.createHeaderSet();
-		byte data[] = "Hello world!".getBytes("iso-8859-1");
-		hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
+
+		hsOperation.setHeader(HeaderSet.LENGTH, new Long(length));
 
 		// Create PUT Operation
 		Operation putOperation = clientSession.put(hsOperation);
 
 		OutputStream os = putOperation.openOutputStream();
-		os.write(data);
+		os.write(data1);
+		if (flush) {
+			os.flush();
+		}
+		if (data2 != null) {
+			os.write(data2);
+			if (flush) {
+				os.flush();
+			}
+		}
 		os.close();
 
 		putOperation.close();
+
+		DebugLog.debug("PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession) - writePacketsConnect);
 
 		clientSession.disconnect(null);
 
 		clientSession.close();
 
-		assertEquals("LENGTH", new Long(data.length), serverPutHeaders.getHeader(HeaderSet.LENGTH));
-		assertEquals("data.length", data.length, serverDataLength);
+		assertEquals("invocations", 1, serverRequestHandlerInvocations);
+		assertEquals("LENGTH", new Long(length), serverHeaders.getHeader(HeaderSet.LENGTH));
+		assertEquals("data.length", data1.length, serverDataLength);
+
+		assertEquals("c.writePackets", expectedPackets, BlueCoveInternals.getPacketsCountWrite(clientSession));
+		assertEquals("c.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(clientSession));
+		assertEquals("s.writePackets", expectedPackets, BlueCoveInternals
+				.getPacketsCountWrite(serverAcceptedConnection));
+		assertEquals("s.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(serverAcceptedConnection));
+	}
+
+	public void testPUTOperationCompleate() throws IOException {
+		byte data[] = simpleData;
+		int expectedPackets = 1 + 2 + 1;
+		runPUTOperation(false, data.length, data, null, expectedPackets);
+
+		assertEquals("data", data, serverData);
+	}
+
+	public void testPUTOperationCompleateFlush() throws IOException {
+		byte data[] = simpleData;
+
+		int expectedPackets = 1 + 2 + 1 + 1;
+		runPUTOperation(true, data.length, data, null, expectedPackets);
+
 		assertEquals("data", data, serverData);
 	}
 
 	public void testPUTOperationSendMore() throws IOException {
+		byte data[] = simpleData;
 
-		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
-		HeaderSet hsConnectReply = clientSession.connect(null);
-		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
+		int expectedPackets = 1 + 2 + 1;
+		runPUTOperation(false, data.length, data, "More".getBytes("iso-8859-1"), expectedPackets);
 
-		HeaderSet hsOperation = clientSession.createHeaderSet();
-		byte data[] = "Hello world!".getBytes("iso-8859-1");
-		hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length));
-
-		// Create PUT Operation
-		Operation putOperation = clientSession.put(hsOperation);
-
-		OutputStream os = putOperation.openOutputStream();
-		os.write(data);
-		os.write("More".getBytes("iso-8859-1"));
-		os.close();
-
-		putOperation.close();
-
-		clientSession.disconnect(null);
-
-		clientSession.close();
-
-		assertEquals("LENGTH", new Long(data.length), serverPutHeaders.getHeader(HeaderSet.LENGTH));
-		assertEquals("data.length", data.length, serverDataLength);
 		assertEquals("data", data, serverData);
 	}
 
 	public void testPUTOperationSendLess() throws IOException {
+		byte data[] = simpleData;
+		int less = 4;
+
+		int expectedPackets = 1 + 2 + 1;
+		runPUTOperation(false, data.length + less, data, null, expectedPackets);
+
+		assertEquals("data", data.length, data, serverData);
+	}
+
+	public void testPUTOperationNoData() throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
 		assertEquals("connect", ResponseCodes.OBEX_HTTP_OK, hsConnectReply.getResponseCode());
+		int writePacketsConnect = BlueCoveInternals.getPacketsCountWrite(clientSession);
 
-		HeaderSet hsOperation = clientSession.createHeaderSet();
-		byte data[] = "Hello world!".getBytes("iso-8859-1");
-		int less = 4;
-		hsOperation.setHeader(HeaderSet.LENGTH, new Long(data.length + less));
+		HeaderSet hs = clientSession.createHeaderSet();
+		String name = "Hello.txt";
+		hs.setHeader(HeaderSet.NAME, name);
+		hs.setHeader(HeaderSet.LENGTH, new Long(LENGTH_NO_DATA));
 
 		// Create PUT Operation
-		Operation putOperation = clientSession.put(hsOperation);
+		Operation putOperation = clientSession.put(hs);
 
 		OutputStream os = putOperation.openOutputStream();
-		os.write(data);
 		os.close();
 
 		putOperation.close();
+
+		DebugLog.debug("PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession) - writePacketsConnect);
 
 		clientSession.disconnect(null);
 
 		clientSession.close();
 
-		assertEquals("LENGTH", new Long(data.length + less), serverPutHeaders.getHeader(HeaderSet.LENGTH));
-		assertEquals("data.length", data.length, serverDataLength);
-		assertEquals("data", data.length, data, serverData);
-	}
+		assertEquals("NAME", name, serverHeaders.getHeader(HeaderSet.NAME));
+		assertNull("data", serverData);
+		assertEquals("invocations", 1, serverRequestHandlerInvocations);
 
+		int expectedPackets = 1 + 2 + 1;
+
+		assertEquals("c.writePackets", expectedPackets, BlueCoveInternals.getPacketsCountWrite(clientSession));
+		assertEquals("c.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(clientSession));
+		assertEquals("s.writePackets", expectedPackets, BlueCoveInternals
+				.getPacketsCountWrite(serverAcceptedConnection));
+		assertEquals("s.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(serverAcceptedConnection));
+	}
 }

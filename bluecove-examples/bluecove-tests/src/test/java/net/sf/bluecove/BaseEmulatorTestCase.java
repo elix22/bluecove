@@ -39,14 +39,44 @@ import com.intel.bluetooth.EmulatorTestsHelper;
  */
 public abstract class BaseEmulatorTestCase extends TestCase {
 
+	// Use this to debug tests
+	protected boolean debug = false;
+
+	protected boolean debugOnInEclipse = true;
+
 	protected Thread testServerThread;
 
 	protected ThreadGroup testServerThreadGroup;
 
+	protected LongRunningTestMonitor monitor;
+
+	/**
+	 * Default 15 seconds
+	 * 
+	 * @return the length of time for test in milliseconds.
+	 */
+	protected int gracePeriod() {
+		return 15 * 1000;
+	}
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_DEBUG_LOG4J, "false");
+		boolean eclipse = isEclipse();
+		if (eclipse && debugOnInEclipse) {
+			debug = true;
+		}
+		if (!eclipse && (gracePeriod() > 0)) {
+			monitor = new LongRunningTestMonitor(gracePeriod(), this.getClass().getName() + "." + this.getName());
+			monitor.start();
+		}
+		// Use this to debug tests
+		if (debug) {
+			BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_DEBUG, "true");
+			BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_DEBUG_STDOUT, "false");
+		} else {
+			BlueCoveImpl.setConfigProperty(BlueCoveConfigProperties.PROPERTY_DEBUG_LOG4J, "false");
+		}
 		EmulatorTestsHelper.startInProcessServer();
 		Runnable r = createTestServer();
 		if (r != null) {
@@ -70,6 +100,10 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 			}
 		}
 		EmulatorTestsHelper.stopInProcessServer();
+		if (monitor != null) {
+			monitor.finish();
+			monitor = null;
+		}
 	}
 
 	/**
@@ -113,6 +147,11 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 		Assert.assertNotNull("service not found", serverURL);
 
 		return serverURL;
+	}
+
+	boolean isEclipse() {
+		StackTraceElement[] ste = new Throwable().getStackTrace();
+		return (ste[ste.length - 1].getClassName().startsWith("org.eclipse.jdt"));
 	}
 
 }

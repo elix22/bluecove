@@ -31,35 +31,24 @@ import javax.obex.HeaderSet;
 import javax.obex.Operation;
 import javax.obex.ResponseCodes;
 import javax.obex.ServerRequestHandler;
-import javax.obex.SessionNotifier;
-
-import net.sf.bluecove.BaseEmulatorTestCase;
-import net.sf.bluecove.TestCaseRunnable;
 
 /**
  * @author vlads
  * 
  */
-public class OBEXGetStandardTest extends BaseEmulatorTestCase {
-
-	static final String serverUUID = "11111111111111111111111111111123";
-
-	private HeaderSet serverGetHeaders;
-
-	private final static byte[] simpleData = "Hello world!".getBytes();
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		serverGetHeaders = null;
-	}
+public class OBEXGetStandardTest extends OBEXBaseEmulatorTestCase {
 
 	private class RequestHandler extends ServerRequestHandler {
 
 		@Override
 		public int onGet(Operation op) {
 			try {
-				serverGetHeaders = op.getReceivedHeaders();
+				serverRequestHandlerInvocations++;
+				serverHeaders = op.getReceivedHeaders();
+				String params = (String) serverHeaders.getHeader(OBEX_HDR_USER);
+				if (params == null) {
+					params = "";
+				}
 
 				HeaderSet hs = createHeaderSet();
 				hs.setHeader(HeaderSet.LENGTH, new Long(simpleData.length));
@@ -67,6 +56,9 @@ public class OBEXGetStandardTest extends BaseEmulatorTestCase {
 
 				OutputStream os = op.openOutputStream();
 				os.write(simpleData);
+				if (params.contains("flush")) {
+					os.flush();
+				}
 				os.close();
 
 				op.close();
@@ -79,17 +71,11 @@ public class OBEXGetStandardTest extends BaseEmulatorTestCase {
 	}
 
 	@Override
-	protected Runnable createTestServer() {
-		return new TestCaseRunnable() {
-			public void execute() throws Exception {
-				SessionNotifier serverConnection = (SessionNotifier) Connector.open("btgoep://localhost:" + serverUUID
-						+ ";name=ObexTest");
-				serverConnection.acceptAndOpen(new RequestHandler());
-			}
-		};
+	protected ServerRequestHandler createRequestHandler() {
+		return new RequestHandler();
 	}
 
-	public void testGETOperation() throws IOException {
+	private void runGETOperation(String testParams) throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
@@ -98,6 +84,7 @@ public class OBEXGetStandardTest extends BaseEmulatorTestCase {
 		HeaderSet hs = clientSession.createHeaderSet();
 		String name = "Hello.txt";
 		hs.setHeader(HeaderSet.NAME, name);
+		hs.setHeader(OBEX_HDR_USER, testParams);
 
 		// Create GET Operation
 		Operation get = clientSession.get(hs);
@@ -120,9 +107,17 @@ public class OBEXGetStandardTest extends BaseEmulatorTestCase {
 
 		clientSession.close();
 
-		assertEquals("NAME", name, serverGetHeaders.getHeader(HeaderSet.NAME));
+		assertEquals("NAME", name, serverHeaders.getHeader(HeaderSet.NAME));
 		assertEquals("LENGTH", new Long(serverData.length), headers.getHeader(HeaderSet.LENGTH));
 		assertEquals("data", simpleData, serverData);
+		assertEquals("invocations", 1, serverRequestHandlerInvocations);
 	}
 
+	public void testGETOperation() throws IOException {
+		runGETOperation("");
+	}
+
+	public void testGETOperationFlush() throws IOException {
+		runGETOperation("flush");
+	}
 }
