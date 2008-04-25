@@ -43,7 +43,7 @@ class EmulatorCommandReceiver extends Thread {
 	private boolean stoped = false;
 
 	EmulatorCommandReceiver(EmulatorLocalDevice localDevice) {
-		super("EmulatorCommandReceiver");
+		super("BlueCoveEmulatorCommandReceiver");
 		this.localDevice = localDevice;
 	}
 
