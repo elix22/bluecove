@@ -96,7 +96,7 @@ IBM J9 Personal Profile
         * !WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
 
 IBM J9 MIDP 2.0 Profile
-    # Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory
+    # Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory (remove javax.microedition.io.* classes from the jar)
     # Copy all bluecove dlls to %J9_HOME%\bin directory or add -Dcom.ibm.oti.vm.bootstrap.library.path=%bluecove_dll_path%;%J9_HOME%\bin
     # run app "%J9_HOME%\bin\j9.exe" -jcl:midp20 -Dmicroedition.connection.pkgs=com.intel.bluetooth -cp target\bctest.jar "-jxe:%J9_HOME%\lib\jclMidp20\jclMidp20.jxe" target\bctest.jad
     # -Dmicroedition.connection.pkgs=com.intel.bluetooth is optonal if you place bluecove.jar to ext directory (Since v2.0.2)
