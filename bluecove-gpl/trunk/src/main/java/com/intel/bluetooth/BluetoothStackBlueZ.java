@@ -158,7 +158,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		// propertiesMap.put("bluecove.radio.version", );
 		// propertiesMap.put("bluecove.radio.manufacturer", );
 		// propertiesMap.put("bluecove.stack.version", );
-		devicesUsed.add(new Long(deviceID));
+		devicesUsed.addElement(new Long(deviceID));
 	}
 
 	private native void nativeCloseDevice(int deviceDescriptor);
