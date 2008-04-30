@@ -186,7 +186,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * @see com.intel.bluetooth.BluetoothStack#isCurrentThreadInterruptedCallback()
 	 */
 	public boolean isCurrentThreadInterruptedCallback() {
-		return Thread.interrupted();
+		return UtilsJavaSE.isCurrentThreadInterrupted();
 	}
 
 	/*
