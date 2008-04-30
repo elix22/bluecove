@@ -128,6 +128,8 @@ java -cp avetanaBluetooth.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecov
 
     * {{{./bctest.jad}bctest.jad}}
 
+    * {{{../bluecove-webstart/open-local/~/bluecove-tester/bctest.jnlp}\u00bbStart MIDlet in emulator}}
+
     []
 
     You can upload this MIDlet to your cell phone and use it as responder for BlueCove application on PC.
