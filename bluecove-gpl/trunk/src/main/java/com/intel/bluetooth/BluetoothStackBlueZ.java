@@ -21,9 +21,7 @@
 package com.intel.bluetooth;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
@@ -53,7 +51,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private final static int LISTEN_BACKLOG_L2CAP = 4;
 
-	private final static List devicesUsed = new Vector();
+	private final static Vector devicesUsed = new Vector();
 
 	private int deviceID = -1;
 
@@ -65,7 +63,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	private int registeredServicesCount = 0;
 
-	private Map/* <String,String> */propertiesMap;
+	private Hashtable/* <String,String> */propertiesMap;
 
 	private DiscoveryListener discoveryListener;
 
@@ -145,7 +143,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		DebugLog.debug("localDeviceID", deviceID);
 		deviceDescriptor = nativeOpenDevice(deviceID);
 		localDeviceBTAddress = getLocalDeviceBluetoothAddressImpl(deviceDescriptor);
-		propertiesMap = new TreeMap/* <String,String> */();
+		propertiesMap = new Hashtable/* <String,String> */();
 		final String TRUE = "true";
 		final String FALSE = "false";
 		propertiesMap.put("bluetooth.connected.devices.max", "7");
