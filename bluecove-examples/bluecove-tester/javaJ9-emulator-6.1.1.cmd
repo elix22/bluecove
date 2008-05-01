@@ -18,6 +18,9 @@ rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
 call %~dp0scripts\set-stack.cmd
 
 @rem -cp ..\..\bluecove\target\bluecove-%VERSION%.jar
+@if exist %JAVA_HOME%\lib\jclMidp20\ext goto ext_exists
+@mkdir %JAVA_HOME%\lib\jclMidp20\ext
+:ext_exists
 copy ..\..\bluecove\target\bluecove-%VERSION%.jar "%JAVA_HOME%\lib\jclMidp20\ext\bluecove.jar"
 
 "%JAVA_HOME%\bin\emulator.exe" %JVM_ARGS%
