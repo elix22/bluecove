@@ -1,12 +1,16 @@
 @echo off
 rem @version $Revision$ ($Author$)  $Date$
 
-rem set JAVA_HOME=D:\jdk1.5.0
-rem set JAVA_HOME=D:\harmony-jdk-629320
-rem set PATH=%JAVA_HOME%\bin;%PATH%
+if exist %~dp0generated-version.cmd goto generated_version_found
+echo 
+echo %~dp0generated-version.cmd Not Found, run maven first
+goto :errormark
 
-set VERSION=2.0.3-SNAPSHOT
-rem set VERSION=2.0.1
+:generated_version_found
+call %~dp0generated-version.cmd
+rem echo BLUECOVE_VERSION=%BLUECOVE_VERSION%
+goto :endmark
 
-set MAVEN2_REPO=%HOMEDRIVE%\%HOMEPATH%\.m2\repository
-set PATH=%JAVA_HOME%\bin;%PATH%
+:errormark
+	exit /b 1
+:endmark
