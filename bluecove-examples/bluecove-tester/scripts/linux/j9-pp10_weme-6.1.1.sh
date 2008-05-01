@@ -6,6 +6,9 @@ SCRIPTS_DIR=`dirname ${0}`/..
 
 JAVA_HOME=/opt/IBM/WEME/runtimes/61/lnx-x86-ppro10
 
+# igone j9 bugs *** glibc detected *** free(): invalid pointer:...
+export MALLOC_CHECK_=0
+
 JVM_ARGS="-jcl:ppro10"
 JVM_ARGS="${JVM_ARGS} -Dmicroedition.connection.pkgs=com.intel.bluetooth"
 #JVM_ARGS="${JVM_ARGS} -Dbluecove.debug=1"
