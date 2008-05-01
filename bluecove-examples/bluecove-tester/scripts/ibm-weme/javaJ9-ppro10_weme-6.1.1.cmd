@@ -1,5 +1,8 @@
-@SETLOCAL
-call %~dp0scripts\version.cmd
+@echo off
+rem @version $Revision$ ($Author$)  $Date$
+SETLOCAL
+call %~dp0..\environment.cmd
+if errorlevel 1 goto endmark
 
 @SET JAVA_HOME=%ProgramFiles%\IBM\WEME\runtimes\61\win-x86-ppro10
 
@@ -11,6 +14,8 @@ rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
 
 title J9 PPRO1.0-v6.1.1
 
-%JAVA_HOME%\bin\j9 %JVM_ARGS% -classpath target\bluecove-tester-%VERSION%-app.jar net.sf.bluecove.awt.Main
-@ENDLOCAL
-@pause
+%JAVA_HOME%\bin\j9 %JVM_ARGS% -classpath %BLUECOVE_TESTER_APP_JAR% net.sf.bluecove.awt.Main
+
+pause
+:endmark
+ENDLOCAL

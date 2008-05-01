@@ -1,5 +1,8 @@
-@SETLOCAL
-call %~dp0scripts\version.cmd
+@echo off
+rem @version $Revision$ ($Author$)  $Date$
+SETLOCAL
+call %~dp0..\environment.cmd
+if errorlevel 1 goto endmark
 
 
 @set JAVA_HOME=%ProgramFiles%\IBM\DeviceDeveloper\wsdd5.0\ive-2.2
@@ -15,14 +18,14 @@ rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.native.path=%~dp0..\..\bluecove\src\main\
 
 rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
 
-call %~dp0scripts\set-stack.cmd
+call %~dp0..\set-stack.cmd
 
-@rem -cp ..\..\bluecove\target\bluecove-%VERSION%.jar
-copy ..\..\bluecove\target\bluecove-%VERSION%.jar "%JAVA_HOME%\lib\jclMidp20\ext\bluecove.jar"
+copy %BLUECOVE_JAR% "%JAVA_HOME%\lib\jclMidp20\ext\bluecove.jar"
 
 title J9 MIDP20-v5.7.2
 
-"%JAVA_HOME%\bin\j9.exe" %JVM_ARGS% -cp target\bctest.jar "-jxe:%JAVA_HOME%\lib\jclMidp20\jclMidp20.jxe" target\bctest.jad
+"%JAVA_HOME%\bin\j9.exe" %JVM_ARGS% -cp %BLUECOVE_TESTER_HOME%\target\bctest.jar "-jxe:%JAVA_HOME%\lib\jclMidp20\jclMidp20.jxe" %BLUECOVE_TESTER_HOME%\target\bctest.jad
 
-@ENDLOCAL
-@pause
+pause
+:endmark
+ENDLOCAL
