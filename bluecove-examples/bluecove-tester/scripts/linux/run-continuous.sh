@@ -1,10 +1,8 @@
-#! /bin/sh
-#  @version $Revision$ ($Author$) $Date$
+#!/bin/sh
+# @version $Revision$ ($Author$) $Date$
 #
-
-. ./scripts/version.sh
-
-#java -cp ./target/bluecove-tester-${VERSION}-app.jar net.sf.bluecove.awt.Main
+SCRIPTS_DIR=`dirname ${0}`/..
+. ${SCRIPTS_DIR}/environment.sh
 
 JVM_ARGS=
 ERRORS=0
@@ -20,7 +18,7 @@ echo "-----------------------------"
 echo "--- SUCCESS=${SUCCESS} ERRORS=${ERRORS} ---"
 echo "-----------------------------"
 
-java ${JVM_ARGS} -cp ./target/bluecove-tester-${VERSION}-app.jar net.sf.bluecove.awt.Main --runonce  >>  run-continuous.log
+java ${JVM_ARGS} -cp ${BLUECOVE_TESTER_APP_JAR} net.sf.bluecove.awt.Main --runonce  >>  run-continuous.log
 rc=$?
 #echo "rc=[${rc}]"
 if [ "${rc}" = "2" ]; then

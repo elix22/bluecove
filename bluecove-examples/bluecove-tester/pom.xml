@@ -309,7 +309,7 @@
                 <executions>
                     <execution>
                         <id>package-make-scripts-version</id>
-                        <phase>test</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
