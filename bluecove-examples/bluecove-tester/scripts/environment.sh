@@ -3,9 +3,12 @@
 #
 # echo SCRIPTS_DIR=${SCRIPTS_DIR}
 #make absolute path
-pushd ${SCRIPTS_DIR}
+#pushd ${SCRIPTS_DIR}
+SAVE_DIR=`pwd`
+cd ${SCRIPTS_DIR}
 SCRIPTS_DIR=`pwd`
-popd
+#popd
+cd ${SAVE_DIR}
 # echo SCRIPTS_DIR=${SCRIPTS_DIR}
 . ${SCRIPTS_DIR}/version.sh
 BLUECOVE_TESTER_HOME=`dirname ${SCRIPTS_DIR}`
