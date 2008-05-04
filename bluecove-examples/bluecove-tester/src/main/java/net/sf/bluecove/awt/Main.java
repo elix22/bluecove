@@ -341,19 +341,21 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 		Menu threadLocalStack = new Menu("ThreadLocalStack");
 
-		addMenu(threadLocalStack, "Set 'winsock'", new ActionListener() {
+		MenuItem menuWinsock = addMenu(threadLocalStack, "Set 'winsock'", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LocalDeviceManager.setUseWINSOCK();
 				updateTitle();
 			}
 		});
+		menuWinsock.setEnabled(Configuration.windows);
 
-		addMenu(threadLocalStack, "Set 'widcomm'", new ActionListener() {
+		MenuItem menuWidcomm = addMenu(threadLocalStack, "Set 'widcomm'", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LocalDeviceManager.setUseWIDCOMM();
 				updateTitle();
 			}
 		});
+		menuWidcomm.setEnabled(Configuration.windows);
 
 		addMenu(threadLocalStack, "Set 'deviceID=0'", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -369,7 +371,19 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			}
 		});
 
+		addMenu(threadLocalStack, "shutdown", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.shutdownThreadLocal();
+			}
+		});
+
 		menuMore.add(threadLocalStack);
+
+		addMenu(menuMore, "Shutdown BlueCove", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LocalDeviceManager.shutdown();
+			}
+		});
 
 		menuBar.add(menuMore);
 

@@ -177,6 +177,8 @@ public class Configuration {
 
 	public static boolean isBlueCove = false;
 
+	public static boolean windows = false;
+
 	public static boolean windowsXP = false;
 
 	public static boolean windowsCE = false;
@@ -213,6 +215,7 @@ public class Configuration {
 		if (sysName != null) {
 			sysName = sysName.toLowerCase();
 			if (sysName.indexOf("windows") != -1) {
+				windows = true;
 				if (sysName.indexOf("ce") != -1) {
 					windowsCE = true;
 				} else {

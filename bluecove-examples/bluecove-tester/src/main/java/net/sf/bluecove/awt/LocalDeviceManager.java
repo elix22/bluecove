@@ -79,6 +79,21 @@ public class LocalDeviceManager {
 		}
 	}
 
+	static void shutdown() {
+		BlueCoveImpl.shutdown();
+		Logger.info("shutdown finished");
+	}
+
+	static void shutdownThreadLocal() {
+		if (Configuration.threadLocalBluetoothStack != null) {
+			BlueCoveImpl.shutdownThreadBluetoothStack();
+			Configuration.threadLocalBluetoothStack = null;
+			Logger.info("ThreadLocal shutdown finished");
+		} else {
+			Logger.info("no ThreadLocal stack");
+		}
+	}
+
 	static void setUseWINSOCK() {
 		if (threadLocalBluetoothStackWINSOCK == null) {
 			try {
