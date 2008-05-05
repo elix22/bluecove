@@ -174,7 +174,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		}
 		nativeCloseDevice(deviceDescriptor);
 		if (deviceID >= 0) {
-			devicesUsed.remove(new Long(deviceID));
+			devicesUsed.removeElement(new Long(deviceID));
+			deviceID = -1;
 		}
 	}
 
