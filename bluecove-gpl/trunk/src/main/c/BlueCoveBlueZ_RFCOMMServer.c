@@ -25,6 +25,7 @@
 #include <sys/socket.h>
 #include <sys/unistd.h>
 #include <bluetooth/rfcomm.h>
+#include <fcntl.h>
 
 int dynamic_bind_rc(int sock, struct sockaddr_rc *sockaddr, uint8_t *port) {
 	int err;
@@ -94,6 +95,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerOpe
 		}
     }
 
+    // use non-blocking mode
+    int flags = fcntl(handle, F_GETFL, 0);
+    if (SOCKET_ERROR == flags) {
+        throwIOException(env, "Failed to read RFCOMM server descriptor flags. [%d] %s", errno, strerror(errno));
+        close(handle);
+        return 0;
+    }
+    if (SOCKET_ERROR == fcntl(handle, F_SETFL, flags | O_NONBLOCK)) {
+        throwIOException(env, "Failed to set RFCOMM server non-blocking flags. [%d] %s", errno, strerror(errno));
+        close(handle);
+        return 0;
+    }
+
     // put socket into listening mode
     if (listen(handle, backlog) < 0) {
         throwIOException(env, "Failed to listen for RFCOMM connections. [%d] %s", errno, strerror(errno));
@@ -135,11 +149,24 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_rfServerAcc
   (JNIEnv* env, jobject peer, jlong handle) {
     struct sockaddr_rc remoteAddr;
 	socklen_t  remoteAddrLen = sizeof(remoteAddr);
-	int client_socket = accept(handle, (struct sockaddr*)&remoteAddr, &remoteAddrLen);
-	if (client_socket < 0) {
-	    throwIOException(env, "Failed to accept RFCOMM client connection. [%d] %s", errno, strerror(errno));
-	    return 0;
-	}
+	int client_socket = SOCKET_ERROR;
+	do {
+	    client_socket = accept(handle, (struct sockaddr*)&remoteAddr, &remoteAddrLen);
+	    if (SOCKET_ERROR == client_socket) {
+	        if (errno == EWOULDBLOCK) {
+	            if (isCurrentThreadInterrupted(env, peer)) {
+	                return 0;
+	            }
+	            if (!threadSleep(env, 100)) {
+	                return 0;
+	            }
+	            continue;
+	        } else {
+	            throwIOException(env, "Failed to accept RFCOMM client connection. [%d] %s", errno, strerror(errno));
+	            return 0;
+	        }
+	    }
+    } while (SOCKET_ERROR == client_socket);
 	debug("RFCOMM client accepted, handle %li", client_socket);
 	return client_socket;
 }
