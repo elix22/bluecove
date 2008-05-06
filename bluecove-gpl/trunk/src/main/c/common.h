@@ -66,6 +66,7 @@ void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, 
 jmethodID getGetMethodID(JNIEnv * env, jclass clazz, const char *name, const char *sig);
 
 bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer);
+bool threadSleep(JNIEnv *env, jlong millis);
 
 struct DeviceInquiryCallback {
     jobject peer;

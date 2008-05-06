@@ -190,13 +190,8 @@ void throwBluetoothConnectionException(JNIEnv *env, int error, const char *fmt, 
 
 bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer) {
     jclass peerClass = (*env)->GetObjectClass(env, peer);
-    if (peerClass == NULL) {
-        throwRuntimeException(env, "Fail to get Object Class");
-        return true;
-    }
-    jmethodID aMethod = (*env)->GetMethodID(env, peerClass, "isCurrentThreadInterruptedCallback", "()Z");
+    jmethodID aMethod = getGetMethodID(env, peerClass, "isCurrentThreadInterruptedCallback", "()Z");
     if (aMethod == NULL) {
-        throwRuntimeException(env, "Fail to get MethodID isCurrentThreadInterruptedCallback");
         return true;
     }
     if ((*env)->CallBooleanMethod(env, peer, aMethod)) {
@@ -204,6 +199,24 @@ bool isCurrentThreadInterrupted(JNIEnv *env, jobject peer) {
         return true;
     }
     return (*env)->ExceptionCheck(env);
+}
+
+bool threadSleep(JNIEnv *env, jlong millis) {
+    jclass clazz = (*env)->FindClass(env, "java/lang/Thread");
+    if (clazz == NULL) {
+        throwRuntimeException(env, "Fail to get Thread class");
+        return false;
+    }
+    jmethodID methodID = (*env)->GetStaticMethodID(env, clazz, "sleep", "(J)V");
+    if (methodID == NULL) {
+        throwRuntimeException(env, "Fail to get MethodID Thread.sleep");
+        return false;
+    }
+    (*env)->CallStaticVoidMethod(env, clazz, methodID, millis);
+    if ((*env)->ExceptionCheck(env)) {
+        return false;
+    }
+    return true;
 }
 
 jmethodID getGetMethodID(JNIEnv * env, jclass clazz, const char *name, const char *sig) {

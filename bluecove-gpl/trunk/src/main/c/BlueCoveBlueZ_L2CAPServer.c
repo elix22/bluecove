@@ -22,6 +22,7 @@
 
 #include "BlueCoveBlueZ.h"
 #include <bluetooth/l2cap.h>
+#include <fcntl.h>
 
 JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpenImpl
   (JNIEnv* env, jobject peer, jlong localDeviceBTAddress, jboolean authorize, jboolean authenticate, jboolean encrypt, jboolean master, jboolean timeouts, jint backlog, jint receiveMTU, jint transmitMTU, int assignPsm) {
@@ -95,6 +96,19 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpe
 		}
     }
 
+    // use non-blocking mode
+    int flags = fcntl(handle, F_GETFL, 0);
+    if (SOCKET_ERROR == flags) {
+        throwIOException(env, "Failed to read L2CAP server descriptor flags. [%d] %s", errno, strerror(errno));
+        close(handle);
+        return 0;
+    }
+    if (SOCKET_ERROR == fcntl(handle, F_SETFL, flags | O_NONBLOCK)) {
+        throwIOException(env, "Failed to set L2CAP server non-blocking flags. [%d] %s", errno, strerror(errno));
+        close(handle);
+        return 0;
+    }
+
     // put socket into listening mode
     if (listen(handle, backlog) < 0) {
         throwIOException(env, "Failed to listen for L2CAP connections. [%d] %s", errno, strerror(errno));
@@ -119,7 +133,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerGetP
 
 JNIEXPORT void JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerCloseImpl
   (JNIEnv* env, jobject peer, jlong handle, jboolean quietly) {
-    debug("RFCOMM close server handle %li", handle);
+    debug("L2CAP close server handle %li", handle);
     // Closing channel, further sends and receives will be disallowed.
     if (shutdown(handle, SHUT_RDWR) < 0) {
         debug("server shutdown failed. [%d] %s", errno, strerror(errno));
@@ -137,10 +151,23 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerAcc
   (JNIEnv* env, jobject peer, jlong handle) {
     struct sockaddr_l2 remoteAddr;
 	socklen_t  remoteAddrLen = sizeof(remoteAddr);
-	int client_socket = accept(handle, (struct sockaddr*)&remoteAddr, &remoteAddrLen);
-	if (client_socket < 0) {
-	    throwIOException(env, "Failed to accept L2CAP client connection. [%d] %s", errno, strerror(errno));
-	    return 0;
-	}
+	int client_socket = SOCKET_ERROR;
+	do {
+	    client_socket = accept(handle, (struct sockaddr*)&remoteAddr, &remoteAddrLen);
+	    if (SOCKET_ERROR == client_socket) {
+	        if (errno == EWOULDBLOCK) {
+	            if (isCurrentThreadInterrupted(env, peer)) {
+	                return 0;
+	            }
+	            if (!threadSleep(env, 100)) {
+	                return 0;
+	            }
+	            continue;
+	        } else {
+	            throwIOException(env, "Failed to accept L2CAP client connection. [%d] %s", errno, strerror(errno));
+	            return 0;
+	        }
+	    }
+    } while (SOCKET_ERROR == client_socket);
 	return client_socket;
 }

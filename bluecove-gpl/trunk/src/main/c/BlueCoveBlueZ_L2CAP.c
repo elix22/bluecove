@@ -253,7 +253,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2RemoteAdd
     struct sockaddr_l2 remoteAddr;
     socklen_t len = sizeof(remoteAddr);
     if (getpeername(handle, (struct sockaddr*)&remoteAddr, &len) < 0) {
-        throwIOException(env, "Failed to get peer name. [%d] %s", errno, strerror(errno));
+        throwIOException(env, "Failed to get L2CAP (%i) peer name. [%d] %s", (int)handle, errno, strerror(errno));
         return -1;
     }
     return deviceAddrToLong(&remoteAddr.l2_bdaddr);
@@ -264,7 +264,7 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2GetSecurit
     int socket_opt = 0;
     socklen_t len = sizeof(socket_opt);
     if (getsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, &len) < 0) {
-        throwIOException(env, "Failed to get L2CAP link mode. [%d] %s", errno, strerror(errno));
+        throwIOException(env, "Failed to get L2CAP (%i) link mode. [%d] %s", (int)handle, errno, strerror(errno));
         return 0;
     }
     bool encrypted = socket_opt &  (L2CAP_LM_ENCRYPT | L2CAP_LM_SECURE);
