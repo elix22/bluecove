@@ -21,6 +21,7 @@
   <resources>
     <j2se version="1.1+"/>
     <jar href="bluecove-tester-app.jar"/>
+    <property name="bluecove.deviceID" value="1" />
     <property name="bluecove.debug" value="true" />
   </resources>
 
