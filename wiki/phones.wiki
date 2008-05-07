@@ -77,8 +77,10 @@
 || Nokia || 3555 ||
 || Nokia || 5000 ||
 || Nokia || 5200 ||
+|| Nokia || 5220 XpressMusic ||
 || Nokia || 5300 ||
 || Nokia || 5310 XpressMusic ||
+|| Nokia || 5320 XpressMusic ||
 || Nokia || 5500 ||
 || Nokia || 5610 ||
 || Nokia || 5700 ||
