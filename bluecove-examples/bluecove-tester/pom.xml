@@ -382,8 +382,8 @@ export BLUECOVE_VERSION=${project.version}
                         <artifactId>maven-jar-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>sign-tester-app</id>
-                                <phase>package</phase>
+                                <id>site-sign-tester-app</id>
+                                <phase>site</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
@@ -401,8 +401,8 @@ export BLUECOVE_VERSION=${project.version}
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>sign-tester</id>
-                                <phase>package</phase>
+                                <id>site-sign-tester</id>
+                                <phase>site</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>

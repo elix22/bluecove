@@ -4,10 +4,10 @@
   codebase="http://www.bluecove.org/bluecove-examples/bluecove-tester"
   href="awt-bctest-2.0.0.jnlp">
   <information>
-    <title>bluecove-tester 2.0.0</title>
+    <title>bluecove-tester (2.0.0)</title>
     <vendor>BlueCove; Vlad Skarzhevskyy</vendor>
     <homepage href="http://www.bluecove.org/"/>
-    <description>bluecove-tester</description>
+    <description>bluecove-tester (2.0.0)</description>
     <description kind="short">bluecove-tester with BlueCove 2.0.0</description>
     <icon href="icon.png"/>
     <offline-allowed/>

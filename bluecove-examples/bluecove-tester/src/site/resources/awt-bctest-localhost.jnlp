@@ -4,10 +4,10 @@
   codebase="http://localhost:8080/bluecove-tester/"
   href="awt-bctest-localhost.jnlp">
   <information>
-    <title>bluecove-tester</title>
+    <title>bluecove-tester (localhost)</title>
     <vendor>BlueCove; Vlad Skarzhevskyy</vendor>
     <homepage href="http://www.bluecove.org/"/>
-    <description>bluecove-tester</description>
+    <description>bluecove-tester (localhost)</description>
     <description kind="short">bluecove-tester with BlueCove</description>
     <icon href="icon.png"/>
     <offline-allowed/>
@@ -25,8 +25,6 @@
   </resources>
 
   <application-desc main-class="net.sf.bluecove.awt.Main">
-        <argument>--stack</argument>
-        <argument>widcomm</argument>
   </application-desc>
 
 </jnlp>
