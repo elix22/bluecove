@@ -59,6 +59,7 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 		public int onPut(Operation op) {
 			try {
 				serverRequestHandlerInvocations++;
+				DebugLog.debug("serverRequestHandlerInvocations", serverRequestHandlerInvocations);
 				if (serverRequestHandlerInvocations > 1) {
 					return ResponseCodes.OBEX_HTTP_BAD_REQUEST;
 				}
@@ -116,20 +117,25 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 		OutputStream os = putOperation.openOutputStream();
 		os.write(data1);
 		if (flush) {
+			DebugLog.debug("client flush 1");
 			os.flush();
 		}
 		if (data2 != null) {
 			os.write(data2);
 			if (flush) {
+				DebugLog.debug("client flush 2");
 				os.flush();
 			}
 		}
+		DebugLog.debug("client OutputStream close");
 		os.close();
 
+		DebugLog.debug("client Operation close");
 		putOperation.close();
 
 		DebugLog.debug("PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession) - writePacketsConnect);
 
+		DebugLog.debug("client Session disconnect");
 		clientSession.disconnect(null);
 
 		clientSession.close();
@@ -153,6 +159,9 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 		assertEquals("data", data, serverData);
 	}
 
+	/**
+	 * Verify that call to flush do cause double invocation for onPut
+	 */
 	public void testPUTOperationCompleateFlush() throws IOException {
 		byte data[] = simpleData;
 

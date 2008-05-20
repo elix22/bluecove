@@ -55,6 +55,7 @@ public class OBEXPutStandardTest extends OBEXBaseEmulatorTestCase {
 		public int onPut(Operation op) {
 			try {
 				serverRequestHandlerInvocations++;
+				DebugLog.debug("serverRequestHandlerInvocations", serverRequestHandlerInvocations);
 				serverHeaders = op.getReceivedHeaders();
 				InputStream is = op.openInputStream();
 				ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -195,6 +196,7 @@ public class OBEXPutStandardTest extends OBEXBaseEmulatorTestCase {
 
 		// Create PUT Operation
 		Operation putOperation = clientSession.put(null);
+		DebugLog.debug("Client PUT Operation started");
 
 		// Send big Data to server
 		int length = 0x4001;

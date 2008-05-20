@@ -116,6 +116,7 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 	}
 
 	static public void assertEquals(String message, byte[] expected, byte[] actual) {
+		Assert.assertNotNull(message + " value is null", actual);
 		Assert.assertEquals(message + " length", expected.length, actual.length);
 		for (int i = 0; i < expected.length; i++) {
 			Assert.assertEquals(message + " byte [" + i + "]", expected[i], actual[i]);
