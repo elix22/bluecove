@@ -20,19 +20,19 @@
  */
 package net.sf.bluecove.util;
 
-
 /**
  * @author vlads
- *
+ * 
  */
 public class StringUtils {
-	
+
 	public static boolean isStringSet(String str) {
-        return ((str != null) && (str.length() > 0));
+		return ((str != null) && (str.length() > 0));
 	}
-	
+
 	/**
 	 * Only Since CLDC-1.1
+	 * 
 	 * @param anotherString
 	 * @return
 	 */
@@ -42,37 +42,46 @@ public class StringUtils {
 		}
 		return (s1.length() == s2.length()) && (s1.toUpperCase().equals(s2.toUpperCase()));
 	}
-	
-    public static String d00(int i) {
-        if (i > 9) {
-            return String.valueOf(i);
-        } else {
-            return "0" + String.valueOf(i);
-        }
-    }
-    
-    public static String d000(int i) {
-    	if (i > 99) {
-            return String.valueOf(i);
-        } else if (i > 9) {
-            return "0" + String.valueOf(i);
-        } else {
-            return "00" + String.valueOf(i);
-        }
-    }
 
-    public static String d0000(int i) {
-    	if (i > 999) {
-    		return String.valueOf(i);
-    	} else if (i > 99) {
-            return "00" + String.valueOf(i);
-        } else if (i > 9) {
-            return "00" + String.valueOf(i);
-        } else {
-            return "000" + String.valueOf(i);
-        }
-    }
-    
+	public static String d00(int i) {
+		if (i > 9) {
+			return String.valueOf(i);
+		} else {
+			return "0" + String.valueOf(i);
+		}
+	}
+
+	public static String d000(int i) {
+		if (i > 99) {
+			return String.valueOf(i);
+		} else if (i > 9) {
+			return "0" + String.valueOf(i);
+		} else {
+			return "00" + String.valueOf(i);
+		}
+	}
+
+	public static String d0000(int i) {
+		if (i > 999) {
+			return String.valueOf(i);
+		} else if (i > 99) {
+			return "00" + String.valueOf(i);
+		} else if (i > 9) {
+			return "00" + String.valueOf(i);
+		} else {
+			return "000" + String.valueOf(i);
+		}
+	}
+
+	public static String toHex00String(int c) {
+		String s = Integer.toHexString(c);
+		if (s.length() == 1) {
+			return "0" + s;
+		} else {
+			return s;
+		}
+	}
+
 	public static String padRight(String str, int length, char c) {
 		int l = str.length();
 		if (l >= length) {
@@ -80,12 +89,20 @@ public class StringUtils {
 		}
 		StringBuffer sb = new StringBuffer();
 		sb.append(str);
-		for (int i = l; i < length; i ++) {
+		for (int i = l; i < length; i++) {
 			sb.append(c);
 		}
 		return sb.toString();
 	}
-	
+
+	public static char printable(char c) {
+		if (c < ' ') {
+			return ' ';
+		} else {
+			return c;
+		}
+	}
+
 	public static String toBinaryText(StringBuffer buf) {
 		boolean bufHasBinary = false;
 		int len = buf.length();
@@ -96,13 +113,18 @@ public class StringUtils {
 			}
 		}
 		if (bufHasBinary) {
-			buf.append(" 0x[");
-			for(int k = 0; k < len; k ++) {
-				buf.append(Integer.toHexString(buf.charAt(k))).append(' ');	
+			StringBuffer formatedDataBuf = new StringBuffer();
+			for (int k = 0; k < len; k++) {
+				formatedDataBuf.append(printable(buf.charAt(k)));
 			}
-			buf.append("]");
+			formatedDataBuf.append(" 0x[");
+			for (int k = 0; k < len; k++) {
+				formatedDataBuf.append(toHex00String(buf.charAt(k))).append(' ');
+			}
+			formatedDataBuf.append("]");
+			buf = formatedDataBuf;
 		}
-		
+
 		return buf.toString();
 	}
 }

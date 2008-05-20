@@ -155,7 +155,7 @@ public class ClientConnectionThread extends Thread {
 		case interpretDataChars:
 			char c = (char) data;
 			dataBuf.append(c);
-			if ((c == '\n') || (dataBuf.length() > 30)) {
+			if ((c == '\n') || (dataBuf.length() > 32)) {
 				Logger.debug("cc:" + StringUtils.toBinaryText(dataBuf));
 				dataBuf = new StringBuffer();
 			}
