@@ -18,7 +18,7 @@ call %~dp0..\set-stack.cmd
 
 title J9 PPRO1.0-v5.7.2
 
-%JAVA_HOME%\bin\j9 %JVM_ARGS% -classpath %BLUECOVE_TESTER_APP_JAR% net.sf.bluecove.awt.Main
+%JAVA_HOME%\bin\j9 %JVM_ARGS% -classpath %BLUECOVE_TESTER_APP_JAR% %BLUECOVE_MAIN%
 
 pause
 :endmark

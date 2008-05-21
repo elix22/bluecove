@@ -14,6 +14,9 @@ set BLUECOVE_JAR=%BLUECOVE_PROJECT_HOME%\target\bluecove-%BLUECOVE_VERSION%.jar
 set BLUECOVE_TESTER_JAR=%BLUECOVE_TESTER_HOME%\target\bluecove-tester-%BLUECOVE_VERSION%.jar
 set BLUECOVE_TESTER_APP_JAR=%BLUECOVE_TESTER_HOME%\target\bluecove-tester-%BLUECOVE_VERSION%-app.jar
 
+rem set BLUECOVE_MAIN=net.sf.bluecove.awt.Main
+set BLUECOVE_MAIN=net.sf.bluecove.se.Main
+
 set BLUECOVE_3RDPARTY_HOME=%DEFAULT_BUILD_HOME%\..\..\3p
 
 set JVM_ARGS=

@@ -29,7 +29,6 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
 import java.awt.Rectangle;
-import java.awt.ScrollPane;
 import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -42,29 +41,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.LocalDevice;
 
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
-import net.sf.bluecove.RemoteDeviceInfo;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestConcurrent;
-import net.sf.bluecove.TestResponderClient;
-import net.sf.bluecove.TestResponderServer;
 import net.sf.bluecove.Logger.LoggerAppender;
+import net.sf.bluecove.se.UIHelper;
 import net.sf.bluecove.util.Storage;
-import net.sf.bluecove.util.StringUtils;
 import net.sf.bluecove.util.TimeUtils;
 
 import com.intel.bluetooth.BlueCoveImpl;
@@ -82,8 +71,6 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	private int outputLines = 0;
 
 	private Vector logLinesQueue = new Vector();
-
-	ScrollPane scrollPane;
 
 	int lastKeyCode;
 
@@ -259,20 +246,20 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 		addMenu(menuLogs, "Print FailureLog", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				printFailureLog();
+				UIHelper.printFailureLog();
 			}
 		}, KeyEvent.VK_4);
 
 		addMenu(menuLogs, "Clear Stats", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				clearStats();
+				UIHelper.clearStats();
 			}
 		});
 
-		if (isJava5()) {
+		if (JavaSECommon.isJava5()) {
 			addMenu(menuLogs, "ThreadDump", new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					threadDump();
+					JavaSECommon.threadDump();
 				}
 			});
 		}
@@ -464,58 +451,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 	}
 
 	private void updateTitle() {
-		String title = "BlueCove tester";
-		String bluecoveVersion = LocalDevice.getProperty("bluecove");
-		if (StringUtils.isStringSet(bluecoveVersion)) {
-			title += " " + bluecoveVersion;
-			if (Configuration.threadLocalBluetoothStack != null) {
-				title += " on [" + Configuration.threadLocalBluetoothStack.toString() + ", ...]";
-			} else {
-				String stack = LocalDevice.getProperty("bluecove.stack");
-				if (StringUtils.isStringSet(stack)) {
-					if (stack.equals("emulator") || stack.equals("bluez")) {
-						try {
-							stack += ":" + LocalDevice.getLocalDevice().getBluetoothAddress();
-						} catch (BluetoothStateException ignore) {
-						}
-					}
-					title += " on [" + stack + "]";
-				} else {
-					title += " on [winsock]";
-				}
-			}
-		}
-		this.setTitle(title);
-	}
-
-	private void printFailureLog() {
-		if (TestResponderClient.countSuccess + TestResponderClient.failure.countFailure != 0) {
-			Logger.info("*Client Success:" + TestResponderClient.countSuccess + " Failure:"
-					+ TestResponderClient.failure.countFailure);
-			Logger.debug("Client avg conn concurrent " + TestResponderClient.concurrentStatistic.avg());
-			Logger.debug("Client max conn concurrent " + TestResponderClient.concurrentStatistic.max());
-			Logger.debug("Client avg conn time " + TestResponderClient.connectionDuration.avg() + " msec");
-			Logger.debug("Client avg conn retry " + TestResponderClient.connectionRetyStatistic.avgPrc());
-
-			TestResponderClient.failure.writeToLog();
-		}
-
-		if (TestResponderServer.countSuccess + TestResponderServer.failure.countFailure != 0) {
-			Logger.info("*Server Success:" + TestResponderServer.countSuccess + " Failure:"
-					+ TestResponderServer.failure.countFailure);
-			Logger.debug("Server avg conn concurrent " + TestResponderServer.concurrentStatistic.avg());
-			Logger.debug("Server avg conn time " + TestResponderServer.connectionDuration.avg() + " msec");
-
-			TestResponderServer.failure.writeToLog();
-		}
-	}
-
-	private void clearStats() {
-		TestResponderClient.clear();
-		TestResponderServer.clear();
-		Switcher.clear();
-		RemoteDeviceInfo.clear();
-		clear();
+		this.setTitle(UIHelper.getMainWindowTitle());
 	}
 
 	private MenuItem addMenu(Menu menu, String name, ActionListener l) {
@@ -538,7 +474,7 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			// printStats();
 			break;
 		case '4':
-			printFailureLog();
+			UIHelper.printFailureLog();
 			break;
 		case '0':
 			// logScrollX = 0;
@@ -775,52 +711,4 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		propertiesFileLoadedLastModified = f.lastModified();
 	}
 
-	static boolean isJava5() {
-		try {
-			return java5Function();
-		} catch (Throwable e) {
-			return false;
-		}
-	}
-
-	static boolean java5Function() {
-		return (Thread.currentThread().getStackTrace() != null);
-	}
-
-	static void threadDump() {
-		SimpleDateFormat fmt = new SimpleDateFormat("MM-dd_HH-mm-ss");
-		OutputStreamWriter out = null;
-		try {
-			File file = new File("ThreadDump-" + fmt.format(new Date()) + ".log");
-			out = new FileWriter(file);
-			Map traces = Thread.getAllStackTraces();
-			for (Iterator iterator = traces.entrySet().iterator(); iterator.hasNext();) {
-				Map.Entry entry = (Map.Entry) iterator.next();
-				Thread thread = (Thread) entry.getKey();
-				out.write("Thread= " + thread.getName() + " " + (thread.isDaemon() ? "daemon" : "") + " prio="
-						+ thread.getPriority() + "id=" + thread.getId() + " " + thread.getState());
-				out.write("\n");
-
-				StackTraceElement[] ste = (StackTraceElement[]) entry.getValue();
-				for (int i = 0; i < ste.length; i++) {
-					out.write("\t");
-					out.write(ste[i].toString());
-					out.write("\n");
-				}
-				out.write("---------------------------------\n");
-			}
-			out.close();
-			out = null;
-			Logger.info("Full ThreadDump created " + file.getAbsolutePath());
-		} catch (Throwable ignore) {
-		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException ignore) {
-			}
-
-		}
-	}
 }

@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,16 +18,16 @@
  *
  *  @version $Id$
  */
-package net.sf.bluecove.awt;
+package net.sf.bluecove.se;
 
-import net.sf.bluecove.Logger.LoggerAppender;
+/**
+ * @author vlads
+ * 
+ */
+public class Console {
 
-public class LoggerJavaSEAppender implements LoggerAppender {
+	public static void main(String[] args) {
 
-	public void appendLog(int level, String message, Throwable throwable) {
-		if (throwable != null) {
-			throwable.printStackTrace(System.out);
-		}
 	}
 
 }

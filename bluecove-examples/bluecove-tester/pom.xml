@@ -143,7 +143,7 @@
                             <option>-defaultpackage 'bc1'</option>
                         </options>
                     </proguardOptions>
-                    <inFilter>!net/sf/bluecove/awt/**</inFilter>
+                    <inFilter>!net/sf/bluecove/se/**,!net/sf/bluecove/swing/**,!net/sf/bluecove/awt/**</inFilter>
                     <jadAttributes>
                         <!--FlipInsensitive>true</FlipInsensitive-->
                         <MIDlet-Permissions>javax.microedition.io.Connector.bluetooth.client,javax.microedition.io.Connector.bluetooth.server</MIDlet-Permissions>
@@ -238,7 +238,7 @@
                            </descriptors>
                            <archive>
                                 <manifest>
-                                    <mainClass>net.sf.bluecove.awt.Main</mainClass>
+                                    <mainClass>net.sf.bluecove.se.Main</mainClass>
                                 </manifest>
                                 <!-- this does not work, bug http://jira.codehaus.org/browse/MASSEMBLY-188 -->
                                 <manifestEntries>
@@ -263,7 +263,7 @@
                            </descriptors>
                            <archive>
                                 <manifest>
-                                    <mainClass>net.sf.bluecove.awt.Main</mainClass>
+                                    <mainClass>net.sf.bluecove.se.Main</mainClass>
                                 </manifest>
                                 <!-- this does not work, bug http://jira.codehaus.org/browse/MASSEMBLY-188 -->
                                 <manifestEntries>
@@ -288,7 +288,7 @@
                            </descriptors>
                            <archive>
                                 <manifest>
-                                    <mainClass>net.sf.bluecove.awt.Main</mainClass>
+                                    <mainClass>net.sf.bluecove.se.Main</mainClass>
                                 </manifest>
                                 <!-- this does not work, bug http://jira.codehaus.org/browse/MASSEMBLY-188 -->
                                 <manifestEntries>
@@ -406,7 +406,7 @@ export BLUECOVE_VERSION=${project.version}
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
-                                <configuration>
+                               <configuration>
                                     <jarPath>${project.build.directory}/${project.build.finalName}.${project.packaging}</jarPath>
                                     <signedjar>${project.build.directory}/site/bluecove-tester-signed.jar</signedjar>
                                     <keystore>${user.home}/.m2/MicroEmulator.keystore</keystore>

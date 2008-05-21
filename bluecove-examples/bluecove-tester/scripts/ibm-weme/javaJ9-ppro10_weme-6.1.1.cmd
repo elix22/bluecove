@@ -14,7 +14,7 @@ rem set JVM_ARGS=%JVM_ARGS% -Dbluecove.debug=1
 
 title J9 PPRO1.0-v6.1.1
 
-%JAVA_HOME%\bin\j9 %JVM_ARGS% -classpath %BLUECOVE_TESTER_APP_JAR% net.sf.bluecove.awt.Main
+%JAVA_HOME%\bin\j9 %JVM_ARGS% -classpath %BLUECOVE_TESTER_APP_JAR% %BLUECOVE_MAIN%
 
 pause
 :endmark

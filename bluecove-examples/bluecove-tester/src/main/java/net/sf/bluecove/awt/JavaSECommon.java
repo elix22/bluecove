@@ -20,6 +20,15 @@
  */
 package net.sf.bluecove.awt;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.util.CLDCStub;
@@ -67,5 +76,54 @@ public class JavaSECommon implements CLDCStub {
 	 */
 	public void setThreadLocalBluetoothStack(Object id) {
 		LocalDeviceManager.setThreadLocalBluetoothStack(id);
+	}
+
+	public static boolean isJava5() {
+		try {
+			return java5Function();
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	static boolean java5Function() {
+		return (Thread.currentThread().getStackTrace() != null);
+	}
+
+	public static void threadDump() {
+		SimpleDateFormat fmt = new SimpleDateFormat("MM-dd_HH-mm-ss");
+		OutputStreamWriter out = null;
+		try {
+			File file = new File("ThreadDump-" + fmt.format(new Date()) + ".log");
+			out = new FileWriter(file);
+			Map traces = Thread.getAllStackTraces();
+			for (Iterator iterator = traces.entrySet().iterator(); iterator.hasNext();) {
+				Map.Entry entry = (Map.Entry) iterator.next();
+				Thread thread = (Thread) entry.getKey();
+				out.write("Thread= " + thread.getName() + " " + (thread.isDaemon() ? "daemon" : "") + " prio="
+						+ thread.getPriority() + "id=" + thread.getId() + " " + thread.getState());
+				out.write("\n");
+
+				StackTraceElement[] ste = (StackTraceElement[]) entry.getValue();
+				for (int i = 0; i < ste.length; i++) {
+					out.write("\t");
+					out.write(ste[i].toString());
+					out.write("\n");
+				}
+				out.write("---------------------------------\n");
+			}
+			out.close();
+			out = null;
+			Logger.info("Full ThreadDump created " + file.getAbsolutePath());
+		} catch (Throwable ignore) {
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+				}
+			} catch (IOException ignore) {
+			}
+
+		}
 	}
 }
