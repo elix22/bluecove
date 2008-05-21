@@ -151,7 +151,11 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 		assertEquals("s.readPackets", expectedPackets, BlueCoveInternals.getPacketsCountRead(serverAcceptedConnection));
 	}
 
-	public void testPUTOperationCompleate() throws IOException {
+	/**
+	 * Verify that server can read data without getting to the exact end of file
+	 * in InputStream
+	 */
+	public void testPUTOperationComplete() throws IOException {
 		byte data[] = simpleData;
 		int expectedPackets = 1 + 2 + 1;
 		runPUTOperation(false, data.length, data, null, expectedPackets);
@@ -159,16 +163,24 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 		assertEquals("data", data, serverData);
 	}
 
+	public void testPUTOperationCompleteBigData() throws IOException {
+		throw new IOException("TODO");
+	}
+
 	/**
 	 * Verify that call to flush do cause double invocation for onPut
 	 */
-	public void testPUTOperationCompleateFlush() throws IOException {
+	public void testPUTOperationCompleteFlush() throws IOException {
 		byte data[] = simpleData;
 
 		int expectedPackets = 1 + 2 + 1 + 1;
 		runPUTOperation(true, data.length, data, null, expectedPackets);
 
 		assertEquals("data", data, serverData);
+	}
+
+	public void testPUTOperationCompleteFlushBigData() throws IOException {
+		throw new IOException("TODO");
 	}
 
 	public void testPUTOperationSendMore() throws IOException {
@@ -178,6 +190,10 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 		runPUTOperation(false, data.length, data, "More".getBytes("iso-8859-1"), expectedPackets);
 
 		assertEquals("data", data, serverData);
+	}
+
+	public void testPUTOperationSendMoreBigData() throws IOException {
+		throw new IOException("TODO");
 	}
 
 	public void testPUTOperationSendLess() throws IOException {
@@ -190,6 +206,13 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 		assertEquals("data", data.length, data, serverData);
 	}
 
+	public void testPUTOperationSendLessBigData() throws IOException {
+		throw new IOException("TODO");
+	}
+
+	/**
+	 * No data in Operation OutputStream
+	 */
 	public void testPUTOperationNoData() throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
