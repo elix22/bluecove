@@ -47,6 +47,14 @@ public class OBEXGetBinaryHeaderTest extends OBEXBaseEmulatorTestCase {
 
 	private byte[] serverHeaderData;
 
+	private byte[] serverReplyBigData;
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		serverHeaderData = null;
+	}
+
 	private class RequestHandler extends ServerRequestHandler {
 
 		@Override
@@ -54,21 +62,29 @@ public class OBEXGetBinaryHeaderTest extends OBEXBaseEmulatorTestCase {
 			try {
 				serverRequestHandlerInvocations++;
 				serverHeaders = op.getReceivedHeaders();
+				String params = (String) serverHeaders.getHeader(OBEX_HDR_USER);
+				if (params == null) {
+					params = "";
+				}
 
-				InputStream isBinHeader = op.openInputStream();
+				InputStream isHeader = op.openInputStream();
 				ByteArrayOutputStream buf = new ByteArrayOutputStream();
 				int data;
-				while ((data = isBinHeader.read()) != -1) {
+				while ((data = isHeader.read()) != -1) {
 					buf.write(data);
 				}
 				serverHeaderData = buf.toByteArray();
 
+				byte[] replyData = simpleData;
+				if (params.contains("bigData")) {
+					replyData = serverReplyBigData;
+				}
 				HeaderSet hs = createHeaderSet();
-				hs.setHeader(HeaderSet.LENGTH, new Long(simpleData.length));
+				hs.setHeader(HeaderSet.LENGTH, new Long(replyData.length));
 				op.sendHeaders(hs);
 
 				OutputStream os = op.openOutputStream();
-				os.write(simpleData);
+				os.write(replyData);
 				os.close();
 
 				op.close();
@@ -90,7 +106,8 @@ public class OBEXGetBinaryHeaderTest extends OBEXBaseEmulatorTestCase {
 		return new RequestHandler();
 	}
 
-	public void testGETBinaryHeader() throws IOException {
+	private void runGETBinaryHeader(byte[] sendHeaderData, byte[] expectServerData, String testParams)
+			throws IOException {
 
 		ClientSession clientSession = (ClientSession) Connector.open(selectService(serverUUID));
 		HeaderSet hsConnectReply = clientSession.connect(null);
@@ -99,13 +116,14 @@ public class OBEXGetBinaryHeaderTest extends OBEXBaseEmulatorTestCase {
 		HeaderSet hs = clientSession.createHeaderSet();
 		String name = "Hello.txt";
 		hs.setHeader(HeaderSet.NAME, name);
+		hs.setHeader(OBEX_HDR_USER, testParams);
 
 		// Create GET Operation
 		Operation get = clientSession.get(hs);
 
-		OutputStream osBinHeader = get.openOutputStream();
-		osBinHeader.write(simpleHeaderData);
-		osBinHeader.close();
+		OutputStream osHeader = get.openOutputStream();
+		osHeader.write(sendHeaderData);
+		osHeader.close();
 
 		// request portion is done
 		HeaderSet headers = get.getReceivedHeaders();
@@ -127,9 +145,28 @@ public class OBEXGetBinaryHeaderTest extends OBEXBaseEmulatorTestCase {
 		clientSession.close();
 
 		assertEquals("NAME", name, serverHeaders.getHeader(HeaderSet.NAME));
-		assertEquals("data in header", simpleHeaderData, serverHeaderData);
-		assertEquals("data in responce", simpleData, serverData);
+		assertEquals("data in header", sendHeaderData, serverHeaderData);
+		assertEquals("data in responce", expectServerData, serverData);
 		assertEquals("LENGTH", new Long(serverData.length), headers.getHeader(HeaderSet.LENGTH));
 		assertEquals("invocations", 1, serverRequestHandlerInvocations);
+	}
+
+	public void testGETBinaryHeader() throws IOException {
+		runGETBinaryHeader(simpleHeaderData, simpleData, null);
+	}
+
+	public void testGETBinaryHeaderBigData() throws IOException {
+		// Send big Data to server
+		int length = 0x4001;
+		byte sendHeaderData[] = new byte[length];
+		for (int i = 0; i < length; i++) {
+			sendHeaderData[i] = (byte) (i & 0xFF);
+		}
+		int lengthReply = 0x4001;
+		serverReplyBigData = new byte[lengthReply];
+		for (int i = 0; i < lengthReply; i++) {
+			serverReplyBigData[i] = (byte) (i & 0xFF);
+		}
+		runGETBinaryHeader(sendHeaderData, serverReplyBigData, "bigData");
 	}
 }
