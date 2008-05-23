@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2007-2008 Vlad Skarzhevskyy
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -57,12 +57,14 @@ public class OBEXServer implements Runnable {
 
 	public static final String SERVER_NAME = "OBEX Object Push";
 
-	private OBEXServer() {
+	private UserInteraction interaction;
 
+	private OBEXServer(UserInteraction interaction) {
+		this.interaction = interaction;
 	}
 
-	public static OBEXServer startServer() {
-		OBEXServer srv = new OBEXServer();
+	public static OBEXServer startServer(UserInteraction interaction) {
+		OBEXServer srv = new OBEXServer(interaction);
 		Thread thread = new Thread(srv);
 		thread.start();
 		while (!srv.isRunning && !srv.isStoped) {
@@ -218,16 +220,23 @@ public class OBEXServer implements Runnable {
 		return dir;
 	}
 
+	private void showStatus(final String message) {
+		interaction.showStatus(message);
+	}
+
 	private class RequestHandler extends ServerRequestHandler {
 
 		Timer notConnectedTimer = new Timer();
 
 		boolean isConnected = false;
 
+		boolean receivedOk = false;
+
 		Connection cconn;
 
 		void connectionAccepted(Connection cconn) {
 			Logger.debug("Received OBEX connection");
+			showStatus("Client connected");
 			this.cconn = cconn;
 			if (!isConnected) {
 				notConnectedTimer.schedule(new TimerTask() {
@@ -245,6 +254,9 @@ public class OBEXServer implements Runnable {
 					cconn.close();
 				} catch (IOException e) {
 				}
+				if (!receivedOk) {
+					showStatus("Disconnected");
+				}
 			}
 		}
 
@@ -257,6 +269,9 @@ public class OBEXServer implements Runnable {
 
 		public void onDisconnect(HeaderSet request, HeaderSet reply) {
 			Logger.debug("OBEX onDisconnect");
+			if (!receivedOk) {
+				showStatus("Disconnected");
+			}
 		}
 
 		public int onSetPath(HeaderSet request, HeaderSet reply, boolean backup, boolean create) {
@@ -276,8 +291,10 @@ public class OBEXServer implements Runnable {
 				String name = (String) hs.getHeader(HeaderSet.NAME);
 				if (name != null) {
 					Logger.debug("name:" + name);
+					showStatus("Receiving " + name);
 				} else {
 					name = "xxx.xx";
+					showStatus("Receiving file");
 				}
 				File f = new File(homePath(), name);
 				FileOutputStream out = new FileOutputStream(f);
@@ -286,13 +303,16 @@ public class OBEXServer implements Runnable {
 				while (!isStoped) {
 					int data = is.read();
 					if (data == -1) {
-						Logger.debug("EOS recived");
+						Logger.debug("EOS received");
 						break;
 					}
 					out.write(data);
 				}
 				op.close();
 				out.close();
+				Logger.debug("file saved:" + f.getAbsolutePath());
+				showStatus("Received " + name);
+				receivedOk = true;
 				return ResponseCodes.OBEX_HTTP_OK;
 			} catch (IOException e) {
 				Logger.error("OBEX Server onPut error", e);
