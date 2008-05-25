@@ -1,7 +1,17 @@
 #summary Release Notes and Changelog.
 #labels Featured
 
+[http://code.google.com/p/bluecove/source/list SVN Commit log message]
+
 * 2.0.3 to be released 2008-XX-XX
+
+    2008-05-01 - 2008-05-25
+    * BlueCoveImpl.shutdown() API function
+    * Supports IBM J9 (MIDP and PPRO 1.0) on Linux, Sun CDC on Windows XP
+    * OBEX Operation Get supports InputStream
+
+    2008-04-17
+    * bluecove-emu: JSR 82 Emulator
 
     2008-04-08
     * Support Multiple Adapters and Bluetooth Stacks in same JVM
