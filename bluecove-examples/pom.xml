@@ -41,7 +41,7 @@
     <scm>
         <connection>scm:svn:http://bluecove.googlecode.com/svn/bluecove-examples</connection>
         <developerConnection>scm:svn:https://bluecove.googlecode.com/svn/bluecove-examples</developerConnection>
-        <url>http://bluecove.googlecode.com/svn/bluecove-examples</url>
+        <url>http://code.google.com/p/bluecove/source/browse/bluecove-examples</url>
     </scm>
 
 	<issueManagement>
