@@ -32,7 +32,7 @@
     <scm>
         <connection>scm:svn:http://bluecove.googlecode.com/svn/bluecove-gpl/trunk</connection>
         <developerConnection>scm:svn:https://bluecove.googlecode.com/svn/bluecove-gpl/trunk</developerConnection>
-        <url>http://bluecove.googlecode.com/svn/bluecove-gpl/trunk</url>
+        <url>http://code.google.com/p/bluecove/source/browse/bluecove-gpl/trunk</url>
     </scm>
 
 	<issueManagement>

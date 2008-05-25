@@ -28,7 +28,7 @@
                 <item name="Releases" href="http://sourceforge.net/project/showfiles.php?group_id=114020"/>
                 <item name="Snapshot" href="http://www.pyx4me.com/maven2-snapshot/net/sf/bluecove/bluecove-gpl/#version#/"/>
                 <item name="SVN Access" href="source-repository.html"/>
-                <item name="Browse SVN" href="http://bluecove.googlecode.com/svn/bluecove-gpl/trunk/"/>
+                <item name="Browse SVN" href="http://code.google.com/p/bluecove/source/browse/bluecove-gpl/trunk"/>
             </item>
 
             <item name="Test module" href="../bluecove-examples/bluecove-tester/" />
