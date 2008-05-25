@@ -1,29 +1,31 @@
 #summary BlueCove documentation.
 #labels Featured
 
-== About !BlueCove ==
+== About BlueCove ==
 
-!BlueCove is a [http://www.gnu.org/licenses/lgpl.html LGPL licensed] JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
+BlueCove is a [http://www.gnu.org/licenses/lgpl.html LGPL licensed] JSR-82 implementation on Java Standard Edition (J2SE) that currently interfaces with
 the Mac OS X, WIDCOMM, !BlueSoleil and Microsoft Bluetooth stack. Originally developed by Intel Research and
-currently maintained by volunteers. The LGPL license allow to link and distribute commercial software with !BlueCove.
+currently maintained by volunteers. The LGPL license allow to link and distribute commercial software with BlueCove.
 
-Support for BlueZ is added in !BlueCove version 2.0.3 as additional [http://www.gnu.org/licenses/gpl.html GNU General Public License] module `bluecove-gpl`.
+Support for Linux BlueZ is added in BlueCove version 2.0.3 as additional [http://www.gnu.org/licenses/gpl.html GNU General Public License] module `bluecove-gpl`.
+
+JSR-82 Emulator added in BlueCove version 2.0.3 as additional module `bluecove-emu`.
 
 [http://bluecove.wiki.sourceforge.net/ BlueCove public contirbutions Wiki]
 [http://www.rococosoft.com/weblog/archives/2007/07/another_cool_project_using_jsr.html Blog about Blue Cove]
 
 == Library API ===
 
-!BlueCove provides an implementation of the JSR 82. Applications should use API defined in JSR-82. See [http://www.bluecove.org/apidocs/index.html BlueCove JSR-82 API]
+BlueCove provides an implementation of the JSR 82. Applications should use API defined in JSR-82. See [http://www.bluecove.org/apidocs/index.html BlueCove JSR-82 API]
 
 == Runtime Requirements ==
 
   * WIDCOMM (Broadcom) BTW Stack software version 1.4.2.10 SP5 or above
-  * !BlueSoleil version 1.6.0, 2.3 or 3.2.2.8. Version 5.0.5 not supported.
+  * BlueSoleil version 1.6.0, 2.3 or 3.2.2.8. Version 5.0.5 not supported.
   * Microsoft Bluetooth stack (currently this means Windows XP SP2 or newer and Windows Mobile 2003 or newer)
   * PowerPC- or Intel-based Mac OS X 10.4 (Bluetooth v1.2) or late (Since v2.0.2)
   * Linux with BlueZ Bluetooth stack
-  * A Bluetooth device supported by the WIDCOMM, !BlueSoleil or Microsoft bluetooth stack
+  * A Bluetooth device supported by the WIDCOMM, BlueSoleil or Microsoft bluetooth stack
   * Java 1.1 or newer for the binary execution, Java 1.4 or newer to compile.
   * Another Bluetooth device to communicate with. See [http://code.google.com/p/bluecove/wiki/phones Complete list of the JSR-82 compliant phones]
 
@@ -32,20 +34,20 @@ Support for BlueZ is added in !BlueCove version 2.0.3 as additional [http://www.
 L2CAP support available only on Windows WIDCOMM Stack, Linux BlueZ and Mac OS X Stack.
 
   Since Microsoft Bluetooth stack only supporting RFCOMM connections,
-!BlueCove also supports only RFCOMM connections on this stack. The Microsoft operating system support is
+BlueCove also supports only RFCOMM connections on this stack. The Microsoft operating system support is
 currently limited to Windows XP SP2, Windows Mobile 2003 and newer, because the Microsoft Bluetooth
 stack is not available on other operating systems.
 
 If someone writes code to support another stack and/or operating system, it will be considered for
-inclusion. TOSHIBA on Win32 and BlueZ are wellcome!
+inclusion. TOSHIBA on Win32 and BlueZ using D-Bus are wellcome!
 
 For more limitations details see stacks.txt or [http://code.google.com/p/bluecove/wiki/stacks BlueCove supported stacks].
 
 == GNU Lesser General Public License ==
 
-We hope you enjoy using !BlueCove. Please note that this is an open-source effort.
+We hope you enjoy using BlueCove. Please note that this is an open-source effort.
 If you feel the code could use new features or fixes, or the documentation can be improved, please get involved and lend us a hand!
-The !BlueCove [http://groups.google.com/group/bluecove-developers developers community] welcomes your participation.
+The BlueCove [http://groups.google.com/group/bluecove-developers developers community] welcomes your participation.
 
     Keep in mind that Linux BlueZ support module is licensed under GNU General Public License
 
@@ -55,11 +57,11 @@ The !BlueCove [http://groups.google.com/group/bluecove-developers developers com
 
 == Installation ==
 
-!BlueCove rely upon already installed native Bluetooth stack that comes with you operating system or Bluetooth USB device.
+BlueCove rely upon already installed native Bluetooth stack that comes with you operating system or Bluetooth USB device.
 
-Installation of the binary (already compiled) version of !BlueCove is as follows:
+Installation of the binary (already compiled) version of BlueCove is as follows:
 
-  # [http://code.google.com/p/bluecove/downloads/list Download] !BlueCove binary release
+  # [http://code.google.com/p/bluecove/downloads/list Download] BlueCove binary release
   # Add `bluecove.jar` to your classpath
   # Also add `bluecove-gpl.jar` to your classpath if you are running application on Linux
 
@@ -73,13 +75,13 @@ Bluetooth Stack
    Values "widcomm", "bluesoleil" or "winsock". By default winsock is selected if available.
 
    Another property "bluecove.stack.first" is used optimize stack detection.
-   If -Dbluecove.stack.first=widcomm then widcomm (bluecove.dll) stack is loaded first and if not available then !BlueCove will switch to winsock.
+   If -Dbluecove.stack.first=widcomm then widcomm (bluecove.dll) stack is loaded first and if not available then BlueCove will switch to winsock.
    By default intelbth.dll is loaded first.
 
    If multiple stacks are detected they are selected in following order: "winsock", "widcomm", "bluesoleil".
-   Since !BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
+   Since BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
 
-   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to !BlueCove or Application jar. (Since v2.0.1)
+   If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to BlueCove or Application jar. (Since v2.0.1)
 
 Native Library location
 
@@ -89,11 +91,11 @@ Native Library location
 
 IBM J9 Personal Profile
 
-    To run !BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
+    To run BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
 
     Tested on
-        * !WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
-        * !WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+        * WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+        * WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86 and Linux/X86
 
 IBM J9 MIDP 2.0 Profile
     # Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory (remove `javax.microedition.io` classes from the jar)
@@ -102,14 +104,20 @@ IBM J9 MIDP 2.0 Profile
     # -Dmicroedition.connection.pkgs=com.intel.bluetooth is optonal if you place bluecove.jar to ext directory (Since v2.0.2)
 
     Tested on
-        * !WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
-        * !WebSphere Everyplace Micro Environment 6.1.1, CLDC 1.1, MIDP 2.0 for Windows XP/X86
+        * WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
+        * WebSphere Everyplace Micro Environment 6.1.1, CLDC 1.1, MIDP 2.0 for Windows XP/X86 and Linux/X86
+
+SUN CDCTK
+
+    # Take [http://snapshot.bluecove.org/special-build/ custom bluecove and intelbth dll build] for CDC and place in CDCTK10\bin
+    # Add -Dbluecove.native.resource=false when running emulator or remove original dlls from bluecove jar
+    # Run CDC emulator adding BlueCove to boot class path of emulator using -Xbootclasspath: argument
 
 Debug
 
-    If something goes wrong system property `-Dbluecove.debug=true` will enable prints prints in !BlueCove code
+    If something goes wrong system property `-Dbluecove.debug=true` will enable debug prints in BlueCove code
 
-    If System property is not an option (e.g. when running MIDP application in emulator) create text file "bluecove.debug" containing one line 'true' and add this file to !BlueCove.jar. (Since v2.0.2)
+    If System property is not an option (e.g. when running MIDP application in emulator) create text file "bluecove.debug" containing one line 'true' and add this file to BlueCove.jar. (Since v2.0.2)
 
     Bluecove log is redirected to log4j when log4j.jar is available in classpath. Debug can be enabled using log4j configuration. (Since v2.0.2)
 
@@ -152,11 +160,11 @@ You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition SP1 a
 On Mac OS X
 
   Xcode 2.5 or later can be used duirng build on Mac.
-  We use Xcode 3.0 on OSX 2.5.1 to build distribution.
+  We use Xcode 3.0 on OSX 2.5.2 to build distribution.
 
  Ant or maven2 are used as the build tool for java.
 
-  # [http://code.google.com/p/bluecove/downloads/list Download] !BlueCove source release
+  # [http://code.google.com/p/bluecove/downloads/list Download] BlueCove source release
   # Unzip the source
   # Run `ant` or `mvn`
   # When using maven native Dlls are build as well
