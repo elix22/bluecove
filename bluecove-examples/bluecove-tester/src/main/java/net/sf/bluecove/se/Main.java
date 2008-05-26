@@ -20,6 +20,7 @@
  */
 package net.sf.bluecove.se;
 
+import java.awt.GraphicsEnvironment;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Vector;
@@ -39,6 +40,9 @@ public class Main {
 			if (args[i].equalsIgnoreCase("--agui")) {
 				runAGUI(args);
 				return;
+			} else if (args[i].equalsIgnoreCase("--swing")) {
+				runAGUI(args);
+				return;
 			} else if (args[i].equalsIgnoreCase("--awt")) {
 				runAWT(args);
 				return;
@@ -53,14 +57,18 @@ public class Main {
 			runConsole(args);
 			return;
 		}
+		if (GraphicsEnvironment.isHeadless()) {
+			runConsole(args);
+			return;
+		}
 		String gui = System.getProperty("awt.toolkit");
-		if ((gui != null) && (gui.indexOf("AGUI") != 1)) {
+		if ((gui != null) && (gui.indexOf("AGUI") != -1)) {
 			runAGUI(args);
 			return;
 		}
 
 		String vm = System.getProperty("java.vm.name");
-		if ((vm != null) && (vm.indexOf("CDC") != 1)) {
+		if ((vm != null) && (vm.indexOf("CDC") != -1)) {
 			runAGUI(args);
 			return;
 		}

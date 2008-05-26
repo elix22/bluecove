@@ -18,7 +18,7 @@
  *
  *  @version $Id$
  */
-package net.sf.bluecove.awt;
+package net.sf.bluecove.se;
 
 import java.io.File;
 import java.io.FileWriter;

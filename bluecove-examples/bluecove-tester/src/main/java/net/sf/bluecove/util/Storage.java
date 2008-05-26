@@ -1,6 +1,6 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
  * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -22,14 +22,14 @@ package net.sf.bluecove.util;
 
 /**
  * @author vlads
- *
+ * 
  */
 public interface Storage {
 
 	public static final String configLastServiceURL = "lastURL";
-	
-	void storeData(String name, String value);
-	
-	String retriveData(String name);
-			
+
+	public void storeData(String name, String value);
+
+	public String retriveData(String name);
+
 }

@@ -1,7 +1,7 @@
 /**
  *  BlueCove - Java library for Bluetooth
- *  Copyright (C) 2006-2007 Vlad Skarzhevskyy
- *
+ *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
+ * 
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -18,41 +18,16 @@
  *
  *  @version $Id$
  */
-package net.sf.bluecove.awt;
-
-import com.intel.bluetooth.DebugLog;
+package net.sf.bluecove.se;
 
 import net.sf.bluecove.Logger.LoggerAppender;
 
-class BlueCoveLoggerAppender implements com.intel.bluetooth.DebugLog.LoggerAppender {
-	
-	static Object blueCoveLoggerAppender;
-	
-	net.sf.bluecove.Logger.LoggerAppender appender;
-	
-	public BlueCoveLoggerAppender(LoggerAppender appender) {
-		this.appender = appender;
-		DebugLog.addAppender(this);
-		blueCoveLoggerAppender = this;
-	}
-	
+public class LoggerJavaSEAppender implements LoggerAppender {
+
 	public void appendLog(int level, String message, Throwable throwable) {
-		appender.appendLog(level, message, throwable);
-	}
-	
-	public static void removeAppender() {
-		DebugLog.removeAppender((BlueCoveLoggerAppender)blueCoveLoggerAppender);
-	}
-	
-	public static boolean changeDebug() {
-		boolean dbg = !com.intel.bluetooth.DebugLog.isDebugEnabled();
-		if (!dbg) {
-			DebugLog.debug("BlueCove Disable debug");
+		if (throwable != null) {
+			throwable.printStackTrace(System.out);
 		}
-		DebugLog.setDebugEnabled(dbg);
-		if (dbg) {
-			DebugLog.debug("BlueCove Debug enabled");
-		}
-		return dbg;
 	}
+
 }

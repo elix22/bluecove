@@ -18,7 +18,7 @@
  *
  *  @version $Id$
  */
-package net.sf.bluecove.awt;
+package net.sf.bluecove.se;
 
 import net.sf.bluecove.Logger.LoggerAppender;
 

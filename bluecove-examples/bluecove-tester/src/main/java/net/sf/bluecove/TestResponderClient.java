@@ -36,7 +36,7 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 
-import net.sf.bluecove.awt.JavaSECommon;
+import net.sf.bluecove.se.JavaSECommon;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.CollectionUtils;
 import net.sf.bluecove.util.CountStatistic;

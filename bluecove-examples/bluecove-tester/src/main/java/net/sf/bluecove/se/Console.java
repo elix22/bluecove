@@ -20,6 +20,12 @@
  */
 package net.sf.bluecove.se;
 
+import java.io.IOException;
+
+import net.sf.bluecove.Configuration;
+import net.sf.bluecove.Logger;
+import net.sf.bluecove.Switcher;
+
 /**
  * @author vlads
  * 
@@ -27,7 +33,84 @@ package net.sf.bluecove.se;
 public class Console {
 
 	public static void main(String[] args) {
+		JavaSECommon.initOnce();
+		Configuration.storage = new FileStorage();
+		help();
 
+		while (true) {
+			try {
+				String cmd = readCommand();
+				if (cmd == null) {
+					quit();
+					return;
+				}
+				if (cmd.length() == 0) {
+					help();
+					continue;
+				}
+				cmd = cmd.toUpperCase();
+				char user_input = cmd.charAt(0);
+				switch (user_input) {
+				case 'Q':
+					quit();
+					break;
+				case '\n':
+				case '?':
+				case 'H':
+					help();
+					break;
+				case '4':
+					UIHelper.printFailureLog();
+					break;
+				case '*':
+					Switcher.startDiscovery();
+					break;
+				case '7':
+					Switcher.startServicesSearch();
+					break;
+				case '2':
+					Switcher.startClient();
+					break;
+				case '3':
+					Switcher.clientShutdown();
+					break;
+				case '5':
+					Switcher.startServer();
+					break;
+				case '6':
+					Switcher.serverShutdown();
+					break;
+				}
+			} catch (IOException e) {
+				return;
+			}
+		}
 	}
 
+	private static String readCommand() throws IOException {
+		int b = System.in.read();
+		if (b == -1) {
+			return null;
+		}
+		return new String("" + (char) b);
+	}
+
+	private static void help() {
+		System.out.println("BlueCove tester Console application (keyboard codes the same as in MIDP application)");
+		System.out.println("\t2 - Start Client");
+		System.out.println("\t3 - Stop Client");
+		System.out.println("\t5 - Start Server");
+		System.out.println("\t6 - Stop Server");
+		System.out.println("\t* - Run Discovery");
+		System.out.println("\t7 - Services Search");
+		System.out.println("\tq - Quit");
+		System.out.flush();
+	}
+
+	private static void quit() {
+		Logger.debug("quit");
+		Switcher.clientShutdown();
+		Switcher.serverShutdownOnExit();
+		System.exit(0);
+	}
 }

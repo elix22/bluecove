@@ -20,8 +20,11 @@
  */
 package net.sf.bluecove.swing;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -40,8 +43,9 @@ import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.Logger.LoggerAppender;
-import net.sf.bluecove.awt.BlueCoveSpecific;
-import net.sf.bluecove.awt.JavaSECommon;
+import net.sf.bluecove.se.BlueCoveSpecific;
+import net.sf.bluecove.se.FileStorage;
+import net.sf.bluecove.se.JavaSECommon;
 import net.sf.bluecove.se.UIHelper;
 import net.sf.bluecove.util.TimeUtils;
 
@@ -63,6 +67,8 @@ public class Main extends JFrame implements LoggerAppender {
 
 	public static void main(String[] args) {
 		JavaSECommon.initOnce();
+		Configuration.storage = new FileStorage();
+
 		Main app = new Main();
 		app.setVisible(true);
 
@@ -231,6 +237,27 @@ public class Main extends JFrame implements LoggerAppender {
 		JScrollPane scroll = new JScrollPane(output, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		getContentPane().add(scroll);
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		if (screenSize.height < 400) {
+			Configuration.screenSizeSmall = true;
+			Font smallLogFont = new Font("Monospaced", Font.PLAIN, 9);
+			output.setFont(smallLogFont);
+		}
+
+		if (screenSize.width > 600) {
+			screenSize.setSize(240, 320);
+		}
+		if (this.isResizable()) {
+			Rectangle b = this.getBounds();
+			b.x = Integer.valueOf(Configuration.getStorageData("main.x", "0")).intValue();
+			b.y = Integer.valueOf(Configuration.getStorageData("main.y", "0")).intValue();
+			b.height = Integer.valueOf(Configuration.getStorageData("main.height", String.valueOf(screenSize.height)))
+					.intValue();
+			b.width = Integer.valueOf(Configuration.getStorageData("main.width", String.valueOf(screenSize.width)))
+					.intValue();
+			this.setBounds(b);
+		}
 	}
 
 	private JMenuItem addMenu(JMenu menu, String name, ActionListener l) {
@@ -264,14 +291,11 @@ public class Main extends JFrame implements LoggerAppender {
 		Switcher.clientShutdown();
 		Switcher.serverShutdownOnExit();
 
-		// Properties p = getProperties();
-		//
-		// Rectangle b = this.getBounds();
-		// p.put("main.x", String.valueOf(b.x));
-		// p.put("main.y", String.valueOf(b.y));
-		// p.put("main.height", String.valueOf(b.height));
-		// p.put("main.width", String.valueOf(b.width));
-		// storeData(null, null);
+		Rectangle b = this.getBounds();
+		Configuration.storeData("main.x", String.valueOf(b.x));
+		Configuration.storeData("main.y", String.valueOf(b.y));
+		Configuration.storeData("main.height", String.valueOf(b.height));
+		Configuration.storeData("main.width", String.valueOf(b.width));
 
 		Logger.removeAppender(this);
 		BlueCoveSpecific.removeAppender();

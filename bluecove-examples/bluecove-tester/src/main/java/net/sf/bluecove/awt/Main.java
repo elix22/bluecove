@@ -37,12 +37,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
@@ -52,8 +46,11 @@ import net.sf.bluecove.Logger;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestConcurrent;
 import net.sf.bluecove.Logger.LoggerAppender;
+import net.sf.bluecove.se.BlueCoveSpecific;
+import net.sf.bluecove.se.FileStorage;
+import net.sf.bluecove.se.JavaSECommon;
+import net.sf.bluecove.se.LocalDeviceManager;
 import net.sf.bluecove.se.UIHelper;
-import net.sf.bluecove.util.Storage;
 import net.sf.bluecove.util.TimeUtils;
 
 import com.intel.bluetooth.BlueCoveImpl;
@@ -62,7 +59,7 @@ import com.intel.bluetooth.BlueCoveImpl;
  * @author vlads
  * 
  */
-public class Main extends Frame implements LoggerAppender, Storage {
+public class Main extends Frame implements LoggerAppender {
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,24 +73,20 @@ public class Main extends Frame implements LoggerAppender, Storage {
 
 	MenuItem debugOn;
 
-	private Properties properties;
-
-	private long propertiesFileLoadedLastModified = 0;
-
 	public static void main(String[] args) {
 		// System.setProperty("bluecove.debug", "true");
 		// System.getProperties().put("bluecove.debug", "true");
 
 		// BlueCoveImpl.instance().getBluetoothPeer().enableNativeDebug(true);
 		JavaSECommon.initOnce();
+		Configuration.storage = new FileStorage();
+
 		Main app = new Main();
 		app.setVisible(true);
 		Logger.debug("Stated app");
 		Logger.debug("OS:" + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|"
 				+ System.getProperty("os.arch"));
 		Logger.debug("Java:" + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
-
-		Configuration.storage = app;
 
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--stack")) {
@@ -432,12 +425,13 @@ public class Main extends Frame implements LoggerAppender, Storage {
 			screenSize.setSize(240, 320);
 		}
 		if (this.isResizable()) {
-			Properties p = getProperties();
 			Rectangle b = this.getBounds();
-			b.x = Integer.valueOf(p.getProperty("main.x", "0")).intValue();
-			b.y = Integer.valueOf(p.getProperty("main.y", "0")).intValue();
-			b.height = Integer.valueOf(p.getProperty("main.height", String.valueOf(screenSize.height))).intValue();
-			b.width = Integer.valueOf(p.getProperty("main.width", String.valueOf(screenSize.width))).intValue();
+			b.x = Integer.valueOf(Configuration.getStorageData("main.x", "0")).intValue();
+			b.y = Integer.valueOf(Configuration.getStorageData("main.y", "0")).intValue();
+			b.height = Integer.valueOf(
+					Configuration.getStorageData("main.height", String.valueOf(screenSize.height))).intValue();
+			b.width = Integer.valueOf(Configuration.getStorageData("main.width", String.valueOf(screenSize.width)))
+					.intValue();
 			this.setBounds(b);
 		}
 	}
@@ -532,14 +526,11 @@ public class Main extends Frame implements LoggerAppender, Storage {
 		Switcher.clientShutdown();
 		Switcher.serverShutdownOnExit();
 
-		Properties p = getProperties();
-
 		Rectangle b = this.getBounds();
-		p.put("main.x", String.valueOf(b.x));
-		p.put("main.y", String.valueOf(b.y));
-		p.put("main.height", String.valueOf(b.height));
-		p.put("main.width", String.valueOf(b.width));
-		storeData(null, null);
+		Configuration.storeData("main.x", String.valueOf(b.x));
+		Configuration.storeData("main.y", String.valueOf(b.y));
+		Configuration.storeData("main.height", String.valueOf(b.height));
+		Configuration.storeData("main.width", String.valueOf(b.width));
 
 		Logger.removeAppender(this);
 		BlueCoveSpecific.removeAppender();
@@ -621,94 +612,6 @@ public class Main extends Frame implements LoggerAppender, Storage {
 				}
 			}
 		}
-	}
-
-	private File getPropertyFile() {
-		String tmpDir = System.getProperty("java.io.tmpdir");
-		// Position and history for different stacks and device IDs different
-		// for testing convenience
-		String id = "";
-		try {
-			String stack = System.getProperty("bluecove.stack");
-			if (stack != null) {
-				id = stack;
-			}
-		} catch (SecurityException ignore) {
-
-		}
-		try {
-			String deviceID = System.getProperty("bluecove.deviceID");
-			if (deviceID != null) {
-				id += deviceID;
-			}
-		} catch (SecurityException ignore) {
-
-		}
-		return new File(tmpDir, "bluecove-tester" + id + ".properties");
-	}
-
-	private Properties getProperties() {
-		File f = getPropertyFile();
-		long lastModified = 0;
-
-		if (f.exists()) {
-			lastModified = f.lastModified();
-		}
-
-		if ((properties != null) && (propertiesFileLoadedLastModified == lastModified)) {
-			return properties;
-		}
-		Properties p = new Properties();
-		if (f.exists()) {
-			FileInputStream in = null;
-			try {
-				in = new FileInputStream(f);
-				p.load(in);
-			} catch (IOException ignore) {
-			} finally {
-				try {
-					in.close();
-				} catch (Throwable ignore) {
-				}
-			}
-		}
-		propertiesFileLoadedLastModified = lastModified;
-		properties = p;
-		return properties;
-	}
-
-	public String retriveData(String name) {
-		return getProperties().getProperty(name);
-	}
-
-	public void storeData(String name, String value) {
-		Properties p = getProperties();
-		if (name != null) {
-			if (value == null) {
-				if (p.remove(name) == null) {
-					// Not updated
-					return;
-				}
-			} else {
-				if (value.equals(p.put(name, value))) {
-					// Not updated
-					return;
-				}
-			}
-		}
-		File f = getPropertyFile();
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(f);
-			// we run on Java 1.1
-			p.save(out, "");
-		} catch (FileNotFoundException ignore) {
-		}
-		try {
-			out.close();
-		} catch (Throwable ignore) {
-		}
-		propertiesFileLoadedLastModified = f.lastModified();
 	}
 
 }

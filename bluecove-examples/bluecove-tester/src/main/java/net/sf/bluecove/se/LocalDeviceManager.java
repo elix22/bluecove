@@ -18,7 +18,7 @@
  *
  *  @version $Id$
  */
-package net.sf.bluecove.awt;
+package net.sf.bluecove.se;
 
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
@@ -69,7 +69,7 @@ public class LocalDeviceManager {
 		}
 	}
 
-	static void setThreadLocalBluetoothStack(Object id) {
+	public static void setThreadLocalBluetoothStack(Object id) {
 		if (id != null) {
 			try {
 				BlueCoveImpl.setThreadBluetoothStackID(id);
@@ -79,12 +79,12 @@ public class LocalDeviceManager {
 		}
 	}
 
-	static void shutdown() {
+	public static void shutdown() {
 		BlueCoveImpl.shutdown();
 		Logger.info("shutdown finished");
 	}
 
-	static void shutdownThreadLocal() {
+	public static void shutdownThreadLocal() {
 		if (Configuration.threadLocalBluetoothStack != null) {
 			BlueCoveImpl.shutdownThreadBluetoothStack();
 			Configuration.threadLocalBluetoothStack = null;
@@ -94,7 +94,7 @@ public class LocalDeviceManager {
 		}
 	}
 
-	static void setUseWINSOCK() {
+	public static void setUseWINSOCK() {
 		if (threadLocalBluetoothStackWINSOCK == null) {
 			try {
 				BlueCoveImpl.useThreadLocalBluetoothStack();
@@ -111,7 +111,7 @@ public class LocalDeviceManager {
 		setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 	}
 
-	static void setUseWIDCOMM() {
+	public static void setUseWIDCOMM() {
 		if (threadLocalBluetoothStackWIDCOMM == null) {
 			try {
 				BlueCoveImpl.useThreadLocalBluetoothStack();
@@ -128,7 +128,7 @@ public class LocalDeviceManager {
 		setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 	}
 
-	static void setUseDevice0() {
+	public static void setUseDevice0() {
 		if (threadLocalBluetoothStack0 == null) {
 			try {
 				BlueCoveImpl.useThreadLocalBluetoothStack();
@@ -145,7 +145,7 @@ public class LocalDeviceManager {
 		setThreadLocalBluetoothStack(Configuration.threadLocalBluetoothStack);
 	}
 
-	static void setUseDevice1() {
+	public static void setUseDevice1() {
 		if (threadLocalBluetoothStack1 == null) {
 			try {
 				BlueCoveImpl.useThreadLocalBluetoothStack();

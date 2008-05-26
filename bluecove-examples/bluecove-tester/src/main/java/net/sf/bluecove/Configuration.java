@@ -328,4 +328,18 @@ public class Configuration {
 			Configuration.storage.storeData(Storage.configLastServiceURL, lastServerURL);
 		}
 	}
+
+	public static String getStorageData(String name, String defaultValue) {
+		String val = null;
+		if (Configuration.storage != null) {
+			val = Configuration.storage.retriveData(name);
+		}
+		return (val == null) ? defaultValue : val;
+	}
+
+	public static void storeData(String name, String value) {
+		if (Configuration.storage != null) {
+			Configuration.storage.storeData(name, value);
+		}
+	}
 }
