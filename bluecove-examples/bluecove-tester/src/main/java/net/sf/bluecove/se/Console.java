@@ -83,9 +83,9 @@ public class Console {
 				case 'D':
 					boolean dbg = BlueCoveSpecific.changeDebug();
 					if (dbg) {
-						System.out.println("BlueCove Debug OFF");
-					} else {
 						System.out.println("BlueCove Debug ON");
+					} else {
+						System.out.println("BlueCove Debug OFF");
 					}
 					break;
 				}
