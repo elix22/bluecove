@@ -80,6 +80,14 @@ public class Console {
 				case '6':
 					Switcher.serverShutdown();
 					break;
+				case 'D':
+					boolean dbg = BlueCoveSpecific.changeDebug();
+					if (dbg) {
+						System.out.println("BlueCove Debug OFF");
+					} else {
+						System.out.println("BlueCove Debug ON");
+					}
+					break;
 				}
 			} catch (IOException e) {
 				return;
@@ -103,6 +111,7 @@ public class Console {
 		System.out.println("\t6 - Stop Server");
 		System.out.println("\t* - Run Discovery");
 		System.out.println("\t7 - Services Search");
+		System.out.println("\td - toggle BlueCove Debug");
 		System.out.println("\tq - Quit");
 		System.out.flush();
 	}
