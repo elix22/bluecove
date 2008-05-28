@@ -44,7 +44,7 @@ public class StringUtils {
 	}
 
 	public static String d00(int i) {
-		if (i > 9) {
+		if ((i > 9) || (i < 0)) {
 			return String.valueOf(i);
 		} else {
 			return "0" + String.valueOf(i);
@@ -52,7 +52,7 @@ public class StringUtils {
 	}
 
 	public static String d000(int i) {
-		if (i > 99) {
+		if ((i > 99) || (i < 0)) {
 			return String.valueOf(i);
 		} else if (i > 9) {
 			return "0" + String.valueOf(i);
@@ -62,7 +62,7 @@ public class StringUtils {
 	}
 
 	public static String d0000(int i) {
-		if (i > 999) {
+		if ((i > 999) || (i < 0)) {
 			return String.valueOf(i);
 		} else if (i > 99) {
 			return "00" + String.valueOf(i);
