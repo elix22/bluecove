@@ -3,11 +3,11 @@
 
 = !BlueCove supported stacks =
 
-   On Windows WIDCOMM and !BlueSoleil stacks are added in !BlueCove version 2.0.0.
+   On Windows WIDCOMM and !BlueSoleil stacks are added in BlueCove version 2.0.0.
 
-   Support for Mac OS X added in !BlueCove version 2.0.2.
+   Support for Mac OS X added in BlueCove version 2.0.2.
 
-   Support for Linux BlueZ added in !BlueCove version 2.0.3 as additional GPL licensed module.
+   Support for Linux BlueZ added in BlueCove version 2.0.3 as additional GPL licensed module.
 
    To determine which Bluetooth stack is installed on your Windows XP [http://www.bluecove.org/bluecove-examples/bluetooth-stack.html see this page]
 
@@ -21,14 +21,14 @@
    By default intelbth.dll is loaded first.
 
    If multiple stacks are detected they are selected in following order: "winsock", "widcomm", "bluesoleil".
-   Since !BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
+   Since BlueCove v2.0.1 "bluecove.stack.first" will alter the order of stack selection.
 
    If System property is not an option (e.g. when running in Webstart) create text file "bluecove.stack" or "bluecove.stack.first" containing stack name and add this file to !BlueCove or Application jar. (Since v2.0.1)
 
    Use `LocalDevice.getProperty("bluecove.stack")` to find out what stack is used.
 
    On Windows XP (Not on Vista) WIDCOMM and Microsoft can run at the same time and so different instances of BlueCove can use this stacks in parallel.
-   If you are adventures users on Vista you can use BlueCove dll build with BTW-6_1_0_1501-SDK http://bluecove.googlecode.com/svn/build/win-dlls/ to have access to WIDCOMM stack
+   If you are adventures users on Vista you can use BlueCove dll build with BTW-6_1_0_1501-SDK http://snapshot.bluecove.org/special-build/ to have access to WIDCOMM stack
 
 == Broadcom (WIDCOMM) ==
 
@@ -55,8 +55,8 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/b
     * The discovery database is cumulative. It contains the results of all previous discoveries of the application or any other applications that are running or that have run. So !ServiceSearch may return service even when it is down.
     * L2CAP unable to send and receive empty L2CAP packet
 
-    * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8, INT_16 and UINT_16 are not properly discovered (fixed in BTW-6_1_0_1501-SDK and stack v 4, get dlls here http://bluecove.googlecode.com/svn/build/win-dlls/)
-    * On Vista WIDCOMM stack detected as Microsoft with all the benefits of one.
+    * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8, INT_16 and UINT_16 are not properly discovered (fixed in BTW-6_1_0_1501-SDK and stack v 4, get dlls here http://snapshot.bluecove.org/special-build/)
+    * On Vista WIDCOMM stack detected as Microsoft with all the benefits of one. If you need L2CAP support on Vista and Broadcom v6 use [http://snapshot.bluecove.org/special-build/ custom bluecove.dll build]
 
 == Winsock (Microsoft) ==
 
@@ -126,6 +126,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/m
     * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8 are not properly publshed by service on OS X 10.4
     * `ServiceRecord` attributes of `DataElement` type BOOL published as U_INT_1
     * `ServiceRecord` attributes of `DataElement` type URL published as STRING
+    * ServiceRecord.setDeviceServiceClasses(..) will work on Mac OS X 10.5 Leo and later.
 
 == Linux BlueZ ==
 
