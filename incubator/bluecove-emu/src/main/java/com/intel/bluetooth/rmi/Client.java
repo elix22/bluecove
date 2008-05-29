@@ -33,9 +33,9 @@ import java.util.Vector;
 
 public class Client {
 
-	private static String rmiRegistryHost = "localhost";
+	private static final String rmiRegistryHostDefault = "localhost";
 
-	private static int rmiRegistryPort = Server.rmiRegistryPort;
+	private static final int rmiRegistryPortDefault = Server.rmiRegistryPortDefault;
 
 	private static RemoteService remoteService;
 
@@ -85,10 +85,17 @@ public class Client {
 		return message;
 	}
 
-	public synchronized static Object getService(Class<?> interfaceClass, String host, String port)
+	public synchronized static Object getService(Class<?> interfaceClass, boolean isMaster, String host, String port)
 			throws RuntimeException {
 		if (remoteService == null) {
 			try {
+				if (isMaster) {
+					if ((host != null) && (!"localhost".equals(host))) {
+						throw new IllegalArgumentException("Can't start RMI registry while connecting to remote host "
+								+ host);
+					}
+					Server.start(port);
+				}
 				remoteService = getRemoteService(host, port);
 				remoteService.verify(interfaceClass.getCanonicalName());
 			} catch (RemoteException e) {
@@ -114,11 +121,11 @@ public class Client {
 	}
 
 	private static RemoteService getRemoteService(String host, String port) throws RemoteException, NotBoundException {
-		String rmiHost = rmiRegistryHost;
+		String rmiHost = rmiRegistryHostDefault;
 		if ((host != null) && (host.length() > 0)) {
 			rmiHost = host;
 		}
-		int rmiPort = rmiRegistryPort;
+		int rmiPort = rmiRegistryPortDefault;
 		if ((port != null) && (port.length() > 0)) {
 			rmiPort = Integer.parseInt(port);
 		}

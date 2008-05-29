@@ -37,7 +37,9 @@ class EmulatorHelper {
 	static DeviceManagerService getService() {
 		String host = BlueCoveImpl.getConfigProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_HOST);
 		String port = BlueCoveImpl.getConfigProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_PORT);
-		return (DeviceManagerService) Client.getService(DeviceManagerService.class, host, port);
+		boolean isMaster = BlueCoveImpl.getConfigProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_RMI_REGISTRY,
+				false);
+		return (DeviceManagerService) Client.getService(DeviceManagerService.class, isMaster, host, port);
 	}
 
 	static EmulatorLocalDevice createNewLocalDevice() throws BluetoothStateException {

@@ -32,7 +32,9 @@ import com.intel.bluetooth.DebugLog;
 
 public class Server {
 
-	static int rmiRegistryPort = 8090;
+	static final int rmiRegistryPortDefault = 8090;
+
+	static int rmiRegistryPort = rmiRegistryPortDefault;
 
 	// Prevents GC
 	private static Server server;
@@ -42,12 +44,42 @@ public class Server {
 	private Remote srv;
 
 	public static void main(String[] args) {
-		server = new Server();
-		server.run();
+		String port = null;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equalsIgnoreCase("--port") && i < (args.length - 1)) {
+				i++;
+				port = args[i];
+			} else if (args[i].equalsIgnoreCase("--help")) {
+				help();
+				return;
+			} else {
+				help();
+				return;
+			}
+		}
+		if (port == null) {
+			port = System.getProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_PORT);
+		}
+		start(port);
 	}
 
-	private void run() {
-		startRMIRegistry();
+	private static void help() {
+		StringBuffer usage = new StringBuffer();
+		usage.append("Usage:\n java ").append(Server.class.getName());
+		usage.append("[--port rmiListeningPort]");
+		System.out.println(usage);
+	}
+
+	public static void start(String port) {
+		if (server != null) {
+			return;
+		}
+		server = new Server();
+		server.run(port);
+	}
+
+	private void run(String port) {
+		startRMIRegistry(port);
 		startRMIService();
 
 		DebugLog.debug("Emulator RMI Service listening on port " + rmiRegistryPort);
@@ -59,15 +91,12 @@ public class Server {
 		}
 	}
 
-	private void startRMIRegistry() {
+	private void startRMIRegistry(String port) {
 		try {
-			String port = System.getProperty(BlueCoveConfigProperties.PROPERTY_EMULATOR_PORT);
 			if ((port != null) && (port.length() > 0)) {
 				rmiRegistryPort = Integer.parseInt(port);
 			}
-
 			registry = LocateRegistry.createRegistry(rmiRegistryPort);
-
 		} catch (RemoteException e) {
 			throw new Error("Fails to start RMIRegistry", e);
 		}
