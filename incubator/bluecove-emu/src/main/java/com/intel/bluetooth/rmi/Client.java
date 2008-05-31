@@ -28,6 +28,10 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.Vector;
 
@@ -41,10 +45,30 @@ public class Client {
 
 	private static class ServiceProxy implements InvocationHandler {
 
-		public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-			ServiceRequest request = new ServiceRequest(m.getDeclaringClass().getCanonicalName(), m.getName(), m
+		private AccessControlContext accessControlContext;
+
+		private ServiceProxy() {
+			accessControlContext = AccessController.getContext();
+		}
+
+		public Object invoke(Object proxy, final Method m, Object[] args) throws Throwable {
+			final ServiceRequest request = new ServiceRequest(m.getDeclaringClass().getCanonicalName(), m.getName(), m
 					.getParameterTypes(), args);
-			ServiceResponse response = execute(request, m);
+			ServiceResponse response;
+			try {
+				response = AccessController.doPrivileged(new PrivilegedExceptionAction<ServiceResponse>() {
+					public ServiceResponse run() throws RuntimeException {
+						return execute(request, m);
+					}
+				}, accessControlContext);
+			} catch (PrivilegedActionException e) {
+				Throwable cause = e.getCause();
+				if (cause != null) {
+					throw new RuntimeException(cause.getMessage(), cause);
+				} else {
+					throw e;
+				}
+			}
 			if (response.getException() == null) {
 				return response.getReturnValue();
 			} else {
