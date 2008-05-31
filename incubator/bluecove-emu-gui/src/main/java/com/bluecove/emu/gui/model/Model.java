@@ -1,5 +1,8 @@
 package com.bluecove.emu.gui.model;
 
+import static com.bluecove.emu.gui.model.DatumNotification.Type.ADDED;
+import static com.bluecove.emu.gui.model.DatumNotification.Type.REMOVED;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,31 +14,29 @@ import java.util.Map.Entry;
 import com.intel.bluetooth.emu.MonitorDevice;
 import com.intel.bluetooth.emu.MonitoringService;
 import com.intel.bluetooth.rmi.Client;
-import static com.bluecove.emu.gui.model.DatumNotification.Type.*;
 
 public class Model extends Observable implements Runnable {
 
 	private static Model instance;
-	
+
 	private boolean stop = false;
 
 	private MonitoringService service;
 
 	protected List<Device> devices = new ArrayList<Device>();
-	
+
 	static {
 		instance = new Model();
 		new Thread(instance).start();
 	}
-	
-	
+
 	private Model() {
 	}
-	
+
 	public static Model instance() {
 		return instance;
 	}
-	
+
 	public void stop() {
 		this.stop = true;
 	}
@@ -44,7 +45,7 @@ public class Model extends Observable implements Runnable {
 		String host = null;
 		String port = null;
 		try {
-			service = (MonitoringService) Client.getService(MonitoringService.class, host, port);
+			service = (MonitoringService) Client.getService(MonitoringService.class, false, host, port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -58,7 +59,7 @@ public class Model extends Observable implements Runnable {
 			}
 		}
 	}
-	
+
 	synchronized void updateDeviceList(List<MonitorDevice> newDevices) {
 		Map<Long, MonitorDevice> newDevicesMap = new HashMap<Long, MonitorDevice>();
 		for (Iterator<MonitorDevice> iterator = newDevices.iterator(); iterator.hasNext();) {
@@ -74,7 +75,7 @@ public class Model extends Observable implements Runnable {
 				iterator.remove();
 				setChanged();
 				notifyObservers(new DatumNotification(REMOVED, device));
-			}	
+			}
 		}
 		for (Iterator<Entry<Long, MonitorDevice>> iterator = newDevicesMap.entrySet().iterator(); iterator.hasNext();) {
 			Entry<Long, MonitorDevice> newEntry = iterator.next();
@@ -83,6 +84,6 @@ public class Model extends Observable implements Runnable {
 			setChanged();
 			notifyObservers(new DatumNotification(ADDED, device));
 		}
-		
+
 	}
 }
