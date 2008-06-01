@@ -264,11 +264,16 @@ class BluetoothEmulator implements BluetoothStack {
 
 	public void connectionRfCloseClientConnection(long handle) throws IOException {
 		assertClosed();
+		if (localDevice == null) {
+			return;
+		}
 		EmulatorRFCOMMClient c = ((EmulatorRFCOMMClient) localDevice.getConnection(handle));
 		try {
 			c.close();
 		} finally {
-			localDevice.removeConnection(c);
+			if (localDevice != null) {
+				localDevice.removeConnection(c);
+			}
 		}
 	}
 
@@ -310,11 +315,16 @@ class BluetoothEmulator implements BluetoothStack {
 
 	public void rfServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
 		assertClosed();
+		if (localDevice == null) {
+			return;
+		}
 		EmulatorRFCOMMService s = ((EmulatorRFCOMMService) localDevice.getConnection(handle));
 		try {
 			s.close(serviceRecord);
 		} finally {
-			localDevice.removeConnection(s);
+			if (localDevice != null) {
+				localDevice.removeConnection(s);
+			}
 		}
 	}
 
