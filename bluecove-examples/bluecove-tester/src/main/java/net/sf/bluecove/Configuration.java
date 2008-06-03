@@ -273,6 +273,21 @@ public class Configuration {
 		}
 	}
 
+	public static boolean useMajorDeviceClass(int majorDeviceClass) {
+		if (!Configuration.deviceClassFilter.booleanValue()) {
+			return true;
+		}
+		switch (majorDeviceClass) {
+		case Consts.DEVICE_COMPUTER:
+			return Configuration.discoverDevicesComputers.booleanValue();
+		case Consts.DEVICE_PHONE:
+			return Configuration.discoverDevicesPhones.booleanValue();
+		default:
+			return (!Configuration.discoverDevicesPhones.booleanValue())
+					&& (!Configuration.discoverDevicesComputers.booleanValue());
+		}
+	}
+
 	public static UUID blueCoveUUID() {
 		if (useShortUUID) {
 			return Consts.uuidShort;

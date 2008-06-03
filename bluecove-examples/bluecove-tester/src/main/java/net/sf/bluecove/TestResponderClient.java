@@ -327,16 +327,14 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			if (Configuration.listedDevicesOnly.booleanValue()
 					&& !Configuration.isWhiteDevice(remoteDevice.getBluetoothAddress())) {
 				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " "
-						+ BluetoothTypesInfo.toString(cod));
+						+ BluetoothTypesInfo.toString(cod) + " (not listed)");
 				return;
 			}
-			if ((!Configuration.deviceClassFilter.booleanValue())
-					|| ((Configuration.discoverDevicesComputers.booleanValue() && (cod.getMajorDeviceClass() == Consts.DEVICE_COMPUTER)) || ((Configuration.discoverDevicesPhones
-							.booleanValue() && (cod.getMajorDeviceClass() == Consts.DEVICE_PHONE))))) {
+			if (Configuration.useMajorDeviceClass(cod.getMajorDeviceClass())) {
 				devices.addElement(remoteDevice);
 			} else {
 				Logger.debug("ignore device " + niceDeviceName(remoteDevice.getBluetoothAddress()) + " "
-						+ BluetoothTypesInfo.toString(cod));
+						+ BluetoothTypesInfo.toString(cod) + " (by code)");
 				return;
 			}
 			String name = "";
