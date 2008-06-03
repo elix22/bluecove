@@ -22,6 +22,7 @@ package net.sf.bluecove.awt;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.Dialog;
 import java.awt.Font;
@@ -78,6 +79,8 @@ public class ClientConnectionDialog extends Dialog {
 	Choice choiceDataReceiveType;
 
 	Label status;
+
+	Checkbox cbSaveToFile;
 
 	Timer monitorTimer;
 
@@ -144,11 +147,11 @@ public class ClientConnectionDialog extends Dialog {
 		Panel panelItems = new BorderPanel(gridbag);
 		this.add(panelItems, BorderLayout.NORTH);
 
-		Label l = new Label("URL:");
-		panelItems.add(l);
+		Label lURL = new Label("URL:");
+		panelItems.add(lURL);
 		panelItems.add(tfURL = new TextField("", 25));
 		c.gridwidth = 1;
-		gridbag.setConstraints(l, c);
+		gridbag.setConstraints(lURL, c);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfURL, c);
 
@@ -160,11 +163,11 @@ public class ClientConnectionDialog extends Dialog {
 			tfURL.setText(url);
 		}
 
-		Label l1 = new Label("Discovered:");
-		panelItems.add(l1);
+		Label lDiscovered = new Label("Discovered:");
+		panelItems.add(lDiscovered);
 		choiceAllURLs = new Choice();
 		c.gridwidth = 1;
-		gridbag.setConstraints(l1, c);
+		gridbag.setConstraints(lDiscovered, c);
 		panelItems.add(choiceAllURLs);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(choiceAllURLs, c);
@@ -179,11 +182,11 @@ public class ClientConnectionDialog extends Dialog {
 			}
 		});
 
-		Label l2 = new Label("Data:");
-		panelItems.add(l2);
+		Label lData = new Label("Data:");
+		panelItems.add(lData);
 		panelItems.add(tfData = new TextField());
 		c.gridwidth = 1;
-		gridbag.setConstraints(l2, c);
+		gridbag.setConstraints(lData, c);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(tfData, c);
 
@@ -213,10 +216,10 @@ public class ClientConnectionDialog extends Dialog {
 		c.gridwidth = 1;
 		gridbag.setConstraints(choiceDataSendType, c);
 
-		Label l3r = new Label("  Receive:");
-		panelItems.add(l3r);
+		Label lReceive = new Label("  Receive:");
+		panelItems.add(lReceive);
 		c.gridwidth = 1;
-		gridbag.setConstraints(l3r, c);
+		gridbag.setConstraints(lReceive, c);
 
 		choiceDataReceiveType = new Choice();
 		choiceDataReceiveType.add("as Chars");
@@ -233,15 +236,28 @@ public class ClientConnectionDialog extends Dialog {
 			}
 		});
 
-		Label l3x = new Label("");
-		panelItems.add(l3x);
+		Label lRemainder = new Label("");
+		panelItems.add(lRemainder);
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		gridbag.setConstraints(l3x, c);
+		gridbag.setConstraints(lRemainder, c);
 
-		Label l4 = new Label("Status:");
-		panelItems.add(l4);
+		Label lSaveToFile = new Label("Save to file:");
+		panelItems.add(lSaveToFile);
+		panelItems.add(cbSaveToFile = new Checkbox());
 		c.gridwidth = 1;
-		gridbag.setConstraints(l4, c);
+		gridbag.setConstraints(lSaveToFile, c);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		gridbag.setConstraints(cbSaveToFile, c);
+		cbSaveToFile.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				updateDataReceiveType();
+			}
+		});
+
+		Label lStatus = new Label("Status:");
+		panelItems.add(lStatus);
+		c.gridwidth = 1;
+		gridbag.setConstraints(lStatus, c);
 
 		status = new Label("Idle");
 		panelItems.add(status);
@@ -316,7 +332,7 @@ public class ClientConnectionDialog extends Dialog {
 
 	protected void updateDataReceiveType() {
 		if (thread != null) {
-			thread.updateDataReceiveType(choiceDataReceiveType.getSelectedIndex());
+			thread.updateDataReceiveType(choiceDataReceiveType.getSelectedIndex(), cbSaveToFile.getState());
 		}
 	}
 

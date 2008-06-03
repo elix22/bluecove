@@ -20,7 +20,11 @@
  */
 package net.sf.bluecove.awt;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.bluetooth.L2CAPConnection;
 import javax.microedition.io.Connection;
@@ -33,6 +37,7 @@ import net.sf.bluecove.ConnectionHolderL2CAP;
 import net.sf.bluecove.ConnectionHolderStream;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.util.BluetoothTypesInfo;
+import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.StringUtils;
 import net.sf.bluecove.util.TimeUtils;
 
@@ -73,6 +78,10 @@ public class ClientConnectionThread extends Thread {
 	long reported = 0;
 
 	private StringBuffer dataBuf = new StringBuffer();
+
+	private boolean binaryData = false;
+
+	private FileOutputStream fileOut;
 
 	ClientConnectionThread(String serverURL) {
 		super("ClientConnectionThread" + (++connectionCount));
@@ -147,6 +156,7 @@ public class ClientConnectionThread extends Thread {
 			if (c != null) {
 				c.shutdown();
 			}
+			closeFile();
 		}
 	}
 
@@ -154,8 +164,11 @@ public class ClientConnectionThread extends Thread {
 		switch (interpretData) {
 		case interpretDataChars:
 			char c = (char) data;
+			if ((!binaryData) && (c < ' ')) {
+				binaryData = true;
+			}
 			dataBuf.append(c);
-			if ((c == '\n') || (dataBuf.length() > 32)) {
+			if (((!binaryData) && (c == '\n')) || (dataBuf.length() > 32)) {
 				Logger.debug("cc:" + StringUtils.toBinaryText(dataBuf));
 				dataBuf = new StringBuffer();
 			}
@@ -169,6 +182,16 @@ public class ClientConnectionThread extends Thread {
 				reported = now;
 			}
 			break;
+		}
+		synchronized (this) {
+			if (fileOut != null) {
+				try {
+					fileOut.write((char) data);
+				} catch (IOException e) {
+					Logger.debug("file write error", e);
+					closeFile();
+				}
+			}
 		}
 	}
 
@@ -197,7 +220,16 @@ public class ClientConnectionThread extends Thread {
 			}
 			break;
 		}
-
+		synchronized (this) {
+			if (fileOut != null) {
+				try {
+					fileOut.write(data, 0, length);
+				} catch (IOException e) {
+					Logger.debug("file write error", e);
+					closeFile();
+				}
+			}
+		}
 	}
 
 	public void shutdown() {
@@ -206,10 +238,35 @@ public class ClientConnectionThread extends Thread {
 			c.shutdown();
 		}
 		c = null;
+		closeFile();
 	}
 
-	public void updateDataReceiveType(int type) {
+	private synchronized void closeFile() {
+		if (fileOut != null) {
+			try {
+				fileOut.flush();
+			} catch (IOException ignore) {
+			}
+			IOUtils.closeQuietly(fileOut);
+			fileOut = null;
+		}
+	}
+
+	public void updateDataReceiveType(int type, boolean saveToFile) {
 		interpretData = type;
+
+		if ((!saveToFile) && (fileOut != null)) {
+			closeFile();
+		} else if ((saveToFile) && (fileOut == null)) {
+			SimpleDateFormat fmt = new SimpleDateFormat("MM-dd_HH-mm-ss");
+			File file = new File("data-" + BluetoothTypesInfo.extractBluetoothAddress(serverURL)
+					+ fmt.format(new Date()) + ".bin");
+			try {
+				fileOut = new FileOutputStream(file);
+				Logger.info("saving data to file " + file.getAbsolutePath());
+			} catch (IOException e) {
+			}
+		}
 	}
 
 	public void send(final byte data[]) {
