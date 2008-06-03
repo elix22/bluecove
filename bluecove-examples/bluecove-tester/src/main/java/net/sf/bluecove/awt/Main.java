@@ -37,6 +37,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
@@ -51,6 +56,7 @@ import net.sf.bluecove.se.FileStorage;
 import net.sf.bluecove.se.JavaSECommon;
 import net.sf.bluecove.se.LocalDeviceManager;
 import net.sf.bluecove.se.UIHelper;
+import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.TimeUtils;
 
 import com.intel.bluetooth.BlueCoveImpl;
@@ -231,31 +237,37 @@ public class Main extends Frame implements LoggerAppender {
 			}
 		});
 
-		addMenu(menuLogs, "Clear Log", new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		addMenu(menuLogs, "Clear Log", new ActionListenerRunnable() {
+			public void run() {
 				clear();
 			}
 		}, KeyEvent.VK_Z);
 
-		addMenu(menuLogs, "Print FailureLog", new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		addMenu(menuLogs, "Print FailureLog", new ActionListenerRunnable() {
+			public void run() {
 				UIHelper.printFailureLog();
 			}
 		}, KeyEvent.VK_4);
 
-		addMenu(menuLogs, "Clear Stats", new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		addMenu(menuLogs, "Clear Stats", new ActionListenerRunnable() {
+			public void run() {
 				UIHelper.clearStats();
 			}
 		});
 
 		if (JavaSECommon.isJava5()) {
-			addMenu(menuLogs, "ThreadDump", new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+			addMenu(menuLogs, "ThreadDump", new ActionListenerRunnable() {
+				public void run() {
 					JavaSECommon.threadDump();
 				}
 			});
 		}
+
+		addMenu(menuLogs, "Save to File", new ActionListenerRunnable() {
+			public void run() {
+				logSaveToFile();
+			}
+		});
 
 		menuBar.add(menuLogs);
 
@@ -428,8 +440,8 @@ public class Main extends Frame implements LoggerAppender {
 			Rectangle b = this.getBounds();
 			b.x = Integer.valueOf(Configuration.getStorageData("main.x", "0")).intValue();
 			b.y = Integer.valueOf(Configuration.getStorageData("main.y", "0")).intValue();
-			b.height = Integer.valueOf(
-					Configuration.getStorageData("main.height", String.valueOf(screenSize.height))).intValue();
+			b.height = Integer.valueOf(Configuration.getStorageData("main.height", String.valueOf(screenSize.height)))
+					.intValue();
 			b.width = Integer.valueOf(Configuration.getStorageData("main.width", String.valueOf(screenSize.width)))
 					.intValue();
 			this.setBounds(b);
@@ -537,6 +549,23 @@ public class Main extends Frame implements LoggerAppender {
 
 		// this.dispose();
 		System.exit(0);
+	}
+
+	private void logSaveToFile() {
+		SimpleDateFormat fmt = new SimpleDateFormat("MM-dd_HH-mm-ss");
+		OutputStreamWriter out = null;
+		try {
+			File file = new File("BlueCoveTester-" + fmt.format(new Date()) + ".log");
+			out = new FileWriter(file);
+			out.write(output.getText());
+			out.flush();
+			out.close();
+			out = null;
+			Logger.info("Log saved to file " + file.getAbsolutePath());
+		} catch (Throwable ignore) {
+		} finally {
+			IOUtils.closeQuietly(out);
+		}
 	}
 
 	public void appendLog(int level, String message, Throwable throwable) {

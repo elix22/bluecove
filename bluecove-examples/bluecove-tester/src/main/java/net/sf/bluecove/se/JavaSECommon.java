@@ -22,7 +22,6 @@ package net.sf.bluecove.se;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +31,7 @@ import java.util.Map;
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.util.CLDCStub;
+import net.sf.bluecove.util.IOUtils;
 
 public class JavaSECommon implements CLDCStub {
 
@@ -117,13 +117,7 @@ public class JavaSECommon implements CLDCStub {
 			Logger.info("Full ThreadDump created " + file.getAbsolutePath());
 		} catch (Throwable ignore) {
 		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException ignore) {
-			}
-
+			IOUtils.closeQuietly(out);
 		}
 	}
 }
