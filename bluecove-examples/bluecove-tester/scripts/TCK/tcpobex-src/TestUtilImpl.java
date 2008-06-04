@@ -78,8 +78,9 @@ public class TestUtilImpl extends com.motorola.tck.tests.api.javax.obex.TestUtil
 			servRec = localDevice.getRecord(service);
 			connString = servRec.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 		} catch (Exception e) {
-			System.out.println("Exception :" + e + "\nUnable to get connection string");
-			return null;
+			System.out.println("Exception :" + e + "\nUnable to get connection string for " + service.getClass().getName());
+			int port = OBEX_TestCase.getPropertyAsInt("tcpobex.client.port");
+			return "tcpobex://127.0.0.1:" + port;
 		}
 		return connString;
 	}

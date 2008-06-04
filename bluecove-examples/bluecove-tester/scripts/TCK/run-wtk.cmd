@@ -2,7 +2,7 @@
 rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
 
-call %~dp0environment.cmd %*
+rem call %~dp0environment.cmd %*
 if errorlevel 1 (
     echo Error calling environment.cmd
     endlocal
@@ -12,9 +12,17 @@ if errorlevel 1 (
 
 echo WTK_HOME=[%WTK_HOME%]
 
+rem set PATH=%JAVA_HOME%\bin;%PATH%
+
 rem set ARGS=-Xdomain:trusted
 rem set ARGS=-Xdomain:untrusted
 set ARGS=-Xdomain:manufacturer
+rem Since WTK 2.5
+rem set ARGS=-Xdomain:maximum
+
+rem If On start or in DEBUG: Uncaught exception java/lang/SecurityException: Application not authorized to access the restricted API.
+rem need to sign midlets in GATLING for WTK!  See wtk-keys\keys.txt
+
 
 rem set ARGS=%ARGS% -Xverbose:class
 rem set ARGS=%ARGS% -Xverbose:exceptions
@@ -22,6 +30,7 @@ rem set ARGS=%ARGS% -Xverbose:exceptions
 title TCK tests on Sun WTK
 
 set GATLING_HOST=localhost
+rem set GATLING_HOST=tckhost
 
 %WTK_HOME%\bin\emulator.exe %ARGS% -Xautotest:http://%GATLING_HOST%:8080/getNextApp.jad
 
