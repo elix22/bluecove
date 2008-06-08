@@ -68,7 +68,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpe
     if (encrypt || authenticate || authorize || master) {
 		int socket_opt = 0;
 		socklen_t len = sizeof(socket_opt);
-        if (getsockopt(handle, SOL_L2CAP, L2CAP_OPTIONS, &socket_opt, &len) < 0) {
+        if (getsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, &len) < 0) {
             throwIOException(env, "Failed to read L2CAP server mode. [%d] %s", errno, strerror(errno));
             close(handle);
             return 0;
@@ -87,7 +87,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_l2ServerOpe
 			socket_opt |= L2CAP_LM_SECURE;
 		}
 
-		if ((socket_opt != 0) && setsockopt(handle, SOL_L2CAP, L2CAP_OPTIONS, &socket_opt, sizeof(socket_opt)) < 0) {
+		if ((socket_opt != 0) && setsockopt(handle, SOL_L2CAP, L2CAP_LM, &socket_opt, sizeof(socket_opt)) < 0) {
 			throwIOException(env, "Failed to set L2CAP server mode. [%d] %s", errno, strerror(errno));
             close(handle);
             return 0;
