@@ -167,11 +167,15 @@ public interface Consts {
 	// Next tests may fail on Some phones e.g. SE-K790 But should not fail on
 	// BlueCove!
 
-	public static final int TEST_LARGE_BYTE_ARRAY = 30;
+	public static final int TEST_8K_PLUS_BYTE_ARRAY = 30;
 
-	public static final int TEST_LARGE_BYTE_ARRAY_BACK = 31;
+	public static final int TEST_8K_PLUS_BYTE_ARRAY_BACK = 31;
 
-	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_LARGE_BYTE_ARRAY_BACK;
+	public static final int TEST_64K_PLUS_BYTE_ARRAY = 32;
+
+	public static final int TEST_64K_PLUS_BYTE_ARRAY_BACK = 33;
+
+	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_64K_PLUS_BYTE_ARRAY_BACK;
 
 	// L2CAP test numbers
 

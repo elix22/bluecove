@@ -586,38 +586,38 @@ public class CommunicationTester extends CommunicationData {
 		}
 	}
 
-	static void sendByteArayLarge(InputStream is, OutputStream os) throws IOException {
+	static void sendByteArayLarge(InputStream is, OutputStream os, int araySize) throws IOException {
 		long start = System.currentTimeMillis();
-		byte[] byteArayLarge = new byte[byteArayLargeSize];
-		for (int i = 0; i < byteArayLargeSize; i++) {
+		byte[] byteArayLarge = new byte[araySize];
+		for (int i = 0; i < araySize; i++) {
 			byteArayLarge[i] = (byte) (i & 0xF);
 		}
 		os.write(byteArayLarge);
 		os.flush();
 		int ok = is.read();
 		Assert.assertEquals("conformation expected", 1, ok);
-		Logger.debug("send speed " + TimeUtils.bps(byteArayLargeSize, start));
+		Logger.debug("send speed " + TimeUtils.bps(araySize, start));
 	}
 
-	static void readByteArayLarge(InputStream is, OutputStream os) throws IOException {
+	static void readByteArayLarge(InputStream is, OutputStream os, int araySize) throws IOException {
 		long start = System.currentTimeMillis();
-		byte[] byteArayGot = new byte[byteArayLargeSize];
+		byte[] byteArayGot = new byte[araySize];
 		int got = 0;
-		while (got < byteArayLargeSize) {
-			int read = is.read(byteArayGot, got, byteArayLargeSize - got);
+		while (got < araySize) {
+			int read = is.read(byteArayGot, got, araySize - got);
 			if (read == -1) {
 				break;
 			}
 			got += read;
 		}
 
-		Assert.assertEquals("byteArayLarge.len", byteArayLargeSize, got);
-		for (int i = 0; i < byteArayLargeSize; i++) {
+		Assert.assertEquals("byteArayLarge.len", araySize, got);
+		for (int i = 0; i < araySize; i++) {
 			Assert.assertEquals("byte", (i & 0xF), byteArayGot[i]);
 		}
 		os.write(1);
 		os.flush();
-		Logger.debug("read speed " + TimeUtils.bps(byteArayLargeSize, start));
+		Logger.debug("read speed " + TimeUtils.bps(araySize, start));
 	}
 
 	public static void runTest(int testType, boolean server, ConnectionHolderStream c, TestStatus testStatus)
@@ -841,20 +841,36 @@ public class CommunicationTester extends CommunicationData {
 			testStatus.setName("TWO_THREADS_ARRAYS");
 			TwoThreadsPerConnection.start(c, 64, false);
 			break;
-		case TEST_LARGE_BYTE_ARRAY:
-			testStatus.setName("LARGE_BYTE_ARRAY");
+		case TEST_8K_PLUS_BYTE_ARRAY:
+			testStatus.setName("8K_PLUS_BYTE_ARRAY");
 			if (server) {
-				CommunicationTester.readByteArayLarge(is, os);
+				CommunicationTester.readByteArayLarge(is, os, byteAray8KPlusSize);
 			} else {
-				CommunicationTester.sendByteArayLarge(is, os);
+				CommunicationTester.sendByteArayLarge(is, os, byteAray8KPlusSize);
 			}
 			break;
-		case TEST_LARGE_BYTE_ARRAY_BACK:
-			testStatus.setName("LARGE_BYTE_ARRAY_BACK");
+		case TEST_8K_PLUS_BYTE_ARRAY_BACK:
+			testStatus.setName("8K_PLUS_BYTE_ARRAY_BACK");
 			if (!server) {
-				CommunicationTester.readByteArayLarge(is, os);
+				CommunicationTester.readByteArayLarge(is, os, byteAray8KPlusSize);
 			} else {
-				CommunicationTester.sendByteArayLarge(is, os);
+				CommunicationTester.sendByteArayLarge(is, os, byteAray8KPlusSize);
+			}
+			break;
+		case TEST_64K_PLUS_BYTE_ARRAY:
+			testStatus.setName("64K_PLUS_BYTE_ARRAY");
+			if (server) {
+				CommunicationTester.readByteArayLarge(is, os, byteAray64KPlusSize);
+			} else {
+				CommunicationTester.sendByteArayLarge(is, os, byteAray64KPlusSize);
+			}
+			break;
+		case TEST_64K_PLUS_BYTE_ARRAY_BACK:
+			testStatus.setName("64K_PLUS_BYTE_ARRAY_BACK");
+			if (!server) {
+				CommunicationTester.readByteArayLarge(is, os, byteAray64KPlusSize);
+			} else {
+				CommunicationTester.sendByteArayLarge(is, os, byteAray64KPlusSize);
 			}
 			break;
 		// ---- TRAFFIC GENERATORS
