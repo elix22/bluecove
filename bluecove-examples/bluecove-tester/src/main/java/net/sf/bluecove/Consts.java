@@ -175,7 +175,11 @@ public interface Consts {
 
 	public static final int TEST_64K_PLUS_BYTE_ARRAY_BACK = 33;
 
-	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_64K_PLUS_BYTE_ARRAY_BACK;
+	public static final int TEST_128K_BYTE_ARRAY_X_10 = 34;
+
+	public static final int TEST_128K_BYTE_ARRAY_X_10_BACK = 35;
+
+	public static final int TEST_LAST_BLUECOVE_WORKING = TEST_128K_BYTE_ARRAY_X_10_BACK;
 
 	// L2CAP test numbers
 

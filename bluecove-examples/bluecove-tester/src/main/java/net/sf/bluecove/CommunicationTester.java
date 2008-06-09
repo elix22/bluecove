@@ -881,6 +881,28 @@ public class CommunicationTester extends CommunicationData {
 				CommunicationTester.sendByteArayLarge(is, os, byteAray64KPlusSize);
 			}
 			break;
+
+		case TEST_128K_BYTE_ARRAY_X_10:
+			testStatus.setName("128K_BYTE_ARRAY_X_10");
+			for (int i = 0; i < 10; i++) {
+				if (server) {
+					CommunicationTester.readByteArayLarge(is, os, byteAray128KSize);
+				} else {
+					CommunicationTester.sendByteArayLarge(is, os, byteAray128KSize);
+				}
+			}
+			break;
+		case TEST_128K_BYTE_ARRAY_X_10_BACK:
+			testStatus.setName("128K_BYTE_ARRAY_X_10_BACK");
+			for (int i = 0; i < 10; i++) {
+				if (!server) {
+					CommunicationTester.readByteArayLarge(is, os, byteAray128KSize);
+				} else {
+					CommunicationTester.sendByteArayLarge(is, os, byteAray128KSize);
+				}
+			}
+			break;
+
 		// ---- TRAFFIC GENERATORS
 		case TRAFFIC_GENERATOR_WRITE:
 			testStatus.setName("RFTGenW");

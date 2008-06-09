@@ -40,6 +40,8 @@ public class CommunicationData implements Consts {
 
 	public static final int byteAray64KPlusSize = 0x10100; // More then 64K
 
+	public static final int byteAray128KSize = 0x20000; // 64K
+
 	public static final byte aKnowndPositiveByte = 21;
 
 	public static final byte aKnowndNegativeByte = -33;
