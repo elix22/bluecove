@@ -603,12 +603,20 @@ public class CommunicationTester extends CommunicationData {
 		long start = System.currentTimeMillis();
 		byte[] byteArayGot = new byte[araySize];
 		int got = 0;
-		while (got < araySize) {
-			int read = is.read(byteArayGot, got, araySize - got);
-			if (read == -1) {
-				break;
+		boolean readInterrupted = true;
+		try {
+			while (got < araySize) {
+				int read = is.read(byteArayGot, got, araySize - got);
+				if (read == -1) {
+					break;
+				}
+				got += read;
 			}
-			got += read;
+			readInterrupted = false;
+		} finally {
+			if (readInterrupted) {
+				Logger.debug("Received only " + got);
+			}
 		}
 
 		Assert.assertEquals("byteArayLarge.len", araySize, got);
