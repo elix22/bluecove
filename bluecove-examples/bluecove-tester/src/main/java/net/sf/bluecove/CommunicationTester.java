@@ -586,20 +586,24 @@ public class CommunicationTester extends CommunicationData {
 		}
 	}
 
-	static void sendByteArayLarge(InputStream is, OutputStream os, int araySize) throws IOException {
+	static void sendByteArayLarge(ConnectionHolderStream c, InputStream is, OutputStream os, int araySize)
+			throws IOException {
 		long start = System.currentTimeMillis();
 		byte[] byteArayLarge = new byte[araySize];
 		for (int i = 0; i < araySize; i++) {
 			byteArayLarge[i] = (byte) (i & 0xF);
 		}
 		os.write(byteArayLarge);
+		c.active();
 		os.flush();
 		int ok = is.read();
+		c.active();
 		Assert.assertEquals("conformation expected", 1, ok);
 		Logger.debug("send speed " + TimeUtils.bps(araySize, start));
 	}
 
-	static void readByteArayLarge(InputStream is, OutputStream os, int araySize) throws IOException {
+	static void readByteArayLarge(ConnectionHolderStream c, InputStream is, OutputStream os, int araySize)
+			throws IOException {
 		long start = System.currentTimeMillis();
 		byte[] byteArayGot = new byte[araySize];
 		int got = 0;
@@ -611,6 +615,7 @@ public class CommunicationTester extends CommunicationData {
 					break;
 				}
 				got += read;
+				c.active();
 			}
 			readInterrupted = false;
 		} finally {
@@ -624,6 +629,7 @@ public class CommunicationTester extends CommunicationData {
 			Assert.assertEquals("byte", (i & 0xF), byteArayGot[i]);
 		}
 		os.write(1);
+		c.active();
 		os.flush();
 		Logger.debug("read speed " + TimeUtils.bps(araySize, start));
 	}
@@ -852,33 +858,33 @@ public class CommunicationTester extends CommunicationData {
 		case TEST_8K_PLUS_BYTE_ARRAY:
 			testStatus.setName("8K_PLUS_BYTE_ARRAY");
 			if (server) {
-				CommunicationTester.readByteArayLarge(is, os, byteAray8KPlusSize);
+				CommunicationTester.readByteArayLarge(c, is, os, byteAray8KPlusSize);
 			} else {
-				CommunicationTester.sendByteArayLarge(is, os, byteAray8KPlusSize);
+				CommunicationTester.sendByteArayLarge(c, is, os, byteAray8KPlusSize);
 			}
 			break;
 		case TEST_8K_PLUS_BYTE_ARRAY_BACK:
 			testStatus.setName("8K_PLUS_BYTE_ARRAY_BACK");
 			if (!server) {
-				CommunicationTester.readByteArayLarge(is, os, byteAray8KPlusSize);
+				CommunicationTester.readByteArayLarge(c, is, os, byteAray8KPlusSize);
 			} else {
-				CommunicationTester.sendByteArayLarge(is, os, byteAray8KPlusSize);
+				CommunicationTester.sendByteArayLarge(c, is, os, byteAray8KPlusSize);
 			}
 			break;
 		case TEST_64K_PLUS_BYTE_ARRAY:
 			testStatus.setName("64K_PLUS_BYTE_ARRAY");
 			if (server) {
-				CommunicationTester.readByteArayLarge(is, os, byteAray64KPlusSize);
+				CommunicationTester.readByteArayLarge(c, is, os, byteAray64KPlusSize);
 			} else {
-				CommunicationTester.sendByteArayLarge(is, os, byteAray64KPlusSize);
+				CommunicationTester.sendByteArayLarge(c, is, os, byteAray64KPlusSize);
 			}
 			break;
 		case TEST_64K_PLUS_BYTE_ARRAY_BACK:
 			testStatus.setName("64K_PLUS_BYTE_ARRAY_BACK");
 			if (!server) {
-				CommunicationTester.readByteArayLarge(is, os, byteAray64KPlusSize);
+				CommunicationTester.readByteArayLarge(c, is, os, byteAray64KPlusSize);
 			} else {
-				CommunicationTester.sendByteArayLarge(is, os, byteAray64KPlusSize);
+				CommunicationTester.sendByteArayLarge(c, is, os, byteAray64KPlusSize);
 			}
 			break;
 
@@ -886,9 +892,9 @@ public class CommunicationTester extends CommunicationData {
 			testStatus.setName("128K_BYTE_ARRAY_X_10");
 			for (int i = 0; i < 10; i++) {
 				if (server) {
-					CommunicationTester.readByteArayLarge(is, os, byteAray128KSize);
+					CommunicationTester.readByteArayLarge(c, is, os, byteAray128KSize);
 				} else {
-					CommunicationTester.sendByteArayLarge(is, os, byteAray128KSize);
+					CommunicationTester.sendByteArayLarge(c, is, os, byteAray128KSize);
 				}
 			}
 			break;
@@ -896,9 +902,9 @@ public class CommunicationTester extends CommunicationData {
 			testStatus.setName("128K_BYTE_ARRAY_X_10_BACK");
 			for (int i = 0; i < 10; i++) {
 				if (!server) {
-					CommunicationTester.readByteArayLarge(is, os, byteAray128KSize);
+					CommunicationTester.readByteArayLarge(c, is, os, byteAray128KSize);
 				} else {
-					CommunicationTester.sendByteArayLarge(is, os, byteAray128KSize);
+					CommunicationTester.sendByteArayLarge(c, is, os, byteAray128KSize);
 				}
 			}
 			break;
