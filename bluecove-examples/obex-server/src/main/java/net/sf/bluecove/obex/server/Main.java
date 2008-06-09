@@ -152,13 +152,21 @@ public class Main extends JFrame implements ActionListener, UserInteraction {
 		progressBar.setString(message);
 	}
 
-	void setProgressValue(int n) {
+	public void setProgressMaximum(int n) {
+		progressBar.setMaximum(n);
+	}
+
+	public void setProgressValue(int n) {
 		progressBar.setValue(n);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				progressBar.setString(status);
 			}
 		});
+	}
+
+	public void setProgressDone() {
+		progressBar.setValue(0);
 	}
 
 	protected void disabledBluetooth() {

@@ -296,9 +296,17 @@ public class OBEXServer implements Runnable {
 					name = "xxx.xx";
 					showStatus("Receiving file");
 				}
+				Long len = (Long) hs.getHeader(HeaderSet.LENGTH);
+				if (len != null) {
+					Logger.debug("file lenght:" + len);
+					interaction.setProgressValue(0);
+					interaction.setProgressMaximum(len.intValue());
+				}
 				File f = new File(homePath(), name);
 				FileOutputStream out = new FileOutputStream(f);
 				InputStream is = op.openInputStream();
+
+				int received = 0;
 
 				while (!isStoped) {
 					int data = is.read();
@@ -307,6 +315,10 @@ public class OBEXServer implements Runnable {
 						break;
 					}
 					out.write(data);
+					received++;
+					if ((len != null) && (received % 100 == 0)) {
+						interaction.setProgressValue(received);
+					}
 				}
 				op.close();
 				out.close();
@@ -319,6 +331,7 @@ public class OBEXServer implements Runnable {
 				return ResponseCodes.OBEX_HTTP_UNAVAILABLE;
 			} finally {
 				Logger.debug("OBEX onPut ends");
+				interaction.setProgressDone();
 			}
 		}
 

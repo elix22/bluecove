@@ -27,4 +27,10 @@ package net.sf.bluecove.obex.server;
 public interface UserInteraction {
 
 	public void showStatus(final String message);
+
+	public void setProgressMaximum(int n);
+
+	public void setProgressValue(int n);
+
+	public void setProgressDone();
 }
