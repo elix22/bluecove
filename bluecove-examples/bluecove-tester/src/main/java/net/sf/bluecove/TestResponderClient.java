@@ -167,7 +167,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			inquiring = false;
 			if (searchOnlyBluecoveUuid) {
 				searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID() };
-				if (Configuration.testL2CAP.booleanValue()) {
+				if ((Configuration.supportL2CAP) && (Configuration.testL2CAP.booleanValue())) {
 					searchUuidSet2 = new UUID[] { L2CAP, Configuration.blueCoveL2CAPUUID() };
 				}
 			} else {
@@ -690,7 +690,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				}
 				Configuration.setLastServerURL(serverURL);
 
-				// Dellay to see if many connections are made.
+				// Delay to see if many connections are made.
 				if ((connectedConnectionsExpect > 1) && (connectedConnectionsInfo < connectedConnectionsExpect)) {
 					synchronized (TestResponderClient.this) {
 						try {
@@ -705,7 +705,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				if (!stoped) {
 					if ((monitor != null) && (monitor.isShutdownCalled())) {
 						failure.addFailure(deviceName + " test #" + testType + " " + testStatus.getName()
-								+ " termintade by  by TimeOut");
+								+ " terminated by  by TimeOut");
 					} else {
 						failure.addFailure(deviceName + " test #" + testType + " " + testStatus.getName(), e);
 					}
