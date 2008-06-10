@@ -41,6 +41,7 @@ import java.util.Vector;
 import javax.bluetooth.UUID;
 
 import net.sf.bluecove.Configuration;
+import net.sf.bluecove.Consts;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.util.BluetoothTypesInfo;
 import net.sf.bluecove.util.BooleanVar;
@@ -120,7 +121,8 @@ public class ConfigurationDialog extends OkCancelDialog {
 		}
 		addConfig("testRFCOMM");
 		addConfig("TEST_CASE_FIRST");
-		addConfig("TEST_CASE_LAST");
+		addConfig("TEST_CASE_LAST", "TEST_CASE_LAST (" + Consts.TEST_LAST_WORKING + "/"
+				+ Consts.TEST_LAST_BLUECOVE_WORKING + ")");
 		addConfig("STERSS_TEST_CASE");
 		addConfig("testL2CAP");
 		addConfig("TEST_CASE_L2CAP_FIRST");
