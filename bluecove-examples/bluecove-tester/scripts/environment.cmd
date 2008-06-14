@@ -30,8 +30,8 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 
 set WMDPT="%ProgramFiles%\Windows Mobile Developer Power Toys"
 if exist %WMDPT%\CECopy\cecopy.exe goto pt_found
-echo Windows Mobile Developer Power Toys Not Found
-goto :errormark
+echo WARN: Windows Mobile Developer Power Toys Not Found
+rem goto :errormark
 
 :pt_found
 
