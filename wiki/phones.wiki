@@ -75,6 +75,7 @@
 || Nokia || 3250 ||
 || Nokia || 3500 ||
 || Nokia || 3555 ||
+|| Nokia || 3600 slide ||
 || Nokia || 5000 ||
 || Nokia || 5200 ||
 || Nokia || 5220 XpressMusic ||
@@ -125,8 +126,9 @@
 || Nokia || 6301 ||
 || Nokia || 6500 ||
 || Nokia || 6555 ||
-|| Nokia || 6600 ||
+|| Nokia || 6600 (fold and slide)||
 || Nokia || 6611 ||
+|| Nokia || 6612 classic ||
 || Nokia || 6620 ||
 || Nokia || 6630 ||
 || Nokia || 6670 ||
@@ -153,7 +155,9 @@
 || Nokia || E61i ||
 || Nokia || E62 ||
 || Nokia || E65 ||
+|| Nokia || E66 ||
 || Nokia || E70 ||
+|| Nokia || E71 ||
 || Nokia || E90 Communicator ||
 || Nokia || N70 ||
 || Nokia || N71 ||
