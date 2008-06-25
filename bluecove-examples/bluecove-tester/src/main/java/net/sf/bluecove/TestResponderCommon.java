@@ -100,6 +100,14 @@ public class TestResponderCommon {
 			} else {
 				Configuration.supportL2CAP = "true".equals(featureL2cap);
 			}
+			String id = LocalDevice.getProperty("bluecove.deviceID");
+			if (id != null) {
+				Logger.info("bluecove.deviceID:" + id);
+			}
+			String ids = LocalDevice.getProperty("bluecove.local_devices_ids");
+			if (ids != null) {
+				Logger.info("local devices ID:" + ids);
+			}
 		}
 
 		String receiveMTUstr = LocalDevice.getProperty("bluetooth.l2cap.receiveMTU.max");
