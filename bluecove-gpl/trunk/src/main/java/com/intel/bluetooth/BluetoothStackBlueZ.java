@@ -158,6 +158,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		// propertiesMap.put("bluecove.radio.version", );
 		// propertiesMap.put("bluecove.radio.manufacturer", );
 		// propertiesMap.put("bluecove.stack.version", );
+		propertiesMap.put(BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_DEVICE_ID, String.valueOf(deviceID));
+
 		devicesUsed.addElement(new Long(deviceID));
 	}
 
@@ -199,6 +201,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 		return FEATURE_SERVICE_ATTRIBUTES | FEATURE_L2CAP;
 	}
 
+	private native int[] getLocalDevicesID();
+
 	// --- LocalDevice
 
 	private native long getLocalDeviceBluetoothAddressImpl(int deviceDescriptor) throws BluetoothStateException;
@@ -231,6 +235,19 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	}
 
 	public String getLocalDeviceProperty(String property) {
+		if (BlueCoveLocalDeviceProperties.LOCAL_DEVICE_DEVICES_LIST.equals(property)) {
+			int[] ids = getLocalDevicesID();
+			StringBuffer b = new StringBuffer();
+			if (ids != null) {
+				for (int i = 0; i < ids.length; i++) {
+					if (i != 0) {
+						b.append(',');
+					}
+					b.append(String.valueOf(ids[i]));
+				}
+			}
+			return b.toString();
+		}
 		return (String) propertiesMap.get(property);
 	}
 
