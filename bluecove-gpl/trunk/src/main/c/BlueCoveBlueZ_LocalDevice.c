@@ -26,6 +26,64 @@
 #include <bluetooth/hci_lib.h>
 #include <sys/ioctl.h>
 
+JNIEXPORT jintArray JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getLocalDevicesID
+(JNIEnv *env, jobject peer) {
+    int s = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
+	if (s < 0) {
+        return NULL;
+    }
+
+    struct hci_dev_list_req *dl;
+    struct hci_dev_req *dr;
+	dl = (struct hci_dev_list_req*)malloc(HCI_MAX_DEV * sizeof(*dr) + sizeof(*dl));
+	if (!dl) {
+	    close(s);
+        return NULL;
+	}
+    dl->dev_num = HCI_MAX_DEV;
+	if (ioctl(s, HCIGETDEVLIST, dl) < 0) {
+	    free(dl);
+		close(s);
+	    return NULL;
+	}
+	int dev_id = -1;
+	int flag = HCI_UP;
+	int i;
+	int count = 0;
+	dr = dl->dev_req;
+	for (i = 0; i < dl->dev_num; i++, dr++) {
+	    if (hci_test_bit(flag, &dr->dev_opt)) {
+	        count ++;
+	    }
+	}
+    jintArray result = NULL;
+	int k = 0;
+	jint *ints;
+	result = (*env)->NewIntArray(env, count);
+	if (result == NULL) {
+	    free(dl);
+	    close(s);
+	    return NULL;
+	}
+	ints = (*env)->GetIntArrayElements(env, result, 0);
+	if (ints == NULL) {
+	    free(dl);
+	    close(s);
+	    return NULL;
+	}
+	dr = dl->dev_req;
+	for (i = 0; i < dl->dev_num; i++, dr++) {
+	    if (hci_test_bit(flag, &dr->dev_opt)) {
+	        ints[k] = dr->dev_id;
+	        k ++;
+	    }
+	}
+    (*env)->ReleaseIntArrayElements(env, result, ints, 0);
+	free(dl);
+	close(s);
+	return result;
+}
+
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_nativeGetDeviceID
 (JNIEnv *env, jobject peer, jint id, jlong findLocalDeviceBTAddress) {
 	bool findDevice = (id >= 0) || (findLocalDeviceBTAddress > 0);
