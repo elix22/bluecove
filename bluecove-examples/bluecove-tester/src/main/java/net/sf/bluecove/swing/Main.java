@@ -63,6 +63,8 @@ public class Main extends JFrame implements LoggerAppender {
 
 	private Vector logLinesQueue = new Vector();
 
+	private boolean logUpdaterRunning = false;
+
 	JMenuItem debugOn;
 
 	public static void main(String[] args) {
@@ -342,6 +344,8 @@ public class Main extends JFrame implements LoggerAppender {
 		synchronized (logLinesQueue) {
 			if (logLinesQueue.isEmpty()) {
 				createUpdater = true;
+			} else {
+				createUpdater = !logUpdaterRunning;
 			}
 			logLinesQueue.addElement(buf.toString());
 		}
@@ -368,12 +372,26 @@ public class Main extends JFrame implements LoggerAppender {
 		}
 
 		public void run() {
+			int oneCallCount = 0;
+			synchronized (logLinesQueue) {
+				logUpdaterRunning = true;
+			}
 			String line;
-			while ((line = getNextLine()) != null) {
-				output.append(line);
-				outputLines++;
-				if (outputLines > 5000) {
-					clear();
+			try {
+				while ((line = getNextLine()) != null) {
+					output.append(line);
+					outputLines++;
+					if (outputLines > 5000) {
+						clear();
+					}
+					oneCallCount++;
+					if (oneCallCount > 40) {
+						break;
+					}
+				}
+			} finally {
+				synchronized (logLinesQueue) {
+					logUpdaterRunning = false;
 				}
 			}
 		}
