@@ -116,6 +116,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("listedDevicesOnly");
 		addConfig("discoveryUUID");
 		addConfig("useShortUUID");
+		addConfig("useServiceClassExtUUID");
 		if (Configuration.screenSizeSmall) {
 			addConfig(null);
 		}

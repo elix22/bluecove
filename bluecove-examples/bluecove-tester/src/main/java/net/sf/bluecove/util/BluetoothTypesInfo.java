@@ -45,6 +45,8 @@ public abstract class BluetoothTypesInfo {
 
 	public static final String PROTOCOL_SCHEME_TCP_OBEX = "tcpobex";
 
+	public static final int ServiceClassIDList = 0x0001;
+
 	public static String extractBluetoothAddress(String serverURL) {
 		int start = serverURL.indexOf("//");
 		if (start == -1) {
@@ -156,6 +158,8 @@ public abstract class BluetoothTypesInfo {
 			addName(Consts.RESPONDER_LONG_UUID_L2CAP, "BlueCoveT L2CAP long");
 
 			addName(Consts.RESPONDER_LONG_UUID_OBEX, "BlueCoveT OBEX");
+
+			addName(Consts.RESPONDER_SERVICECLASS_UUID, "BlueCoveT SrvClassExt");
 
 			addName("3B9FA89520078C303355AAA694238F07", "JSR-82 TCK L2CAP AGENT");
 			addName("2000000031b811d88698000874b33fc0", "JSR-82 TCK RFCOMM AGENT");

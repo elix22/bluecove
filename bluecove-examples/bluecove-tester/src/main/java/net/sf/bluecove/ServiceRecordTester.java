@@ -221,12 +221,18 @@ public class ServiceRecordTester {
 					DataElement attrDataElement = servRecord.getAttributeValue(id);
 					Assert.assertNotNull("attrValue null", attrDataElement);
 					switch (id) {
-					case 0x0001:
+					case BluetoothTypesInfo.ServiceClassIDList:
 						if (!hasServiceClassBlieCoveUUID(servRecord)) {
 							TestResponderClient.failure.addFailure("ServiceClassUUID not found on "
 									+ servicesOnDeviceName);
 						} else {
 							isBlueCoveTestService = true;
+							if (Configuration.useServiceClassExtUUID.booleanValue()
+									&& !hasServiceClassUUID(servRecord, Consts.uuidSrvClassExt)) {
+								Logger.warn("srv SrvClassExt attr. not found");
+								TestResponderClient.failure.addFailure("SrvClassExt UUID not found on "
+										+ servicesOnDeviceName);
+							}
 						}
 						break;
 					case 0x0100:

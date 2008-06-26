@@ -166,9 +166,17 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 			inquiringDevice = false;
 			inquiring = false;
 			if (searchOnlyBluecoveUuid) {
-				searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID() };
+				if (Configuration.useServiceClassExtUUID.booleanValue()) {
+					searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID(), Consts.uuidSrvClassExt };
+				} else {
+					searchUuidSet = new UUID[] { L2CAP, RFCOMM, Configuration.blueCoveUUID() };
+				}
 				if ((Configuration.supportL2CAP) && (Configuration.testL2CAP.booleanValue())) {
-					searchUuidSet2 = new UUID[] { L2CAP, Configuration.blueCoveL2CAPUUID() };
+					if (Configuration.useServiceClassExtUUID.booleanValue()) {
+						searchUuidSet2 = new UUID[] { L2CAP, Configuration.blueCoveL2CAPUUID(), Consts.uuidSrvClassExt };
+					} else {
+						searchUuidSet2 = new UUID[] { L2CAP, Configuration.blueCoveL2CAPUUID() };
+					}
 				}
 			} else {
 				searchUuidSet = new UUID[] { Configuration.discoveryUUID };

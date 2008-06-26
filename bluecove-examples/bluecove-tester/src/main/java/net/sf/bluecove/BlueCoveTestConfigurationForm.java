@@ -83,7 +83,8 @@ public class BlueCoveTestConfigurationForm extends Form implements CommandListen
 		addConfig("listedDevicesOnly", Configuration.listedDevicesOnly);
 		// addConfig("discoveryUUID");
 
-		// addConfig("useShortUUID");
+		addConfig("useShortUUID", Configuration.useShortUUID);
+		addConfig("useServiceClassExtUUID", Configuration.useServiceClassExtUUID);
 		addConfig("clientContinuous", Configuration.clientContinuous);
 		addConfig("clientContinuousDiscovery", Configuration.clientContinuousDiscovery);
 		// addConfig("clientContinuousDiscoveryDevices");

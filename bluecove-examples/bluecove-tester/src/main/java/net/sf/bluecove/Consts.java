@@ -35,6 +35,8 @@ public interface Consts {
 
 	public static final String RESPONDER_SHORT_UUID_L2CAP = "BC02";
 
+	public static final String RESPONDER_SERVICECLASS_UUID = "B10C0BE1111111111111111111110000";
+
 	public static final UUID uuidLong = new UUID(Consts.RESPONDER_LONG_UUID, false);
 
 	public static final UUID uuidShort = new UUID(Consts.RESPONDER_SHORT_UUID, true);
@@ -44,6 +46,8 @@ public interface Consts {
 	public static final UUID uuidL2CAPShort = new UUID(Consts.RESPONDER_SHORT_UUID_L2CAP, true);
 
 	public static final UUID uuidOBEX = new UUID(Consts.RESPONDER_LONG_UUID_OBEX, false);
+
+	public static final UUID uuidSrvClassExt = new UUID(Consts.RESPONDER_SERVICECLASS_UUID, false);
 
 	public static final String RESPONDER_SERVERNAME = "bluecovesrv";
 

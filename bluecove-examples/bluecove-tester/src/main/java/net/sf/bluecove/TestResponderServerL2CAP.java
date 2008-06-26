@@ -91,7 +91,7 @@ public class TestResponderServerL2CAP extends Thread {
 			StringBuffer url = new StringBuffer(BluetoothTypesInfo.PROTOCOL_SCHEME_L2CAP);
 			url.append("://localhost:").append(Configuration.blueCoveL2CAPUUID());
 			url.append(";name=").append(Consts.RESPONDER_SERVERNAME).append("_l2");
-			if (Configuration.useShortUUID) {
+			if (Configuration.useShortUUID.booleanValue()) {
 				url.append("s");
 			}
 			url.append(Configuration.serverURLParams());

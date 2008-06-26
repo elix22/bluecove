@@ -299,9 +299,16 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 
 			if (Configuration.testRFCOMM.booleanValue()) {
-				serverConnection = (StreamConnectionNotifier) Connector.open(BluetoothTypesInfo.PROTOCOL_SCHEME_RFCOMM
-						+ "://localhost:" + Configuration.blueCoveUUID() + ";name=" + Consts.RESPONDER_SERVERNAME
-						+ "_rf" + Configuration.serverURLParams());
+
+				StringBuffer url = new StringBuffer(BluetoothTypesInfo.PROTOCOL_SCHEME_RFCOMM);
+				url.append("://localhost:").append(Configuration.blueCoveUUID());
+				url.append(";name=").append(Consts.RESPONDER_SERVERNAME).append("_rf");
+				if (Configuration.useShortUUID.booleanValue()) {
+					url.append("s");
+				}
+				url.append(Configuration.serverURLParams());
+
+				serverConnection = (StreamConnectionNotifier) Connector.open(url.toString());
 
 				connectorOpenTime = System.currentTimeMillis();
 				Logger.info("ResponderServer started " + TimeUtils.timeNowToString());
@@ -545,6 +552,15 @@ public class TestResponderServer implements CanShutdown, Runnable {
 	static void buildServiceRecord(ServiceRecord record) throws ServiceRegistrationException {
 		String id = "";
 		try {
+			if (Configuration.useServiceClassExtUUID.booleanValue()) {
+				DataElement serviceClassIDList = record.getAttributeValue(BluetoothTypesInfo.ServiceClassIDList);
+				if (serviceClassIDList == null) {
+					serviceClassIDList = new DataElement(DataElement.DATSEQ);
+				}
+				serviceClassIDList.addElement(new DataElement(DataElement.UUID, Consts.uuidSrvClassExt));
+				setAttributeValue(record, BluetoothTypesInfo.ServiceClassIDList, serviceClassIDList);
+			}
+
 			if (Configuration.testAllServiceAttributes.booleanValue()) {
 				id = "all";
 				ServiceRecordTester.addAllTestServiceAttributes(record);

@@ -45,8 +45,6 @@ import net.sf.bluecove.util.Storage;
  */
 public class Configuration {
 
-	public static boolean useShortUUID = false;
-
 	public static BooleanVar deviceClassFilter = new BooleanVar(true);
 
 	public static BooleanVar discoverDevicesComputers = new BooleanVar(true);
@@ -69,7 +67,9 @@ public class Configuration {
 
 	public static UUID discoveryUUID = new UUID(0x0100); // L2CAP
 
-	// public static UUID discoveryUUID = Consts.uuidL2CAPLong;
+	public static BooleanVar useShortUUID = new BooleanVar(false);
+
+	public static BooleanVar useServiceClassExtUUID = new BooleanVar(false);
 
 	public static Hashtable testDeviceNames = null;
 
@@ -289,7 +289,7 @@ public class Configuration {
 	}
 
 	public static UUID blueCoveUUID() {
-		if (useShortUUID) {
+		if (useShortUUID.booleanValue()) {
 			return Consts.uuidShort;
 		} else {
 			return Consts.uuidLong;
@@ -297,7 +297,7 @@ public class Configuration {
 	}
 
 	public static UUID blueCoveL2CAPUUID() {
-		if (useShortUUID) {
+		if (useShortUUID.booleanValue()) {
 			return Consts.uuidL2CAPShort;
 		} else {
 			return Consts.uuidL2CAPLong;
