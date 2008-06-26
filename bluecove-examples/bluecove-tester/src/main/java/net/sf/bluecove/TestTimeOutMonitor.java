@@ -54,13 +54,21 @@ public class TestTimeOutMonitor implements Runnable {
 		return monitor;
 	}
 
+	private int getTestGracePeriod() {
+		if (testThread instanceof ConnectionHolder) {
+			return ((ConnectionHolder) testThread).getTestTimeOutSec();
+		} else {
+			return 0;
+		}
+	}
+
 	public void run() {
 		if (gracePeriodSeconds == 0) {
 			return;
 		}
 
 		while ((!testFinished)
-				&& (System.currentTimeMillis() < (testThread.lastActivityTime() + this.gracePeriodSeconds * 1000))) {
+				&& (System.currentTimeMillis() < (testThread.lastActivityTime() + (getTestGracePeriod() + this.gracePeriodSeconds) * 1000))) {
 			try {
 				Thread.sleep(10 * 1000);
 			} catch (InterruptedException e) {

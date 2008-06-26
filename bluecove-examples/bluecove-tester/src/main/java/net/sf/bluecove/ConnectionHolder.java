@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove;
 
 import java.util.Enumeration;
@@ -25,35 +25,37 @@ import java.util.Vector;
 
 /**
  * @author vlads
- *
+ * 
  */
 public abstract class ConnectionHolder implements CanShutdown {
-	
+
 	long lastActivityTime;
-	
+
+	int testTimeOutSec;
+
 	int concurrentCount = 0;
-	
+
 	protected Vector concurrentConnections;
 
 	ConnectionHolder() {
 		active();
 	}
-	
+
 	public void active() {
 		lastActivityTime = System.currentTimeMillis();
 	}
-	
+
 	public long lastActivityTime() {
 		return lastActivityTime;
 	}
-	
+
 	public void registerConcurrent(Vector concurrentConnections) {
 		this.concurrentConnections = concurrentConnections;
 		synchronized (concurrentConnections) {
 			concurrentConnections.addElement(this);
 		}
 	}
-	
+
 	public void concurrentNotify() {
 		synchronized (concurrentConnections) {
 			int concurNow = concurrentConnections.size();
@@ -67,7 +69,7 @@ public abstract class ConnectionHolder implements CanShutdown {
 			}
 		}
 	}
-	
+
 	public void disconnected() {
 		if (concurrentConnections != null) {
 			synchronized (concurrentConnections) {
@@ -75,11 +77,19 @@ public abstract class ConnectionHolder implements CanShutdown {
 			}
 		}
 	}
-	
+
 	private void setConcurrentCount(int concurNow) {
 		if (concurrentCount < concurNow) {
 			concurrentCount = concurNow;
 		}
+	}
+
+	public int getTestTimeOutSec() {
+		return this.testTimeOutSec;
+	}
+
+	public void setTestTimeOutSec(int testTimeOutSec) {
+		this.testTimeOutSec = testTimeOutSec;
 	}
 
 }

@@ -589,6 +589,7 @@ public class CommunicationTester extends CommunicationData {
 	static void sendByteArayLarge(ConnectionHolderStream c, InputStream is, OutputStream os, int araySize)
 			throws IOException {
 		long start = System.currentTimeMillis();
+		c.setTestTimeOutSec(araySize / 1000);
 		byte[] byteArayLarge = new byte[araySize];
 		for (int i = 0; i < araySize; i++) {
 			byteArayLarge[i] = (byte) (i & 0xF);
@@ -598,7 +599,7 @@ public class CommunicationTester extends CommunicationData {
 		os.flush();
 		int ok = is.read();
 		c.active();
-		Assert.assertEquals("conformation expected", 1, ok);
+		Assert.assertEquals("confirmation expected", 1, ok);
 		Logger.debug("send speed " + TimeUtils.bps(araySize, start));
 	}
 
@@ -607,6 +608,7 @@ public class CommunicationTester extends CommunicationData {
 		long start = System.currentTimeMillis();
 		byte[] byteArayGot = new byte[araySize];
 		int got = 0;
+		c.setTestTimeOutSec(araySize / 1000);
 		boolean readInterrupted = true;
 		try {
 			while (got < araySize) {
