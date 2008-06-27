@@ -2,9 +2,9 @@
 rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
 
-call %~dp0environment.cmd %*
+call %~dp0tck-environment.cmd %*
 if errorlevel 1 (
-    echo Error calling environment.cmd
+    echo Error calling tck-environment.cmd
     endlocal
     pause
     exit /b 1
@@ -12,7 +12,7 @@ if errorlevel 1 (
 
 SET STACK=widcomm
 title %STACK%-BluetoothTCK
-java -Dbluecove.stack=%STACK% -cp %MICROEMULATOR_HOME%\microemulator.jar;%BLUECOVE_JAR% org.microemu.app.Main -Xautotest:http://localhost:8080/getNextApp.jad >  run-%STACK%.cmd.log
+java -Dbluecove.stack=%STACK% -cp %MICROEMULATOR_HOME%\microemulator.jar;%BLUECOVE_JAR% org.microemu.app.Main -Xautotest:http://%BLUECOVE_TCK_HOST%:%BLUECOVE_TCK_PORT%/getNextApp.jad >  run-%STACK%.cmd.log
 
 if errorlevel 1 goto errormark
 echo [Launched OK]

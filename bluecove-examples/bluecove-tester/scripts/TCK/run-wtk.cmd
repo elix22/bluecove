@@ -2,9 +2,9 @@
 rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
 
-rem call %~dp0environment.cmd %*
+call %~dp0tck-environment.cmd %*
 if errorlevel 1 (
-    echo Error calling environment.cmd
+    echo Error calling tck-environment.cmd
     endlocal
     pause
     exit /b 1
@@ -29,10 +29,7 @@ rem set ARGS=%ARGS% -Xverbose:exceptions
 
 title TCK tests on Sun WTK
 
-set GATLING_HOST=localhost
-rem set GATLING_HOST=tckhost
-
-%WTK_HOME%\bin\emulator.exe %ARGS% -Xautotest:http://%GATLING_HOST%:8080/getNextApp.jad
+%WTK_HOME%\bin\emulator.exe %ARGS% -Xautotest:http://%BLUECOVE_TCK_HOST%:%BLUECOVE_TCK_PORT%/getNextApp.jad
 
 if errorlevel 1 goto errormark
 echo [Launched OK]

@@ -2,9 +2,9 @@
 rem @version $Revision$ ($Author$)  $Date$
 SETLOCAL
 
-call %~dp0environment.cmd %*
+call %~dp0tck-environment.cmd %*
 if errorlevel 1 (
-    echo Error calling environment.cmd
+    echo Error calling tck-environment.cmd
     endlocal
     pause
     exit /b 1
