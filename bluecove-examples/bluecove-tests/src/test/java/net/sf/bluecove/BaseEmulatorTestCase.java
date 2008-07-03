@@ -152,7 +152,12 @@ public abstract class BaseEmulatorTestCase extends TestCase {
 
 	boolean isEclipse() {
 		StackTraceElement[] ste = new Throwable().getStackTrace();
-		return (ste[ste.length - 1].getClassName().startsWith("org.eclipse.jdt"));
+		for (StackTraceElement s : ste) {
+			if (s.getClassName().startsWith("org.eclipse.jdt")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

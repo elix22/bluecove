@@ -67,4 +67,12 @@ public abstract class OBEXBaseEmulatorTestCase extends BaseEmulatorTestCase {
 			}
 		};
 	}
+
+	protected byte[] makeTestData(int length) {
+		byte data[] = new byte[length];
+		for (int i = 0; i < length; i++) {
+			data[i] = (byte) (i & 0xFF);
+		}
+		return data;
+	}
 }

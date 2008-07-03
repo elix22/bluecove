@@ -111,31 +111,34 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 
 		hsOperation.setHeader(HeaderSet.LENGTH, new Long(length));
 
+		DebugLog.debug("test client start put");
 		// Create PUT Operation
 		Operation putOperation = clientSession.put(hsOperation);
 
+		DebugLog.debug("test client openOutputStream");
 		OutputStream os = putOperation.openOutputStream();
 		os.write(data1);
 		if (flush) {
-			DebugLog.debug("client flush 1");
+			DebugLog.debug("test client flush 1");
 			os.flush();
 		}
 		if (data2 != null) {
 			os.write(data2);
 			if (flush) {
-				DebugLog.debug("client flush 2");
+				DebugLog.debug("test client flush 2");
 				os.flush();
 			}
 		}
-		DebugLog.debug("client OutputStream close");
+		DebugLog.debug("test client OutputStream close");
 		os.close();
 
-		DebugLog.debug("client Operation close");
+		DebugLog.debug("test client Operation close");
 		putOperation.close();
 
-		DebugLog.debug("PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession) - writePacketsConnect);
+		DebugLog.debug("test client PUT packets", BlueCoveInternals.getPacketsCountWrite(clientSession)
+				- writePacketsConnect);
 
-		DebugLog.debug("client Session disconnect");
+		DebugLog.debug("test client Session disconnect");
 		clientSession.disconnect(null);
 
 		clientSession.close();
@@ -164,11 +167,24 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 	}
 
 	public void testPUTOperationCompleteBigData() throws IOException {
-		throw new IOException("TODO");
+		int mtu = 0x400; // OBEX_DEFAULT_MTU
+		// Send big Data to server
+		int length = 0x4001;
+		byte data[] = makeTestData(length);
+
+		int dataNeedPackets = length / mtu;
+		if ((length % mtu) > 0) {
+			dataNeedPackets++;
+		}
+		int expectedPackets = 1 + 1 + dataNeedPackets + 1;
+
+		runPUTOperation(false, data.length, data, null, expectedPackets);
+
+		assertEquals("data", data, serverData);
 	}
 
 	/**
-	 * Verify that call to flush do cause double invocation for onPut
+	 * Verify that call to flush do not cause double invocation for onPut
 	 */
 	public void testPUTOperationCompleteFlush() throws IOException {
 		byte data[] = simpleData;
@@ -180,7 +196,20 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 	}
 
 	public void testPUTOperationCompleteFlushBigData() throws IOException {
-		throw new IOException("TODO");
+		int mtu = 0x400; // OBEX_DEFAULT_MTU
+		// Send big Data to server
+		int length = 0x4001;
+		byte data[] = makeTestData(length);
+
+		int dataNeedPackets = length / mtu;
+		if ((length % mtu) > 0) {
+			dataNeedPackets++;
+		}
+		int expectedPackets = 1 + 1 + dataNeedPackets + 1 + 1;
+
+		runPUTOperation(true, data.length, data, null, expectedPackets);
+
+		assertEquals("data", data, serverData);
 	}
 
 	public void testPUTOperationSendMore() throws IOException {
@@ -193,7 +222,24 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 	}
 
 	public void testPUTOperationSendMoreBigData() throws IOException {
-		throw new IOException("TODO");
+		int mtu = 0x400; // OBEX_DEFAULT_MTU
+		// Send big Data to server
+		int length = 0x4001;
+		byte data[] = makeTestData(length);
+
+		byte data2[] = makeTestData(mtu * 3 + 10);
+		length += data2.length;
+
+		int dataNeedPackets = length / mtu;
+		if ((length % mtu) > 0) {
+			dataNeedPackets++;
+		}
+
+		int expectedPackets = 1 + 1 + dataNeedPackets + 1;
+
+		runPUTOperation(false, data.length, data, data2, expectedPackets);
+
+		assertEquals("data", data, serverData);
 	}
 
 	public void testPUTOperationSendLess() throws IOException {
@@ -207,7 +253,23 @@ public class OBEXPutConditionsTest extends OBEXBaseEmulatorTestCase {
 	}
 
 	public void testPUTOperationSendLessBigData() throws IOException {
-		throw new IOException("TODO");
+		int mtu = 0x400; // OBEX_DEFAULT_MTU
+		// Send big Data to server
+		byte data[] = makeTestData(0x4001);
+
+		int less = mtu * 3 + 11;
+
+		int length = data.length;
+
+		int dataNeedPackets = length / mtu;
+		if ((length % mtu) > 0) {
+			dataNeedPackets++;
+		}
+		int expectedPackets = 1 + 1 + dataNeedPackets + 1;
+
+		runPUTOperation(false, length + less, data, null, expectedPackets);
+
+		assertEquals("data", data.length, data, serverData);
 	}
 
 	/**
