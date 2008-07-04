@@ -27,6 +27,11 @@ import javax.microedition.io.Connection;
  * 
  */
 public abstract class BlueCoveInternals {
+
+	public static boolean isShortRequestPhase() {
+		return OBEXClientOperation.isShortRequestPhase();
+	}
+
 	/**
 	 * @return the packetsCountWrite
 	 */

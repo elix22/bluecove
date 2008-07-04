@@ -226,7 +226,9 @@ public class OBEXPutStandardTest extends OBEXBaseEmulatorTestCase {
 			dataNeedPackets++;
 		}
 
-		assertEquals("writePackets", 1 + 1 + dataNeedPackets + 1, BlueCoveInternals.getPacketsCountWrite(clientSession));
-		assertEquals("readPackets", 1 + 1 + dataNeedPackets + 1, BlueCoveInternals.getPacketsCountRead(clientSession));
+		assertEquals("writePackets", 1 + longRequestPhasePackets() + dataNeedPackets + 1, BlueCoveInternals
+				.getPacketsCountWrite(clientSession));
+		assertEquals("readPackets", 1 + longRequestPhasePackets() + dataNeedPackets + 1, BlueCoveInternals
+				.getPacketsCountRead(clientSession));
 	}
 }

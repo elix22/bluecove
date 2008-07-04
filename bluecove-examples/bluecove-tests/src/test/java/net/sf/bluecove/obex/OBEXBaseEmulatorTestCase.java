@@ -29,6 +29,8 @@ import javax.obex.SessionNotifier;
 import net.sf.bluecove.BaseEmulatorTestCase;
 import net.sf.bluecove.TestCaseRunnable;
 
+import com.intel.bluetooth.obex.BlueCoveInternals;
+
 /**
  * @author vlads
  * 
@@ -66,6 +68,10 @@ public abstract class OBEXBaseEmulatorTestCase extends BaseEmulatorTestCase {
 				serverAcceptedConnection = serverConnection.acceptAndOpen(createRequestHandler());
 			}
 		};
+	}
+
+	public static int longRequestPhasePackets() {
+		return (BlueCoveInternals.isShortRequestPhase() ? 0 : 1);
 	}
 
 	protected byte[] makeTestData(int length) {
