@@ -114,6 +114,12 @@ public class L2TrafficGenerator {
 			Logger.debug("write no sleep");
 		}
 
+		int transmitMTU = c.channel.getTransmitMTU();
+		if (transmitMTU < cf.sequenceSize) {
+			Logger.warn("write size " + cf.sequenceSize + " is greater then MTU " + transmitMTU);
+			cf.sequenceSize = transmitMTU;
+		}
+
 		long sequenceSentCount = 0;
 		int reportedSize = 0;
 		long reported = System.currentTimeMillis();
