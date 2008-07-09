@@ -56,7 +56,7 @@ public class L2TrafficGenerator {
 					if (initialData.length > 2) {
 						sequenceSize = initialData[1];
 						if (sequenceSize < 0) {
-							sequenceSize = 0xFF - sequenceSize;
+							sequenceSize = 0xFF + sequenceSize;
 						}
 					}
 				}
