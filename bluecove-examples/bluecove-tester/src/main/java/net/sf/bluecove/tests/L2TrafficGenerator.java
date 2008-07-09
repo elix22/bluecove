@@ -36,40 +36,83 @@ import net.sf.bluecove.util.TimeUtils;
  */
 public class L2TrafficGenerator {
 
+	static final int sequenceSizeMin = 16;
+
+	private static class Config {
+
+		int sequenceSleep = 0;
+
+		int sequenceSize = 0;
+
+		boolean init(byte[] initialData, boolean server, String messagePrefix) throws IOException {
+			if (server) {
+				if (initialData != null) {
+					if (initialData.length > 1) {
+						sequenceSleep = initialData[0] * 10;
+					}
+					if (initialData.length > 2) {
+						sequenceSize = initialData[1];
+					}
+				}
+			} else {
+				sequenceSize = Configuration.tgSize & 0xFF;
+				sequenceSleep = Configuration.tgSleep & 0xFF;
+			}
+
+			sequenceSleep = sequenceSleep * 10;
+			if (sequenceSize < sequenceSizeMin) {
+				sequenceSize = sequenceSizeMin;
+			}
+			switch (sequenceSize) {
+			case 251:
+				// 1K
+				sequenceSize = 0x400;
+				break;
+			case 252:
+				// 2K
+				sequenceSize = 0x800;
+				break;
+			case 253:
+				// 3K
+				sequenceSize = 0xC00;
+				break;
+			case 254:
+				// 4K
+				sequenceSize = 0x1000;
+				break;
+			case 255:
+				// 5K
+				sequenceSize = 0x1400;
+				break;
+			}
+			Logger.debug(messagePrefix + " size selected " + sequenceSize + " byte");
+			return true;
+		}
+	}
+
 	public static void trafficGeneratorClientInit(ConnectionHolderL2CAP c, int testType) throws IOException {
 		byte sequenceSleep = (byte) (Configuration.tgSleep & 0xFF);
 		byte sequenceSize = (byte) (Configuration.tgSize & 0xFF);
 		c.channel.send(CommunicationTesterL2CAP.startPrefix(testType, new byte[] { sequenceSleep, sequenceSize }));
 	}
 
-	public static void trafficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
-		int sequenceSleep = 100;
-		final int sequenceSizeMin = 16;
-		int sequenceSize = 77;
-		if (initialData != null) {
-			if (initialData.length > 1) {
-				sequenceSleep = initialData[0] * 10;
-			}
-			if (initialData.length > 2) {
-				sequenceSize = initialData[1];
-				if (sequenceSize < sequenceSizeMin) {
-					sequenceSize = sequenceSizeMin;
-				}
-			}
+	public static void trafficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData, boolean server)
+			throws IOException {
+		Config cf = new Config();
+		if (!cf.init(initialData, server, "write")) {
+			return;
 		}
-
-		if (sequenceSleep > 0) {
-			Logger.debug("write sleep selected" + sequenceSleep + " msec");
+		if (cf.sequenceSleep > 0) {
+			Logger.debug("write sleep selected" + cf.sequenceSleep + " msec");
 		}
-		Logger.debug("write size selected" + sequenceSize + " byte");
 
 		long sequenceSentCount = 0;
 		int reportedSize = 0;
 		long reported = System.currentTimeMillis();
 		try {
 			mainLoop: do {
-				byte[] data = new byte[sequenceSize];
-				for (int i = 1; i < sequenceSize; i++) {
+				byte[] data = new byte[cf.sequenceSize];
+				for (int i = 1; i < cf.sequenceSize; i++) {
 					data[i] = (byte) i;
 				}
 				IOUtils.long2Bytes(sequenceSentCount, 8, data, 0);
@@ -77,7 +120,7 @@ public class L2TrafficGenerator {
 				IOUtils.long2Bytes(sendTime, 8, data, 8);
 				c.channel.send(data);
 				sequenceSentCount++;
-				reportedSize += sequenceSize;
+				reportedSize += cf.sequenceSize;
 				c.active();
 				long now = System.currentTimeMillis();
 				if (now - reported > 5 * 1000) {
@@ -85,9 +128,9 @@ public class L2TrafficGenerator {
 					reported = now;
 					reportedSize = 0;
 				}
-				if (sequenceSleep > 0) {
+				if (cf.sequenceSleep > 0) {
 					try {
-						Thread.sleep(sequenceSleep);
+						Thread.sleep(cf.sequenceSleep);
 					} catch (InterruptedException e) {
 						break mainLoop;
 					}

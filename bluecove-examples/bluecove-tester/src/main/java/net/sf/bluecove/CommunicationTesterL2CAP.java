@@ -76,7 +76,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		case TRAFFIC_GENERATOR_WRITE:
 			testStatus.setName("l2genW");
 			if (server) {
-				L2TrafficGenerator.trafficGeneratorWrite(c, initialData);
+				L2TrafficGenerator.trafficGeneratorWrite(c, initialData, server);
 			} else {
 				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
 				L2TrafficGenerator.trafficGeneratorRead(c, initialData);
@@ -88,7 +88,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				L2TrafficGenerator.trafficGeneratorRead(c, initialData);
 			} else {
 				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
-				L2TrafficGenerator.trafficGeneratorWrite(c, initialData);
+				L2TrafficGenerator.trafficGeneratorWrite(c, initialData, server);
 			}
 			break;
 		case TRAFFIC_GENERATOR_READ_WRITE:
@@ -97,7 +97,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
 			}
 			L2TrafficGenerator.trafficGeneratorReadStart(c, initialData);
-			L2TrafficGenerator.trafficGeneratorWrite(c, initialData);
+			L2TrafficGenerator.trafficGeneratorWrite(c, initialData, server);
 			break;
 		default:
 			Assert.fail("Invalid test#" + testType);
