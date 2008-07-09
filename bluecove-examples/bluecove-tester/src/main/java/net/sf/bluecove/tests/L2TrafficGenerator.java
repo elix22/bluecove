@@ -50,7 +50,7 @@ public class L2TrafficGenerator {
 					if (initialData.length > 1) {
 						sequenceSleep = initialData[0];
 						if (sequenceSleep < 0) {
-							sequenceSleep = 0xFF - sequenceSleep;
+							sequenceSleep = 0xFF + sequenceSleep;
 						}
 					}
 					if (initialData.length > 2) {
@@ -109,7 +109,9 @@ public class L2TrafficGenerator {
 			return;
 		}
 		if (cf.sequenceSleep > 0) {
-			Logger.debug("write sleep selected" + cf.sequenceSleep + " msec");
+			Logger.debug("write sleep selected " + cf.sequenceSleep + " msec");
+		} else {
+			Logger.debug("write no sleep");
 		}
 
 		long sequenceSentCount = 0;
