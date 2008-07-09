@@ -22,11 +22,9 @@ package net.sf.bluecove;
 
 import java.io.IOException;
 
-import net.sf.bluecove.util.IOUtils;
-import net.sf.bluecove.util.TimeStatistic;
-import net.sf.bluecove.util.TimeUtils;
-
 import junit.framework.Assert;
+import net.sf.bluecove.tests.L2TrafficGenerator;
+import net.sf.bluecove.util.IOUtils;
 
 /**
  * @author vlads
@@ -36,7 +34,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 
 	public static final int INITIAL_DATA_PREFIX_LEN = 2;
 
-	private static byte[] startPrefix(int testType, byte[] data) {
+	public static byte[] startPrefix(int testType, byte[] data) {
 		byte[] dataToSend = new byte[data.length + INITIAL_DATA_PREFIX_LEN];
 		dataToSend[0] = Consts.SEND_TEST_START;
 		dataToSend[1] = (byte) testType;
@@ -78,28 +76,28 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		case TRAFFIC_GENERATOR_WRITE:
 			testStatus.setName("l2genW");
 			if (server) {
-				trafficGeneratorWrite(c, initialData);
+				L2TrafficGenerator.trafficGeneratorWrite(c, initialData);
 			} else {
-				trafficGeneratorClientInit(c, testType);
-				trafficGeneratorRead(c, initialData);
+				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
+				L2TrafficGenerator.trafficGeneratorRead(c, initialData);
 			}
 			break;
 		case TRAFFIC_GENERATOR_READ:
 			testStatus.setName("l2genR");
 			if (server) {
-				trafficGeneratorRead(c, initialData);
+				L2TrafficGenerator.trafficGeneratorRead(c, initialData);
 			} else {
-				trafficGeneratorClientInit(c, testType);
-				trafficGeneratorWrite(c, initialData);
+				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
+				L2TrafficGenerator.trafficGeneratorWrite(c, initialData);
 			}
 			break;
 		case TRAFFIC_GENERATOR_READ_WRITE:
 			testStatus.setName("l2genRW");
 			if (!server) {
-				trafficGeneratorClientInit(c, testType);
+				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
 			}
-			trafficGeneratorReadStart(c, initialData);
-			trafficGeneratorWrite(c, initialData);
+			L2TrafficGenerator.trafficGeneratorReadStart(c, initialData);
+			L2TrafficGenerator.trafficGeneratorWrite(c, initialData);
 			break;
 		default:
 			Assert.fail("Invalid test#" + testType);
@@ -294,132 +292,6 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 			if (sequenceSentCount != sequenceSize) {
 				Logger.debug("Sent only " + sequenceSentCount + " packet(s) from " + sequenceSize);
 			}
-		}
-	}
-
-	private static void trafficGeneratorClientInit(ConnectionHolderL2CAP c, int testType) throws IOException {
-		byte sequenceSleep = 2;
-		byte sequenceSize = 77;
-		c.channel.send(startPrefix(testType, new byte[] { sequenceSleep, sequenceSize }));
-	}
-
-	private static void trafficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
-		int sequenceSleep = 100;
-		final int sequenceSizeMin = 16;
-		int sequenceSize = 77;
-		if (initialData != null) {
-			if (initialData.length > 1) {
-				sequenceSleep = initialData[0] * 10;
-			}
-			if (initialData.length > 2) {
-				sequenceSize = initialData[1];
-				if (sequenceSize < sequenceSizeMin) {
-					sequenceSize = sequenceSizeMin;
-				}
-			}
-		}
-
-		long sequenceSentCount = 0;
-		int reportedSize = 0;
-		long reported = System.currentTimeMillis();
-		try {
-			mainLoop: do {
-				byte[] data = new byte[sequenceSize];
-				for (int i = 1; i < sequenceSize; i++) {
-					data[i] = (byte) i;
-				}
-				IOUtils.long2Bytes(sequenceSentCount, 8, data, 0);
-				long sendTime = System.currentTimeMillis();
-				IOUtils.long2Bytes(sendTime, 8, data, 8);
-				c.channel.send(data);
-				sequenceSentCount++;
-				reportedSize += sequenceSize;
-				c.active();
-				long now = System.currentTimeMillis();
-				if (now - reported > 5 * 1000) {
-					Logger.debug("Sent " + sequenceSentCount + " packet(s) " + TimeUtils.bps(reportedSize, reported));
-					reported = now;
-					reportedSize = 0;
-				}
-				if (sequenceSleep > 0) {
-					try {
-						Thread.sleep(sequenceSleep);
-					} catch (InterruptedException e) {
-						break mainLoop;
-					}
-				}
-			} while (true);
-		} finally {
-			Logger.debug("Total " + sequenceSentCount + " packet(s)");
-		}
-	}
-
-	private static void trafficGeneratorReadStart(final ConnectionHolderL2CAP c, final byte[] initialData) {
-		Thread t = new Thread() {
-			public void run() {
-				try {
-					trafficGeneratorRead(c, initialData);
-				} catch (IOException e) {
-					Logger.error("reader", e);
-				}
-			}
-		};
-		t.start();
-	}
-
-	private static void trafficGeneratorRead(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
-		long sequenceRecivedCount = 0;
-		long sequenceRecivedNumberLast = -1;
-		long sequenceOutOfOrderCount = 0;
-		TimeStatistic delay = new TimeStatistic();
-		long reported = System.currentTimeMillis();
-		long receiveTimeLast = 0;
-		try {
-			int receiveMTU = c.channel.getReceiveMTU();
-			mainLoop: do {
-				while (!c.channel.ready()) {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						break mainLoop;
-					}
-				}
-				byte[] dataReceived = new byte[receiveMTU];
-				int lengthdataReceived = c.channel.receive(dataReceived);
-				c.active();
-				long receiveTime = System.currentTimeMillis();
-				sequenceRecivedCount++;
-				long sendTime = 0;
-
-				if (lengthdataReceived > 8) {
-					long sequenceRecivedNumber = IOUtils.bytes2Long(dataReceived, 0, 8);
-					if (sequenceRecivedNumberLast + 1 != sequenceRecivedNumber) {
-						sequenceOutOfOrderCount++;
-					} else if (lengthdataReceived > 18) {
-						sendTime = IOUtils.bytes2Long(dataReceived, 8, 8);
-					}
-					sequenceRecivedNumberLast = sequenceRecivedNumber;
-				} else {
-					sequenceOutOfOrderCount++;
-				}
-
-				if (receiveTimeLast != 0) {
-					delay.add(receiveTimeLast - receiveTime);
-					receiveTimeLast = receiveTime;
-				}
-
-				long now = receiveTime;
-				if (now - reported > 5 * 1000) {
-					Logger.debug("Received " + sequenceRecivedCount + "/" + sequenceOutOfOrderCount + "(er) packet(s) "
-							+ delay.avg() + " msec");
-					reported = now;
-				}
-
-			} while (true);
-		} finally {
-			Logger.debug("Received  " + sequenceRecivedCount + " packet(s)");
-			Logger.debug("Misplaced " + sequenceOutOfOrderCount + " packet(s)");
-			Logger.debug(" avg interval " + delay.avg() + " msec");
 		}
 	}
 

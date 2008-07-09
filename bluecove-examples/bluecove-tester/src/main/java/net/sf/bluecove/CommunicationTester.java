@@ -198,10 +198,10 @@ public class CommunicationTester extends CommunicationData {
 				os.flush();
 			}
 		}
-		// Long test need conformation
+		// Long test need confirmation
 		os.flush();
 		byte got = (byte) is.read();
-		Assert.assertEquals("conformation byte", streamAvailableByteCount, got);
+		Assert.assertEquals("Confirmation byte", streamAvailableByteCount, got);
 	}
 
 	private static void readStreamAvailable(InputStream is, OutputStream os) throws IOException {
@@ -913,15 +913,31 @@ public class CommunicationTester extends CommunicationData {
 
 		// ---- TRAFFIC GENERATORS
 		case TRAFFIC_GENERATOR_WRITE:
-			testStatus.setName("RFTGenW");
+			testStatus.setName("RFgenW");
 			if (server) {
-				RfTrafficGenerator.write(c);
+				RfTrafficGenerator.trafficGeneratorWrite(c, true);
 			} else {
-				// traficGeneratorClientInit(c, testType);
-				// traficGeneratorRead(c, initialData);
+				RfTrafficGenerator.trafficGeneratorClientInit(c);
+				RfTrafficGenerator.trafficGeneratorRead(c);
 			}
 			break;
-
+		case TRAFFIC_GENERATOR_READ:
+			testStatus.setName("RFgenR");
+			if (server) {
+				RfTrafficGenerator.trafficGeneratorRead(c);
+			} else {
+				RfTrafficGenerator.trafficGeneratorClientInit(c);
+				RfTrafficGenerator.trafficGeneratorWrite(c, false);
+			}
+			break;
+		case TRAFFIC_GENERATOR_READ_WRITE:
+			testStatus.setName("RFgenRW");
+			if (!server) {
+				RfTrafficGenerator.trafficGeneratorClientInit(c);
+			}
+			RfTrafficGenerator.trafficGeneratorReadStart(c);
+			RfTrafficGenerator.trafficGeneratorWrite(c, false);
+			break;
 		case TEST_SERVER_TERMINATE:
 			return;
 		default:

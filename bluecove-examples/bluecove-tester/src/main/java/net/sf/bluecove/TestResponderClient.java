@@ -714,7 +714,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 					if ((monitor != null) && (monitor.isShutdownCalled())) {
 						failure.addFailure(deviceName + " test #" + testType + " " + testStatus.getName()
 								+ " terminated by  by TimeOut");
-					} else {
+					} else if (testType < Consts.TEST_SERVER_TERMINATE) {
 						failure.addFailure(deviceName + " test #" + testType + " " + testStatus.getName(), e);
 					}
 				}

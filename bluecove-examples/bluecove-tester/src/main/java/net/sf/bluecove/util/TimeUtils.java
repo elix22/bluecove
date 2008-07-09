@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove.util;
 
 import java.util.Calendar;
@@ -25,7 +25,7 @@ import java.util.Date;
 
 /**
  * @author vlads
- *
+ * 
  */
 public abstract class TimeUtils {
 
@@ -34,31 +34,31 @@ public abstract class TimeUtils {
 			return "n/a";
 		}
 		long msec = since(start);
-		long sec = msec/1000;
+		long sec = msec / 1000;
 		long min = sec / 60;
 		sec -= min * 60;
 		long h = min / 60;
 		min -= h * 60;
-		
+
 		StringBuffer sb;
-	    sb = new StringBuffer();
-	    if (h != 0) {
-	    	sb.append(StringUtils.d00((int)h)).append(":");
-	    }
-	    if ((h != 0) || (min != 0)) {
-	    	sb.append(StringUtils.d00((int)min)).append(":");
-	    }
-	    sb.append(StringUtils.d00((int)sec));
-	    if ((h == 0) && (min == 0)) {
-	    	sb.append(" sec");
-	    }
-	    if ((h == 0) && (min == 0) && (sec <= 1)) {
-	    	msec -= 1000 * sec;
-	    	sb.append(" ");
-	    	sb.append(StringUtils.d000((int)msec));
-	    	sb.append(" msec");
-	    }
-	    return sb.toString();
+		sb = new StringBuffer();
+		if (h != 0) {
+			sb.append(StringUtils.d00((int) h)).append(":");
+		}
+		if ((h != 0) || (min != 0)) {
+			sb.append(StringUtils.d00((int) min)).append(":");
+		}
+		sb.append(StringUtils.d00((int) sec));
+		if ((h == 0) && (min == 0)) {
+			sb.append(" sec");
+		}
+		if ((h == 0) && (min == 0) && (sec <= 1)) {
+			msec -= 1000 * sec;
+			sb.append(" ");
+			sb.append(StringUtils.d000((int) msec));
+			sb.append(" msec");
+		}
+		return sb.toString();
 	}
 
 	public static long since(long start) {
@@ -68,14 +68,14 @@ public abstract class TimeUtils {
 		return (System.currentTimeMillis() - start);
 	}
 
-	public static String bps(int size, long start) {
+	public static String bps(long size, long start) {
 		long duration = TimeUtils.since(start);
 		if (duration == 0) {
 			return "n/a";
 		}
-		return "" + ((1000 * 8 * size)/(duration)) + " bit/s";
+		return "" + ((1000 * 8 * size) / (duration)) + " bit/s";
 	}
-	
+
 	public static String timeNowToString() {
 		return timeToString(System.currentTimeMillis());
 	}
@@ -83,31 +83,31 @@ public abstract class TimeUtils {
 	public static String timeStampNowToString() {
 		return timeStampToString(System.currentTimeMillis(), true);
 	}
-	
+
 	public static String timeToString(Calendar calendar, boolean millisecond) {
-	    StringBuffer sb;
-	    sb = new StringBuffer();
-	    sb.append(StringUtils.d00(calendar.get(Calendar.HOUR_OF_DAY))).append(":");
-	    sb.append(StringUtils.d00(calendar.get(Calendar.MINUTE))).append(":");
-	    sb.append(StringUtils.d00(calendar.get(Calendar.SECOND)));
-	    if (millisecond) {
-	    	sb.append(".");
-	    	sb.append(StringUtils.d000(calendar.get(Calendar.MILLISECOND)));
-	    }
-	    return sb.toString();
+		StringBuffer sb;
+		sb = new StringBuffer();
+		sb.append(StringUtils.d00(calendar.get(Calendar.HOUR_OF_DAY))).append(":");
+		sb.append(StringUtils.d00(calendar.get(Calendar.MINUTE))).append(":");
+		sb.append(StringUtils.d00(calendar.get(Calendar.SECOND)));
+		if (millisecond) {
+			sb.append(".");
+			sb.append(StringUtils.d000(calendar.get(Calendar.MILLISECOND)));
+		}
+		return sb.toString();
 	}
 
 	public static String timeToString(long timeStamp) {
 		return timeStampToString(timeStamp, false);
 	}
-	
+
 	public static synchronized String timeStampToString(long timeStamp, boolean millisecond) {
 		if (timeStamp == 0) {
 			return "n/a";
 		}
 		Calendar calendar = Calendar.getInstance();
-	    calendar.setTime(new Date(timeStamp));
-	    return timeToString(calendar, millisecond);
+		calendar.setTime(new Date(timeStamp));
+		return timeToString(calendar, millisecond);
 	}
 
 	public static boolean sleep(long millis) {

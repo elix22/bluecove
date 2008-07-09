@@ -151,15 +151,18 @@ public class ConfigurationDialog extends OkCancelDialog {
 		addConfig("testAllServiceAttributes");
 
 		addConfig("testServerForceDiscoverable");
-		if (Configuration.screenSizeSmall) {
-			addConfig(null);
-		}
+
+		addConfig(null);
+
 		addConfig("clientContinuous");
 		addConfig("clientContinuousDiscovery");
 		addConfig("clientContinuousDiscoveryDevices");
 		addConfig("clientContinuousServicesSearch");
 		addConfig("clientTestConnections");
 		addConfig("clientTestConnectionsMultipleThreads", "concurrent connections");
+
+		addConfig("tgSleep");
+		addConfig("tgSize");
 
 		panelItems.setLayout(new GridLayout(configItems.size(), 2));
 

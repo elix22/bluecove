@@ -128,6 +128,10 @@ public class Configuration {
 
 	public static BooleanVar testAllServiceAttributes = new BooleanVar(false);
 
+	public static int tgSleep = 2;
+
+	public static int tgSize = 90;
+
 	/**
 	 * Apparently Motorola Service Attribute STRING is not working. INT_4 not
 	 * working on some Nokia and breakers its discovery by Motorola. INT_16 are
