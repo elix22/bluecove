@@ -47,13 +47,13 @@ public class L2TrafficGenerator {
 		boolean init(byte[] initialData, boolean server, String messagePrefix) throws IOException {
 			if (server) {
 				if (initialData != null) {
-					if (initialData.length > 1) {
+					if (initialData.length >= 1) {
 						sequenceSleep = initialData[0];
 						if (sequenceSleep < 0) {
 							sequenceSleep = 0xFF + sequenceSleep;
 						}
 					}
-					if (initialData.length > 2) {
+					if (initialData.length >= 2) {
 						sequenceSize = initialData[1];
 						if (sequenceSize < 0) {
 							sequenceSize = 0xFF + sequenceSize;
