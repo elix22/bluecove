@@ -36,6 +36,60 @@ public class RfTrafficGenerator {
 
 	final static int sequenceSizeMin = 16;
 
+	private static class Config {
+
+		int sequenceSleep;
+
+		int sequenceSize;
+
+		boolean init(ConnectionHolderStream c, boolean server, String messagePrefix) throws IOException {
+			if (server) {
+				sequenceSleep = c.is.read();
+				if (sequenceSleep == -1) {
+					Logger.debug("EOF received");
+					return false;
+				}
+				sequenceSize = c.is.read();
+				if (sequenceSize == -1) {
+					Logger.debug("EOF received");
+					return false;
+				}
+			} else {
+				sequenceSize = Configuration.tgSize & 0xFF;
+				sequenceSleep = Configuration.tgSleep & 0xFF;
+			}
+
+			sequenceSleep = sequenceSleep * 10;
+			if (sequenceSize < sequenceSizeMin) {
+				sequenceSize = sequenceSizeMin;
+			}
+			switch (sequenceSize) {
+			case 251:
+				// 1K
+				sequenceSize = 0x400;
+				break;
+			case 252:
+				// 2K
+				sequenceSize = 0x800;
+				break;
+			case 253:
+				// 3K
+				sequenceSize = 0xC00;
+				break;
+			case 254:
+				// 4K
+				sequenceSize = 0x1000;
+				break;
+			case 255:
+				// 5K
+				sequenceSize = 0x1400;
+				break;
+			}
+			Logger.debug(messagePrefix + " size selected " + sequenceSize + " byte");
+			return true;
+		}
+	}
+
 	public static void trafficGeneratorClientInit(ConnectionHolderStream c) throws IOException {
 		byte sequenceSleep = (byte) (Configuration.tgSleep & 0xFF);
 		byte sequenceSize = (byte) (Configuration.tgSize & 0xFF);
@@ -44,41 +98,24 @@ public class RfTrafficGenerator {
 		c.os.flush();
 	}
 
-	public static void trafficGeneratorWrite(ConnectionHolderStream c, boolean getConfig) throws IOException {
-		int sequenceSleep;
-		int sequenceSize;
-		if (getConfig) {
-			sequenceSleep = c.is.read();
-			if (sequenceSleep == -1) {
-				Logger.debug("EOF received");
-				return;
-			}
-			sequenceSize = c.is.read();
-			if (sequenceSize == -1) {
-				Logger.debug("EOF received");
-				return;
-			}
+	public static void trafficGeneratorWrite(ConnectionHolderStream c, boolean server) throws IOException {
+		Config cf = new Config();
+		if (!cf.init(c, server, "write")) {
+			return;
+		}
+		if (cf.sequenceSleep > 0) {
+			Logger.debug("write sleep selected " + cf.sequenceSleep + " msec");
 		} else {
-			sequenceSize = (byte) (Configuration.tgSize & 0xFF);
-			sequenceSleep = (byte) (Configuration.tgSleep & 0xFF);
+			Logger.debug("write no sleep");
 		}
-
-		sequenceSleep = sequenceSleep * 10;
-		if (sequenceSize < sequenceSizeMin) {
-			sequenceSize = sequenceSizeMin;
-		}
-		if (sequenceSleep > 0) {
-			Logger.debug("write sleep selected" + sequenceSleep + " msec");
-		}
-		Logger.debug("write size selected" + sequenceSize + " byte");
-
 		long sequenceSentCount = 0;
 		int reportedSize = 0;
-		long reported = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
+		long reported = start;
 		try {
 			mainLoop: do {
-				byte[] data = new byte[sequenceSize];
-				for (int i = 1; i < sequenceSize; i++) {
+				byte[] data = new byte[cf.sequenceSize];
+				for (int i = 1; i < cf.sequenceSize; i++) {
 					data[i] = (byte) i;
 				}
 				IOUtils.long2Bytes(sequenceSentCount, 8, data, 0);
@@ -86,7 +123,7 @@ public class RfTrafficGenerator {
 				IOUtils.long2Bytes(sendTime, 8, data, 8);
 				c.os.write(data);
 				sequenceSentCount++;
-				reportedSize += sequenceSize;
+				reportedSize += cf.sequenceSize;
 				c.active();
 				long now = System.currentTimeMillis();
 				if (now - reported > 5 * 1000) {
@@ -94,9 +131,9 @@ public class RfTrafficGenerator {
 					reported = now;
 					reportedSize = 0;
 				}
-				if (sequenceSleep > 0) {
+				if (cf.sequenceSleep > 0) {
 					try {
-						Thread.sleep(sequenceSleep);
+						Thread.sleep(cf.sequenceSleep);
 					} catch (InterruptedException e) {
 						break mainLoop;
 					}
@@ -105,16 +142,17 @@ public class RfTrafficGenerator {
 			} while (true);
 		} finally {
 			Logger.debug("Total " + sequenceSentCount + " array(s)");
-			long totalB = (sequenceSentCount * sequenceSize / 8);
+			long totalB = (sequenceSentCount * cf.sequenceSize / 8);
 			Logger.debug("Total " + totalB + " KBytes");
+			Logger.debug("Write speed " + TimeUtils.bps(8 * totalB, start));
 		}
 	}
 
-	public static void trafficGeneratorReadStart(final ConnectionHolderStream c) {
+	public static void trafficGeneratorReadStart(final ConnectionHolderStream c, final boolean server) {
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
-					trafficGeneratorRead(c);
+					trafficGeneratorRead(c, server);
 				} catch (IOException e) {
 					Logger.error("reader", e);
 				}
@@ -124,17 +162,17 @@ public class RfTrafficGenerator {
 		t.start();
 	}
 
-	public static void trafficGeneratorRead(ConnectionHolderStream c) throws IOException {
-		byte sequenceSize = (byte) (Configuration.tgSize & 0xFF);
-		if (sequenceSize < sequenceSizeMin) {
-			sequenceSize = sequenceSizeMin;
+	public static void trafficGeneratorRead(ConnectionHolderStream c, boolean server) throws IOException {
+		Config cf = new Config();
+		if (!cf.init(c, server, "read")) {
+			return;
 		}
 		long totalSize = 0;
 		long sequenceReceivedCount = 0;
 		long start = System.currentTimeMillis();
 		long reported = start;
 		long reportedSize = 0;
-		byte[] byteAray = new byte[sequenceSize];
+		byte[] byteAray = new byte[cf.sequenceSize];
 
 		try {
 			while (true) {

@@ -676,6 +676,10 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 						Logger.debug("Test time " + TimeUtils.secSince(start));
 					}
 				}
+				if (testType > Consts.TEST_SERVER_TERMINATE) {
+					Configuration.setLastServerURL(serverURL);
+				}
+
 				connectionHandler.executeTest(testType, testStatus);
 
 				if (monitor.isShutdownCalled()) {

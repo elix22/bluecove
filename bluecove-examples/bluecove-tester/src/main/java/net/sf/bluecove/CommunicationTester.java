@@ -915,19 +915,19 @@ public class CommunicationTester extends CommunicationData {
 		case TRAFFIC_GENERATOR_WRITE:
 			testStatus.setName("RFgenW");
 			if (server) {
-				RfTrafficGenerator.trafficGeneratorWrite(c, true);
+				RfTrafficGenerator.trafficGeneratorWrite(c, server);
 			} else {
 				RfTrafficGenerator.trafficGeneratorClientInit(c);
-				RfTrafficGenerator.trafficGeneratorRead(c);
+				RfTrafficGenerator.trafficGeneratorRead(c, server);
 			}
 			break;
 		case TRAFFIC_GENERATOR_READ:
 			testStatus.setName("RFgenR");
 			if (server) {
-				RfTrafficGenerator.trafficGeneratorRead(c);
+				RfTrafficGenerator.trafficGeneratorRead(c, server);
 			} else {
 				RfTrafficGenerator.trafficGeneratorClientInit(c);
-				RfTrafficGenerator.trafficGeneratorWrite(c, false);
+				RfTrafficGenerator.trafficGeneratorWrite(c, server);
 			}
 			break;
 		case TRAFFIC_GENERATOR_READ_WRITE:
@@ -935,8 +935,8 @@ public class CommunicationTester extends CommunicationData {
 			if (!server) {
 				RfTrafficGenerator.trafficGeneratorClientInit(c);
 			}
-			RfTrafficGenerator.trafficGeneratorReadStart(c);
-			RfTrafficGenerator.trafficGeneratorWrite(c, false);
+			RfTrafficGenerator.trafficGeneratorReadStart(c, server);
+			RfTrafficGenerator.trafficGeneratorWrite(c, server);
 			break;
 		case TEST_SERVER_TERMINATE:
 			return;
