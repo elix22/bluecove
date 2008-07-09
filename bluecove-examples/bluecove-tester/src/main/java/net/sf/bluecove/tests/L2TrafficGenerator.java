@@ -50,13 +50,13 @@ public class L2TrafficGenerator {
 					if (initialData.length >= 1) {
 						sequenceSleep = initialData[0];
 						if (sequenceSleep < 0) {
-							sequenceSleep = 0xFF + sequenceSleep;
+							sequenceSleep = 0x100 + sequenceSleep;
 						}
 					}
 					if (initialData.length >= 2) {
 						sequenceSize = initialData[1];
 						if (sequenceSize < 0) {
-							sequenceSize = 0xFF + sequenceSize;
+							sequenceSize = 0x100 + sequenceSize;
 						}
 					}
 				}
