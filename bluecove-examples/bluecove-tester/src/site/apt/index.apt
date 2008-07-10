@@ -14,9 +14,11 @@ BlueCove test application
 
     * Verify BlueCove communication with other devices
 
-    * Verify BlueCove stability using long running tests
+    * Verify BlueCove stability using {{{./results.html}long running tests}}
 
     * Simplify the start of {{{https://opensource.motorola.com/sf/sfmain/do/viewProject/projects.jsr82}JSR 82 TCK Agent}} using BlueCove
+
+    * Test Bluetooth {{{./speed.html}transfer speed}}
 
     []
 
@@ -193,6 +195,10 @@ java -cp avetanaBluetooth.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecov
    To initialize the server send special initialization 4 bytes sequence to it.  "7, 100, 45, 90",  45 is sleep in microseconds between each array sent; and 90 is size of the array to send (min 16, max 255).
 
    To send this data using BlueCove Tester use menu "More" -> "Client Connection" Near Send select from drop down "as parseByte(text)"
+
+   Array size special values: 251 = 1K (1024 bytes); 252 = 2K; 253 = 3K;  254 = 4K;  255 = 5K;
+
+   Using this generators we collected this {{{./speed.html}speed test results}}
 
 * BlueCove test lab
 

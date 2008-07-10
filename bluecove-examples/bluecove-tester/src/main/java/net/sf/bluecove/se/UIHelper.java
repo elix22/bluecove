@@ -90,4 +90,14 @@ public class UIHelper {
 		Switcher.clear();
 		RemoteDeviceInfo.clear();
 	}
+
+	public static void configurationForSpeedTest(int testNumber) {
+		Configuration.tgSize = 251;
+		Configuration.tgSleep = 0;
+		Configuration.TEST_CASE_FIRST.setValue(testNumber);
+		Configuration.TEST_CASE_LAST.setValue(testNumber);
+		Configuration.TEST_CASE_L2CAP_FIRST.setValue(testNumber);
+		Configuration.TEST_CASE_L2CAP_LAST.setValue(testNumber);
+	}
+
 }

@@ -47,6 +47,7 @@ import java.util.Vector;
 import javax.bluetooth.BluetoothStateException;
 
 import net.sf.bluecove.Configuration;
+import net.sf.bluecove.Consts;
 import net.sf.bluecove.Logger;
 import net.sf.bluecove.Switcher;
 import net.sf.bluecove.TestConcurrent;
@@ -305,6 +306,23 @@ public class Main extends Frame implements LoggerAppender {
 				TestConcurrent.startConcurrentServicesSearchClients();
 			}
 		});
+
+		Menu menuSpeedTests = new Menu("Speed tests");
+		addMenu(menuSpeedTests, "Read test", new ActionListenerRunnable() {
+			public void run() {
+				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_WRITE);
+				Switcher.startClient();
+			}
+		});
+
+		addMenu(menuSpeedTests, "Write test", new ActionListenerRunnable() {
+			public void run() {
+				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_READ);
+				Switcher.startClient();
+			}
+		});
+
+		menuMore.add(menuSpeedTests);
 
 		Menu menuLocalDevice = new Menu("LocalDevice");
 		addMenu(menuLocalDevice, "Get discoverable", new ActionListener() {

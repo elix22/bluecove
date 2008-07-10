@@ -13,22 +13,18 @@ BlueCove test Results
 
         * {BlueCove-MS} - BlueCove with Microsoft Bluetooth stack, Microsoft Wireless Transceiver for Bluetooth 2.0
 
-        * {BlueCove-MS2} - BlueCove with Microsoft Bluetooth stack, D-Link DBT-120;
-            {{{http://cgi.ebay.ca/ws/eBayISAPI.dll?ViewItem&item=110134153795} C$45.99 bought on eBay}}
+        * {BlueCove-MS2} - BlueCove with Microsoft Bluetooth stack, D-Link DBT-120
 
         * {BlueCove-WC} - BlueCove with WIDCOMM (Broadcom Bluetooth stack) v5.0.1.2800, Integrated Cambridge Silicon Radio on HP ZT3380US
 
         * {BlueCove-WC2} - BlueCove with WIDCOMM (Broadcom Bluetooth stack) v4.0.1.2900, {{{http://www.trust.com/14693}TRUST Bluetooth 2.0 EDR USB Adapter BT-2210Tp}};
-           {{{http://cgi.ebay.ca/ws/eBayISAPI.dll?ViewItem&item=160113404663} C$24.36 bought on eBay}}
 
         * MPx220 - BlueCove with Microsoft Bluetooth stack, Windows Mobile 2003 Phone Edition, Motorola MPx220;
-            {{{http://cgi.ebay.ca/ws/eBayISAPI.dll?ViewItem&item=130107251728} C$71.56 bought on eBay}}
 
         * {BlueCove-BS} - BlueCove with BlueSoleil stack 1.6 on BlueSoleil BS001 Dongle (Class I 100 Metres);
-            {{{http://www.bluesoleil.com/products/index.asp?topic=view_pro&id=115319003} C$58.83 bought from bluesoleil.com}}
 
         * {BlueCove-BS2} - BlueCove with BlueSoleil stack 1.6 on ES-388 Bluetooth USB Adapter
-           {{{http://cgi.ebay.ca/ws/eBayISAPI.dll?ViewItem&item=250107244976} C$24.36 fake item, bought on eBay from techsunny}} don't buy! Device has illegal Bluetooth addr 11:11:11:11:11:11
+            fake item, bought on eBay, don't buy! Device has illegal Bluetooth addr 11:11:11:11:11:11
 
         * avetana-WC - avetanaBluetooth 1.3.17 on WIDCOMM (Broadcom Bluetooth stack) v5.0.1.2800, Integrated Cambridge Silicon Radio on HP ZT3380US;
           {{{http://www.avetana-gmbh.de/avetana-gmbh/produkte/jsr82.eng.xml} The best commercial JSR-82 by Moritz Gmelin}}

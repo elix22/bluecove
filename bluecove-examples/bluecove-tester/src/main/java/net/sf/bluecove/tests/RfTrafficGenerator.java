@@ -110,14 +110,17 @@ public class RfTrafficGenerator {
 		}
 		long sequenceSentCount = 0;
 		int reportedSize = 0;
+
+		// Create test data
+		byte[] data = new byte[cf.sequenceSize];
+		for (int i = 1; i < cf.sequenceSize; i++) {
+			data[i] = (byte) i;
+		}
+
 		long start = System.currentTimeMillis();
 		long reported = start;
 		try {
 			mainLoop: do {
-				byte[] data = new byte[cf.sequenceSize];
-				for (int i = 1; i < cf.sequenceSize; i++) {
-					data[i] = (byte) i;
-				}
 				IOUtils.long2Bytes(sequenceSentCount, 8, data, 0);
 				long sendTime = System.currentTimeMillis();
 				IOUtils.long2Bytes(sendTime, 8, data, 8);
