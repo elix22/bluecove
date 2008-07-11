@@ -189,6 +189,7 @@ public class L2TrafficGenerator {
 			throws IOException {
 		try {
 			int receiveMTU = c.channel.getReceiveMTU();
+			byte[] dataReceived = new byte[receiveMTU];
 			mainLoop: do {
 				if (!c.channel.ready()) {
 					try {
@@ -197,7 +198,6 @@ public class L2TrafficGenerator {
 						break mainLoop;
 					}
 				} else {
-					byte[] dataReceived = new byte[receiveMTU];
 					c.channel.receive(dataReceived);
 					c.active();
 				}
