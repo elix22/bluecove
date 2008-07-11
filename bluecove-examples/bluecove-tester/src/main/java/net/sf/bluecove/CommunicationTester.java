@@ -915,6 +915,7 @@ public class CommunicationTester extends CommunicationData {
 		case TRAFFIC_GENERATOR_WRITE:
 			testStatus.setName("RFgenW");
 			if (server) {
+				RfTrafficGenerator.trafficGeneratorStatusReadStart(c);
 				RfTrafficGenerator.trafficGeneratorWrite(c, server);
 			} else {
 				RfTrafficGenerator.trafficGeneratorClientInit(c);
@@ -927,6 +928,7 @@ public class CommunicationTester extends CommunicationData {
 				RfTrafficGenerator.trafficGeneratorRead(c, server);
 			} else {
 				RfTrafficGenerator.trafficGeneratorClientInit(c);
+				RfTrafficGenerator.trafficGeneratorStatusReadStart(c);
 				RfTrafficGenerator.trafficGeneratorWrite(c, server);
 			}
 			break;

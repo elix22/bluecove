@@ -162,10 +162,45 @@ public class L2TrafficGenerator {
 					}
 					c.active();
 				}
-			} while (true);
+			} while (c.isConnectionOpen());
 		} finally {
+			c.setConnectionOpen(false);
 			Logger.debug("L2 Total " + sequenceSentCount + " packet(s)");
 			Logger.debug("L2 Total write speed " + TimeUtils.bps(sequenceSentCount * cf.sequenceSize, start));
+		}
+	}
+
+	public static void trafficGeneratorStatusReadStart(final ConnectionHolderL2CAP c) {
+		Runnable r = new Runnable() {
+			public void run() {
+				try {
+					trafficGeneratorStatusRead(c);
+				} catch (IOException e) {
+					Logger.error("reader", e);
+				}
+			}
+		};
+		Thread t = Configuration.cldcStub.createNamedThread(r, "L2tgStatusReciver");
+		t.start();
+	}
+
+	public static void trafficGeneratorStatusRead(ConnectionHolderL2CAP c) throws IOException {
+		try {
+			int receiveMTU = c.channel.getReceiveMTU();
+			mainLoop: do {
+				while (!c.channel.ready()) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break mainLoop;
+					}
+				}
+				byte[] dataReceived = new byte[receiveMTU];
+				c.channel.receive(dataReceived);
+				c.active();
+			} while (c.isConnectionOpen());
+		} finally {
+			c.setConnectionOpen(false);
 		}
 	}
 
@@ -238,8 +273,9 @@ public class L2TrafficGenerator {
 					reportedSize = 0;
 				}
 
-			} while (true);
+			} while (c.isConnectionOpen());
 		} finally {
+			c.setConnectionOpen(false);
 			Logger.debug("L2 Total Received  " + sequenceRecivedCount + " packet(s)");
 			Logger.debug("L2 Total Misplaced " + sequenceOutOfOrderCount + " packet(s)");
 			Logger.debug("L2  avg interval " + delay.avg() + " msec");

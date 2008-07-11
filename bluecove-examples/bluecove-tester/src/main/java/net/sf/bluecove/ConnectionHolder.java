@@ -37,6 +37,8 @@ public abstract class ConnectionHolder implements CanShutdown {
 
 	protected Vector concurrentConnections;
 
+	boolean connectionOpen = true;
+
 	ConnectionHolder() {
 		active();
 	}
@@ -71,6 +73,7 @@ public abstract class ConnectionHolder implements CanShutdown {
 	}
 
 	public void disconnected() {
+		setConnectionOpen(false);
 		if (concurrentConnections != null) {
 			synchronized (concurrentConnections) {
 				concurrentConnections.removeElement(this);
@@ -90,6 +93,14 @@ public abstract class ConnectionHolder implements CanShutdown {
 
 	public void setTestTimeOutSec(int testTimeOutSec) {
 		this.testTimeOutSec = testTimeOutSec;
+	}
+
+	public boolean isConnectionOpen() {
+		return this.connectionOpen;
+	}
+
+	public void setConnectionOpen(boolean connectionOpen) {
+		this.connectionOpen = connectionOpen;
 	}
 
 }

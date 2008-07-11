@@ -76,6 +76,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 		case TRAFFIC_GENERATOR_WRITE:
 			testStatus.setName("l2genW");
 			if (server) {
+				L2TrafficGenerator.trafficGeneratorStatusReadStart(c);
 				L2TrafficGenerator.trafficGeneratorWrite(c, initialData, server);
 			} else {
 				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
@@ -88,6 +89,7 @@ public class CommunicationTesterL2CAP extends CommunicationData {
 				L2TrafficGenerator.trafficGeneratorRead(c, initialData);
 			} else {
 				L2TrafficGenerator.trafficGeneratorClientInit(c, testType);
+				L2TrafficGenerator.trafficGeneratorStatusReadStart(c);
 				L2TrafficGenerator.trafficGeneratorWrite(c, initialData, server);
 			}
 			break;
