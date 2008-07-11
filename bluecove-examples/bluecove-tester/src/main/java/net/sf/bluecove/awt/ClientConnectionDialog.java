@@ -368,7 +368,8 @@ public class ClientConnectionDialog extends Dialog {
 					data = new byte[bts.size()];
 					int j = 0;
 					for (Enumeration en = bts.elements(); en.hasMoreElements();) {
-						data[j] = Byte.parseByte((String) en.nextElement());
+						int i = Integer.parseInt((String) en.nextElement());
+						data[j] = (byte) (i & 0xFF);
 						j++;
 					}
 					break;
