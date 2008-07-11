@@ -163,6 +163,7 @@ public class ConfigurationDialog extends OkCancelDialog {
 
 		addConfig("tgSleep");
 		addConfig("tgSize");
+		addConfig("tgDurationMin");
 
 		panelItems.setLayout(new GridLayout(configItems.size(), 2));
 

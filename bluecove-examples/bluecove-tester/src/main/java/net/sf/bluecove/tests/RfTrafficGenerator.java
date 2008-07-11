@@ -42,6 +42,8 @@ public class RfTrafficGenerator {
 
 		int sequenceSize;
 
+		int durationMSec = 0;
+
 		boolean init(ConnectionHolderStream c, boolean server, String messagePrefix) throws IOException {
 			if (server) {
 				sequenceSleep = c.is.read();
@@ -54,11 +56,16 @@ public class RfTrafficGenerator {
 					Logger.debug("EOF received");
 					return false;
 				}
+				durationMSec = c.is.read();
+				if (durationMSec == -1) {
+					Logger.debug("EOF received");
+					return false;
+				}
 			} else {
 				sequenceSize = Configuration.tgSize & 0xFF;
 				sequenceSleep = Configuration.tgSleep & 0xFF;
+				durationMSec = Configuration.tgDurationMin;
 			}
-
 			sequenceSleep = sequenceSleep * 10;
 			if (sequenceSize < sequenceSizeMin) {
 				sequenceSize = sequenceSizeMin;
@@ -86,6 +93,9 @@ public class RfTrafficGenerator {
 				break;
 			}
 			Logger.debug(messagePrefix + " size selected " + sequenceSize + " byte");
+			Logger.debug(messagePrefix + " duration " + durationMSec + " minutes");
+			durationMSec *= 60000;
+
 			return true;
 		}
 	}
@@ -93,20 +103,22 @@ public class RfTrafficGenerator {
 	public static void trafficGeneratorClientInit(ConnectionHolderStream c) throws IOException {
 		byte sequenceSleep = (byte) (Configuration.tgSleep & 0xFF);
 		byte sequenceSize = (byte) (Configuration.tgSize & 0xFF);
+		byte durationMin = (byte) (Configuration.tgDurationMin & 0xFF);
 		c.os.write(sequenceSleep);
 		c.os.write(sequenceSize);
+		c.os.write(durationMin);
 		c.os.flush();
 	}
 
 	public static void trafficGeneratorWrite(ConnectionHolderStream c, boolean server) throws IOException {
 		Config cf = new Config();
-		if (!cf.init(c, server, "write")) {
+		if (!cf.init(c, server, "RF write")) {
 			return;
 		}
 		if (cf.sequenceSleep > 0) {
-			Logger.debug("write sleep selected " + cf.sequenceSleep + " msec");
+			Logger.debug("RF write sleep selected " + cf.sequenceSleep + " msec");
 		} else {
-			Logger.debug("write no sleep");
+			Logger.debug("RF write no sleep");
 		}
 		long sequenceSentCount = 0;
 		int reportedSize = 0;
@@ -130,9 +142,12 @@ public class RfTrafficGenerator {
 				c.active();
 				long now = System.currentTimeMillis();
 				if (now - reported > 5 * 1000) {
-					Logger.debug("Sent " + sequenceSentCount + " array(s) " + TimeUtils.bps(reportedSize, reported));
+					Logger.debug("RF Sent " + sequenceSentCount + " array(s) " + TimeUtils.bps(reportedSize, reported));
 					reported = now;
 					reportedSize = 0;
+				}
+				if ((cf.durationMSec != 0) && (now > start + cf.durationMSec)) {
+					break;
 				}
 				if (cf.sequenceSleep > 0) {
 					try {
@@ -144,10 +159,10 @@ public class RfTrafficGenerator {
 				}
 			} while (true);
 		} finally {
-			Logger.debug("Total " + sequenceSentCount + " array(s)");
+			Logger.debug("RF Total " + sequenceSentCount + " array(s)");
 			long totalB = (sequenceSentCount * cf.sequenceSize / 8);
-			Logger.debug("Total " + totalB + " KBytes");
-			Logger.debug("Write speed " + TimeUtils.bps(8 * totalB, start));
+			Logger.debug("RF Total " + totalB + " KBytes");
+			Logger.debug("RF Total write speed " + TimeUtils.bps(8 * totalB, start));
 		}
 	}
 
@@ -167,7 +182,7 @@ public class RfTrafficGenerator {
 
 	public static void trafficGeneratorRead(ConnectionHolderStream c, boolean server) throws IOException {
 		Config cf = new Config();
-		if (!cf.init(c, server, "read")) {
+		if (!cf.init(c, server, "RF read")) {
 			return;
 		}
 		long totalSize = 0;
@@ -189,7 +204,7 @@ public class RfTrafficGenerator {
 				c.active();
 				long now = System.currentTimeMillis();
 				if (now - reported > 5 * 1000) {
-					Logger.debug("Received " + sequenceReceivedCount + " array(s) "
+					Logger.debug("RF Received " + sequenceReceivedCount + " array(s) "
 							+ TimeUtils.bps(reportedSize, reported));
 					reported = now;
 					reportedSize = 0;
@@ -197,8 +212,10 @@ public class RfTrafficGenerator {
 			}
 
 		} finally {
-			Logger.debug("Received " + totalSize);
-			Logger.debug("Read speed " + TimeUtils.bps(totalSize, start));
+			Logger.debug("RF Total " + sequenceReceivedCount + " array(s)");
+			long totalB = (totalSize / 8);
+			Logger.debug("RF Total " + totalB + " KBytes");
+			Logger.debug("RF Total read speed " + TimeUtils.bps(totalSize, start));
 		}
 
 	}

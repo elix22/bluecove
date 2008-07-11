@@ -91,13 +91,16 @@ public class UIHelper {
 		RemoteDeviceInfo.clear();
 	}
 
-	public static void configurationForSpeedTest(int testNumber) {
+	public static void configurationForSpeedTest(int testNumber, boolean l2cap) {
 		Configuration.tgSize = 251;
 		Configuration.tgSleep = 0;
+		Configuration.clientContinuous.setValue(false);
 		Configuration.TEST_CASE_FIRST.setValue(testNumber);
 		Configuration.TEST_CASE_LAST.setValue(testNumber);
 		Configuration.TEST_CASE_L2CAP_FIRST.setValue(testNumber);
 		Configuration.TEST_CASE_L2CAP_LAST.setValue(testNumber);
+		Configuration.testL2CAP.setValue(l2cap);
+		Configuration.testRFCOMM.setValue(!l2cap);
 	}
 
 }

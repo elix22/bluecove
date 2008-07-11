@@ -308,16 +308,29 @@ public class Main extends Frame implements LoggerAppender {
 		});
 
 		Menu menuSpeedTests = new Menu("Speed tests");
-		addMenu(menuSpeedTests, "Read test", new ActionListenerRunnable() {
+		addMenu(menuSpeedTests, "RFCOMM Read test", new ActionListenerRunnable() {
 			public void run() {
-				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_WRITE);
+				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_WRITE, false);
 				Switcher.startClient();
 			}
 		});
 
-		addMenu(menuSpeedTests, "Write test", new ActionListenerRunnable() {
+		addMenu(menuSpeedTests, "RFCOMM Write test", new ActionListenerRunnable() {
 			public void run() {
-				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_READ);
+				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_READ, false);
+				Switcher.startClient();
+			}
+		});
+		addMenu(menuSpeedTests, "L2CAP Read test", new ActionListenerRunnable() {
+			public void run() {
+				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_WRITE, true);
+				Switcher.startClient();
+			}
+		});
+
+		addMenu(menuSpeedTests, "L2CAP Write test", new ActionListenerRunnable() {
+			public void run() {
+				UIHelper.configurationForSpeedTest(Consts.TRAFFIC_GENERATOR_READ, true);
 				Switcher.startClient();
 			}
 		});

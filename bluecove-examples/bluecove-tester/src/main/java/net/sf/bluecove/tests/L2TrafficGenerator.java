@@ -44,25 +44,25 @@ public class L2TrafficGenerator {
 
 		int sequenceSize = 0;
 
+		int durationMSec = 0;
+
 		boolean init(byte[] initialData, boolean server, String messagePrefix) throws IOException {
 			if (server) {
 				if (initialData != null) {
 					if (initialData.length >= 1) {
-						sequenceSleep = initialData[0];
-						if (sequenceSleep < 0) {
-							sequenceSleep = 0x100 + sequenceSleep;
-						}
+						sequenceSleep = IOUtils.byteToUnsignedInt(initialData[0]);
 					}
 					if (initialData.length >= 2) {
-						sequenceSize = initialData[1];
-						if (sequenceSize < 0) {
-							sequenceSize = 0x100 + sequenceSize;
-						}
+						sequenceSize = IOUtils.byteToUnsignedInt(initialData[1]);
+					}
+					if (initialData.length >= 3) {
+						durationMSec = IOUtils.byteToUnsignedInt(initialData[2]);
 					}
 				}
 			} else {
 				sequenceSize = Configuration.tgSize & 0xFF;
 				sequenceSleep = Configuration.tgSleep & 0xFF;
+				durationMSec = Configuration.tgDurationMin;
 			}
 
 			sequenceSleep = sequenceSleep * 10;
@@ -92,6 +92,8 @@ public class L2TrafficGenerator {
 				break;
 			}
 			Logger.debug(messagePrefix + " size selected " + sequenceSize + " byte");
+			Logger.debug(messagePrefix + " duration " + durationMSec + " minutes");
+			durationMSec *= 60000;
 			return true;
 		}
 	}
@@ -99,13 +101,15 @@ public class L2TrafficGenerator {
 	public static void trafficGeneratorClientInit(ConnectionHolderL2CAP c, int testType) throws IOException {
 		byte sequenceSleep = (byte) (Configuration.tgSleep & 0xFF);
 		byte sequenceSize = (byte) (Configuration.tgSize & 0xFF);
-		c.channel.send(CommunicationTesterL2CAP.startPrefix(testType, new byte[] { sequenceSleep, sequenceSize }));
+		byte durationMin = (byte) (Configuration.tgDurationMin & 0xFF);
+		c.channel.send(CommunicationTesterL2CAP.startPrefix(testType, new byte[] { sequenceSleep, sequenceSize,
+				durationMin }));
 	}
 
 	public static void trafficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData, boolean server)
 			throws IOException {
 		Config cf = new Config();
-		if (!cf.init(initialData, server, "write")) {
+		if (!cf.init(initialData, server, "L2 write")) {
 			return;
 		}
 		if (cf.sequenceSleep > 0) {
@@ -116,7 +120,7 @@ public class L2TrafficGenerator {
 
 		int transmitMTU = c.channel.getTransmitMTU();
 		if (transmitMTU < cf.sequenceSize) {
-			Logger.warn("write size " + cf.sequenceSize + " is greater then MTU " + transmitMTU);
+			Logger.warn("L2 write size " + cf.sequenceSize + " is greater then MTU " + transmitMTU);
 			cf.sequenceSize = transmitMTU;
 		}
 
@@ -141,9 +145,14 @@ public class L2TrafficGenerator {
 				c.active();
 				long now = System.currentTimeMillis();
 				if (now - reported > 5 * 1000) {
-					Logger.debug("Sent " + sequenceSentCount + " packet(s) " + TimeUtils.bps(reportedSize, reported));
+					Logger
+							.debug("L2 Sent " + sequenceSentCount + " packet(s) "
+									+ TimeUtils.bps(reportedSize, reported));
 					reported = now;
 					reportedSize = 0;
+				}
+				if ((cf.durationMSec != 0) && (now > start + cf.durationMSec)) {
+					break;
 				}
 				if (cf.sequenceSleep > 0) {
 					try {
@@ -155,8 +164,8 @@ public class L2TrafficGenerator {
 				}
 			} while (true);
 		} finally {
-			Logger.debug("Total " + sequenceSentCount + " packet(s)");
-			Logger.debug("Write speed " + TimeUtils.bps(sequenceSentCount * cf.sequenceSize, start));
+			Logger.debug("L2 Total " + sequenceSentCount + " packet(s)");
+			Logger.debug("L2 Total write speed " + TimeUtils.bps(sequenceSentCount * cf.sequenceSize, start));
 		}
 	}
 
@@ -179,9 +188,11 @@ public class L2TrafficGenerator {
 		long sequenceRecivedNumberLast = -1;
 		long sequenceOutOfOrderCount = 0;
 		TimeStatistic delay = new TimeStatistic();
-		long reported = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
+		long reported = start;
 		long receiveTimeLast = 0;
 		long reportedSize = 0;
+		long totalSize = 0;
 		try {
 			int receiveMTU = c.channel.getReceiveMTU();
 			mainLoop: do {
@@ -199,6 +210,7 @@ public class L2TrafficGenerator {
 				sequenceRecivedCount++;
 				long sendTime = 0;
 				reportedSize += lengthdataReceived;
+				totalSize += reportedSize;
 
 				if (lengthdataReceived > 8) {
 					long sequenceRecivedNumber = IOUtils.bytes2Long(dataReceived, 0, 8);
@@ -219,18 +231,19 @@ public class L2TrafficGenerator {
 
 				long now = receiveTime;
 				if (now - reported > 5 * 1000) {
-					Logger.debug("Received " + sequenceRecivedCount + "/" + sequenceOutOfOrderCount + "(er) packet(s) "
-							+ delay.avg() + " msec");
-					Logger.debug("Received " + TimeUtils.bps(reportedSize, reported));
+					Logger.debug("L2 Received " + sequenceRecivedCount + "/" + sequenceOutOfOrderCount
+							+ "(er) packet(s) " + delay.avg() + " msec");
+					Logger.debug("L2 Received " + TimeUtils.bps(reportedSize, reported));
 					reported = now;
 					reportedSize = 0;
 				}
 
 			} while (true);
 		} finally {
-			Logger.debug("Received  " + sequenceRecivedCount + " packet(s)");
-			Logger.debug("Misplaced " + sequenceOutOfOrderCount + " packet(s)");
-			Logger.debug(" avg interval " + delay.avg() + " msec");
+			Logger.debug("L2 Total Received  " + sequenceRecivedCount + " packet(s)");
+			Logger.debug("L2 Total Misplaced " + sequenceOutOfOrderCount + " packet(s)");
+			Logger.debug("L2  avg interval " + delay.avg() + " msec");
+			Logger.debug("L2 Total read speed " + TimeUtils.bps(totalSize, start));
 		}
 	}
 }
