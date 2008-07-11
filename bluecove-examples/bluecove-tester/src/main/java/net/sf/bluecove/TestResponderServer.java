@@ -20,6 +20,7 @@
  */
 package net.sf.bluecove;
 
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
@@ -236,8 +237,16 @@ public class TestResponderServer implements CanShutdown, Runnable {
 				if (!testStatus.streamClosed) {
 					Logger.debug("reply OK");
 					c.active();
-					c.os.write(Consts.SEND_TEST_REPLY_OK);
-					c.os.write(testType);
+					if (testStatus.replyMessage != null) {
+						c.os.write(Consts.SEND_TEST_REPLY_OK_MESSAGE);
+						c.os.write(testType);
+						DataOutputStream dos = new DataOutputStream(c.os);
+						dos.writeUTF(testStatus.replyMessage.toString());
+						dos.flush();
+					} else {
+						c.os.write(Consts.SEND_TEST_REPLY_OK);
+						c.os.write(testType);
+					}
 					c.os.flush();
 				}
 				monitorConnection.finish();
@@ -275,7 +284,6 @@ public class TestResponderServer implements CanShutdown, Runnable {
 			}
 			Logger.info("*Test Success:" + countSuccess + " Failure:" + failure.countFailure);
 		}
-
 	}
 
 	public TestResponderServer() throws BluetoothStateException {

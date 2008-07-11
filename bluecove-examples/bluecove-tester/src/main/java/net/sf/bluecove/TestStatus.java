@@ -17,29 +17,33 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class TestStatus {
-	
+
 	private String name;
-	
+
 	boolean streamClosed = false;
-	
+
 	boolean isSuccess = false;
-	
+
 	boolean isError = false;
-	
+
+	boolean runCompleate = false;
+
 	String pairBTAddress;
-	
+
+	StringBuffer replyMessage;
+
 	public TestStatus() {
 		setName("");
 	}
-	
+
 	public TestStatus(int testType) {
 		setName(testType);
 	}
@@ -51,8 +55,28 @@ public class TestStatus {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public void setName(int testType) {
 		setName(String.valueOf(testType));
+	}
+
+	public boolean isRunCompleate() {
+		return this.runCompleate;
+	}
+
+	public void setRunCompleate() {
+		this.runCompleate = true;
+	}
+
+	public void setStreamClosed() {
+		this.streamClosed = true;
+	}
+
+	public void addReplyMessage(String message) {
+		if (replyMessage == null) {
+			replyMessage = new StringBuffer(message);
+		} else {
+			replyMessage.append('\n').append(message);
+		}
 	}
 }

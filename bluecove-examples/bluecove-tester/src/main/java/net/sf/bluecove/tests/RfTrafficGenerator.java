@@ -25,6 +25,7 @@ import java.io.IOException;
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.ConnectionHolderStream;
 import net.sf.bluecove.Logger;
+import net.sf.bluecove.TestStatus;
 import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.TimeUtils;
 
@@ -34,7 +35,9 @@ import net.sf.bluecove.util.TimeUtils;
  */
 public class RfTrafficGenerator {
 
-	final static int sequenceSizeMin = 16;
+	final static int sequenceSizeMin = 18;
+
+	public static final byte END_MARKER = -1;
 
 	private static class Config {
 
@@ -110,7 +113,8 @@ public class RfTrafficGenerator {
 		c.os.flush();
 	}
 
-	public static void trafficGeneratorWrite(ConnectionHolderStream c, boolean server) throws IOException {
+	public static void trafficGeneratorWrite(ConnectionHolderStream c, boolean server, TestStatus testStatus)
+			throws IOException {
 		Config cf = new Config();
 		if (!cf.init(c, server, "RF write")) {
 			return;
@@ -136,6 +140,13 @@ public class RfTrafficGenerator {
 				IOUtils.long2Bytes(sequenceSentCount, 8, data, 0);
 				long sendTime = System.currentTimeMillis();
 				IOUtils.long2Bytes(sendTime, 8, data, 8);
+				boolean finalArray = false;
+				if ((cf.durationMSec != 0) && (sendTime > start + cf.durationMSec)) {
+					finalArray = true;
+					data[cf.sequenceSize - 2] = END_MARKER;
+					data[cf.sequenceSize - 1] = END_MARKER;
+				}
+
 				c.os.write(data);
 				sequenceSentCount++;
 				reportedSize += cf.sequenceSize;
@@ -146,7 +157,7 @@ public class RfTrafficGenerator {
 					reported = now;
 					reportedSize = 0;
 				}
-				if ((cf.durationMSec != 0) && (now > start + cf.durationMSec)) {
+				if (finalArray) {
 					break;
 				}
 				if (cf.sequenceSleep > 0) {
@@ -157,21 +168,31 @@ public class RfTrafficGenerator {
 					}
 					c.active();
 				}
-			} while (c.isConnectionOpen());
+			} while (c.isConnectionOpen() && (!testStatus.isRunCompleate()));
 		} finally {
-			c.setConnectionOpen(false);
-			Logger.debug("RF Total " + sequenceSentCount + " array(s)");
+			testStatus.setRunCompleate();
+
+			String m;
+			m = "RF Total " + sequenceSentCount + " array(s)";
+			testStatus.addReplyMessage(m);
+			Logger.debug(m);
+
 			long totalB = sequenceSentCount * cf.sequenceSize;
-			Logger.debug("RF Total " + (totalB / 1024) + " KBytes");
-			Logger.debug("RF Total write speed " + TimeUtils.bps(totalB, start));
+			m = "RF Total " + (totalB / 1024) + " KBytes";
+			testStatus.addReplyMessage(m);
+			Logger.debug(m);
+
+			m = "RF Total write speed " + TimeUtils.bps(totalB, start);
+			testStatus.addReplyMessage(m);
+			Logger.debug(m);
 		}
 	}
 
-	public static void trafficGeneratorStatusReadStart(final ConnectionHolderStream c) {
+	public static void trafficGeneratorStatusReadStart(final ConnectionHolderStream c, final TestStatus testStatus) {
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
-					trafficGeneratorStatusRead(c);
+					trafficGeneratorStatusRead(c, testStatus);
 				} catch (IOException e) {
 					Logger.error("reader", e);
 				}
@@ -181,25 +202,42 @@ public class RfTrafficGenerator {
 		t.start();
 	}
 
-	public static void trafficGeneratorStatusRead(ConnectionHolderStream c) throws IOException {
+	public static void trafficGeneratorStatusRead(ConnectionHolderStream c, final TestStatus testStatus)
+			throws IOException {
 		try {
-			while (true) {
-				int read = c.is.read();
-				if (read == -1) {
-					break;
+			int endMakerStatus = 0;
+			byte[] byteAray = new byte[1];
+			while (c.isConnectionOpen() && (!testStatus.isRunCompleate())) {
+				if (c.is.available() > 0) {
+					int read = c.is.read(byteAray);
+					if (read == -1) {
+						testStatus.setStreamClosed();
+						break;
+					}
+					endMakerStatus = detectEndMaker(endMakerStatus, byteAray, read);
+					if (endMakerStatus > 0) {
+						break;
+					}
+					c.active();
+				} else {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break;
+					}
 				}
-				c.active();
 			}
 		} finally {
-			c.setConnectionOpen(false);
+			testStatus.setRunCompleate();
 		}
 	}
 
-	public static void trafficGeneratorReadStart(final ConnectionHolderStream c, final boolean server) {
+	public static void trafficGeneratorReadStart(final ConnectionHolderStream c, final boolean server,
+			final TestStatus testStatus) {
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
-					trafficGeneratorRead(c, server);
+					trafficGeneratorRead(c, server, testStatus);
 				} catch (IOException e) {
 					Logger.error("reader", e);
 				}
@@ -209,7 +247,30 @@ public class RfTrafficGenerator {
 		t.start();
 	}
 
-	public static void trafficGeneratorRead(ConnectionHolderStream c, boolean server) throws IOException {
+	/**
+	 * Expects 2 END_MARKER bytes
+	 */
+	public static int detectEndMaker(int endMakerStatus, byte[] byteAray, int len) {
+		if (len > 0) {
+			if (byteAray[len - 1] == END_MARKER) {
+				if (len == 1) {
+					if (endMakerStatus < 0) {
+						return 1;
+					} else {
+						return -1;
+					}
+				} else if (byteAray[len - 2] == END_MARKER) {
+					return 1;
+				}
+			}
+			return 0;
+		} else {
+			return endMakerStatus;
+		}
+	}
+
+	public static void trafficGeneratorRead(ConnectionHolderStream c, boolean server, final TestStatus testStatus)
+			throws IOException {
 		Config cf = new Config();
 		if (!cf.init(c, server, "RF read")) {
 			return;
@@ -220,11 +281,16 @@ public class RfTrafficGenerator {
 		long reported = start;
 		long reportedSize = 0;
 		byte[] byteAray = new byte[cf.sequenceSize];
-
+		int endMakerStatus = 0;
 		try {
-			while (c.isConnectionOpen()) {
+			while (c.isConnectionOpen() && (!testStatus.isRunCompleate())) {
 				int read = c.is.read(byteAray);
 				if (read == -1) {
+					testStatus.setStreamClosed();
+					break;
+				}
+				endMakerStatus = detectEndMaker(endMakerStatus, byteAray, read);
+				if (endMakerStatus > 0) {
 					break;
 				}
 				sequenceReceivedCount++;
@@ -240,10 +306,19 @@ public class RfTrafficGenerator {
 				}
 			}
 		} finally {
-			c.setConnectionOpen(false);
-			Logger.debug("RF Total " + sequenceReceivedCount + " array(s)");
-			Logger.debug("RF Total " + (totalSize / 1024) + " KBytes");
-			Logger.debug("RF Total read speed " + TimeUtils.bps(totalSize, start));
+			testStatus.setRunCompleate();
+			String m;
+			m = "RF Total " + sequenceReceivedCount + " array(s)";
+			testStatus.addReplyMessage(m);
+			Logger.debug(m);
+
+			m = "RF Total " + (totalSize / 1024) + " KBytes";
+			testStatus.addReplyMessage(m);
+			Logger.debug(m);
+
+			m = "RF Total read speed " + TimeUtils.bps(totalSize, start);
+			testStatus.addReplyMessage(m);
+			Logger.debug(m);
 		}
 
 	}

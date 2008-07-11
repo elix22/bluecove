@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */  
+ */
 package net.sf.bluecove;
 
 import java.io.InputStream;
@@ -29,29 +29,30 @@ import net.sf.bluecove.util.IOUtils;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class ConnectionHolderStream extends ConnectionHolder {
 
 	public StreamConnection conn = null;
-	
+
 	public InputStream is = null;
-	
+
 	public OutputStream os = null;
-	
+
 	public ConnectionHolderStream() {
 		super();
 	}
-	
+
 	public ConnectionHolderStream(StreamConnection conn) {
 		super();
 		this.conn = conn;
 	}
-	
+
 	public void shutdown() {
+		setConnectionOpen(false);
 		IOUtils.closeQuietly(os);
 		IOUtils.closeQuietly(is);
 		IOUtils.closeQuietly(conn);
 	}
-	
+
 }

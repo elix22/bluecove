@@ -684,7 +684,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 
 				if (monitor.isShutdownCalled()) {
 					failure.addFailure(deviceName + " test #" + testType + " " + testStatus.getName()
-							+ " termintade by  by TimeOut");
+							+ " terminated by  by TimeOut");
 				} else if (testStatus.isError) {
 					failure.addFailure(deviceName + " test #" + testType + " " + testStatus.getName());
 				} else if (testStatus.isSuccess) {
@@ -693,7 +693,7 @@ public class TestResponderClient extends TestResponderCommon implements Runnable
 				} else if (testStatus.streamClosed) {
 					Logger.debug(logPrefix + "see server log");
 				} else {
-					connectionHandler.replySuccess(logPrefix, testType);
+					connectionHandler.replySuccess(logPrefix, testType, testStatus);
 					countSuccess++;
 					Logger.debug(logPrefix + "test #" + testType + " " + testStatus.getName() + ": OK");
 				}

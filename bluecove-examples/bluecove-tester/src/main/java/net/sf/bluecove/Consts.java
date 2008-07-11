@@ -98,6 +98,8 @@ public interface Consts {
 
 	public static final int SEND_TEST_REPLY_OK = 77;
 
+	public static final int SEND_TEST_REPLY_OK_MESSAGE = 78;
+
 	public static final int TEST_SERVER_TERMINATE = 99;
 
 	public static final int TRAFFIC_GENERATOR_WRITE = 100;

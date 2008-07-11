@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove;
 
 import javax.bluetooth.L2CAPConnection;
@@ -26,24 +26,24 @@ import net.sf.bluecove.util.IOUtils;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class ConnectionHolderL2CAP extends ConnectionHolder {
 
 	public L2CAPConnection channel;
-	
+
 	public ConnectionHolderL2CAP() {
 		super();
 	}
-	
+
 	public ConnectionHolderL2CAP(L2CAPConnection channel) {
 		super();
 		this.channel = channel;
 	}
-	
+
 	public void shutdown() {
+		setConnectionOpen(false);
 		IOUtils.closeQuietly(channel);
 	}
 
-	
 }

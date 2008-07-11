@@ -26,6 +26,7 @@ import net.sf.bluecove.CommunicationTesterL2CAP;
 import net.sf.bluecove.Configuration;
 import net.sf.bluecove.ConnectionHolderL2CAP;
 import net.sf.bluecove.Logger;
+import net.sf.bluecove.TestStatus;
 import net.sf.bluecove.util.IOUtils;
 import net.sf.bluecove.util.TimeStatistic;
 import net.sf.bluecove.util.TimeUtils;
@@ -106,8 +107,8 @@ public class L2TrafficGenerator {
 				durationMin }));
 	}
 
-	public static void trafficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData, boolean server)
-			throws IOException {
+	public static void trafficGeneratorWrite(ConnectionHolderL2CAP c, byte[] initialData, boolean server,
+			final TestStatus testStatus) throws IOException {
 		Config cf = new Config();
 		if (!cf.init(initialData, server, "L2 write")) {
 			return;
@@ -162,19 +163,19 @@ public class L2TrafficGenerator {
 					}
 					c.active();
 				}
-			} while (c.isConnectionOpen());
+			} while (c.isConnectionOpen() && (!testStatus.isRunCompleate()));
 		} finally {
-			c.setConnectionOpen(false);
+			testStatus.setRunCompleate();
 			Logger.debug("L2 Total " + sequenceSentCount + " packet(s)");
 			Logger.debug("L2 Total write speed " + TimeUtils.bps(sequenceSentCount * cf.sequenceSize, start));
 		}
 	}
 
-	public static void trafficGeneratorStatusReadStart(final ConnectionHolderL2CAP c) {
+	public static void trafficGeneratorStatusReadStart(final ConnectionHolderL2CAP c, final TestStatus testStatus) {
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
-					trafficGeneratorStatusRead(c);
+					trafficGeneratorStatusRead(c, testStatus);
 				} catch (IOException e) {
 					Logger.error("reader", e);
 				}
@@ -184,31 +185,34 @@ public class L2TrafficGenerator {
 		t.start();
 	}
 
-	public static void trafficGeneratorStatusRead(ConnectionHolderL2CAP c) throws IOException {
+	public static void trafficGeneratorStatusRead(ConnectionHolderL2CAP c, final TestStatus testStatus)
+			throws IOException {
 		try {
 			int receiveMTU = c.channel.getReceiveMTU();
 			mainLoop: do {
-				while (!c.channel.ready()) {
+				if (!c.channel.ready()) {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
 						break mainLoop;
 					}
+				} else {
+					byte[] dataReceived = new byte[receiveMTU];
+					c.channel.receive(dataReceived);
+					c.active();
 				}
-				byte[] dataReceived = new byte[receiveMTU];
-				c.channel.receive(dataReceived);
-				c.active();
-			} while (c.isConnectionOpen());
+			} while (c.isConnectionOpen() && (!testStatus.isRunCompleate()));
 		} finally {
-			c.setConnectionOpen(false);
+			testStatus.setRunCompleate();
 		}
 	}
 
-	public static void trafficGeneratorReadStart(final ConnectionHolderL2CAP c, final byte[] initialData) {
+	public static void trafficGeneratorReadStart(final ConnectionHolderL2CAP c, final byte[] initialData,
+			final TestStatus testStatus) {
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
-					trafficGeneratorRead(c, initialData);
+					trafficGeneratorRead(c, initialData, testStatus);
 				} catch (IOException e) {
 					Logger.error("reader", e);
 				}
@@ -218,7 +222,8 @@ public class L2TrafficGenerator {
 		t.start();
 	}
 
-	public static void trafficGeneratorRead(ConnectionHolderL2CAP c, byte[] initialData) throws IOException {
+	public static void trafficGeneratorRead(ConnectionHolderL2CAP c, byte[] initialData, final TestStatus testStatus)
+			throws IOException {
 		long sequenceRecivedCount = 0;
 		long sequenceRecivedNumberLast = -1;
 		long sequenceOutOfOrderCount = 0;
@@ -231,12 +236,14 @@ public class L2TrafficGenerator {
 		try {
 			int receiveMTU = c.channel.getReceiveMTU();
 			mainLoop: do {
-				while (!c.channel.ready()) {
+				if (!c.channel.ready()) {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
 						break mainLoop;
 					}
+				} else {
+					continue;
 				}
 				byte[] dataReceived = new byte[receiveMTU];
 				int lengthdataReceived = c.channel.receive(dataReceived);
@@ -273,9 +280,9 @@ public class L2TrafficGenerator {
 					reportedSize = 0;
 				}
 
-			} while (c.isConnectionOpen());
+			} while (c.isConnectionOpen() && (!testStatus.isRunCompleate()));
 		} finally {
-			c.setConnectionOpen(false);
+			testStatus.setRunCompleate();
 			Logger.debug("L2 Total Received  " + sequenceRecivedCount + " packet(s)");
 			Logger.debug("L2 Total Misplaced " + sequenceOutOfOrderCount + " packet(s)");
 			Logger.debug("L2  avg interval " + delay.avg() + " msec");

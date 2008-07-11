@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  @version $Id$
- */ 
+ */
 package net.sf.bluecove;
 
 import java.io.IOException;
@@ -26,17 +26,17 @@ import javax.microedition.io.Connection;
 
 /**
  * @author vlads
- *
+ * 
  */
 public abstract class TestResponderClientConnection {
 
 	public abstract String protocolID();
-	
+
 	public abstract ConnectionHolder connected(Connection conn) throws IOException;
 
 	public abstract void executeTest(int testType, TestStatus testStatus) throws IOException;
 
-	public abstract void replySuccess(String logPrefix, int testType) throws IOException;
-	
+	public abstract void replySuccess(String logPrefix, int testType, TestStatus testStatus) throws IOException;
+
 	public abstract void sendStopServerCmd(String serverURL);
 }
