@@ -160,9 +160,9 @@ public class RfTrafficGenerator {
 			} while (true);
 		} finally {
 			Logger.debug("RF Total " + sequenceSentCount + " array(s)");
-			long totalB = (sequenceSentCount * cf.sequenceSize / 8);
-			Logger.debug("RF Total " + totalB + " KBytes");
-			Logger.debug("RF Total write speed " + TimeUtils.bps(8 * totalB, start));
+			long totalB = sequenceSentCount * cf.sequenceSize;
+			Logger.debug("RF Total " + (totalB / 1024) + " KBytes");
+			Logger.debug("RF Total write speed " + TimeUtils.bps(totalB, start));
 		}
 	}
 
@@ -213,8 +213,7 @@ public class RfTrafficGenerator {
 
 		} finally {
 			Logger.debug("RF Total " + sequenceReceivedCount + " array(s)");
-			long totalB = (totalSize / 8);
-			Logger.debug("RF Total " + totalB + " KBytes");
+			Logger.debug("RF Total " + (totalSize / 1024) + " KBytes");
 			Logger.debug("RF Total read speed " + TimeUtils.bps(totalSize, start));
 		}
 
