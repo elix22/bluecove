@@ -242,7 +242,6 @@ public class L2TrafficGenerator {
 					} catch (InterruptedException e) {
 						break mainLoop;
 					}
-				} else {
 					continue;
 				}
 				byte[] dataReceived = new byte[receiveMTU];
@@ -252,7 +251,7 @@ public class L2TrafficGenerator {
 				sequenceRecivedCount++;
 				long sendTime = 0;
 				reportedSize += lengthdataReceived;
-				totalSize += reportedSize;
+				totalSize += lengthdataReceived;
 
 				if (lengthdataReceived > 8) {
 					long sequenceRecivedNumber = IOUtils.bytes2Long(dataReceived, 0, 8);
