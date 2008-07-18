@@ -87,6 +87,15 @@ Server failure 0
 
         * Web Start with {{{#previous} previous releases of BlueCove}}
 
+
+    On Linux BlueZ bluecove supports multiple local devices so you can start more then one applications and see how they communicate.
+
+        * <<<{{{./awt-bctest-device-0.jnlp}\u00bbStart with Local Bluetooth device 0}}>>>
+
+        * <<<{{{./awt-bctest-device-1.jnlp}\u00bbStart with Local Bluetooth device 1}}>>>
+
+        * <<<{{{./awt-bctest-device-2.jnlp}\u00bbStart with Local Bluetooth device 2}}>>>
+
     If for some reason Java Web Start is not working for you. Try downloading this {{{./bluecove-tester-app.jar}bluecove-tester-app.jar}} application.
 
     Run it like this:
@@ -95,30 +104,26 @@ Server failure 0
 java -jar bluecove-tester-app.jar
 ---
 
+    To start application with no GUI
+
+---
+java -jar bluecove-tester-app.jar --console
+---
+
     To test JSR-82 implemenation other then BlueCove e.g. avetana. Run test application like this:
 
 ---
-java -cp avetanaBluetooth.jar;bluecove-tester-app.jar net.sf.bluecove.awt.Main
+java -cp avetanaBluetooth.jar;bluecove-tester-app.jar net.sf.bluecove.se.Main
 ---
-
-* on Linux
-
-    On BlueZ bluecove supports multiple local devices so you can start more then one applications and see how they communicate.
-
-        * <<<{{{./awt-bctest-device-0.jnlp}\u00bbStart with Local Bluetooth device 0}}>>>
-
-        * <<<{{{./awt-bctest-device-1.jnlp}\u00bbStart with Local Bluetooth device 1}}>>>
-
-        * <<<{{{./awt-bctest-device-2.jnlp}\u00bbStart with Local Bluetooth device 2}}>>>
 
     You can download the {{{./bluecove-tester.jar}bluecove-tester.jar}} application jar and run it with or without BlueCove JSR-82 in calsspath.
 
 ---
-java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecove.awt.Main
+java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecove.se.Main
 ---
 
 ---
-java -cp avetanaBluetooth.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecove.awt.Main
+java -cp avetanaBluetooth.jar:bluecove-tester.jar:junit-3.8.1.jar net.sf.bluecove.se.Main
 ---
 
     bluecove-tester-app.jar is the same application as bluecove-tester.jar only JUnit and BlueCove classes are included.

@@ -40,14 +40,17 @@ public class Main {
 			if (args[i].equalsIgnoreCase("--agui")) {
 				runAGUI(args);
 				return;
-			} else if (args[i].equalsIgnoreCase("--swing")) {
+			} else if (args[i].equalsIgnoreCase("--swing") || args[i].equals("-s")) {
 				runAGUI(args);
 				return;
-			} else if (args[i].equalsIgnoreCase("--awt")) {
+			} else if (args[i].equalsIgnoreCase("--awt") || args[i].equals("-a")) {
 				runAWT(args);
 				return;
-			} else if (args[i].equalsIgnoreCase("--console")) {
+			} else if (args[i].equalsIgnoreCase("--console") || args[i].equals("-c")) {
 				runConsole(args);
+				return;
+			} else if (args[i].equalsIgnoreCase("--help") || args[i].equals("-h")) {
+				System.out.println(" --swing|--agui|-s\n --console|-c\n --awt|-a");
 				return;
 			}
 		}
