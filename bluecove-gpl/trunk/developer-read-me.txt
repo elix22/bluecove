@@ -1,6 +1,6 @@
  @version $Revision$ ($Author$) $Date$
 
-* Build
+* Build maven2
 
    The project is a module for bluecove project.
 
@@ -15,6 +15,15 @@
    To run build without building native code:
      mvn -Dnative.build.skip=true
 
+* Build using ant
+
+    For your convenience you may use ant to create the librayr binary and jar
+
+    For this main bluecove.jar should be download or compiled, expected location is: ../bluecove/target/bluecove-${version}.jar
+
+    To build native library libbluecove-${os.arch}.so and bluecove-gpl-${version}.jar:
+        ant all
+
 * Native Library Compilation Requirements
 
     - GCC compiler (4.1 or newer)
@@ -23,4 +32,4 @@
     - Development librararies for Bluetooth applications (package bluez-libs-devel 3.9 or newer)
     - When building on 64-bit platform make sure JAVA_HOME during build is pointing to 64-bit java
 
-    The native library are build during maven build.
+    The native library are build during maven or ant build.
