@@ -76,6 +76,9 @@ public class FileStorage implements Storage {
 			}
 		}
 		File f = getPropertyFile();
+		if (f == null) {
+			return;
+		}
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(f);
@@ -90,11 +93,57 @@ public class FileStorage implements Storage {
 		propertiesFileLoadedLastModified = f.lastModified();
 	}
 
+	private static File homePath() {
+		String path = ".bluecove";
+		boolean isWindows = false;
+		String sysName = System.getProperty("os.name");
+		if (sysName != null) {
+			sysName = sysName.toLowerCase();
+			if (sysName.indexOf("windows") != -1) {
+				isWindows = true;
+				path = "Application Data";
+			}
+		}
+		File dir;
+		try {
+			dir = new File(System.getProperty("user.home"), path);
+			if (!dir.exists()) {
+				if (!dir.mkdirs()) {
+					throw new SecurityException();
+				}
+			}
+		} catch (SecurityException e) {
+			dir = new File(new File(System.getProperty("java.io.tmpdir"), System.getProperty("user.name")), path);
+		}
+		if (isWindows) {
+			dir = new File(dir, "BlueCove");
+		}
+		if (!dir.exists()) {
+			if (!dir.mkdirs()) {
+				return null;
+			}
+		} else if (!dir.isDirectory()) {
+			dir.delete();
+			if (!dir.mkdirs()) {
+				return null;
+			}
+		}
+		return dir;
+	}
+
 	private File getPropertyFile() {
 		if (propertyFile != null) {
 			return propertyFile;
 		}
-		String tmpDir = System.getProperty("java.io.tmpdir");
+		File homeDir = homePath();
+		if (homeDir == null) {
+			try {
+				propertyFile = File.createTempFile("bluecove-tester", ".properties");
+				return propertyFile;
+			} catch (IOException e) {
+				return null;
+			}
+		}
 		// Position and history for different stacks and device IDs different
 		// for testing convenience
 		String id = "";
@@ -114,7 +163,7 @@ public class FileStorage implements Storage {
 		} catch (SecurityException ignore) {
 
 		}
-		propertyFile = new File(tmpDir, "bluecove-tester" + id + ".properties");
+		propertyFile = new File(homeDir, "bluecove-tester" + id + ".properties");
 		return propertyFile;
 	}
 
@@ -122,15 +171,17 @@ public class FileStorage implements Storage {
 		File f = getPropertyFile();
 		long lastModified = 0;
 
-		if (f.exists()) {
+		if (f != null && f.exists()) {
 			lastModified = f.lastModified();
+		} else {
+			lastModified = propertiesFileLoadedLastModified;
 		}
 
 		if ((properties != null) && (propertiesFileLoadedLastModified == lastModified)) {
 			return properties;
 		}
 		Properties p = new Properties();
-		if (f.exists()) {
+		if (f != null && f.exists()) {
 			FileInputStream in = null;
 			try {
 				in = new FileInputStream(f);
