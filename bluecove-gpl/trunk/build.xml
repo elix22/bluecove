@@ -46,17 +46,21 @@
 
     <target name="compile" depends="init"
         description="Compile the source">
-        <!-- Compile the java code from ${src} into ${build} -->
+
+        <echo message="compiling on java ${java.version}"/>
         <javac source="1.3" target="1.1" debug="true"
                srcdir="${src}" destdir="${build_classes}">
             <classpath>
                 <pathelement path="${bluecove_main_jar}"/>
             </classpath>
         </javac>
+
     </target>
 
-    <target name="jni-headers" depends="init"
+    <target name="jni-headers" depends="init" unless="jni_headers_skip"
         description="Create JNI headers">
+
+        <echo message="create JNI headers using java.home ${java.home}"/>
         <javah destdir="src/main/c" classpath="${build}">
             <classpath>
                 <pathelement path="${build_classes}"/>
@@ -66,6 +70,7 @@
             <class name="com.intel.bluetooth.BluetoothStackBlueZConsts"/>
             <class name="com.intel.bluetooth.BluetoothStackBlueZNativeTests"/>
         </javah>
+
     </target>
 
     <target name="native-lib" depends="jni-headers"
@@ -88,7 +93,7 @@
         <condition property="library_sufix" value="">
             <os arch="i386"/>
         </condition>
-        <condition property="library_sufix" value="-${os.arch}">
+        <condition property="library_sufix" value="_${os.arch}">
             <not>
                 <isset property="library_sufix" />
             </not>

@@ -33,3 +33,17 @@
     - When building on 64-bit platform make sure JAVA_HOME during build is pointing to 64-bit java
 
     The native library are build during maven or ant build.
+
+* JVM specific notes
+
+    *  sablevm on debian (in particular for NSLU2)
+        build dependencies:
+            apt-get install gcc
+            apt-get install sablevm
+            apt-get install libsablevm1-dev
+            // apt-get install ant-optional
+            // TODO manualy build and install sablevm-sdk-1.13 cp-tools
+        build:
+            //for now create .h on another computer
+            ant -Dbuild.compiler=jikes -Djni_headers_skip=true all
+
