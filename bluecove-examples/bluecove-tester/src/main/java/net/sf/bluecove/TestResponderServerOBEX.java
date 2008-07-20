@@ -152,7 +152,11 @@ public class TestResponderServerOBEX implements Runnable {
 							record.setDeviceServiceClasses(BluetoothTypesInfo.DeviceClassConsts.INFORMATION_SERVICE);
 							deviceServiceClassesUpdated = true;
 						} catch (Throwable e) {
-							Logger.error("setDeviceServiceClasses", e);
+							if (e.getMessage().startsWith("Not Supported on")) {
+								Logger.error("setDeviceServiceClasses " + e.getMessage());
+							} else {
+								Logger.error("setDeviceServiceClasses", e);
+							}
 						}
 
 						try {
