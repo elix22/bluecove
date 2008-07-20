@@ -39,7 +39,9 @@ java -cp bluecove-#version#.jar:bluecove-gpl-#version#.jar:yourApp.jar org.your.
 
     * Fedora Core 6 (bluez-libs-3.7) and later
 
-    * This is not complete list! For other Linux distributions you may need to compile it yourself.
+    * {{{http://www.cyrius.com/debian/nslu2/}Debian 4.0r3 ARM on the Linksys NSLU2}} (bluez-libs-3.7)
+
+    * This is not complete list! For other Linux distributions you may need to compile it yourself using maven or ant.
 
 
 * Configuration options
