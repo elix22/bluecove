@@ -248,6 +248,23 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 			}
 			return b.toString();
 		}
+		// Some Hack and testing functions, not documented
+		if (property.startsWith("bluecove.nativeFunction:")) {
+			String functionDescr = property.substring(property.indexOf(':') + 1, property.length());
+			int paramIdx = functionDescr.indexOf(':');
+			if (paramIdx == -1) {
+				throw new RuntimeException("Invalid native function " + functionDescr + "; arguments expected");
+			}
+			String function = functionDescr.substring(0, paramIdx);
+			long address = RemoteDeviceHelper.getAddress(functionDescr.substring(function.length() + 1, functionDescr
+					.length()));
+			if ("getRemoteDeviceVersionInfo".equals(function)) {
+				return getRemoteDeviceVersionInfo(address);
+			} else if ("getRemoteDeviceRSSI".equals(function)) {
+				return String.valueOf(getRemoteDeviceRSSI(address));
+			}
+			return null;
+		}
 		return (String) propertiesMap.get(property);
 	}
 
@@ -294,6 +311,20 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 
 	public boolean authenticateRemoteDevice(long address) throws IOException {
 		return false;
+	}
+
+	// --- Some testing functions accessible by LocalDevice.getProperty
+
+	private native String getRemoteDeviceVersionInfoImpl(int deviceDescriptor, long address);
+
+	public String getRemoteDeviceVersionInfo(long address) {
+		return getRemoteDeviceVersionInfoImpl(this.deviceDescriptor, address);
+	}
+
+	private native int getRemoteDeviceRSSIImpl(int deviceDescriptor, long address);
+
+	public int getRemoteDeviceRSSI(long address) {
+		return getRemoteDeviceRSSIImpl(this.deviceDescriptor, address);
 	}
 
 	/*

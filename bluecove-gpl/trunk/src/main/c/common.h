@@ -81,6 +81,7 @@ bool DeviceInquiryCallback_builDeviceInquiryCallbacks(JNIEnv * env, struct Devic
 bool DeviceInquiryCallback_callDeviceInquiryStartedCallback(JNIEnv * env, struct DeviceInquiryCallback* callback);
 bool DeviceInquiryCallback_callDeviceDiscovered(JNIEnv * env, struct DeviceInquiryCallback* callback, jobject listener, jlong deviceAddr, jint deviceClass, jstring name, jboolean paired);
 
+#define cOUT_OF_MEMORY "Out of memory"
 
 #endif  /* _BLUECOVE_COMMON_H */
 
