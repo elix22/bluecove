@@ -1,7 +1,7 @@
 /**
  *  BlueCove - Java library for Bluetooth
  *  Copyright (C) 2006-2008 Vlad Skarzhevskyy
- * 
+ *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
@@ -44,6 +44,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 
 import net.sf.bluecove.Configuration;
@@ -58,7 +59,7 @@ import com.intel.bluetooth.RemoteDeviceHelper;
 
 /**
  * @author vlads
- * 
+ *
  */
 public class ClientConnectionDialog extends Dialog {
 
@@ -290,6 +291,13 @@ public class ClientConnectionDialog extends Dialog {
 					onBond();
 				}
 			});
+			Button btnInfo = new Button("Info");
+			panelBtns.add(btnInfo);
+			btnInfo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					onInfo();
+				}
+			});
 		}
 
 		panelBtns.add(btnCancel = new Button("Cancel"));
@@ -404,6 +412,12 @@ public class ClientConnectionDialog extends Dialog {
 	}
 
 	private void onBond() {
+		boolean test = false;
+		if (test) {
+			onNativeFunction();
+			return;
+		}
+
 		String url = tfURL.getText();
 		String pinStr = tfData.getText();
 		if (pinStr.equals("null")) {
@@ -426,6 +440,34 @@ public class ClientConnectionDialog extends Dialog {
 			}
 		};
 		t.start();
+	}
+
+	private void onNativeFunction() {
+		String url = tfURL.getText();
+		try {
+			String deviceAddress = BluetoothTypesInfo.extractBluetoothAddress(url);
+			Logger.debug(deviceAddress + " setSniffMode : "
+					+ LocalDevice.getProperty("bluecove.nativeFunction:setSniffMode:" + deviceAddress));
+			// Logger.debug(deviceAddress + " cancelSniffMode : "
+			// +
+			// LocalDevice.getProperty("bluecove.nativeFunction:cancelSniffMode:"
+			// + deviceAddress));
+		} catch (Throwable e) {
+			Logger.error("error", e);
+		}
+	}
+
+	private void onInfo() {
+		String url = tfURL.getText();
+		try {
+			String deviceAddress = BluetoothTypesInfo.extractBluetoothAddress(url);
+			Logger.debug(deviceAddress + " linkMode is:"
+					+ LocalDevice.getProperty("bluecove.nativeFunction:getRemoteDeviceLinkMode:" + deviceAddress));
+			Logger.debug(deviceAddress + " info:"
+					+ LocalDevice.getProperty("bluecove.nativeFunction:getRemoteDeviceVersionInfo:" + deviceAddress));
+		} catch (Throwable e) {
+			Logger.error("error", e);
+		}
 	}
 
 }
