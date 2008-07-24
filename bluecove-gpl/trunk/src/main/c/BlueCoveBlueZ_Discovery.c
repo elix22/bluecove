@@ -22,6 +22,9 @@
 
 #include "BlueCoveBlueZ.h"
 
+#include <bluetooth/hci.h>
+#include <sys/ioctl.h>
+
 JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_runDeviceInquiryImpl
 (JNIEnv *env, jobject peer, jobject startedNotify, jint deviceID, jint deviceDescriptor, jint accessCode, jint inquiryLength, jint maxResponses, jobject listener) {
     struct DeviceInquiryCallback callback;
@@ -85,28 +88,28 @@ JNIEXPORT jstring JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getRemote
     struct hci_version ver;
     char info[256];
 
-    conn_info = (hci_conn_info_req *)malloc(sizeof(*conn_info) + sizeof(struct hci_conn_info));
+    conn_info = (struct hci_conn_info_req*)malloc(sizeof(*conn_info) + sizeof(struct hci_conn_info));
     if (!conn_info) {
         throwRuntimeException(env, cOUT_OF_MEMORY);
-        return -1;
+        return NULL;
     }
     memset(conn_info, 0, sizeof(struct hci_conn_info));
-    longToDeviceAddr(remoteDeviceAddressLong, &(conn_info->remoteAddress));
+    longToDeviceAddr(remoteDeviceAddressLong, &(conn_info->bdaddr));
 
     conn_info->type = ACL_LINK;
-    if (ioctl(deviceDescriptor, HCIGETCONNINFO, (unsigned long) conn_info) < 0) {
+    if (ioctl((int)deviceDescriptor, HCIGETCONNINFO, (unsigned long) conn_info) < 0) {
         free(conn_info);
         throwRuntimeException(env, "Fail to get connection info");
-        return -1;
+        return NULL;
     }
 
-    int error = hci_read_remote_version(deviceDescriptor, conn_info->conn_info->handle, &ver, READ_REMOTE_NAME_TIMEOUT);
+    int error = hci_read_remote_version((int)deviceDescriptor, conn_info->conn_info->handle, &ver, READ_REMOTE_NAME_TIMEOUT);
     if (error < 0) {
         throwRuntimeException(env, "Can not get remote device info");
         free(conn_info);
         return NULL;
     }
-    snprintf(info, 256, "manufacturer=%i,lmp_version=%i,lmp_sub_version=%i", ver->manufacturer, ver->lmp_ver, ver->lmp_subver);
+    snprintf(info, 256, "manufacturer=%i,lmp_version=%i,lmp_sub_version=%i", ver.manufacturer, ver.lmp_ver, ver.lmp_subver);
     free(conn_info);
     return (*env)->NewStringUTF(env, info);
 }
@@ -117,16 +120,16 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getRemoteDev
     struct hci_conn_info_req *conn_info;
     read_rssi_rp rssi_rp;
 
-    conn_info = (hci_conn_info_req *)malloc(sizeof(*conn_info) + sizeof(struct hci_conn_info));
+    conn_info = (struct hci_conn_info_req*)malloc(sizeof(*conn_info) + sizeof(struct hci_conn_info));
     if (!conn_info) {
         throwRuntimeException(env, cOUT_OF_MEMORY);
         return -1;
     }
     memset(conn_info, 0, sizeof(struct hci_conn_info));
-    longToDeviceAddr(remoteDeviceAddressLong, &(conn_info->remoteAddress));
+    longToDeviceAddr(remoteDeviceAddressLong, &(conn_info->bdaddr));
 
     conn_info->type = ACL_LINK;
-    if (ioctl(deviceDescriptor, HCIGETCONNINFO, (unsigned long) conn_info) < 0) {
+    if (ioctl((int)deviceDescriptor, HCIGETCONNINFO, (unsigned long) conn_info) < 0) {
         free(conn_info);
         throwRuntimeException(env, "Fail to get connection info");
         return -1;
@@ -137,14 +140,14 @@ JNIEXPORT jint JNICALL Java_com_intel_bluetooth_BluetoothStackBlueZ_getRemoteDev
     rq.ocf    = OCF_READ_RSSI;
     rq.cparam = &conn_info->conn_info->handle;
     rq.clen   = 2;
-    rq.rparam = &rp;
+    rq.rparam = &rssi_rp;
     rq.rlen   = READ_RSSI_RP_SIZE;
 
-    if ((hci_send_req(deviceDescriptor, &rq, 100) < 0) || rp.status) {
+    if ((hci_send_req((int)deviceDescriptor, &rq, READ_REMOTE_NAME_TIMEOUT) < 0) || rssi_rp.status) {
         free(conn_info);
         throwRuntimeException(env, "Fail to send hci request");
         return -1;
     }
     free(conn_info);
-    return rp.rssi;
+    return rssi_rp.rssi;
 }
