@@ -59,7 +59,7 @@ import com.intel.bluetooth.RemoteDeviceHelper;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class ClientConnectionDialog extends Dialog {
 
@@ -465,6 +465,8 @@ public class ClientConnectionDialog extends Dialog {
 					+ LocalDevice.getProperty("bluecove.nativeFunction:getRemoteDeviceLinkMode:" + deviceAddress));
 			Logger.debug(deviceAddress + " info:"
 					+ LocalDevice.getProperty("bluecove.nativeFunction:getRemoteDeviceVersionInfo:" + deviceAddress));
+			Logger.debug(deviceAddress + " RSSI:"
+					+ LocalDevice.getProperty("bluecove.nativeFunction:getRemoteDeviceRSSI:" + deviceAddress));
 		} catch (Throwable e) {
 			Logger.error("error", e);
 		}
