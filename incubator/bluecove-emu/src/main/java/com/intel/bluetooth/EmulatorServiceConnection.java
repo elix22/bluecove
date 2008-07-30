@@ -53,7 +53,7 @@ abstract class EmulatorServiceConnection extends EmulatorConnection {
 		if ((value == null) || (!(value instanceof Enumeration))) {
 			return;
 		}
-		for (Enumeration e = (Enumeration) value; e.hasMoreElements();) {
+		for (Enumeration<?> e = (Enumeration<?>) value; e.hasMoreElements();) {
 			Object element = e.nextElement();
 			if (!(element instanceof DataElement)) {
 				continue;
@@ -70,12 +70,16 @@ abstract class EmulatorServiceConnection extends EmulatorConnection {
 		if ((protocolDescriptor == null) || (protocolDescriptor.getDataType() != DataElement.DATSEQ)) {
 			return;
 		}
-		for (Enumeration protocolsSeqEnum = (Enumeration) protocolDescriptor.getValue(); protocolsSeqEnum
+		for (Enumeration<?> protocolsSeqEnum = (Enumeration<?>) protocolDescriptor.getValue(); protocolsSeqEnum
 				.hasMoreElements();) {
-			DataElement elementSeq = (DataElement) protocolsSeqEnum.nextElement();
+			Object element = protocolsSeqEnum.nextElement();
+			if (!(element instanceof DataElement)) {
+				throw new IllegalArgumentException("SDP protocol descriptor list");
+			}
+			DataElement elementSeq = (DataElement) element;
 
 			if (elementSeq.getDataType() == DataElement.DATSEQ) {
-				Enumeration elementSeqEnum = (Enumeration) elementSeq.getValue();
+				Enumeration<?> elementSeqEnum = (Enumeration<?>) elementSeq.getValue();
 				if (elementSeqEnum.hasMoreElements()) {
 					DataElement protocolElement = (DataElement) elementSeqEnum.nextElement();
 					if ((protocolElement.getDataType() == DataElement.UUID)
