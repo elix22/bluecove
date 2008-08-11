@@ -73,6 +73,8 @@
         </snapshotRepository>
     </distributionManagement>
 
+    <!--4snapshot-->
+    <!--
     <repositories>
         <repository>
             <id>pyx4me-web-repo</id>
@@ -85,7 +87,7 @@
             </releases>
         </repository>
     </repositories>
-
+    -->
 
     <developers>
         <developer>
