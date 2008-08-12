@@ -12,7 +12,7 @@
     <name>bluecove-gpl</name>
     <packaging>jar</packaging>
 
-    <description>BlueCove Linux version</description>
+    <description>BlueCove Linux BlueZ module</description>
 
     <url>http://www.bluecove.org/bluecove-gpl/</url>
 
@@ -277,6 +277,24 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                   <execution>
+                       <id>all-sources-gz</id>
+                       <phase>install</phase>
+                       <goals><goal>single</goal></goals>
+                       <configuration>
+                           <attach>false</attach>
+                           <tarLongFileMode>gnu</tarLongFileMode>
+                           <descriptors>
+                               <descriptor>assembly-distr-sources.xml</descriptor>
+                           </descriptors>
+                       </configuration>
+                   </execution>
+                </executions>
             </plugin>
 
             <!-- jar sources during build -->
