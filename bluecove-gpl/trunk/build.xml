@@ -93,6 +93,9 @@
         <condition property="library_sufix" value="">
             <os arch="i386"/>
         </condition>
+        <condition property="library_sufix" value="_x64">
+            <os arch="amd64"/>
+        </condition>
         <condition property="library_sufix" value="_${os.arch}">
             <not>
                 <isset property="library_sufix" />

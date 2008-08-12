@@ -17,7 +17,7 @@
 
 * Build using ant
 
-    For your convenience you may use ant to create the librayr binary and jar
+    For your convenience you may use ant to create the librayr binary and jar. You will need Optional ant taks installed (ant-nodeps.jar) to run the build.
 
     For this main bluecove.jar should be download or compiled, expected location is: ../bluecove/target/bluecove-${version}.jar
 
