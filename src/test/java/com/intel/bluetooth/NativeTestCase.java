@@ -16,7 +16,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  @version $Id$
+ *  @version $Id: NativeTestCase.java 1570 2008-01-16 22:15:56Z skarzhevskyy $
  */
 package com.intel.bluetooth;
 
@@ -24,11 +24,11 @@ import junit.framework.TestCase;
 
 /**
  * Base class for test cases that are calling native function.
- *
+ * 
  * Native Debug automatically enabled when running tests in Eclipse
- *
+ * 
  * @author vlads
- *
+ * 
  */
 public abstract class NativeTestCase extends TestCase {
 
@@ -57,19 +57,8 @@ public abstract class NativeTestCase extends TestCase {
 			BlueCoveImpl.instance().enableNativeDebug(true);
 		}
 
-		if (NativeLibLoader.getOS() == NativeLibLoader.OS_MAC_OS_X) {
-			if (!NativeLibLoader.isAvailable(BlueCoveImpl.NATIVE_LIB_OSX)) {
-				throw new Error("Can't load DLL");
-			}
-		} else if (needDllWIDCOMM()) {
-			if (!NativeTestInterfaces.loadDllWIDCOMM()) {
-				throw new Error("Can't load DLL");
-			}
-		} else {
-			if (!NativeTestInterfaces.loadDllMS()) {
-				throw new Error("Can't load DLL");
-			}
-		}
+		BluetoothStack anyStack = new BluetoothStackBlueZ();
+		BlueCoveImpl.loadNativeLibraries(anyStack);
 	}
 
 	boolean isEclipse() {
@@ -77,7 +66,4 @@ public abstract class NativeTestCase extends TestCase {
 		return (ste[ste.length - 1].getClassName().startsWith("org.eclipse.jdt"));
 	}
 
-	protected boolean needDllWIDCOMM() {
-		return false;
-	}
 }

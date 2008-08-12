@@ -16,13 +16,11 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  @version $Id$
+ *  @version $Id: NativeDebugTest.java 1573 2008-01-17 00:42:29Z skarzhevskyy $
  */
 package com.intel.bluetooth;
 
 import javax.bluetooth.BluetoothStateException;
-
-import junit.framework.TestCase;
 
 import com.intel.bluetooth.DebugLog.LoggerAppender;
 
@@ -30,7 +28,7 @@ import com.intel.bluetooth.DebugLog.LoggerAppender;
  * @author vlads
  * 
  */
-public class NativeDebugTest extends TestCase implements LoggerAppender {
+public class NativeDebugTest extends NativeTestCase implements LoggerAppender {
 
 	protected void setUp() throws Exception {
 		DebugLog.addAppender(this);
@@ -40,41 +38,31 @@ public class NativeDebugTest extends TestCase implements LoggerAppender {
 		DebugLog.removeAppender(this);
 	}
 
-	protected boolean needDllWIDCOMM() {
-		return false;
-	}
-
 	String lastMessage;
 
 	public void testDebug() throws BluetoothStateException {
-		BluetoothStack anyStack;
-		if (NativeLibLoader.getOS() == NativeLibLoader.OS_MAC_OS_X) {
-			anyStack = new BluetoothStackOSX();
-		} else if (needDllWIDCOMM()) {
-			anyStack = new BluetoothStackWIDCOMM();
-		} else {
-			anyStack = new BluetoothStackMicrosoft();
-		}
+		BluetoothStack anyStack = new BluetoothStackBlueZ();
 		BlueCoveImpl.loadNativeLibraries(anyStack);
+
 		anyStack.enableNativeDebug(DebugLog.class, true);
 		DebugLog.setDebugEnabled(true);
 
-		NativeTestInterfaces.testDebug(0, null);
-		assertNotNull("Debug received", lastMessage);
+		BluetoothStackBlueZNativeTests.testDebug(0, null);
+		assertNotNull("Debug recived", lastMessage);
 		assertTrue("Debug {" + lastMessage + "}", lastMessage.startsWith("message"));
 
-		NativeTestInterfaces.testDebug(1, "test-message");
-		assertNotNull("Debug received", lastMessage);
+		BluetoothStackBlueZNativeTests.testDebug(1, "test-message");
+		assertNotNull("Debug recived", lastMessage);
 		assertTrue("Debug {" + lastMessage + "}", lastMessage.startsWith("message[test-message]"));
 		lastMessage = null;
 
-		NativeTestInterfaces.testDebug(2, "test-message");
-		assertNotNull("Debug received", lastMessage);
+		BluetoothStackBlueZNativeTests.testDebug(2, "test-message");
+		assertNotNull("Debug recived", lastMessage);
 		assertTrue("Debug {" + lastMessage + "}", lastMessage.startsWith("message[test-message],[test-message]"));
 		lastMessage = null;
 
-		NativeTestInterfaces.testDebug(3, "test-message");
-		assertNotNull("Debug received", lastMessage);
+		BluetoothStackBlueZNativeTests.testDebug(3, "test-message");
+		assertNotNull("Debug recived", lastMessage);
 		assertTrue("Debug {" + lastMessage + "}", lastMessage.startsWith("message[test-message],[test-message],[3]"));
 	}
 

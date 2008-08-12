@@ -16,7 +16,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  @version $Id$
+ *  @version $Id: NativeExceptionTest.java 1570 2008-01-16 22:15:56Z skarzhevskyy $
  */
 package com.intel.bluetooth;
 
@@ -29,26 +29,27 @@ import junit.framework.AssertionFailedError;
 
 /**
  * @author vlads
- *
+ * 
  */
 public class NativeExceptionTest extends NativeTestCase {
 
 	private void verify(int ntype, Throwable e) {
 		try {
-			NativeTestInterfaces.testThrowException(ntype);
-			 fail("Should raise an Exception " + e); 
+			BluetoothStackBlueZNativeTests.testThrowException(ntype);
+			fail("Should raise an Exception " + e);
 		} catch (Throwable t) {
 			if (t instanceof AssertionFailedError) {
-				throw (AssertionFailedError)t;
+				throw (AssertionFailedError) t;
 			}
 			assertEquals("Exception class", e.getClass().getName(), t.getClass().getName());
 			assertEquals("Exception message", e.getMessage(), t.getMessage());
-			if (t instanceof BluetoothConnectionException ) {
-				assertEquals("Exception getStatus", ((BluetoothConnectionException)e).getStatus(), ((BluetoothConnectionException)t).getStatus());	
+			if (t instanceof BluetoothConnectionException) {
+				assertEquals("Exception getStatus", ((BluetoothConnectionException) e).getStatus(),
+						((BluetoothConnectionException) t).getStatus());
 			}
 		}
 	}
-	
+
 	public void testExceptions() {
 		verify(0, new Exception("0"));
 		verify(1, new Exception("1[str]"));
@@ -60,9 +61,9 @@ public class NativeExceptionTest extends NativeTestCase {
 		verify(7, new BluetoothConnectionException(1, "7"));
 		verify(8, new BluetoothConnectionException(2, "8[str]"));
 	}
-	
+
 	public void testThrowTwoExceptions() {
-		//	Throw Exception two times in a row. Second Exception ignored
+		// Throw Exception two times in a row. Second Exception ignored
 		verify(22, new Exception("22.1"));
 	}
 }
