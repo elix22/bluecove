@@ -110,6 +110,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	public int getLibraryVersion() throws BluetoothStateException {
 		int version = getLibraryVersionNative();
 		if (version != NATIVE_LIBRARY_VERSION) {
+			DebugLog.fatal("BlueCove native library version mismatch " + version + " expected "
+					+ NATIVE_LIBRARY_VERSION);
 			throw new BluetoothStateException("BlueCove native library version mismatch");
 		}
 		return version;
@@ -186,7 +188,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#isCurrentThreadInterruptedCallback()
+	 * @see
+	 * com.intel.bluetooth.BluetoothStack#isCurrentThreadInterruptedCallback()
 	 */
 	public boolean isCurrentThreadInterruptedCallback() {
 		return UtilsJavaSE.isCurrentThreadInterrupted();
@@ -281,8 +284,8 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * 
 	 * @return <code>true</code> if the request succeeded, otherwise
 	 *         <code>false</code> if the request failed because the BCC denied
-	 *         the request; <code>false</code> if the Bluetooth system does
-	 *         not support the access mode specified in <code>mode</code>
+	 *         the request; <code>false</code> if the Bluetooth system does not
+	 *         support the access mode specified in <code>mode</code>
 	 */
 	public boolean setLocalDeviceDiscoverable(int mode) throws BluetoothStateException {
 		int curentMode = getLocalDeviceDiscoverable();
@@ -331,7 +334,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#authenticateRemoteDevice(long,
-	 *      java.lang.String)
+	 * java.lang.String)
 	 */
 	public boolean authenticateRemoteDevice(long address, String passkey) throws IOException {
 		return false;
@@ -640,8 +643,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2OpenClientConnection(com.intel.bluetooth.BluetoothConnectionParams,
-	 *      int, int)
+	 * @see
+	 * com.intel.bluetooth.BluetoothStack#l2OpenClientConnection(com.intel.bluetooth
+	 * .BluetoothConnectionParams, int, int)
 	 */
 	public long l2OpenClientConnection(BluetoothConnectionParams params, int receiveMTU, int transmitMTU)
 			throws IOException {
@@ -665,8 +669,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2ServerOpen(com.intel.bluetooth.BluetoothConnectionNotifierParams,
-	 *      int, int, com.intel.bluetooth.ServiceRecordImpl)
+	 * @seecom.intel.bluetooth.BluetoothStack#l2ServerOpen(com.intel.bluetooth.
+	 * BluetoothConnectionNotifierParams, int, int,
+	 * com.intel.bluetooth.ServiceRecordImpl)
 	 */
 	public long l2ServerOpen(BluetoothConnectionNotifierParams params, int receiveMTU, int transmitMTU,
 			ServiceRecordImpl serviceRecord) throws IOException {
@@ -691,7 +696,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2ServerUpdateServiceRecord(long,
-	 *      com.intel.bluetooth.ServiceRecordImpl, boolean)
+	 * com.intel.bluetooth.ServiceRecordImpl, boolean)
 	 */
 	public void l2ServerUpdateServiceRecord(long handle, ServiceRecordImpl serviceRecord, boolean acceptAndOpen)
 			throws ServiceRegistrationException {
@@ -701,7 +706,9 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.intel.bluetooth.BluetoothStack#l2ServerAcceptAndOpenServerConnection(long)
+	 * @see
+	 * com.intel.bluetooth.BluetoothStack#l2ServerAcceptAndOpenServerConnection
+	 * (long)
 	 */
 	public native long l2ServerAcceptAndOpenServerConnection(long handle) throws IOException;
 
@@ -720,7 +727,7 @@ class BluetoothStackBlueZ implements BluetoothStack, DeviceInquiryRunnable, Sear
 	 * (non-Javadoc)
 	 * 
 	 * @see com.intel.bluetooth.BluetoothStack#l2ServerClose(long,
-	 *      com.intel.bluetooth.ServiceRecordImpl)
+	 * com.intel.bluetooth.ServiceRecordImpl)
 	 */
 	public void l2ServerClose(long handle, ServiceRecordImpl serviceRecord) throws IOException {
 		try {
