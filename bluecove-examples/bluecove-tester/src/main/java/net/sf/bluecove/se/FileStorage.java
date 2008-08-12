@@ -50,7 +50,7 @@ public class FileStorage implements Storage {
 	 * 
 	 * @see net.sf.bluecove.util.Storage#retriveData(java.lang.String)
 	 */
-	public String retriveData(String name) {
+	public synchronized String retriveData(String name) {
 		return getProperties().getProperty(name);
 	}
 
@@ -58,9 +58,9 @@ public class FileStorage implements Storage {
 	 * (non-Javadoc)
 	 * 
 	 * @see net.sf.bluecove.util.Storage#storeData(java.lang.String,
-	 *      java.lang.String)
+	 * java.lang.String)
 	 */
-	public void storeData(String name, String value) {
+	public synchronized void storeData(String name, String value) {
 		Properties p = getProperties();
 		if (name != null) {
 			if (value == null) {
