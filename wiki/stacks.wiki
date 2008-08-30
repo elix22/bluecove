@@ -54,6 +54,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/b
     * Service search requests are executes sequentially. "bluetooth.sd.trans.max=1"
     * The discovery database is cumulative. It contains the results of all previous discoveries of the application or any other applications that are running or that have run. So !ServiceSearch may return service even when it is down.
     * L2CAP unable to send and receive empty L2CAP packet
+    * WIDCOMM Bag: Do not call service search while device discovery running! The inquiryCompleted will not be called and DeviceInquiryThread will stay in native code until cancelInquiry is called.
 
     * `ServiceRecord` attributes of `DataElement` types U_INT_8, INT_8, INT_16 and UINT_16 are not properly discovered (fixed in BTW-6_1_0_1501-SDK and stack v 4, get dlls here http://snapshot.bluecove.org/special-build/)
     * On Vista WIDCOMM stack detected as Microsoft with all the benefits of one. If you need L2CAP support on Vista and Broadcom v6 use [http://snapshot.bluecove.org/special-build/ custom bluecove.dll build]
