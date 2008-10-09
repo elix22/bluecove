@@ -32,7 +32,7 @@
 
 == Broadcom (WIDCOMM) ==
 
-http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/broadcom_logo.png
+http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/broadcom_logo.png
 
     This stack is most stable stack from one supported by !BlueCove
     Supported RFCOMM and L2CAP (since !BlueCove v2.0.1)
@@ -61,7 +61,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/b
 
 == Winsock (Microsoft) ==
 
-http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/win.png
+http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/win.png
 
 === Requirements ===
 
@@ -81,7 +81,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/w
 
 == !BlueSoleil (IVT Corporation) ==
 
-http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/bluesoleil_logo.png
+http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/bluesoleil_logo.png
 
     We don't recommend the use of this stack for the begginers in JSR-82. There are too many limitations that may be very confusing.
     Also our experience show that you may need to frequently reboot your Windows.
@@ -114,7 +114,7 @@ This does not happen when we used dongle bought from [http://bluesoleil.com blue
 
 == OS X ==
 
-http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/mac_universal.png
+http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/mac_universal.png
 
 === Requirements ===
 
@@ -131,7 +131,7 @@ http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/m
 
 == Linux BlueZ ==
 
-http://bluecove.googlecode.com/svn/bluecove-examples/src/site/resources/images/linux.png
+http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/linux.png
 
 *N.B.* Support for BlueZ is added in !BlueCove version 2.0.3 as additional [http://www.gnu.org/licenses/gpl.html GNU General Public License] module `bluecove-gpl`.
 
