@@ -127,6 +127,14 @@ Debug
 
     Bluecove log is redirected to log4j when log4j.jar is available in classpath. Debug can be enabled using log4j configuration. (Since v2.0.2) This can be disabled by -Dbluecove.debug.log4j=false
 
+    Only one Logger is used "com.intel.bluetooth" by BlueCove. So you may need to add this to your log4.xml
+
+    {{
+    <logger name="com.intel.bluetooth">
+        <level value="info" />
+    </logger>
+    }}
+
 Configuration options
 
     System properties:
