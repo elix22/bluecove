@@ -27,13 +27,13 @@
 
    Use `LocalDevice.getProperty("bluecove.stack")` to find out what stack is used.
 
+   On Windows XP (Not on Vista) WIDCOMM (before 5.5) and Microsoft can run at the same time and so different instances of BlueCove (since 2.1.0 you need special-build) can use this stacks in parallel.
+   If you are adventures users on Vista you can use BlueCove (2.0.x) dll build with BTW-6_1_0_1501-SDK http://snapshot.bluecove.org/special-build/ to have access to WIDCOMM stack
+
    Since BlueCove 2.1 WIDCOMM and Microsoft on the same computer are not supported, in favor of Broadcom BTW Stack 5.5 and 6.1 support out of the box.
    You may still use bluecove.dll build using BTW-5_1_0_3101-SDK http://snapshot.bluecove.org/special-build/ to have dual stack support on Windows XP.
-   
-   There is hack I used for testing to have dual stack: unplug Microsoft USB, Make first connection using Broadcom to intialize BTW Stack without MS, plug Microsoft USB = You have two stacks running.
-   
-   On Windows XP (Not on Vista) WIDCOMM (before 5.5) and Microsoft can run at the same time and so different instances of BlueCove can use this stacks in parallel.
-   If you are adventures users on Vista you can use BlueCove (2.0.x) dll build with BTW-6_1_0_1501-SDK http://snapshot.bluecove.org/special-build/ to have access to WIDCOMM stack
+
+   Also there is hack I used for testing to have dual stack: unplug Microsoft USB, Make first connection using Broadcom to intialize BTW Stack without MS, plug Microsoft USB = You have two stacks running.
 
 == Broadcom (WIDCOMM) ==
 
