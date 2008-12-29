@@ -156,6 +156,13 @@ Configuration options
         * `bluecove.inquiry.duration` Device Inquiry time in seconds defaults to 11 seconds. MS Stack and OS X only.
         * `bluecove.inquiry.report_asap` Set true to make Device Inquiry call DiscoveryListener.deviceDiscovered without waiting for updated service class.  WIDCOMM only.
 
+    Since v2.1.0
+    
+        * 'bluecove.jsr82.psm_minimum_off' Allow PSM values less then 0x1001. 
+        * 'bluecove.connect.unreachable_retry' Try to reconnect on MS stack if recived error WSAENETUNREACH 10051 - A socket operation was attempted to an unreachable network. / Error other than time-out at L2CAP or Bluetooth radio level.
+        * 'bluecove.debug.stdout' Disable System.out.println debug
+        * 'bluecove.debug.log4j' Disable log redrecion to log4j
+
 == Compilation ==
 
 You need a C++ compiler and JDK. Tested on Visual C++ 2005 Express Edition SP1 and SDK for Windows Vista or Windows Server 2003 R2 Platform SDK.
