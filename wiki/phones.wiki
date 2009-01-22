@@ -139,6 +139,7 @@
 || Nokia || 7373 ||
 || Nokia || 7390 ||
 || Nokia || 7500 Prism ||
+|| Nokia || 7510 Supernova ||
 || Nokia || 7610 ||
 || Nokia || 7700 ||
 || Nokia || 7710 ||
