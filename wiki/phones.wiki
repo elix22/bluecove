@@ -65,6 +65,7 @@
 || Nokia || 2630 ||
 || Nokia || 2660 ||
 || Nokia || 2680 ||
+|| Nokia || 2700 classic ||
 || Nokia || 2760 ||
 || Nokia || 2865 ||
 || Nokia || 2865i ||
@@ -124,6 +125,7 @@
 || Nokia || 6300 ||
 || Nokia || 6300i ||
 || Nokia || 6301 ||
+|| Nokia || 6303 classic ||
 || Nokia || 6500 ||
 || Nokia || 6555 ||
 || Nokia || 6600 (fold and slide)||
@@ -135,6 +137,7 @@
 || Nokia || 6680 ||
 || Nokia || 6681 ||
 || Nokia || 6682DP2 ||
+|| Nokia || 6700 classic ||
 || Nokia || 7370 ||
 || Nokia || 7373 ||
 || Nokia || 7390 ||
