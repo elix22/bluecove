@@ -4,15 +4,15 @@
 [http://code.google.com/p/bluecove/source/list SVN Commit log message]
 
 * 2.1.1 to be released 2009-XX-XX
-    
+
     2009-02-10
     * Implementation of DiscoveryAgent.retrieveDevices on Mac OS X
     * Native ReceiveBuffer 64K chamged to 256K (OS X/WIDCOMM) to avoid 'Receive buffer overflown' during GC
-    
+
     2009-01-16
     * bluecove.native.path  accept path separated by system-dependent path-separator (: or ;)
     * On Linux look for native libraries in path  /usr/lib/bluecove/${version}/ or /usr/lib64/bluecove/${version}/ is not found in resources
-    
+
 * 2.1.0 released 2008-12-25
 
     2008-11-19
@@ -23,7 +23,7 @@
 
     2008-12-03
     * Fixed thread.interrupt() will break read on MS stack
-     
+
     2008-11-14
     * Implementation of DiscoveryAgent.retrieveDevices on MS stack, Sponsored by Zargis Medical Corp
 
