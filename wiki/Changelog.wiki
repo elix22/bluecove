@@ -7,7 +7,7 @@
 
     2009-02-10
     * Implementation of DiscoveryAgent.retrieveDevices on Mac OS X
-    * Native ReceiveBuffer 64K chamged to 256K (OS X/WIDCOMM) to avoid 'Receive buffer overflown' during GC
+    * Native ReceiveBuffer 64K changed to 256K (OS X/WIDCOMM) to avoid 'Receive buffer overflown' during GC
 
     2009-01-16
     * bluecove.native.path  accept path separated by system-dependent path-separator (: or ;)
@@ -54,7 +54,7 @@
 
     2008-03-06
     * Fixed OBEX bug reciving Time Headers (Nokia)
-    * Proper behaviour for concurrent DiscoveryAgent.searchServices, "bluetooth.sd.trans.max"
+    * Proper behavior for concurrent DiscoveryAgent.searchServices, "bluetooth.sd.trans.max"
 
     2008-02-27
     * Configurable "bluecove.inquiry.duration" for MS stack and OSX
@@ -102,7 +102,7 @@
     * connection and stream close() functions will work according to specification.
 
     2007-09-04
-    * for J9 -Dmicroedition.connection.pkgs=com.intel.bluetooth is optonal
+    * for J9 -Dmicroedition.connection.pkgs=com.intel.bluetooth is optional
 
     2007-08-28
     * log4j integration, Bluecove log redirected to log4j when one is available in classpath
