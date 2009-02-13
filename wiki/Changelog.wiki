@@ -5,6 +5,9 @@
 
 * 2.1.1 to be released 2009-XX-XX
 
+    2009-02-13
+    * Implementation of RemoteDeviceHelper.readRSSI(RemoteDevice) on Mac OS X
+
     2009-02-10
     * Implementation of DiscoveryAgent.retrieveDevices on Mac OS X
     * Native ReceiveBuffer 64K changed to 256K (OS X/WIDCOMM) to avoid 'Receive buffer overflown' during GC
