@@ -85,6 +85,7 @@
 || Nokia || 5320 XpressMusic ||
 || Nokia || 5500 ||
 || Nokia || 5610 ||
+|| Nokia || 5630 XpressMusic ||
 || Nokia || 5700 ||
 || Nokia || 6021 ||
 || Nokia || 6085 ||
@@ -138,6 +139,8 @@
 || Nokia || 6681 ||
 || Nokia || 6682DP2 ||
 || Nokia || 6700 classic ||
+|| Nokia || 6710 Navigator ||
+|| Nokia || 6720 classic ||
 || Nokia || 7370 ||
 || Nokia || 7373 ||
 || Nokia || 7390 ||
@@ -154,6 +157,7 @@
 || Nokia || 9500 ||
 || Nokia || E50 ||
 || Nokia || E51 ||
+|| Nokia || E55 ||
 || Nokia || E60 ||
 || Nokia || E61 ||
 || Nokia || E61i ||
@@ -162,6 +166,7 @@
 || Nokia || E66 ||
 || Nokia || E70 ||
 || Nokia || E71 ||
+|| Nokia || E75 ||
 || Nokia || E90 Communicator ||
 || Nokia || N70 ||
 || Nokia || N71 ||
