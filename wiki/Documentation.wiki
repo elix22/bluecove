@@ -48,7 +48,7 @@ For more limitations details see stacks.txt or [http://code.google.com/p/bluecov
 == License ==
 
     [http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0] all except bluecove-gpl module
-    
+
     [http://www.gnu.org/licenses/gpl.html GNU General Public License] module `bluecove-gpl`
 
 We hope you enjoy using BlueCove. Please note that this is an open-source effort.
@@ -99,18 +99,37 @@ IBM J9 Personal Profile
 
     To run BlueCove with [http://www.ibm.com/software/wireless/weme/ IBMs J9] Java VM on Win32 or PocketPC add this system property `-Dmicroedition.connection.pkgs=com.intel.bluetooth`.
 
+    On Windows Mobile you may create link to start application. like this `bct-j9-ppro10`
+
+        {{{
+        126#"\Program Files\J9\PPRO10\bin\j9.exe" -Dmicroedition.connection.pkgs=com.intel.bluetooth "-jcl:ppro10" -cp "\Storage Card\bluecove\bluecove-tester-mobile.jar" net.sf.bluecove.awt.Main
+        }}}
+
     Tested on
         * WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
+        * WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for for Windows Mobile 2003
         * WebSphere Everyplace Micro Environment 6.1.1, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86 and Linux/X86
 
 IBM J9 MIDP 2.0 Profile
-    * Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory (remove `javax.microedition.io` classes from the jar)
-    * Copy all bluecove dlls (so) to %J9_HOME%\bin directory or add -Dcom.ibm.oti.vm.bootstrap.library.path=%bluecove_dll_path%;%J9_HOME%\bin
-    * run app "%J9_HOME%\bin\j9.exe" -jcl:midp20 -Dmicroedition.connection.pkgs=com.intel.bluetooth -cp target\bctest.jar "-jxe:%J9_HOME%\lib\jclMidp20\jclMidp20.jxe" target\bctest.jad
+    * Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory (remove *.dll and `javax.microedition.io` classes from the jar)
+    * Copy platfrom bluecove dlls (so) to %J9_HOME%\bin directory or add -Dcom.ibm.oti.vm.bootstrap.library.path=%bluecove_dll_path%;%J9_HOME%\bin
+    * run app
+
+        {{{
+        "%J9_HOME%\bin\j9.exe" -jcl:midp20 -Dmicroedition.connection.pkgs=com.intel.bluetooth -cp target\bctest.jar "-jxe:%J9_HOME%\lib\jclMidp20\jclMidp20.jxe" target\bctest.jad
+        }}}
+
+        On Windows Mobile you may create link to start application. like this `bct-j9-MIDP20-sc.lnk`
+
+        {{{
+        255#"\Program Files\J9\MIDP20\bin\emulator.exe" "-Xdescriptor:\Storage Card\bluecove\bctest.jad"  "-Xjam:force"
+        }}}
+
     * -Dmicroedition.connection.pkgs=com.intel.bluetooth is optonal if you place bluecove.jar to ext directory (Since v2.0.2)
 
     Tested on
         * WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 for Windows XP/X86
+        * WebSphere Everyplace Micro Environment 5.7.2, CLDC 1.1, MIDP 2.0 for Windows Mobile 2003
         * WebSphere Everyplace Micro Environment 6.1.1, CLDC 1.1, MIDP 2.0 for Windows XP/X86 and Linux/X86
 
 SUN CDC
@@ -133,11 +152,11 @@ Debug
 
     Only one Logger is used "com.intel.bluetooth" by BlueCove. So you may need to add this to your log4.xml
 
-    {{
+    {{{
     <logger name="com.intel.bluetooth">
         <level value="info" />
     </logger>
-    }}
+    }}}
 
 Configuration options
 
@@ -157,8 +176,8 @@ Configuration options
         * `bluecove.inquiry.report_asap` Set true to make Device Inquiry call DiscoveryListener.deviceDiscovered without waiting for updated service class.  WIDCOMM only.
 
     Since v2.1.0
-    
-        * 'bluecove.jsr82.psm_minimum_off' Allow PSM values less then 0x1001. 
+
+        * 'bluecove.jsr82.psm_minimum_off' Allow PSM values less then 0x1001.
         * 'bluecove.connect.unreachable_retry' Try to reconnect on MS stack if recived error WSAENETUNREACH 10051 - A socket operation was attempted to an unreachable network. / Error other than time-out at L2CAP or Bluetooth radio level.
         * 'bluecove.debug.stdout' Disable System.out.println debug
         * 'bluecove.debug.log4j' Disable log redrecion to log4j
