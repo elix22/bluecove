@@ -66,6 +66,7 @@
 || Nokia || 2660 ||
 || Nokia || 2680 ||
 || Nokia || 2700 classic ||
+|| Nokia || 2720 ||
 || Nokia || 2760 ||
 || Nokia || 2865 ||
 || Nokia || 2865i ||
@@ -83,6 +84,7 @@
 || Nokia || 5300 ||
 || Nokia || 5310 XpressMusic ||
 || Nokia || 5320 XpressMusic ||
+|| Nokia || 5330 XpressMusic ||
 || Nokia || 5500 ||
 || Nokia || 5610 ||
 || Nokia || 5630 XpressMusic ||
@@ -179,6 +181,7 @@
 || Nokia || N80 ||
 || Nokia || N81 ||
 || Nokia || N82 ||
+|| Nokia || N86 ||
 || Nokia || N90 ||
 || Nokia || N91 ||
 || Nokia || N92 ||
