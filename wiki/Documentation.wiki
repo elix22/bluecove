@@ -113,6 +113,11 @@ IBM J9 Personal Profile
 IBM J9 MIDP 2.0 Profile
     * Copy to `bluecove.jar` %J9_HOME%\lib\jclMidp20\ext directory (remove .dll and `javax.microedition.io` classes from the jar)
     * Copy platfrom bluecove .dll/.so to %J9_HOME%\bin directory or add -Dcom.ibm.oti.vm.bootstrap.library.path=%bluecove_dll_path%;%J9_HOME%\bin
+
+            Use bluecove_ce.dll for WIDCOMM stack on Windows Mobile
+
+            Use intelbth_ce.dll for Microsoft stack on Windows Mobile
+
     * run app
 
         {{{
