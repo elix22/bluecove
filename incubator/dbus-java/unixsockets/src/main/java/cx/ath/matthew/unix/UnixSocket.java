@@ -137,10 +137,11 @@ public class UnixSocket
    /**
     * Closes the connection.
     */
-   public void close() throws IOException
+   public synchronized void close() throws IOException
    {
       if (Debug.debug) Debug.print(Debug.INFO, "Closing socket");
       native_close(sock);
+      sock = 0;
       this.closed = true;
       this.connected = false;
       os = null;

@@ -68,9 +68,10 @@ public class UnixServerSocket
    /**
     * Closes the ServerSocket.
     */
-   public void close() throws IOException
+   public synchronized void close() throws IOException
    {
       native_close(sock);
+      sock = 0;
       closed = true;
       bound = false;
    }

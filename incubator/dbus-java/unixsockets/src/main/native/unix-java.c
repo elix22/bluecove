@@ -18,6 +18,10 @@
  *
  */
 
+
+/* _GNU_SOURCE is required to use struct ucred in glibc 2.8 */
+#define _GNU_SOURCE
+
 #include "unix-java.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,10 +107,13 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixServerSocket_native_1bind
 JNIEXPORT void JNICALL Java_cx_ath_matthew_unix_UnixServerSocket_native_1close
   (JNIEnv * env, jobject o, jint sock)
 {
+   if (0 == sock) return;
    int rv = shutdown(sock, SHUT_RDWR);
    if (-1 == rv) { handleerrno(env); }
-   rv = close(sock);
-   if (-1 == rv) { handleerrno(env); }
+   else {
+      rv = close(sock);
+      if (-1 == rv) { handleerrno(env); }
+   }
 }
 
 /*
@@ -172,10 +179,13 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1connect
 JNIEXPORT void JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1close
   (JNIEnv *env, jobject o, jint sock)
 {
+   if (0 == sock) return;
    int rv = shutdown(sock, SHUT_RDWR);
    if (-1 == rv) { handleerrno(env); }
-   rv = close(sock);
-   if (-1 == rv) { handleerrno(env); }
+   else {
+      rv = close(sock);
+      if (-1 == rv) { handleerrno(env); }
+   }
 }
 
 /*
@@ -300,7 +310,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1getPID
 {
 #ifdef SO_PEERCRED
    struct ucred cr;
-   size_t cl=sizeof(cr);
+   socklen_t cl=sizeof(cr);
 
    if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0)
       return cr.pid;
@@ -321,7 +331,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1getUID
 {
 #ifdef SO_PEERCRED
    struct ucred cr;
-   size_t cl=sizeof(cr);
+   socklen_t cl=sizeof(cr);
 
    if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0)
       return cr.uid;
@@ -342,7 +352,7 @@ JNIEXPORT jint JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1getGID
 {
 #ifdef SO_PEERCRED
    struct ucred cr;
-   size_t cl=sizeof(cr);
+   socklen_t cl=sizeof(cr);
 
    if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cr, &cl)==0)
       return cr.gid;
@@ -386,9 +396,9 @@ JNIEXPORT void JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1send_1creds
    cmsg->cmsg_len = CMSG_LEN(sizeof(struct ucred));
    /* Initialize the payload: */
    creds = (struct ucred *)CMSG_DATA(cmsg);
-   creds.pid = getpid();
-   creds.uid = getuid();
-   creds.gid = getgid();
+   creds->pid = getpid();
+   creds->uid = getuid();
+   creds->gid = getgid();
 #endif
 
    int rv = sendmsg(sock, &msg, 0);
@@ -404,7 +414,7 @@ JNIEXPORT jbyte JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1recv_1creds
   (JNIEnv *env, jobject o, jint sock, jintArray jcreds)
 {
    struct msghdr msg;
-   char buf = 0;
+   char iov_buf = 0;
    struct iovec iov;
    msg.msg_name = NULL;
    msg.msg_namelen = 0;
@@ -413,7 +423,7 @@ JNIEXPORT jbyte JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1recv_1creds
    msg.msg_iovlen = 1;
    msg.msg_control = NULL;
    msg.msg_controllen = 0;
-   iov.iov_base = &buf;
+   iov.iov_base = &iov_buf;
    iov.iov_len = 1;
 
 #ifdef SCM_CREDENTIALS
@@ -427,9 +437,9 @@ JNIEXPORT jbyte JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1recv_1creds
    recvmsg(sock, &msg, 0);
 
 #ifdef SCM_CREDENTIALS
-   for (cmsg = CMSG_FIRSTHDR(&msgh);
+   for (cmsg = CMSG_FIRSTHDR(&msg);
          cmsg != NULL;
-         cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
+         cmsg = CMSG_NXTHDR(&msg,cmsg)) {
       if (cmsg->cmsg_level == SOL_SOCKET
             && cmsg->cmsg_type == SCM_CREDENTIALS) {
          creds = (struct ucred *) CMSG_DATA(cmsg);
@@ -437,11 +447,15 @@ JNIEXPORT jbyte JNICALL Java_cx_ath_matthew_unix_UnixSocket_native_1recv_1creds
       }
    }
    if (NULL != creds) {
-      (*env)->SetIntArrayRegion(env, jcreds, 0, 3, creds);
+      jint cred_array[3];
+      cred_array[0] = creds->pid;
+      cred_array[1] = creds->uid;
+      cred_array[2] = creds->gid;
+      (*env)->SetIntArrayRegion(env, jcreds, 0, 3, &cred_array[0]);
    }
 #endif
 
-   return buf;
+   return iov_buf;
 }
 
 
