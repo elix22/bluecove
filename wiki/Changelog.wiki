@@ -18,7 +18,7 @@
 
     2009-01-16
     * bluecove.native.path  accept path separated by system-dependent path-separator (: or ;)
-    * On Linux look for native libraries in path  /usr/lib/bluecove/${version}/ or /usr/lib64/bluecove/${version}/ is not found in resources
+    * On Linux look for native libraries in path /usr/lib/bluecove/${version}/ or /usr/lib64/bluecove/${version}/ if library not found in resources
 
 * 2.1.0 released 2008-12-25
 
