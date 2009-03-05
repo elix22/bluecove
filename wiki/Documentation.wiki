@@ -147,6 +147,10 @@ MicroEmulator with JSR-82
 
     * java -cp microemulator.jar;bluecove.jar org.microemu.app.Main --impl com.intel.bluetooth.BlueCoveImpl path2yourApp/YourApp.jad
 
+CrEme
+
+    CrEme is using ME4SE (Windows\CrEme\lib\midpx.jar), BlueCove BT connections do not work with [http://kobjects.sourceforge.net/me4se/ ME4SE], you need to create a simple adapter class for Connector.
+
 Debug
 
     If something goes wrong system property `-Dbluecove.debug=true` will enable debug prints in BlueCove code
