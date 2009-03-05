@@ -5,6 +5,10 @@
 
 * 2.1.1 to be released 2009-XX-XX
 
+    2009-03-05
+    * bluecove-bluez: fixed Inquiry, Search Service, Authentication, LocalDevice discoverable mode
+    * bluecove-bluez: Adding API for Unix domain sockets
+
     2009-02-13
     * Implementation of RemoteDeviceHelper.readRSSI(RemoteDevice) on Mac OS X
 
