@@ -35,19 +35,19 @@
 
     <distributionManagement>
         <repository>
-            <id>no-deployment-release</id>
+            <id>no-releases-distribution</id>
             <url>file:///${basedir}/target/tmp</url>
         </repository>
         <snapshotRepository>
-            <id>no-deployment-development</id>
-            <url>file:///${basedir}/target/tmp</url>
+            <id>pyx4j.com-file-development</id>
+            <url>file:///home/apache/pyx4j-repository/maven2-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 
     <repositories>
         <repository>
-            <id>pyx4me-web-repo</id>
-            <url>http://www.pyx4me.com/maven2-snapshot</url>
+            <id>pyx4j-web-snapshot</id>
+            <url>http://repository.pyx4j.com/maven2-snapshot</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>

@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cx.ath.matthew</groupId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.7.1-SNAPSHOT</version>
     <artifactId>debug-disable</artifactId>
     <name>Debug Library</name>
     <packaging>jar</packaging>
@@ -35,12 +35,12 @@
 
     <distributionManagement>
         <repository>
-            <id>pyx4j.com-file-release</id>
-            <url>file:///home/apache/pyx4j/maven2-release</url>
+            <id>no-releases-distribution</id>
+            <url>file:///${basedir}/target/tmp</url>
         </repository>
         <snapshotRepository>
             <id>pyx4j.com-file-development</id>
-            <url>file:///home/apache/pyx4j/maven2</url>
+            <url>file:///home/apache/pyx4j-repository/maven2-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 
