@@ -100,9 +100,7 @@
                                 <untar src="${project.build.directory}/${src-distribution}.tar" dest="${project.build.directory}">
                                     <patternset>
                                         <include name="**/*.java"/>
-                                        <exclude name="**/dbus/bin/*.java"/>
                                         <exclude name="**/dbus/test/*.java"/>
-                                        <exclude name="**/dbus/viewer/*.java"/>
                                     </patternset>
                                 </untar>
                                 <mkdir dir="${basedir}/src/main/java"/>
