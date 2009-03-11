@@ -7,7 +7,9 @@
 
    Support for Mac OS X added in BlueCove version 2.0.2.
 
-   Support for Linux BlueZ added in BlueCove version 2.0.3 as additional GPL licensed module.
+   Support for Linux BlueZ using historic libbluetooth.so API added in BlueCove version 2.0.3 as additional GPL licensed module.
+
+   Support for Linux BlueZ using modern D-Bus API added in BlueCove version 2.1.1 as additional AL-2.0 module.
 
    To determine which Bluetooth stack is installed on your Windows XP [http://www.bluecove.org/bluecove-examples/bluetooth-stack.html see this page]
 
@@ -137,7 +139,29 @@ http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/mac_universal
     * encrypt=true mode not supported when opening connections
     * L2CAP unable to send empty L2CAP packet
 
-== Linux BlueZ ==
+== Linux BlueZ (D-Bus BlueZ API) ==
+
+http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/linux.png
+
+    Support for BlueZ is added in !BlueCove version 2.1.1 as additional module `bluecove-bluez`.
+    This module JNI binaries are NOT linked with `libbluetooth.so`. We use only socket APIs to connect to D-Bus (AF_UNIX) and Bluetooth (AF_BLUETOOTH) sockets.
+
+=== Requirements ===
+
+    * BlueCove library of the same mojor version
+    * BlueZ version 3 or version 4 installed on your system
+    * On 64-bit Linux platform 64-bit java should be used
+
+=== JSR-82 Limitations ===
+
+    * `ServiceRecord.setDeviceServiceClasses(..)` not supported.
+    * `LocalDevice.getDeviceClass()` not supported on BlueZ v4.
+
+=== !BlueCove API Limitations ===
+
+    *
+
+== Linux BlueZ (historic BlueZ API) ==
 
 http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/linux.png
 
@@ -151,10 +175,10 @@ http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/linux.png
         * You need package/rpm that creates a link libbluetooth.so to already installed libbluetooth.so.3 or libbluetooth.so.2
         * `libbluetooth-dev` on Ubuntu
         * `bluez-libs-devel` on Fedora
-        * `bluez-devel` on openSUSE 
+        * `bluez-devel` on openSUSE
     * To change Discoverable mode of the device you should be root
     * On 64-bit Linux platform 64-bit java should be used
-    
+
 === JSR-82 Limitations ===
 
     * `LocalDevice.setDiscoverable(...)` supported only when running with superuser privileges.
