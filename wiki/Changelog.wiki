@@ -6,6 +6,9 @@
 * 2.1.1 to be released 2009-XX-XX
 
     2009-03-08
+    * bluecove-bluez: Service registration over D-Bus implemented on BlueZ v4 and BlueZ v3
+
+    2009-03-08
     * bluecove-bluez: Device Inquiry and Search Service work on BlueZ v4 and BlueZ v3
 
     2009-03-05
