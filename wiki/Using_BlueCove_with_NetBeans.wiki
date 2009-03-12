@@ -15,4 +15,6 @@
   * Everything should work now.
 
 ===Note===
-This tutorial is written for NetBeans 6.5 on Ubuntu 8.10 but should also work for earlier versions of NetBeans and on other operating systems.
+ This tutorial is written for NetBeans 6.5 on Ubuntu 8.10 but should also work for earlier versions of NetBeans and on other operating systems.
+
+ Please verify that other Requirements for BlueCove-gpl [http://www.bluecove.org/bluecove-gpl/] are met.
