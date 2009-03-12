@@ -46,7 +46,7 @@
 
         <dependency>
             <groupId>cx.ath.matthew</groupId>
-            <artifactId>unixsockets</artifactId>
+            <artifactId>unix</artifactId>
             <version>0.7.1-SNAPSHOT</version>
         </dependency>
 
