@@ -89,6 +89,7 @@
 || Nokia || 5610 ||
 || Nokia || 5630 XpressMusic ||
 || Nokia || 5700 ||
+|| Nokia || 5730 XpressMusic ||
 || Nokia || 6021 ||
 || Nokia || 6085 ||
 || Nokia || 6086 ||

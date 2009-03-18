@@ -155,7 +155,6 @@ http://bluecove.googlecode.com/svn/trunk/src/site/resources/images/linux.png
 === JSR-82 Limitations ===
 
     * `ServiceRecord.setDeviceServiceClasses(..)` not supported.
-    * `LocalDevice.getDeviceClass()` not supported on BlueZ v4.
 
 === !BlueCove API Limitations ===
 
