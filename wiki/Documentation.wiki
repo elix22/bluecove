@@ -102,8 +102,10 @@ IBM J9 Personal Profile
     On Windows Mobile you may create link to start application. like this `bct-j9-ppro10`
 
         {{{
-        126#"\Program Files\J9\PPRO10\bin\j9.exe" -Dmicroedition.connection.pkgs=com.intel.bluetooth "-jcl:ppro10" -cp "\Storage Card\bluecove\bluecove-tester-mobile.jar" net.sf.bluecove.awt.Main
+        183#"\Program Files\J9\PPRO10\bin\j9.exe" -Dmicroedition.connection.pkgs=com.intel.bluetooth "-jcl:ppro10" -cp "\Storage Card\bluecove\bluecove-tester-mobile.jar" net.sf.bluecove.awt.Main
         }}}
+
+    183# means that the command line contains 183 characters,
 
     Tested on
         * WebSphere Everyplace Micro Environment 5.7.2, CDC 1.0/Foundation 1.0/Personal Profile 1.0 for Windows XP/X86
@@ -127,7 +129,7 @@ IBM J9 MIDP 2.0 Profile
         On Windows Mobile you may create link to start application. like this `bct-j9-MIDP20-sc.lnk`
 
         {{{
-        255#"\Program Files\J9\MIDP20\bin\emulator.exe" "-Xdescriptor:\Storage Card\bluecove\bctest.jad"  "-Xjam:force"
+        107#"\Program Files\J9\MIDP20\bin\emulator.exe" "-Xdescriptor:\Storage Card\bluecove\bctest.jad"  "-Xjam:force"
         }}}
 
     * -Dmicroedition.connection.pkgs=com.intel.bluetooth is optonal if you place bluecove.jar to ext directory (Since v2.0.2)
