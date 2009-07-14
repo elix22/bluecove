@@ -67,6 +67,7 @@
 || Nokia || 2680 ||
 || Nokia || 2700 classic ||
 || Nokia || 2720 ||
+|| Nokia || 2730 classic ||
 || Nokia || 2760 ||
 || Nokia || 2865 ||
 || Nokia || 2865i ||
@@ -108,6 +109,7 @@
 || Nokia || 6155 ||
 || Nokia || 6210 Navigator  ||
 || Nokia || 6212 classic ||
+|| Nokia || 6216 classic ||
 || Nokia || 6220 classic ||
 || Nokia || 6230 ||
 || Nokia || 6230i ||
@@ -160,6 +162,7 @@
 || Nokia || 9500 ||
 || Nokia || E50 ||
 || Nokia || E51 ||
+|| Nokia || E52 ||
 || Nokia || E55 ||
 || Nokia || E60 ||
 || Nokia || E61 ||
